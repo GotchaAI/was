@@ -3,7 +3,6 @@ package Gotcha.domain.report.entity;
 import Gotcha.common.converter.StringListConverter;
 import Gotcha.common.entity.BaseTimeEntity;
 import Gotcha.domain.game.entity.Game;
-import Gotcha.domain.game.entity.UserGame;
 import Gotcha.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
