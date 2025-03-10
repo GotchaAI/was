@@ -2,7 +2,7 @@ package Gotcha.domain.user.entity;
 
 import Gotcha.common.entity.BaseTimeEntity;
 import Gotcha.domain.achivement.entity.UserAchievement;
-import Gotcha.domain.friend.entity.FriendList;
+import Gotcha.domain.friend.entity.Friend;
 import Gotcha.domain.friend.entity.FriendRequest;
 import Gotcha.domain.game.entity.UserGame;
 import Gotcha.domain.inquiry.entity.Answer;
@@ -18,7 +18,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -81,8 +80,11 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "toUser")
     private List<FriendRequest> receivedFriendRequests = new ArrayList<>();
 
-    @OneToOne(mappedBy = "user")
-    private FriendList friendList;
+    @OneToMany(mappedBy = "user")
+    private List<Friend> friends = new ArrayList<>();
+
+    @OneToMany(mappedBy = "friend")
+    private List<Friend> friendOf = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     private List<BugReport> bugReports = new ArrayList<>();

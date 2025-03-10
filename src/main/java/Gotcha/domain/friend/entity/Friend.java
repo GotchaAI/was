@@ -23,18 +23,12 @@ public class Friend extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "friend_list_id")
-    private FriendList friendList;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "friend_id")
     private User friend;
-
-    @Builder
-    public Friend(User friend) {
-        this.friend = friend;
-    }
 
 }
