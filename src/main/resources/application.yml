@@ -15,3 +15,19 @@ spring:
       hibernate:
         default_batch_fetch_size: 1000
         dialect: org.hibernate.dialect.MySQLDialect
+
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+
+jwt:
+  secret-key: ${JWT_KEY:gotchaSecretKey_mN8xG4zH2K9YtR7mN1BvLpZ5QwX3T6JpC2DfV5LqZ7YgR8K1N9BvM3X6T2D}
+  access-expiration: ${JWT_ACCESS_EXPIRATION:1800000}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:86400000}
+  issuer: ${JWT_ISSUER:gotcha!}
+
+token:
+  refresh:
+    in-cookie: ${COOKIE_REFRESH_EXPIRATION:648000}
+    in-redis: ${REDIS_REFRESH_EXPIRATION:648000}
