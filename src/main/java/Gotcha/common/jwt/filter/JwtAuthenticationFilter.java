@@ -21,6 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import static Gotcha.common.jwt.JwtProperties.ACCESS_HEADER_VALUE;
 import static Gotcha.common.jwt.JwtProperties.TOKEN_PREFIX;
 
 @Slf4j
@@ -37,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        String accessTokenHeader = request.getHeader("Authorization");
+        String accessTokenHeader = request.getHeader(ACCESS_HEADER_VALUE);
 
         if (accessTokenHeader == null || !accessTokenHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
