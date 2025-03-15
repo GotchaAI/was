@@ -50,7 +50,7 @@ public class SecurityConfig {
                                 .requestMatchers(ADMIN_ENDPOINTS).hasAnyRole(String.valueOf(Role.ADMIN))
                                 .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);;
+                .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }
