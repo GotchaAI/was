@@ -1,6 +1,8 @@
 package Gotcha.common.exception.exceptionCode;
 
+import org.springframework.http.HttpStatus;
+
 public interface ExceptionCode {
-    int getStatus();
+    HttpStatus getStatus();
     String getMessage();
 }

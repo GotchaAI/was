@@ -65,7 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         accessToken = accessToken.replaceAll(SPECIAL_CHARACTERS_PATTERN, "");
 
-        if (tokenProvider.isExpired(accessToken)) {      // 만료되었는지
+        if (tokenProvider.isExpired(accessToken)) {
             handleExceptionToken(response, JwtExceptionCode.ACCESS_TOKEN_EXPIRED);
             return null;
         }
@@ -82,11 +82,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         ExceptionRes exceptionsRes = ExceptionRes.from(exceptionCode);
         String messageBody = objectMapper.writeValueAsString(exceptionsRes);
 
-        log.error("Error occurred: {}", exceptionCode.getMessage());
+        log.error("[Token Exception] {}", exceptionCode.getMessage());
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.setStatus(exceptionCode.getStatus());
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.getWriter().write(messageBody);
     }
 }
