@@ -28,8 +28,8 @@ public class JwtHelper {
         String email = user.getEmail();
         String role = String.valueOf(user.getRole());
 
-        String accessToken = TOKEN_PREFIX + tokenProvider.getAccessToken(role, userId, email);
-        String refreshToken = tokenProvider.getRefreshToken(role, userId, email);
+        String accessToken = TOKEN_PREFIX + tokenProvider.createAccessToken(role, userId, email);
+        String refreshToken = tokenProvider.createRefreshToken(role, userId, email);
 
         refreshTokenService.saveRefreshToken(email, refreshToken);
         return new TokenDto(accessToken, refreshToken);
@@ -44,8 +44,8 @@ public class JwtHelper {
         Long userId = tokenProvider.getUserId(refreshToken);
         String role = tokenProvider.getRole(refreshToken);
 
-        String newAccessToken = TOKEN_PREFIX + tokenProvider.getAccessToken(role, userId, email);
-        String newRefreshToken = tokenProvider.getRefreshToken(role, userId, email);
+        String newAccessToken = TOKEN_PREFIX + tokenProvider.createAccessToken(role, userId, email);
+        String newRefreshToken = tokenProvider.createRefreshToken(role, userId, email);
 
         refreshTokenService.saveRefreshToken(email, newRefreshToken);
 

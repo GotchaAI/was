@@ -31,12 +31,12 @@ public class TokenProvider {
         this.issuer = issuer;
     }
 
-    public String getAccessToken(String role, Long userId, String username) {
-        return makeToken(makeClaims(role, userId), username, accessExpiration);
+    public String createAccessToken(String role, Long userId, String username) {
+        return createToken(makeClaims(role, userId), username, accessExpiration);
     }
 
-    public String getRefreshToken(String role, Long userId, String username) {
-        return makeToken(makeClaims(role, userId), username, refreshExpiration);
+    public String createRefreshToken(String role, Long userId, String username) {
+        return createToken(makeClaims(role, userId), username, refreshExpiration);
     }
 
     private Map<String, Object> makeClaims(String role, Long userId) {
@@ -46,7 +46,7 @@ public class TokenProvider {
         return claims;
     }
 
-    private String makeToken(Map<String, Object> claims, String subject, Long expiry) {
+    private String createToken(Map<String, Object> claims, String subject, Long expiry) {
         return Jwts.builder()
                 .header()
                 .add("typ", "JWT")
