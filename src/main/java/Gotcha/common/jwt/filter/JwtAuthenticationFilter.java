@@ -6,6 +6,7 @@ import Gotcha.common.jwt.BlackListTokenService;
 import Gotcha.common.jwt.exception.JwtExceptionCode;
 import Gotcha.common.jwt.TokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,7 +30,6 @@ import static Gotcha.common.jwt.JwtProperties.TOKEN_PREFIX;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final TokenProvider tokenProvider;
-    private final ObjectMapper objectMapper;
     private final BlackListTokenService blackListTokenService;
 
     private static final String SPECIAL_CHARACTERS_PATTERN = "[`':;|~!@#$%()^&*+=?/{}\\[\\]\\\"\\\\\"]+$";
@@ -37,7 +37,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
         String accessTokenHeader = request.getHeader(ACCESS_HEADER_VALUE);
 
         if (accessTokenHeader == null || !accessTokenHeader.startsWith("Bearer ")) {
@@ -46,10 +45,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String accessToken = resolveAccessToken(response, accessTokenHeader);
-
-        if (accessToken == null) {
-            return;
-        }
 
         String username = tokenProvider.getEmail(accessToken);
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -66,28 +61,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         accessToken = accessToken.replaceAll(SPECIAL_CHARACTERS_PATTERN, "");
 
         if (tokenProvider.isExpired(accessToken)) {
-            handleExceptionToken(response, JwtExceptionCode.ACCESS_TOKEN_EXPIRED);
-            return null;
+            throw new ExpiredJwtException(null, null, JwtExceptionCode.ACCESS_TOKEN_EXPIRED.getMessage());
         }
 
         if (blackListTokenService.existsBlackListCheck(accessToken)) {
-            handleExceptionToken(response, JwtExceptionCode.BLACKLIST_ACCESS_TOKEN);
-            return null;
+            throw new ExpiredJwtException(null, null, JwtExceptionCode.ACCESS_TOKEN_EXPIRED.getMessage());
         }
         return accessToken;
-    }
-
-    private void handleExceptionToken(HttpServletResponse response, ExceptionCode exceptionCode) throws IOException {
-
-        ExceptionRes exceptionsRes = ExceptionRes.from(exceptionCode);
-        String messageBody = objectMapper.writeValueAsString(exceptionsRes);
-
-        log.error("[Token Exception] {}", exceptionCode.getMessage());
-
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write(messageBody);
     }
 }
 

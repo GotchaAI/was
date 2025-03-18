@@ -4,6 +4,7 @@ import Gotcha.common.exception.exceptionCode.ExceptionCode;
 import Gotcha.common.exception.ExceptionRes;
 import Gotcha.common.jwt.exception.JwtExceptionCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,6 +26,8 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
+        } catch (ExpiredJwtException e) {
+            handleTokenException(response, JwtExceptionCode.ACCESS_TOKEN_EXPIRED);
         } catch (JwtException e) {
             handleTokenException(response, JwtExceptionCode.INVALID_ACCESS_TOKEN);
         }
