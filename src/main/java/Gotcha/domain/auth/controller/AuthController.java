@@ -44,7 +44,7 @@ public class AuthController {
         return createTokenRes(tokenDto);
     }
 
-    @GetMapping("/token-reissue")
+    @PostMapping("/token-reissue")
     public ResponseEntity<?> reIssueToken(@CookieValue(name = REFRESH_COOKIE_VALUE, required = false) String refreshToken) {
         if (refreshToken == null) {
             throw new CustomException(JwtExceptionCode.REFRESH_TOKEN_NOT_FOUND);
