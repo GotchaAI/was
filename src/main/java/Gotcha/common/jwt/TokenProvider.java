@@ -48,6 +48,9 @@ public class TokenProvider {
 
     private String makeToken(Map<String, Object> claims, String subject, Long expiry) {
         return Jwts.builder()
+                .header()
+                .add("typ", "JWT")
+                .and()
                 .subject(subject)
                 .claims(claims)
                 .issuer(issuer)
