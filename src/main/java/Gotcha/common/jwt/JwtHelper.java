@@ -38,7 +38,7 @@ public class JwtHelper {
     public TokenDto reissueToken(String refreshToken) {
         String email = tokenProvider.getEmail(refreshToken);
 
-        if (!refreshTokenService.existedRefreshToken(email))
+        if (!refreshTokenService.existedRefreshToken(email, refreshToken))
             throw new CustomException(JwtExceptionCode.REFRESH_TOKEN_NOT_FOUND);
 
         Long userId = tokenProvider.getUserId(refreshToken);
@@ -47,6 +47,7 @@ public class JwtHelper {
         String newAccessToken = TOKEN_PREFIX + tokenProvider.createAccessToken(role, userId, email);
         String newRefreshToken = tokenProvider.createRefreshToken(role, userId, email);
 
+        refreshTokenService.deleteRefreshToken(refreshToken);
         refreshTokenService.saveRefreshToken(email, newRefreshToken);
 
         return new TokenDto(newAccessToken, newRefreshToken);

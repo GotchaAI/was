@@ -27,9 +27,15 @@ public class RefreshTokenService {
         redisUtil.deleteData(email);
     }
 
-    public boolean existedRefreshToken(String email) {
+    public boolean existedRefreshToken(String email, String requestRefreshToken) {
         String key = REFRESH_TOKEN_KEY_PREFIX + email;
 
-        return redisUtil.existed(key);
+        String storedRefreshToken = (String) redisUtil.getData(key);
+
+        if (storedRefreshToken == null) {
+            return false;
+        }
+
+        return storedRefreshToken.equals(requestRefreshToken);
     }
 }
