@@ -6,6 +6,8 @@ import Gotcha.common.jwt.exception.JwtExceptionCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,8 +30,12 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException e) {
             handleTokenException(response, JwtExceptionCode.ACCESS_TOKEN_EXPIRED);
-        } catch (JwtException e) {
+        } catch (SignatureException e) {
+            handleTokenException(response, JwtExceptionCode.INVALID_TOKEN_SIGNATURE);
+        } catch (MalformedJwtException e) {
             handleTokenException(response, JwtExceptionCode.INVALID_ACCESS_TOKEN);
+        } catch (JwtException e) {
+            handleTokenException(response, JwtExceptionCode.UNKNOWN_TOKEN_ERROR);
         }
     }
 

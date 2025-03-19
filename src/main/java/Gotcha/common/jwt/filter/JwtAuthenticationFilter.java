@@ -1,11 +1,8 @@
 package Gotcha.common.jwt.filter;
 
-import Gotcha.common.exception.exceptionCode.ExceptionCode;
-import Gotcha.common.exception.ExceptionRes;
 import Gotcha.common.jwt.BlackListTokenService;
 import Gotcha.common.jwt.exception.JwtExceptionCode;
 import Gotcha.common.jwt.TokenProvider;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
