@@ -1,11 +1,13 @@
 package Gotcha.common.config;
 
+import Gotcha.common.jwt.exception.JwtExceptionCode;
 import Gotcha.common.jwt.filter.JwtAuthenticationFilter;
 import Gotcha.common.jwt.filter.JwtExceptionFilter;
 import Gotcha.domain.user.entity.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -16,6 +18,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import static Gotcha.common.constants.SecurityConstants.ADMIN_ENDPOINTS;
+import static Gotcha.common.constants.SecurityConstants.PUBLIC_ENDPOINTS;
+
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -23,11 +28,6 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtExceptionFilter jwtExceptionFilter;
     private final CorsConfigurationSource corsConfigurationSource;
-
-    private static final String[] PUBLIC_ENDPOINTS = {
-            "/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**", "/error", "/api/v1/auth/**"
-    };
-    private static final String[] ADMIN_ENDPOINTS = {"/api/v1/admin/**"};
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -48,7 +48,11 @@ public class SecurityConfig {
                         authorize
                                 .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                                 .requestMatchers(ADMIN_ENDPOINTS).hasAnyRole(String.valueOf(Role.ADMIN))
-                                .anyRequest().authenticated())
+                                .anyRequest().authenticated()
+                ).exceptionHandling(exception -> exception
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            throw new AccessDeniedException(JwtExceptionCode.ACCESS_DENIED.getMessage());
+                        }))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
 

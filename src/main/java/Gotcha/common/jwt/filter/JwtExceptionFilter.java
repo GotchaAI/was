@@ -14,6 +14,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -29,17 +31,21 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException e) {
-            handleTokenException(response, JwtExceptionCode.ACCESS_TOKEN_EXPIRED);
+            handleTokenException(response, JwtExceptionCode.ACCESS_TOKEN_EXPIRED, HttpServletResponse.SC_UNAUTHORIZED);
         } catch (SignatureException e) {
-            handleTokenException(response, JwtExceptionCode.INVALID_TOKEN_SIGNATURE);
+            handleTokenException(response, JwtExceptionCode.INVALID_TOKEN_SIGNATURE, HttpServletResponse.SC_UNAUTHORIZED);
         } catch (MalformedJwtException e) {
-            handleTokenException(response, JwtExceptionCode.INVALID_ACCESS_TOKEN);
+            handleTokenException(response, JwtExceptionCode.INVALID_ACCESS_TOKEN, HttpServletResponse.SC_UNAUTHORIZED);
         } catch (JwtException e) {
-            handleTokenException(response, JwtExceptionCode.UNKNOWN_TOKEN_ERROR);
+            handleTokenException(response, JwtExceptionCode.UNKNOWN_TOKEN_ERROR, HttpServletResponse.SC_UNAUTHORIZED);
+        } catch (AuthenticationServiceException e){
+            handleTokenException(response, JwtExceptionCode.ACCESS_TOKEN_NOT_FOUND, HttpServletResponse.SC_UNAUTHORIZED);
+        } catch (AccessDeniedException e){
+            handleTokenException(response, JwtExceptionCode.ACCESS_DENIED, HttpServletResponse.SC_FORBIDDEN);
         }
     }
 
-    private void handleTokenException(HttpServletResponse response, ExceptionCode exceptionCode) throws  IOException {
+    private void handleTokenException(HttpServletResponse response, ExceptionCode exceptionCode, int statusCode) throws  IOException {
         ExceptionRes exceptionRes = ExceptionRes.from(exceptionCode);
         String message = objectMapper.writeValueAsString(exceptionRes);
 
@@ -47,7 +53,7 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setStatus(statusCode);
         response.getWriter().write(message);
     }
 }
