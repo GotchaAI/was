@@ -3,6 +3,7 @@ package Gotcha.domain.auth.controller;
 import Gotcha.common.exception.CustomException;
 import Gotcha.common.jwt.exception.JwtExceptionCode;
 import Gotcha.common.util.CookieUtil;
+import Gotcha.domain.auth.api.AuthApi;
 import Gotcha.domain.auth.dto.SignInReq;
 import Gotcha.domain.auth.dto.SignUpReq;
 import Gotcha.domain.auth.dto.TokenDto;
@@ -26,7 +27,7 @@ import static Gotcha.common.jwt.JwtProperties.REFRESH_COOKIE_VALUE;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
-public class AuthController {
+public class AuthController implements AuthApi {
     private final AuthService authService;
     private final CookieUtil cookieUtil;
 
