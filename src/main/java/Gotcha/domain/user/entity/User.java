@@ -10,6 +10,7 @@ import Gotcha.domain.inquiry.entity.Inquiry;
 import Gotcha.domain.notification.entity.Notification;
 import Gotcha.domain.report.entity.BugReport;
 import Gotcha.domain.report.entity.UserReport;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -56,36 +57,47 @@ public class User extends BaseTimeEntity {
 
     private Boolean isLocked;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "player")
     private List<UserGame> userGames = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "writer")
     private List<Answer> answers = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "writer")
     private List<Inquiry> inquiries = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "writer")
     private List<Notification> notifications = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<UserReport> userReports = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<UserAchievement> userAchievements = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "fromUser")
     private List<FriendRequest> sentFriendRequests = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "toUser")
     private List<FriendRequest> receivedFriendRequests = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<Friend> friends = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "friend")
     private List<Friend> friendOf = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<BugReport> bugReports = new ArrayList<>();
 
