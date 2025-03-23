@@ -80,7 +80,7 @@ public interface AuthApi {
                             @ExampleObject(name = "notBlank", value = """
                                         {
                                              "password": "비밀번호를 입력해주세요.",
-                                             "email": "이메일를 입력해주세요."
+                                             "email": "이메일을 입력해주세요."
                                         }
                                     """),
                             @ExampleObject(name = "patternError", value = """
