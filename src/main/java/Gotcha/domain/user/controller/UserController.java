@@ -1,5 +1,6 @@
 package Gotcha.domain.user.controller;
 
+import Gotcha.domain.user.api.UserApi;
 import Gotcha.domain.user.dto.NicknameReq;
 import Gotcha.domain.user.service.UserService;
 import jakarta.validation.Valid;
@@ -14,9 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
-public class UserController {
+public class UserController implements UserApi {
     private final UserService userService;
 
+    @Override
     @PostMapping("/nickname-check")
     public ResponseEntity<?> checkNickname(@Valid @RequestBody NicknameReq nicknameReq) {
         userService.checkNickname(nicknameReq.nickname());
