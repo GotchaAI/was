@@ -26,6 +26,8 @@ public class AuthService {
 
     @Transactional
     public TokenDto signUp(SignUpReq signUpReq) {
+        signUpReq.validatePasswordMatch();
+
         if (!redisUtil.existed(EMAIL_VERIFY_KEY_PREFIX + signUpReq.email())) {
             throw new CustomException(AuthExceptionCode.NOT_VERIFIED_EMAIL);
         }
