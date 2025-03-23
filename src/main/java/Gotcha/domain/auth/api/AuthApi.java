@@ -1,5 +1,7 @@
 package Gotcha.domain.auth.api;
 
+import Gotcha.domain.auth.dto.EmailCodeVerifyReq;
+import Gotcha.domain.auth.dto.EmailReq;
 import Gotcha.domain.auth.dto.SignInReq;
 import Gotcha.domain.auth.dto.SignUpReq;
 import io.swagger.v3.oas.annotations.Operation;
@@ -102,4 +104,87 @@ public interface AuthApi {
                     }))
     })
     ResponseEntity<?> reIssueToken(@CookieValue(name = REFRESH_COOKIE_VALUE, required = false) String refreshToken);
+
+    @Operation(summary = "이메일 인증번호 발송", description = "이메일 인증번호 발송 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "이메일 인증번호 발송 성공",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                    {
+                                        "status": "OK",
+                                        "message": "인증 코드가 발송되었습니다."
+                                    }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "422", description = "유효성검사 실패",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                        {
+                                             "email": "이메일은 필수 입력 값입니다."
+                                        }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "404", description = "이메일 중복 확인 실패",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                        {
+                                            "status": "CONFLICT",
+                                            "message": "이미 가입된 이메일입니다."
+                                        }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "429", description = "이메일 인증번호는 1분 이후 다시 전송할 수 있음",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                        {
+                                             "status": "TOO_MANY_REQUESTS",
+                                             "message": "이미 메일을 요청하셨습니다."
+                                        }
+                                    """)
+                    }))
+    })
+    ResponseEntity<?> sendEmail(@Valid @RequestBody EmailReq emailReq);
+
+    @Operation(summary = "이메일 인증", description = "이메일 인증 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "이메일 인증 성공",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                    {
+                                        "status": "OK",
+                                        "message": "이메일이 인증되었습니다."
+                                    }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "422", description = "유효성검사 실패",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(name = "nonBlank", value = """
+                                        {
+                                             "email": "이메일은 필수 입력 값입니다.",
+                                             "code": "인증번호는 필수 입력 값입니다."
+                                        }
+                                    """),
+                            @ExampleObject(name = "patternError", value = """
+                                        {
+                                             "code": "인증번호는 숫자 6자리여야 합니다."
+                                        }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "400", description = "이메일 인증 실패",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(name = "codeIncorrect",value = """
+                                        {
+                                             "status": "BAD_REQUEST",
+                                             "message": "인증번호가 일치하지 않습니다."
+                                        }
+                                    """),
+                            @ExampleObject(name = "codeExpired", value = """
+                                        {
+                                             "status": "BAD_REQUEST",
+                                             "message": "인증번호가 만료되었습니다."
+                                        }
+                                    """)
+                    }))
+    })
+    ResponseEntity<?> verifyEmail(@Valid @RequestBody EmailCodeVerifyReq emailCodeVerifyReq);
 }
