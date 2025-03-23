@@ -28,6 +28,8 @@ public class AuthService {
     public TokenDto signUp(SignUpReq signUpReq) {
         signUpReq.validatePasswordMatch();
 
+        //todo: 닉네임 중복 확인 여부 검증
+
         if (!redisUtil.existed(EMAIL_VERIFY_KEY_PREFIX + signUpReq.email())) {
             throw new CustomException(AuthExceptionCode.NOT_VERIFIED_EMAIL);
         }

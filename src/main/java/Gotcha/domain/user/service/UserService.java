@@ -18,4 +18,11 @@ public class UserService {
             throw new CustomException(UserExceptionCode.NICKNAME_EXIST);
         }
     }
+
+    @Transactional(readOnly = true)
+    public void checkEmail(String email) {
+        if(userRepository.existsByEmail(email)) {
+            throw new CustomException(UserExceptionCode.EMAIL_EXIST);
+        }
+    }
 }
