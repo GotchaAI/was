@@ -18,7 +18,12 @@ public interface UserApi {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "닉네임 중복 검사 성공",
                     content = @Content(mediaType = "application/json", examples = {
-                            @ExampleObject()
+                            @ExampleObject(value = """
+                                    {
+                                        "status": "OK",
+                                        "message": "사용 가능한 닉네임입니다."
+                                    }
+                                    """)
                     })),
             @ApiResponse(responseCode = "409", description = "닉네임 중복",
                     content = @Content(mediaType = "application/json", examples = {
