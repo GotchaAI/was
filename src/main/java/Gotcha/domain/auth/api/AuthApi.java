@@ -20,7 +20,7 @@ import static Gotcha.common.jwt.JwtProperties.REFRESH_COOKIE_VALUE;
 @Tag(name = "[인증 API]", description = "인증 관련 API")
 public interface AuthApi {
     @Operation(summary = "회원가입", description = "회원가입 API")
-    @ApiResponses({
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "회원가입 성공",
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
@@ -35,16 +35,33 @@ public interface AuthApi {
                                         {
                                             "email": "이메일은 필수 입력 값입니다.",
                                             "password": "비밀번호는 필수 입력 값입니다.",
+                                            "passwordCheck": "비밀번호 확인은 필수 입력 값입니다.",
                                             "nickname": "닉네임은 필수 입력 값입니다."
                                         }
                                     """),
                             @ExampleObject(name = "patternError", value = """
                                         {
-                                            "email": "유효한 이메일 형식이 아닙니다.",
-                                            "password": "비밀번호는 영문, 숫자, 특수문자를 포함하여 8~16자여야 합니다."
+                                             "password": "비밀번호는 영문, 숫자, 특수문자를 포함하여 8~16자여야 합니다.",
+                                             "passwordCheck": "비밀번호는 영문, 숫자, 특수문자를 포함하여 8~16자여야 합니다.",
+                                             "nickname": "닉네임은 한글, 영문, 숫자 조합의 2~6자리여야 합니다.",
+                                             "email": "유효한 이메일 형식이 아닙니다."
                                         }
                                     """)
-                    }))
+                    })),
+            @ApiResponse(responseCode = "400", description = "필드 검증 오류",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                    {
+                                         "status": "BAD_REQUEST",
+                                         "message": "필드 검증 오류입니다.",
+                                         "fields": {
+                                             "password": "비밀번호가 일치하지 않습니다.",
+                                             "nickname": "닉네임 중복 확인이 완료되지 않았습니다.",
+                                             "email": "이메일 인증이 완료되지 않았습니다."
+                                         }
+                                    }
+                                    """)
+                    })),
     })
     ResponseEntity<?> signUp(@Valid @RequestBody SignUpReq signUpReq);
 
@@ -172,7 +189,7 @@ public interface AuthApi {
                     })),
             @ApiResponse(responseCode = "400", description = "이메일 인증 실패",
                     content = @Content(mediaType = "application/json", examples = {
-                            @ExampleObject(name = "codeIncorrect",value = """
+                            @ExampleObject(name = "codeIncorrect", value = """
                                         {
                                              "status": "BAD_REQUEST",
                                              "message": "인증번호가 일치하지 않습니다."
