@@ -4,4 +4,8 @@ public interface RedisProperties {
 
     String REFRESH_TOKEN_KEY_PREFIX = "refreshToken::";
     String BLACKLIST_KEY_PREFIX = "blackList::";
+    String CODE_KEY_PREFIX = "code::";
+    String EMAIL_VERIFY_KEY_PREFIX = "emailVerify::";
+
+    long CODE_EXPIRATION_TIME = 5*60;
 }

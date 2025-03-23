@@ -1,9 +1,13 @@
 package Gotcha.domain.auth.controller;
 
+import Gotcha.common.api.SuccessRes;
 import Gotcha.common.exception.CustomException;
 import Gotcha.common.jwt.exception.JwtExceptionCode;
+import Gotcha.common.mail.MailCodeService;
 import Gotcha.common.util.CookieUtil;
 import Gotcha.domain.auth.api.AuthApi;
+import Gotcha.domain.auth.dto.EmailCodeVerifyReq;
+import Gotcha.domain.auth.dto.EmailReq;
 import Gotcha.domain.auth.dto.SignInReq;
 import Gotcha.domain.auth.dto.SignUpReq;
 import Gotcha.domain.auth.dto.TokenDto;
@@ -13,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +33,7 @@ import static Gotcha.common.jwt.JwtProperties.REFRESH_COOKIE_VALUE;
 public class AuthController implements AuthApi {
     private final AuthService authService;
     private final CookieUtil cookieUtil;
+    private final MailCodeService mailCodeService;
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(@Valid @RequestBody SignUpReq signUpReq) {
@@ -53,6 +57,19 @@ public class AuthController implements AuthApi {
         TokenDto tokenDto = authService.reissueAccessToken(refreshToken);
 
         return createTokenRes(tokenDto);
+    }
+
+    @PostMapping("/email/send")
+    public ResponseEntity<?> sendEmail(@Valid @RequestBody EmailReq emailReq) {
+        // Todo : 이메일 중복 확인 로직 필요
+        mailCodeService.sendCodeToMail(emailReq.email());
+        return ResponseEntity.ok(SuccessRes.from("인증 코드가 발송되었습니다."));
+    }
+
+    @PostMapping("/email/verify")
+    public ResponseEntity<?> verifyEmail(@Valid @RequestBody EmailCodeVerifyReq emailCodeVerifyReq) {
+        mailCodeService.verifiedCode(emailCodeVerifyReq);
+        return ResponseEntity.ok(SuccessRes.from("이메일이 인증되었습니다."));
     }
 
     private ResponseEntity<?> createTokenRes(TokenDto tokenDto) {

@@ -5,6 +5,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
@@ -29,5 +30,9 @@ public class RedisUtil {
 
     public void deleteData(String key) {
         redisTemplate.delete(key);
+    }
+
+    public Long getExpire(String key, TimeUnit timeUnit) {
+        return redisTemplate.getExpire(key, timeUnit);
     }
 }
