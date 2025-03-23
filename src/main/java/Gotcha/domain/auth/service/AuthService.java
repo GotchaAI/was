@@ -1,6 +1,7 @@
 package Gotcha.domain.auth.service;
 
 import Gotcha.common.exception.CustomException;
+import Gotcha.common.exception.FieldValidationException;
 import Gotcha.common.jwt.JwtHelper;
 import Gotcha.common.util.RedisUtil;
 import Gotcha.domain.auth.dto.SignInReq;
@@ -14,7 +15,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static Gotcha.common.redis.RedisProperties.EMAIL_VERIFY_KEY_PREFIX;
+import static Gotcha.common.redis.RedisProperties.NICKNAME_VERIFY_KEY_PREFIX;
 
 @Service
 @RequiredArgsConstructor
@@ -26,13 +31,25 @@ public class AuthService {
 
     @Transactional
     public TokenDto signUp(SignUpReq signUpReq) {
-        signUpReq.validatePasswordMatch();
+        Map<String, String> fieldErrors = new HashMap<>();
 
-        //todo: 닉네임 중복 확인 여부 검증
+        if(!signUpReq.validatePasswordMatch()){
+            fieldErrors.put("password", "비밀번호가 일치하지 않습니다.");
+        }
+
+        if(!redisUtil.existed(NICKNAME_VERIFY_KEY_PREFIX+signUpReq.nickname())){
+            fieldErrors.put("nickname", "닉네임 중복 확인이 완료되지 않았습니다.");
+        }
 
         if (!redisUtil.existed(EMAIL_VERIFY_KEY_PREFIX + signUpReq.email())) {
-            throw new CustomException(AuthExceptionCode.NOT_VERIFIED_EMAIL);
+            fieldErrors.put("email", "이메일 인증이 완료되지 않았습니다.");
         }
+
+        if (!fieldErrors.isEmpty()) {
+            throw new FieldValidationException(fieldErrors);
+        }
+
+        //todo: 회원가입 후 redis 삭제
 
         String encodePassword = passwordEncoder.encode(signUpReq.password());
         User createdUser = userRepository.save(signUpReq.toEntity(encodePassword));
