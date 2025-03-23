@@ -1,10 +1,12 @@
 package Gotcha.domain.auth.controller;
 
+import Gotcha.common.api.SuccessRes;
 import Gotcha.common.exception.CustomException;
 import Gotcha.common.jwt.exception.JwtExceptionCode;
 import Gotcha.common.mail.MailCodeService;
 import Gotcha.common.util.CookieUtil;
 import Gotcha.domain.auth.api.AuthApi;
+import Gotcha.domain.auth.dto.EmailCodeVerifyReq;
 import Gotcha.domain.auth.dto.EmailReq;
 import Gotcha.domain.auth.dto.SignInReq;
 import Gotcha.domain.auth.dto.SignUpReq;
@@ -61,7 +63,13 @@ public class AuthController implements AuthApi {
     public ResponseEntity<?> sendEmail(@Valid @RequestBody EmailReq emailReq) {
         // Todo : 이메일 중복 확인 로직 필요
         mailCodeService.sendCodeToMail(emailReq.email());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(SuccessRes.from("인증 코드가 발송되었습니다."));
+    }
+
+    @PostMapping("/email/verify")
+    public ResponseEntity<?> verifyEmail(@Valid @RequestBody EmailCodeVerifyReq emailCodeVerifyReq) {
+        mailCodeService.verifiedCode(emailCodeVerifyReq);
+        return ResponseEntity.ok(SuccessRes.from("이메일이 인증되었습니다."));
     }
 
     private ResponseEntity<?> createTokenRes(TokenDto tokenDto) {
