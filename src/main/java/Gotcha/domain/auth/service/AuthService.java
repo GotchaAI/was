@@ -49,7 +49,8 @@ public class AuthService {
             throw new FieldValidationException(fieldErrors);
         }
 
-        //todo: 회원가입 후 redis 삭제
+        redisUtil.deleteData(NICKNAME_VERIFY_KEY_PREFIX+signUpReq.nickname());
+        redisUtil.deleteData(EMAIL_VERIFY_KEY_PREFIX + signUpReq.email());
 
         String encodePassword = passwordEncoder.encode(signUpReq.password());
         User createdUser = userRepository.save(signUpReq.toEntity(encodePassword));
