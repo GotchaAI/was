@@ -47,3 +47,7 @@ token:
 
 cache:
   ttl: ${CACHE_TTL:60}
+
+mail:
+  sender: Gotcha!
+  subject: "[Gotcha!] 이메일 인증을 완료해주세요."
