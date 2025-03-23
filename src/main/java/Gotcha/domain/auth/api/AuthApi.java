@@ -29,7 +29,7 @@ public interface AuthApi {
                                      }
                                     """)
                     })),
-            @ApiResponse(responseCode = "400", description = "유효성검사 실패",
+            @ApiResponse(responseCode = "422", description = "유효성검사 실패",
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name = "notBlank", value = """
                                         {
