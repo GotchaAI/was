@@ -3,6 +3,7 @@ package Gotcha.domain.auth.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 public record SignInReq(
         @Schema(description = "이메일", example = "test@naver.com")

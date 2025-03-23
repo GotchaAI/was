@@ -75,12 +75,12 @@ public interface AuthApi {
                                      }
                                     """)
                     })),
-            @ApiResponse(responseCode = "400", description = "유효성검사 실패",
+            @ApiResponse(responseCode = "422", description = "유효성검사 실패",
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name = "notBlank", value = """
                                         {
-                                            "email": "이메일를 입력해주세요.",
-                                            "password": "비밀번호를 입력해주세요."
+                                             "password": "비밀번호를 입력해주세요.",
+                                             "email": "이메일를 입력해주세요."
                                         }
                                     """),
                             @ExampleObject(name = "patternError", value = """
@@ -93,7 +93,8 @@ public interface AuthApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                     {
-                                        "message": "아이디 또는 비밀번호가 일치하지 않습니다."
+                                         "status": "NOT_FOUND",
+                                         "message": "아이디 또는 비밀번호가 유효하지 않습니다."
                                     }
                                     """)
                     })
@@ -115,7 +116,8 @@ public interface AuthApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                         {
-                                            "message": "리프레시 토큰이 존재하지 않습니다."
+                                             "status": "NOT_FOUND",
+                                             "message": "Refresh Token을 찾을 수 없습니다."
                                         }
                                     """)
                     }))
