@@ -42,7 +42,7 @@ public interface AuthApi {
                             @ExampleObject(name = "patternError", value = """
                                         {
                                              "password": "비밀번호는 영문, 숫자, 특수문자를 포함하여 8~16자여야 합니다.",
-                                             "passwordCheck": "비밀번호는 영문, 숫자, 특수문자를 포함하여 8~16자여야 합니다.",
+                                             "passwordCheck": "비밀번호 확인은 영문, 숫자, 특수문자를 포함하여 8~16자여야 합니다.",
                                              "nickname": "닉네임은 한글, 영문, 숫자 조합의 2~6자리여야 합니다.",
                                              "email": "유효한 이메일 형식이 아닙니다."
                                         }

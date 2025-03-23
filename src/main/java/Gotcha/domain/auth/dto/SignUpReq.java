@@ -20,7 +20,7 @@ public record SignUpReq(
 
         @Schema(description = "비밀번호 확인", example = "password123@")
         @NotBlank(message = "비밀번호 확인은 필수 입력 값입니다.")
-        @Pattern(regexp = "^(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,16}$", message = "비밀번호는 영문, 숫자, 특수문자를 포함하여 8~16자여야 합니다.")
+        @Pattern(regexp = "^(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,16}$", message = "비밀번호 확인은 영문, 숫자, 특수문자를 포함하여 8~16자여야 합니다.")
         String passwordCheck,
 
         @Schema(description = "닉네임", example = "테스터")
