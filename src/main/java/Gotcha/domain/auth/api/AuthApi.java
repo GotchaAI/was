@@ -10,11 +10,14 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
+import static Gotcha.common.jwt.JwtProperties.ACCESS_HEADER_VALUE;
 import static Gotcha.common.jwt.JwtProperties.REFRESH_COOKIE_VALUE;
 
 @Tag(name = "[인증 API]", description = "인증 관련 API")
@@ -206,4 +209,20 @@ public interface AuthApi {
                     }))
     })
     ResponseEntity<?> verifyEmail(@Valid @RequestBody EmailCodeVerifyReq emailCodeVerifyReq);
+
+    @Operation(summary = "로그아웃", description = "로그아웃 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "로그아웃 성공",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                    {
+                                        "status": "OK",
+                                        "message": "로그아웃 되었습니다."
+                                    }
+                                    """)
+                    }))
+    })
+    ResponseEntity<?> signOut(@RequestHeader(value = ACCESS_HEADER_VALUE, required = false) String accessToken,
+                              @CookieValue(name = REFRESH_COOKIE_VALUE, required = false) String refreshToken,
+                              HttpServletResponse response);
 }
