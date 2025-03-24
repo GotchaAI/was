@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CustomException.class)
     protected ResponseEntity<?> handleCustomException(final CustomException e) {
         ExceptionCode error = e.getExceptionCode();
-        log.error("[Exception] {}", error.getMessage());
+        log.error("[Custom Exception] {}", error.getMessage());
         return ResponseEntity.status(error.getStatus()).body(ExceptionRes.from(error));
     }
 
@@ -28,9 +28,12 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<Map<String, String>> handleValidationException(final MethodArgumentNotValidException e) {
         Map<String, String> errors = new HashMap<>();
         for(FieldError fieldError : e.getBindingResult().getFieldErrors() ){
-            errors.put(fieldError.getField(), fieldError.getDefaultMessage());
+            String field = fieldError.getField();
+            String message = fieldError.getDefaultMessage();
+            errors.put(field, message);
+
+            log.error("[Validation Exception] {}: {}", field, message);
         }
-        log.error("[Exception] {}", errors);
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errors);
     }
 
@@ -39,6 +42,15 @@ public class GlobalExceptionHandler {
         log.error("[Exception] {}", e.getMessage());
         ExceptionCode error = GlobalExceptionCode.INTERNAL_SERVER_ERROR;
         return ResponseEntity.status(error.getStatus()).body(ExceptionRes.from(error));
+    }
+
+    @ExceptionHandler(FieldValidationException.class)
+    public ResponseEntity<?> handleFieldValidationException(FieldValidationException e) {
+        e.getFieldErrors().forEach((field, message) ->
+                log.warn("[Field Validation Exception] {}: {}", field, message)
+        );
+        ExceptionCode error = GlobalExceptionCode.FIELD_VALIDATION_ERROR;
+        return ResponseEntity.status(error.getStatus()).body(ExceptionRes.from(error, e.getFieldErrors()));
     }
 
 }

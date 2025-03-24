@@ -12,6 +12,7 @@ import Gotcha.domain.auth.dto.SignInReq;
 import Gotcha.domain.auth.dto.SignUpReq;
 import Gotcha.domain.auth.dto.TokenDto;
 import Gotcha.domain.auth.service.AuthService;
+import Gotcha.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -34,6 +35,7 @@ public class AuthController implements AuthApi {
     private final AuthService authService;
     private final CookieUtil cookieUtil;
     private final MailCodeService mailCodeService;
+    private final UserService userService;
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(@Valid @RequestBody SignUpReq signUpReq) {
@@ -61,7 +63,7 @@ public class AuthController implements AuthApi {
 
     @PostMapping("/email/send")
     public ResponseEntity<?> sendEmail(@Valid @RequestBody EmailReq emailReq) {
-        // Todo : 이메일 중복 확인 로직 필요
+        userService.checkEmail(emailReq.email());
         mailCodeService.sendCodeToMail(emailReq.email());
         return ResponseEntity.ok(SuccessRes.from("인증 코드가 발송되었습니다."));
     }
