@@ -24,7 +24,8 @@ public class RefreshTokenService {
 
     public void deleteRefreshToken(String refreshToken) {
         String email = tokenProvider.getEmail(refreshToken);
-        redisUtil.deleteData(email);
+        String key = REFRESH_TOKEN_KEY_PREFIX + email;
+        redisUtil.deleteData(key);
     }
 
     public boolean existedRefreshToken(String email, String requestRefreshToken) {
