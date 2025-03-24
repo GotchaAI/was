@@ -10,6 +10,7 @@ import Gotcha.domain.auth.dto.TokenDto;
 import Gotcha.domain.auth.exception.AuthExceptionCode;
 import Gotcha.domain.user.entity.User;
 import Gotcha.domain.user.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.Map;
 
+import static Gotcha.common.jwt.JwtProperties.TOKEN_PREFIX;
 import static Gotcha.common.redis.RedisProperties.EMAIL_VERIFY_KEY_PREFIX;
 import static Gotcha.common.redis.RedisProperties.NICKNAME_VERIFY_KEY_PREFIX;
 
@@ -67,6 +69,12 @@ public class AuthService {
         }
 
         return jwtHelper.createToken(user);
+    }
+
+    public void signOut(String HeaderAccessToken, String refreshToken, HttpServletResponse response){
+        String accessToken = HeaderAccessToken.substring(TOKEN_PREFIX.length()).trim();
+
+        jwtHelper.removeToken(accessToken, refreshToken, response);
     }
 
     public TokenDto reissueAccessToken(String refreshToken) {
