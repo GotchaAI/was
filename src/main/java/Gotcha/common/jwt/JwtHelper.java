@@ -64,8 +64,7 @@ public class JwtHelper {
     }
 
     private void deleteRefreshToken(String refreshToken, HttpServletResponse response) {
-        String username = tokenProvider.getEmail(refreshToken);
         cookieUtil.deleteCookie(REFRESH_COOKIE_VALUE, response);
-        refreshTokenService.deleteRefreshToken(username);
+        refreshTokenService.deleteRefreshToken(refreshToken);
     }
 }
