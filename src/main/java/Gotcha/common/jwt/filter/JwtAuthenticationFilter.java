@@ -65,7 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             GuestUser guestUser = guestUserService.getGuestUser(guestId);
             userDetails = new GuestUserDetails(guestUser);
         } else {
-            String username = tokenProvider.getEmail(accessToken);
+            String username = tokenProvider.getUsername(accessToken);
             userDetails = userDetailsService.loadUserByUsername(username);
         }
 

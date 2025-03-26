@@ -27,13 +27,13 @@ public class JwtHelper {
 
     public TokenDto createToken(User user) {
         Long userId = user.getId();
-        String email = user.getEmail();
+        String username = user.getEmail();
         String role = String.valueOf(user.getRole());
 
-        String accessToken = TOKEN_PREFIX + tokenProvider.createAccessToken(role, userId, email);
-        String refreshToken = tokenProvider.createRefreshToken(role, userId, email);
+        String accessToken = TOKEN_PREFIX + tokenProvider.createAccessToken(role, userId, username);
+        String refreshToken = tokenProvider.createRefreshToken(role, userId, username);
 
-        refreshTokenService.saveRefreshToken(email, refreshToken);
+        refreshTokenService.saveRefreshToken(username, refreshToken);
         return new TokenDto(accessToken, refreshToken);
     }
 
@@ -50,19 +50,19 @@ public class JwtHelper {
     }
 
     public TokenDto reissueToken(String refreshToken) {
-        String email = tokenProvider.getEmail(refreshToken);
+        String username = tokenProvider.getUsername(refreshToken);
 
-        if (!refreshTokenService.existedRefreshToken(email, refreshToken))
+        if (!refreshTokenService.existedRefreshToken(username, refreshToken))
             throw new CustomException(JwtExceptionCode.REFRESH_TOKEN_NOT_FOUND);
 
         Long userId = tokenProvider.getUserId(refreshToken);
         String role = tokenProvider.getRole(refreshToken);
 
-        String newAccessToken = TOKEN_PREFIX + tokenProvider.createAccessToken(role, userId, email);
-        String newRefreshToken = tokenProvider.createRefreshToken(role, userId, email);
+        String newAccessToken = TOKEN_PREFIX + tokenProvider.createAccessToken(role, userId, username);
+        String newRefreshToken = tokenProvider.createRefreshToken(role, userId, username);
 
         refreshTokenService.deleteRefreshToken(refreshToken);
-        refreshTokenService.saveRefreshToken(email, newRefreshToken);
+        refreshTokenService.saveRefreshToken(username, newRefreshToken);
 
         return new TokenDto(newAccessToken, newRefreshToken);
     }
