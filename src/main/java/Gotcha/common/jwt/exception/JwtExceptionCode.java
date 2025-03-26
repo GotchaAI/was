@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 @ToString
 public enum JwtExceptionCode implements ExceptionCode {
-    ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Access Token아 만료되었습니다."),
+    ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Access Token이 만료되었습니다."),
     REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Refresh Token이 만료되었습니다."),
     INVALID_TOKEN_SIGNATURE(HttpStatus.UNAUTHORIZED, "Access Token의 서명이 잘못되었습니다."),
     ACCESS_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "Access Token을 찾을 수 없습니다."),
