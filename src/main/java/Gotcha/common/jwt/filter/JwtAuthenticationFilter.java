@@ -4,6 +4,10 @@ import Gotcha.common.constants.SecurityConstants;
 import Gotcha.common.jwt.BlackListTokenService;
 import Gotcha.common.jwt.exception.JwtExceptionCode;
 import Gotcha.common.jwt.TokenProvider;
+import Gotcha.common.jwt.userDetails.GuestUserDetails;
+import Gotcha.domain.guestUser.entity.GuestUser;
+import Gotcha.domain.guestUser.service.GuestUserService;
+import Gotcha.domain.user.entity.Role;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -32,6 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final TokenProvider tokenProvider;
     private final BlackListTokenService blackListTokenService;
+    private final GuestUserService guestUserService;
 
     private static final String SPECIAL_CHARACTERS_PATTERN = "[`':;|~!@#$%()^&*+=?/{}\\[\\]\\\"\\\\\"]+$";
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
@@ -52,8 +57,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String accessToken = resolveAccessToken(response, accessTokenHeader);
 
-        String username = tokenProvider.getEmail(accessToken);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        String role = tokenProvider.getRole(accessToken);
+        UserDetails userDetails;
+
+        if (String.valueOf(Role.GUEST).equals(role)) {
+            Long guestId = tokenProvider.getUserId(accessToken);
+            GuestUser guestUser = guestUserService.getGuestUser(guestId);
+            userDetails = new GuestUserDetails(guestUser);
+        } else {
+            String username = tokenProvider.getEmail(accessToken);
+            userDetails = userDetailsService.loadUserByUsername(username);
+        }
 
         Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);

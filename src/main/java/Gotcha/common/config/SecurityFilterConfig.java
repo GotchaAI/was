@@ -4,6 +4,7 @@ import Gotcha.common.jwt.BlackListTokenService;
 import Gotcha.common.jwt.TokenProvider;
 import Gotcha.common.jwt.filter.JwtAuthenticationFilter;
 import Gotcha.common.jwt.filter.JwtExceptionFilter;
+import Gotcha.domain.guestUser.service.GuestUserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -17,10 +18,11 @@ public class SecurityFilterConfig {
     private final TokenProvider tokenProvider;
     private final ObjectMapper objectMapper;
     private final BlackListTokenService blackListTokenService;
+    private final GuestUserService guestUserService;
 
     @Bean
     public JwtAuthenticationFilter authenticationFilter() {
-        return new JwtAuthenticationFilter(userDetailsService, tokenProvider, blackListTokenService);
+        return new JwtAuthenticationFilter(userDetailsService, tokenProvider, blackListTokenService, guestUserService);
     }
 
     @Bean
