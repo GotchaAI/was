@@ -4,6 +4,8 @@ import Gotcha.common.exception.CustomException;
 import Gotcha.common.jwt.exception.JwtExceptionCode;
 import Gotcha.common.util.CookieUtil;
 import Gotcha.domain.auth.dto.TokenDto;
+import Gotcha.domain.guestUser.entity.GuestUser;
+import Gotcha.domain.user.entity.Role;
 import Gotcha.domain.user.entity.User;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,18 @@ public class JwtHelper {
         String refreshToken = tokenProvider.createRefreshToken(role, userId, email);
 
         refreshTokenService.saveRefreshToken(email, refreshToken);
+        return new TokenDto(accessToken, refreshToken);
+    }
+
+    public TokenDto createGuestToken(GuestUser guestUser) {
+        Long userId = guestUser.getGuestId();
+        String nickname = guestUser.getGuestNickname();
+        String role = String.valueOf(Role.GUEST);
+
+        String accessToken = TOKEN_PREFIX + tokenProvider.createAccessToken(role, userId, nickname);
+        String refreshToken = tokenProvider.createRefreshToken(role, userId, nickname);
+
+        refreshTokenService.saveRefreshToken(nickname, refreshToken);
         return new TokenDto(accessToken, refreshToken);
     }
 
