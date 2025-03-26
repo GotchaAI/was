@@ -1,5 +1,6 @@
 package Gotcha.common.jwt;
 
+import Gotcha.common.jwt.userDetails.SecurityUserDetails;
 import Gotcha.domain.user.entity.User;
 import Gotcha.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

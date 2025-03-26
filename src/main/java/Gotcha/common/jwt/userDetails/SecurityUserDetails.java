@@ -1,4 +1,4 @@
-package Gotcha.common.jwt;
+package Gotcha.common.jwt.userDetails;
 
 import Gotcha.common.security.CustomGrantedAuthority;
 import Gotcha.domain.user.entity.User;
