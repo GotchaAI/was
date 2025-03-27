@@ -1,8 +1,11 @@
 package Gotcha.domain.notification.service;
 
+import Gotcha.common.exception.CustomException;
+import Gotcha.domain.notification.dto.NotificationRes;
 import Gotcha.domain.notification.dto.NotificationSortType;
 import Gotcha.domain.notification.dto.NotificationSummaryRes;
 import Gotcha.domain.notification.entity.Notification;
+import Gotcha.domain.notification.exception.NotificationExceptionCode;
 import Gotcha.domain.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +34,13 @@ public class NotificationService {
         return notifications.map(NotificationSummaryRes::fromEntity);
     }
 
+    @Transactional(readOnly = true)
+    public NotificationRes getNotificationsById(Long notificationId) {
+        Notification notification = notificationRepository.findById(notificationId).
+                orElseThrow(() -> new CustomException(NotificationExceptionCode.NOT_FOUND));
+
+        return NotificationRes.fromEntity(notification);
+    }
 
 
 }

@@ -1,6 +1,7 @@
 package Gotcha.domain.notification.controller;
 
 import Gotcha.domain.notification.api.NotificationApi;
+import Gotcha.domain.notification.dto.NotificationRes;
 import Gotcha.domain.notification.dto.NotificationSortType;
 import Gotcha.domain.notification.dto.NotificationSummaryRes;
 import Gotcha.domain.notification.service.NotificationService;
@@ -8,10 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +32,8 @@ public class NotificationController implements NotificationApi {
 
 
     @Override
-    public ResponseEntity<?> getNotificationsById(Long notificationId) {
-        return null;
+    public ResponseEntity<?> getNotificationsById(@PathVariable(value = "notificationId") Long notificationId) {
+        NotificationRes notificationRes = notificationService.getNotificationsById(notificationId);
+        return ResponseEntity.status(HttpStatus.OK).body(notificationRes);
     }
 }
