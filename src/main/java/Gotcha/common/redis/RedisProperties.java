@@ -9,4 +9,6 @@ public interface RedisProperties {
     String NICKNAME_VERIFY_KEY_PREFIX = "nicknameVerify::";
 
     long CODE_EXPIRATION_TIME = 5*60;
+
+    long GUEST_TTL_SECONDS = 30 * 60;
 }
