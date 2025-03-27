@@ -18,6 +18,7 @@ public class NotificationController implements NotificationApi {
 
     private final NotificationService notificationService;
 
+
     @GetMapping
     @Override
     public ResponseEntity<?> getNotifications(@RequestParam(value = "keyword", required = false) String keyword,
@@ -31,7 +32,9 @@ public class NotificationController implements NotificationApi {
 
 
 
+
     @Override
+    @GetMapping("/{notificationId}")
     public ResponseEntity<?> getNotificationsById(@PathVariable(value = "notificationId") Long notificationId) {
         NotificationRes notificationRes = notificationService.getNotificationsById(notificationId);
         return ResponseEntity.status(HttpStatus.OK).body(notificationRes);
