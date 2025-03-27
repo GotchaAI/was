@@ -68,7 +68,7 @@ public class TokenProvider {
                 .getPayload();
     }
 
-    public String getEmail(String token) {
+    public String getUsername(String token) {
         return getClaims(token).getSubject();
     }
 
