@@ -1,6 +1,7 @@
 package Gotcha.domain.notification.entity;
 
 import Gotcha.common.entity.BaseTimeEntity;
+import Gotcha.domain.notification.dto.NotificationReq;
 import Gotcha.domain.user.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -36,9 +37,15 @@ public class Notification extends BaseTimeEntity {
     private User writer;
 
     @Builder
-    public Notification(String title, String content, Boolean isFixed){
+    public Notification(String title, String content, User writer){
         this.title = title;
         this.content = content;
-        this.isFixed = isFixed;
+        this.writer = writer;
+    }
+
+    public void update(NotificationReq req){
+        this.title = req.getTitle();
+        this.content = req.getContent();
+        this.isFixed = Boolean.TRUE;
     }
 }
