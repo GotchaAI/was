@@ -2,8 +2,10 @@ package Gotcha.common.jwt.filter;
 
 import Gotcha.common.constants.SecurityConstants;
 import Gotcha.common.jwt.BlackListTokenService;
+import Gotcha.common.jwt.UserDetailsServiceImpl;
 import Gotcha.common.jwt.exception.JwtExceptionCode;
 import Gotcha.common.jwt.TokenProvider;
+import Gotcha.domain.user.entity.Role;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -16,7 +18,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.util.AntPathMatcher;
 
@@ -29,7 +30,7 @@ import static Gotcha.common.jwt.JwtProperties.TOKEN_PREFIX;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final UserDetailsService userDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
     private final TokenProvider tokenProvider;
     private final BlackListTokenService blackListTokenService;
 
@@ -52,8 +53,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String accessToken = resolveAccessToken(response, accessTokenHeader);
 
-        String username = tokenProvider.getEmail(accessToken);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        String role = tokenProvider.getRole(accessToken);
+        UserDetails userDetails;
+        if (role.equals(String.valueOf(Role.GUEST))) {
+            Long guestId = tokenProvider.getUserId(accessToken);
+            userDetails = userDetailsService.loadGuestByUserId(guestId);
+        }
+        else{
+            String username = tokenProvider.getEmail(accessToken);
+            userDetails = userDetailsService.loadUserByUsername(username);
+        }
 
         Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
