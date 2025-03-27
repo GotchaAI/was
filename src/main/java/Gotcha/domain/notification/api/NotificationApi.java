@@ -75,7 +75,7 @@ public interface NotificationApi {
     })
     ResponseEntity<?> getNotifications(@RequestParam(value = "keyword", required = false) String keyword,
                                        @RequestParam(value = "page") Integer page,
-                                       @RequestParam(value = "sort") NotificationSortType sort);
+                                       @RequestParam(value = "sort", defaultValue = "DATE_DESC") NotificationSortType sort);
 
 
     @Operation(summary = "공지사항 조회", description = "공지사항 ID를 받아 해당 공지사항을 조회하는 API")
