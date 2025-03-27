@@ -38,6 +38,10 @@ public class SecurityUserDetails implements UserDetails {
         return user.getEmail();
     }
 
+    public String getNickname(){
+        return user.getNickname();
+    }
+
     public Long getId(){
         return user.getId();
     }
