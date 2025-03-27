@@ -22,11 +22,11 @@ public interface NotificationApi {
                     content = @Content(mediaType = "application/json", examples = {
                         @ExampleObject(value = """
                                 {
-                                    "totalPages": 1, // 전체 페이지 수
-                                    "totalElements": 3, // 전체 게시글 수
-                                    "first": true, // 첫 페이지인지
-                                    "last": true, // 마지막 페이지인지
-                                    "size": 10, // 한 페이지에 보여줄 아이템 수
+                                    "totalPages": 1, 
+                                    "totalElements": 3, 
+                                    "first": true, 
+                                    "last": true, 
+                                    "size": 10, 
                                     "content": [
                                         {
                                             "notificationId": 2,
@@ -59,14 +59,14 @@ public interface NotificationApi {
                                         "unpaged": false,
                                         "paged": true
                                     },
-                                    "numberOfElements": 3, // 현재 페이지 아이템 수
+                                    "numberOfElements": 3, 
                                     "sort": {
                                         "empty": false,
                                         "sorted": true,
                                         "unsorted": false
                                     },
-                                    "number": 0, // 현재 페이지 번호
-                                    "empty": false // 빈 페이지인지                            
+                                    "number": 0, 
+                                    "empty": false                           
                                 }   
                                 """)
                     })
@@ -76,6 +76,7 @@ public interface NotificationApi {
     ResponseEntity<?> getNotifications(@RequestParam(value = "keyword", required = false) String keyword,
                                        @RequestParam(value = "page") Integer page,
                                        @RequestParam(value = "sort", defaultValue = "DATE_DESC") NotificationSortType sort);
+
 
 
     @Operation(summary = "공지사항 조회", description = "공지사항 ID를 받아 해당 공지사항을 조회하는 API")

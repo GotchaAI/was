@@ -15,7 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "[관리자 공지사항 API]", description = "관리자용 공지사항 관련 API")
-interface AdminNotificationApi {
+public interface AdminNotificationApi {
 
     @Operation(summary = "공지사항 생성", description = "공지사항 생성 API")
     @ApiResponses({
