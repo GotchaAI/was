@@ -55,6 +55,13 @@ public class AuthController implements AuthApi {
         return createTokenRes(tokenDto);
     }
 
+    @PostMapping("/guest/sign-in")
+    public ResponseEntity<?> guestSignIn(){
+        TokenDto tokenDto = authService.guestSignIn();
+
+        return createTokenRes(tokenDto);
+    }
+
     @PostMapping("/token-reissue")
     public ResponseEntity<?> reIssueToken(@CookieValue(name = REFRESH_COOKIE_VALUE, required = false) String refreshToken) {
         if (refreshToken == null) {
