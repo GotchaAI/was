@@ -102,7 +102,7 @@ public class AuthService {
         redisUtil.setDataExpire("guest:" + guestId, GUEST_TTL_SECONDS);
 
         //게스트 유저 토큰 생성
-        return jwtHelper.createToken(guestUser);
+        return jwtHelper.createGuestToken(guestUser);
     }
 
     public TokenDto reissueAccessToken(String refreshToken) {
