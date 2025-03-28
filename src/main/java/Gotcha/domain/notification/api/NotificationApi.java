@@ -111,7 +111,7 @@ public interface NotificationApi {
             )
 
     })
-    ResponseEntity<?> getNotificationsById(@PathVariable(value = "notificationId") Long notificationId);
+    ResponseEntity<?> getNotificationById(@PathVariable(value = "notificationId") Long notificationId);
 
 
 }
