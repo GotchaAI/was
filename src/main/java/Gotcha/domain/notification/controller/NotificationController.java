@@ -5,6 +5,7 @@ import Gotcha.domain.notification.dto.NotificationRes;
 import Gotcha.domain.notification.dto.NotificationSortType;
 import Gotcha.domain.notification.dto.NotificationSummaryRes;
 import Gotcha.domain.notification.service.NotificationService;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -18,10 +19,11 @@ public class NotificationController implements NotificationApi {
 
     private final NotificationService notificationService;
 
-    @GetMapping
+
     @Override
+    @GetMapping
     public ResponseEntity<?> getNotifications(@RequestParam(value = "keyword", required = false) String keyword,
-                                       @RequestParam(value = "page") Integer page,
+                                       @RequestParam(value = "page", defaultValue = "0") @Min(0) Integer page,
                                        @RequestParam(value = "sort", defaultValue = "DATE_DESC") NotificationSortType sort){
         Page<NotificationSummaryRes> notifications = notificationService.getNotifications(keyword, page, sort);
 

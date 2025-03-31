@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -74,7 +75,7 @@ public interface NotificationApi {
 
     })
     ResponseEntity<?> getNotifications(@RequestParam(value = "keyword", required = false) String keyword,
-                                       @RequestParam(value = "page") Integer page,
+                                       @RequestParam(value = "page",defaultValue = "0") @Min(0) Integer page,
                                        @RequestParam(value = "sort", defaultValue = "DATE_DESC") NotificationSortType sort);
 
 
