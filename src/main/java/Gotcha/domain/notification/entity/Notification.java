@@ -37,15 +37,16 @@ public class Notification extends BaseTimeEntity {
     private User writer;
 
     @Builder
-    public Notification(String title, String content, User writer){
+    public Notification(String title, String content, User writer, Boolean isFixed){
         this.title = title;
         this.content = content;
         this.writer = writer;
+        this.isFixed = isFixed;
     }
 
     public void update(NotificationReq req){
-        this.title = req.getTitle();
-        this.content = req.getContent();
+        this.title = req.title();
+        this.content = req.content();
         this.isFixed = Boolean.TRUE;
     }
 }
