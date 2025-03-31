@@ -23,20 +23,18 @@ public class AdminNotificationService {
 
     @Transactional
     public void createNotification(NotificationReq notificationReq, Long writerId){
-        User writer = userRepository.findById(writerId)
-                .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_ID));
-
-        if(writer.getRole().equals(Role.ADMIN))
-            throw new CustomException(NotificationExceptionCode.UNAUTHORIZED_ACTION);
+        User writer = validateAdmin(writerId);
 
         Notification notification = notificationReq.toEntity(writer);
-        notificationRepository.save(notification);
 
+        notificationRepository.save(notification);
     }
 
 
     @Transactional
     public void updateNotification(NotificationReq notificationReq, Long notificationId, Long userId){
+        validateAdmin(userId);
+
         Notification notification = validateUserNotification(notificationId, userId);
 
         notification.update(notificationReq);
@@ -44,23 +42,33 @@ public class AdminNotificationService {
 
     @Transactional
     public void deleteNotification(Long notificationId, Long userId){
+        validateAdmin(userId);
+
         Notification notification = validateUserNotification(notificationId, userId);
 
         notificationRepository.delete(notification);
     }
 
     private Notification validateUserNotification(Long notificationId, Long userId) {
-        User writer = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_ID));
+        Notification notification = validateNotification(notificationId);
 
-        Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new CustomException(NotificationExceptionCode.NOT_FOUND));
-
-        if(!writer.getRole().equals(Role.ADMIN) || !notification.getWriter().getId().equals(userId))
+        if(!notification.getWriter().getId().equals(userId))
             throw new CustomException(NotificationExceptionCode.UNAUTHORIZED_ACTION);
 
         return notification;
     }
 
+    private User validateAdmin(Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_ID));
+        if(!user.getRole().equals(Role.ADMIN))
+            throw new CustomException(NotificationExceptionCode.UNAUTHORIZED_ACTION);
+        return user;
+    }
+
+    private Notification validateNotification(Long notificationId){
+        return notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new CustomException(NotificationExceptionCode.NOT_FOUND));
+    }
 
 }
