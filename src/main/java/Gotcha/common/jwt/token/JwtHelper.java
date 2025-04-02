@@ -1,4 +1,4 @@
-package Gotcha.common.jwt;
+package Gotcha.common.jwt.token;
 
 import Gotcha.common.exception.CustomException;
 import Gotcha.common.jwt.exception.JwtExceptionCode;
@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
-import static Gotcha.common.jwt.JwtProperties.REFRESH_COOKIE_VALUE;
-import static Gotcha.common.jwt.JwtProperties.TOKEN_PREFIX;
+import static Gotcha.common.jwt.token.JwtProperties.REFRESH_COOKIE_VALUE;
+import static Gotcha.common.jwt.token.JwtProperties.TOKEN_PREFIX;
 
 @RequiredArgsConstructor
 @Component

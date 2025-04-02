@@ -1,9 +1,9 @@
 package Gotcha.common.jwt.filter;
 
 import Gotcha.common.constants.SecurityConstants;
-import Gotcha.common.jwt.BlackListTokenService;
+import Gotcha.common.jwt.token.BlackListTokenService;
 import Gotcha.common.jwt.exception.JwtExceptionCode;
-import Gotcha.common.jwt.TokenProvider;
+import Gotcha.common.jwt.token.TokenProvider;
 import Gotcha.domain.user.entity.Role;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -24,8 +24,8 @@ import org.springframework.util.AntPathMatcher;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static Gotcha.common.jwt.JwtProperties.ACCESS_HEADER_VALUE;
-import static Gotcha.common.jwt.JwtProperties.TOKEN_PREFIX;
+import static Gotcha.common.jwt.token.JwtProperties.ACCESS_HEADER_VALUE;
+import static Gotcha.common.jwt.token.JwtProperties.TOKEN_PREFIX;
 
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {

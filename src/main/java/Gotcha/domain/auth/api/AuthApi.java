@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-import static Gotcha.common.jwt.JwtProperties.ACCESS_HEADER_VALUE;
-import static Gotcha.common.jwt.JwtProperties.REFRESH_COOKIE_VALUE;
+import static Gotcha.common.jwt.token.JwtProperties.ACCESS_HEADER_VALUE;
+import static Gotcha.common.jwt.token.JwtProperties.REFRESH_COOKIE_VALUE;
 
 @Tag(name = "[인증 API]", description = "인증 관련 API")
 public interface AuthApi {

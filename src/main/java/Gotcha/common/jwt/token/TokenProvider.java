@@ -1,4 +1,4 @@
-package Gotcha.common.jwt;
+package Gotcha.common.jwt.token;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

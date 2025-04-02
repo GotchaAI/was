@@ -1,4 +1,4 @@
-package Gotcha.common.jwt;
+package Gotcha.common.jwt.auth;
 
 import Gotcha.common.util.RedisUtil;
 import Gotcha.domain.user.entity.User;

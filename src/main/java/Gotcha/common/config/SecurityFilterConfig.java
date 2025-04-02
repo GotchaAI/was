@@ -1,9 +1,9 @@
 package Gotcha.common.config;
 
-import Gotcha.common.jwt.BlackListTokenService;
-import Gotcha.common.jwt.GuestDetailsService;
-import Gotcha.common.jwt.TokenProvider;
-import Gotcha.common.jwt.UserDetailsServiceImpl;
+import Gotcha.common.jwt.token.BlackListTokenService;
+import Gotcha.common.jwt.auth.GuestDetailsService;
+import Gotcha.common.jwt.token.TokenProvider;
+import Gotcha.common.jwt.auth.UserDetailsServiceImpl;
 import Gotcha.common.jwt.filter.JwtAuthenticationFilter;
 import Gotcha.common.jwt.filter.JwtExceptionFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;

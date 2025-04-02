@@ -2,7 +2,7 @@ package Gotcha.domain.auth.service;
 
 import Gotcha.common.exception.CustomException;
 import Gotcha.common.exception.FieldValidationException;
-import Gotcha.common.jwt.JwtHelper;
+import Gotcha.common.jwt.token.JwtHelper;
 import Gotcha.common.util.RedisUtil;
 import Gotcha.domain.auth.dto.SignInReq;
 import Gotcha.domain.auth.dto.SignUpReq;
@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static Gotcha.common.jwt.JwtProperties.TOKEN_PREFIX;
+import static Gotcha.common.jwt.token.JwtProperties.TOKEN_PREFIX;
 import static Gotcha.common.redis.RedisProperties.EMAIL_VERIFY_KEY_PREFIX;
 import static Gotcha.common.redis.RedisProperties.GUEST_TTL_SECONDS;
 import static Gotcha.common.redis.RedisProperties.NICKNAME_VERIFY_KEY_PREFIX;
