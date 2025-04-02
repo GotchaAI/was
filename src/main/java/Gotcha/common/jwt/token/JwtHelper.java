@@ -46,6 +46,8 @@ public class JwtHelper {
     }
 
     public TokenDto reissueToken(String refreshToken) {
+        refreshTokenService.isExpiredRefreshToken(refreshToken);
+
         String username = tokenProvider.getUsername(refreshToken);
 
         if (!refreshTokenService.existedRefreshToken(username, refreshToken))

@@ -123,7 +123,17 @@ public interface AuthApi {
                                              "message": "Refresh Token을 찾을 수 없습니다."
                                         }
                                     """)
-                    }))
+                    })),
+            @ApiResponse(responseCode = "401", description = "refreshToken 만료",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                        {
+                                             "status": "UNAUTHORIZED",
+                                             "message": "Refresh Token이 만료되었습니다."
+                                        }
+                                    """)
+                    })
+            )
     })
     ResponseEntity<?> reIssueToken(@CookieValue(name = REFRESH_COOKIE_VALUE, required = false) String refreshToken);
 

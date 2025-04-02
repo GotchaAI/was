@@ -1,6 +1,9 @@
 package Gotcha.common.jwt.token;
 
+import Gotcha.common.exception.CustomException;
+import Gotcha.common.jwt.exception.JwtExceptionCode;
 import Gotcha.common.util.RedisUtil;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -38,5 +41,13 @@ public class RefreshTokenService {
         }
 
         return storedRefreshToken.equals(requestRefreshToken);
+    }
+
+    public void isExpiredRefreshToken(String refreshToken) {
+        try {
+            tokenProvider.isExpired(refreshToken);
+        } catch (ExpiredJwtException e) {
+            throw new CustomException(JwtExceptionCode.REFRESH_TOKEN_EXPIRED);
+        }
     }
 }
