@@ -2,7 +2,6 @@ package Gotcha.common.jwt.filter;
 
 import Gotcha.common.constants.SecurityConstants;
 import Gotcha.common.jwt.BlackListTokenService;
-import Gotcha.common.jwt.UserDetailsServiceImpl;
 import Gotcha.common.jwt.exception.JwtExceptionCode;
 import Gotcha.common.jwt.TokenProvider;
 import Gotcha.domain.user.entity.Role;
@@ -11,13 +10,14 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.util.AntPathMatcher;
 
@@ -28,14 +28,28 @@ import static Gotcha.common.jwt.JwtProperties.ACCESS_HEADER_VALUE;
 import static Gotcha.common.jwt.JwtProperties.TOKEN_PREFIX;
 
 @Slf4j
-@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsService userDetailsService;
+    private final UserDetailsService guestDetailsService;
     private final TokenProvider tokenProvider;
     private final BlackListTokenService blackListTokenService;
 
     private static final String SPECIAL_CHARACTERS_PATTERN = "[`':;|~!@#$%()^&*+=?/{}\\[\\]\\\"\\\\\"]+$";
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+
+    public JwtAuthenticationFilter(
+            @Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService,
+            @Qualifier("guestDetailsService") UserDetailsService guestDetailsService,
+            TokenProvider tokenProvider,
+            BlackListTokenService blackListTokenService
+    ) {
+        this.userDetailsService = userDetailsService;
+        this.guestDetailsService = guestDetailsService;
+        this.tokenProvider = tokenProvider;
+        this.blackListTokenService = blackListTokenService;
+    }
+
+
 
 
     @Override
@@ -57,7 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         UserDetails userDetails;
         if (role.equals(String.valueOf(Role.GUEST))) {
             Long guestId = tokenProvider.getUserId(accessToken);
-            userDetails = userDetailsService.loadGuestByUserId(guestId);
+            userDetails = guestDetailsService.loadUserByUsername(guestId.toString());
         }
         else{
             String username = tokenProvider.getUsername(accessToken);
