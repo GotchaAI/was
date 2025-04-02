@@ -7,6 +7,7 @@ public interface RedisProperties {
     String CODE_KEY_PREFIX = "code::";
     String EMAIL_VERIFY_KEY_PREFIX = "emailVerify::";
     String NICKNAME_VERIFY_KEY_PREFIX = "nicknameVerify::";
+    String GUEST_KEY_PREFIX = "guest::";
 
     long CODE_EXPIRATION_TIME = 5*60;
 

@@ -24,6 +24,7 @@ import java.util.UUID;
 
 import static Gotcha.common.jwt.token.JwtProperties.TOKEN_PREFIX;
 import static Gotcha.common.redis.RedisProperties.EMAIL_VERIFY_KEY_PREFIX;
+import static Gotcha.common.redis.RedisProperties.GUEST_KEY_PREFIX;
 import static Gotcha.common.redis.RedisProperties.GUEST_TTL_SECONDS;
 import static Gotcha.common.redis.RedisProperties.NICKNAME_VERIFY_KEY_PREFIX;
 
@@ -86,7 +87,7 @@ public class AuthService {
         Long guestId;
         do{
             guestId = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
-        }while(redisUtil.existed("guest:" + guestId));
+        }while(redisUtil.existed(GUEST_KEY_PREFIX + guestId));
         //무작위 닉네임 생성
         String nickname = RandomNicknameGenerator.generateNickname();
 
@@ -98,8 +99,8 @@ public class AuthService {
                 .build();
 
         //게스트 유저 정보를 Redis에 저장
-        redisUtil.setData("guest:" + guestId, guestUser);
-        redisUtil.setDataExpire("guest:" + guestId, GUEST_TTL_SECONDS);
+        redisUtil.setData(GUEST_KEY_PREFIX + guestId, guestUser);
+        redisUtil.setDataExpire(GUEST_KEY_PREFIX + guestId, GUEST_TTL_SECONDS);
 
         //게스트 유저 토큰 생성
         return jwtHelper.createGuestToken(guestUser);

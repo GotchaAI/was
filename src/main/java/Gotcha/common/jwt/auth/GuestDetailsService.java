@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+import static Gotcha.common.redis.RedisProperties.GUEST_KEY_PREFIX;
 import static Gotcha.common.redis.RedisProperties.GUEST_TTL_SECONDS;
 
 @Service
@@ -25,10 +26,10 @@ public class GuestDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("Invalid guest ID: " + username);
         }
 
-        User guest = Optional.ofNullable((User) redisUtil.getData("guest:" + guestId))
+        User guest = Optional.ofNullable((User) redisUtil.getData(GUEST_KEY_PREFIX + guestId))
                 .orElseThrow(()-> new UsernameNotFoundException("Guest not found : " + guestId));
 
-        redisUtil.setDataExpire("guest:" + guestId, GUEST_TTL_SECONDS);
+        redisUtil.setDataExpire(GUEST_KEY_PREFIX + guestId, GUEST_TTL_SECONDS);
 
         return new SecurityUserDetails(guest);
     }
