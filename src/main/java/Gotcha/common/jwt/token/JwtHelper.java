@@ -40,9 +40,12 @@ public class JwtHelper {
 
         String accessToken = TOKEN_PREFIX + tokenProvider.createAccessToken(role, userId, username);
         String refreshToken = tokenProvider.createRefreshToken(role, userId, username);
+        LocalDateTime accessTokenExpiredAt = tokenProvider.getExpiryDate(
+                accessToken.replace(TOKEN_PREFIX, "").trim()
+        );
 
         refreshTokenService.saveRefreshToken(username, refreshToken);
-        return new TokenDto(accessToken, refreshToken);
+        return new TokenDto(accessToken, refreshToken, accessTokenExpiredAt);
     }
 
     public TokenDto reissueToken(String refreshToken) {
@@ -58,11 +61,14 @@ public class JwtHelper {
 
         String newAccessToken = TOKEN_PREFIX + tokenProvider.createAccessToken(role, userId, username);
         String newRefreshToken = tokenProvider.createRefreshToken(role, userId, username);
+        LocalDateTime newAccessTokenExpiredAt = tokenProvider.getExpiryDate(
+                newAccessToken.replace(TOKEN_PREFIX, "").trim()
+        );
 
         refreshTokenService.deleteRefreshToken(refreshToken);
         refreshTokenService.saveRefreshToken(username, newRefreshToken);
 
-        return new TokenDto(newAccessToken, newRefreshToken);
+        return new TokenDto(newAccessToken, newRefreshToken, newAccessTokenExpiredAt);
     }
 
     public void removeToken(String accessToken, String refreshToken, HttpServletResponse response) {
