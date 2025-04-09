@@ -2,12 +2,14 @@ package Gotcha.domain.auth.service;
 
 import Gotcha.common.exception.CustomException;
 import Gotcha.common.exception.FieldValidationException;
-import Gotcha.common.jwt.JwtHelper;
+import Gotcha.common.jwt.token.JwtHelper;
 import Gotcha.common.util.RedisUtil;
 import Gotcha.domain.auth.dto.SignInReq;
 import Gotcha.domain.auth.dto.SignUpReq;
 import Gotcha.domain.auth.dto.TokenDto;
 import Gotcha.domain.auth.exception.AuthExceptionCode;
+import Gotcha.domain.auth.util.RandomNicknameGenerator;
+import Gotcha.domain.user.entity.Role;
 import Gotcha.domain.user.entity.User;
 import Gotcha.domain.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,9 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
-import static Gotcha.common.jwt.JwtProperties.TOKEN_PREFIX;
+import static Gotcha.common.jwt.token.JwtProperties.TOKEN_PREFIX;
 import static Gotcha.common.redis.RedisProperties.EMAIL_VERIFY_KEY_PREFIX;
+import static Gotcha.common.redis.RedisProperties.GUEST_KEY_PREFIX;
+import static Gotcha.common.redis.RedisProperties.GUEST_TTL_SECONDS;
 import static Gotcha.common.redis.RedisProperties.NICKNAME_VERIFY_KEY_PREFIX;
 
 @Service
@@ -75,6 +80,30 @@ public class AuthService {
         String accessToken = HeaderAccessToken.substring(TOKEN_PREFIX.length()).trim();
 
         jwtHelper.removeToken(accessToken, refreshToken, response);
+    }
+
+    public TokenDto guestSignIn(){
+        //무작위 아이디 값 생성
+        Long guestId;
+        do{
+            guestId = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
+        }while(redisUtil.existed(GUEST_KEY_PREFIX + guestId));
+        //무작위 닉네임 생성
+        String nickname = RandomNicknameGenerator.generateNickname();
+
+        //게스트 유저 생성
+        User guestUser = User.builder()
+                .id(guestId)
+                .nickname(nickname)
+                .role(Role.GUEST)
+                .build();
+
+        //게스트 유저 정보를 Redis에 저장
+        redisUtil.setData(GUEST_KEY_PREFIX + guestId, guestUser);
+        redisUtil.setDataExpire(GUEST_KEY_PREFIX + guestId, GUEST_TTL_SECONDS);
+
+        //게스트 유저 토큰 생성
+        return jwtHelper.createGuestToken(guestUser);
     }
 
     public TokenDto reissueAccessToken(String refreshToken) {

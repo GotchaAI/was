@@ -1,4 +1,4 @@
-package Gotcha.common.jwt;
+package Gotcha.common.jwt.auth;
 
 import Gotcha.common.security.CustomGrantedAuthority;
 import Gotcha.domain.user.entity.User;
@@ -36,6 +36,10 @@ public class SecurityUserDetails implements UserDetails {
     @Override
     public String getUsername() {
         return user.getEmail();
+    }
+
+    public String getNickname(){
+        return user.getNickname();
     }
 
     public Long getId(){

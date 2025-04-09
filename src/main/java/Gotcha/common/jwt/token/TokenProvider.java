@@ -1,4 +1,4 @@
-package Gotcha.common.jwt;
+package Gotcha.common.jwt.token;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -68,7 +68,7 @@ public class TokenProvider {
                 .getPayload();
     }
 
-    public String getEmail(String token) {
+    public String getUsername(String token) {
         return getClaims(token).getSubject();
     }
 
