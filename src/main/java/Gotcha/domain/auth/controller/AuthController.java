@@ -100,6 +100,7 @@ public class AuthController implements AuthApi {
     private ResponseEntity<?> createTokenRes(TokenDto tokenDto) {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("accessToken", tokenDto.accessToken());
+        responseData.put("expiredAt", tokenDto.accessTokenExpiredAt());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE,
