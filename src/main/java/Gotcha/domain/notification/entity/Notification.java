@@ -30,23 +30,19 @@ public class Notification extends BaseTimeEntity {
     @NotNull
     private String content;
 
-    private Boolean isFixed;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User writer;
 
     @Builder
-    public Notification(String title, String content, User writer, Boolean isFixed){
+    public Notification(String title, String content, User writer){
         this.title = title;
         this.content = content;
         this.writer = writer;
-        this.isFixed = isFixed;
     }
 
     public void update(NotificationReq req){
         this.title = req.title();
         this.content = req.content();
-        this.isFixed = Boolean.TRUE;
     }
 }

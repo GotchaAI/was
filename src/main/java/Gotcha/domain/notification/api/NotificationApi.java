@@ -91,8 +91,7 @@ public interface NotificationApi {
                                         "content": "걍 공지사항이다 인마",
                                         "createdAt": "2025-03-27T16:13:32",
                                         "modifiedAt": "2025-11-16T16:13:32",
-                                        "writer": "묘묘",
-                                        "isFixed": true
+                                        "writer": "묘묘"
                                     }
                                     """
                             )

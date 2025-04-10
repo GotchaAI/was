@@ -9,8 +9,7 @@ public record NotificationRes(
     String content,
     LocalDateTime createdAt,
     LocalDateTime modifiedAt,
-    String writer,
-    Boolean isFixed
+    String writer
 ) {
     public static NotificationRes fromEntity(Notification noti) {
         return new NotificationRes(
@@ -18,8 +17,7 @@ public record NotificationRes(
             noti.getContent(),
             noti.getCreatedAt(),
             noti.getModifiedAt(),
-            noti.getWriter().getNickname(),
-            noti.getIsFixed()
+            noti.getWriter().getNickname()
         );
     }
 }
