@@ -8,6 +8,7 @@ import Gotcha.domain.user.entity.User;
 import Gotcha.domain.user.exceptionCode.UserExceptionCode;
 import Gotcha.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +43,7 @@ public class UserService {
         }
     }
 
-   @Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public UserInfoRes getUserInfo(Long userId, Role role){
         User user = switch (role){
             case GUEST -> findGuestByGuestId(userId);
