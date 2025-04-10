@@ -6,17 +6,11 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
 
 @Configuration
 @EnableJpaAuditing
+@EnableSpringDataWebSupport(pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO)
 public class JpaConfig {
-
-    @PersistenceContext
-    private EntityManager em;
-
-    @Bean
-    JPAQueryFactory jpaQueryFactory(){
-        return new JPAQueryFactory(em);
-    }
 
 }
