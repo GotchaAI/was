@@ -29,7 +29,7 @@ public class NotificationService {
     public Page<NotificationSummaryRes> getNotifications(String keyword, Integer page, NotificationSortType sort){
         Pageable pageable = PageRequest.of(page, NOTIS_PER_PAGE);
 
-        Page<Notification> notifications = notificationRepository.getNotifications(keyword, pageable, sort);
+        Page<Notification> notifications = notificationRepository.findByTitleContainingIgnoreCase(keyword, pageable);
 
         return notifications.map(NotificationSummaryRes::fromEntity);
     }
