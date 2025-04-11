@@ -1,6 +1,7 @@
 package Gotcha.common.jwt.auth;
 
 import Gotcha.common.security.CustomGrantedAuthority;
+import Gotcha.domain.user.entity.Role;
 import Gotcha.domain.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
@@ -44,6 +45,10 @@ public class SecurityUserDetails implements UserDetails {
 
     public Long getId(){
         return user.getId();
+    }
+
+    public Role getRole() {
+        return user.getRole();
     }
 
     @Override
