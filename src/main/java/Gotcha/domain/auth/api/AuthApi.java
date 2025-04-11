@@ -28,8 +28,9 @@ public interface AuthApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                     {
-                                         "accessToken": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJpc3MiOiJnb3RjaGEhIiwiaWF0IjoxNzQyMzg2ODQzLCJleHAiOjE3NDIzODg2NDN9.u2fI9xyTKeKT6ZXPhp5mybVaGTpbJfX_0vtLlwHbKIM"
-                                     }
+                                          "expiredAt": "2025-04-10T06:57:45",
+                                          "accessToken": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjo1LCJpc3MiOiJnb3RjaGEhIiwiaWF0IjoxNzQ0MjY2NDY1LCJleHAiOjE3NDQyNjgyNjV9.u8RTE1VFsxZjQNB_dsc3ibSKqoHQGbC9-ppbOQUvzVY"
+                                    }
                                     """)
                     })),
             @ApiResponse(responseCode = "422", description = "유효성검사 실패",
@@ -74,8 +75,9 @@ public interface AuthApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                     {
-                                         "accessToken": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJpc3MiOiJnb3RjaGEhIiwiaWF0IjoxNzQyMzg2ODQzLCJleHAiOjE3NDIzODg2NDN9.u2fI9xyTKeKT6ZXPhp5mybVaGTpbJfX_0vtLlwHbKIM"
-                                     }
+                                          "expiredAt": "2025-04-10T06:57:45",
+                                          "accessToken": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjo1LCJpc3MiOiJnb3RjaGEhIiwiaWF0IjoxNzQ0MjY2NDY1LCJleHAiOjE3NDQyNjgyNjV9.u8RTE1VFsxZjQNB_dsc3ibSKqoHQGbC9-ppbOQUvzVY"
+                                    }
                                     """)
                     })),
             @ApiResponse(responseCode = "422", description = "유효성검사 실패",
@@ -111,15 +113,16 @@ public interface AuthApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                     {
-                                         "accessToken": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjo0LCJpc3MiOiJnb3RjaGEhIiwiaWF0IjoxNzQyMzg2ODQzLCJleHAiOjE3NDIzODg2NDN9.u2fI9xyTKeKT6ZXPhp5mybVaGTpbJfX_0vtLlwHbKIM"
-                                     }
+                                          "expiredAt": "2025-04-10T06:57:45",
+                                          "accessToken": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjo1LCJpc3MiOiJnb3RjaGEhIiwiaWF0IjoxNzQ0MjY2NDY1LCJleHAiOjE3NDQyNjgyNjV9.u8RTE1VFsxZjQNB_dsc3ibSKqoHQGbC9-ppbOQUvzVY"
+                                    }
                                     """)
                     })),
             @ApiResponse(responseCode = "404", description = "유효성검사 실패",
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                         {
-                                             "status": "NOT_FOUND",
+                                             "status": "UNAUTHORIZED",
                                              "message": "Refresh Token을 찾을 수 없습니다."
                                         }
                                     """)
@@ -235,4 +238,18 @@ public interface AuthApi {
     ResponseEntity<?> signOut(@RequestHeader(value = ACCESS_HEADER_VALUE, required = false) String accessToken,
                               @CookieValue(name = REFRESH_COOKIE_VALUE, required = false) String refreshToken,
                               HttpServletResponse response);
+
+    @Operation(summary = "게스트 로그인", description = "게스트 로그인 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "게스트 로그인 성공",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                    {
+                                        "expiredAt": "2025-04-10T15:53:49",
+                                        "accessToken": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiLsm4PquLTrhIjqtazrpqwiLCJyb2xlIjoiR1VFU1QiLCJ1c2VySWQiOjYzODUzODQzNjc2ODk1MTYzODgsImlzcyI6ImdvdGNoYSEiLCJpYXQiOjE3NDQyNjYyMjksImV4cCI6MTc0NDI2ODAyOX0.04gITtcCLkU4ts6OWrQf0Hx8InlQMAxC8w1Shz_ASjM"
+                                    }
+                                    """)
+                    }))
+    })
+    ResponseEntity<?> guestSignIn();
 }
