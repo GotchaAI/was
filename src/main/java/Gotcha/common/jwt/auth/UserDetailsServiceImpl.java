@@ -1,4 +1,4 @@
-package Gotcha.common.jwt;
+package Gotcha.common.jwt.auth;
 
 import Gotcha.domain.user.entity.User;
 import Gotcha.domain.user.repository.UserRepository;

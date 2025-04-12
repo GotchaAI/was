@@ -1,6 +1,9 @@
-package Gotcha.common.jwt;
+package Gotcha.common.jwt.token;
 
+import Gotcha.common.exception.CustomException;
+import Gotcha.common.jwt.exception.JwtExceptionCode;
 import Gotcha.common.util.RedisUtil;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,20 +19,20 @@ public class RefreshTokenService {
     @Value("${token.refresh.in-redis}")
     private long REFRESH_EXPIRATION;
 
-    public void saveRefreshToken(String email, String refreshToken) {
-        String key = REFRESH_TOKEN_KEY_PREFIX + email;
+    public void saveRefreshToken(String username, String refreshToken) {
+        String key = REFRESH_TOKEN_KEY_PREFIX + username;
         redisUtil.setData(key, refreshToken);
         redisUtil.setDataExpire(key, REFRESH_EXPIRATION);
     }
 
     public void deleteRefreshToken(String refreshToken) {
-        String email = tokenProvider.getEmail(refreshToken);
-        String key = REFRESH_TOKEN_KEY_PREFIX + email;
+        String username = tokenProvider.getUsername(refreshToken);
+        String key = REFRESH_TOKEN_KEY_PREFIX + username;
         redisUtil.deleteData(key);
     }
 
-    public boolean existedRefreshToken(String email, String requestRefreshToken) {
-        String key = REFRESH_TOKEN_KEY_PREFIX + email;
+    public boolean existedRefreshToken(String username, String requestRefreshToken) {
+        String key = REFRESH_TOKEN_KEY_PREFIX + username;
 
         String storedRefreshToken = (String) redisUtil.getData(key);
 
@@ -38,5 +41,13 @@ public class RefreshTokenService {
         }
 
         return storedRefreshToken.equals(requestRefreshToken);
+    }
+
+    public void isExpiredRefreshToken(String refreshToken) {
+        try {
+            tokenProvider.isExpired(refreshToken);
+        } catch (ExpiredJwtException e) {
+            throw new CustomException(JwtExceptionCode.REFRESH_TOKEN_EXPIRED);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package Gotcha.common.jwt;
+package Gotcha.common.jwt.token;
 
 import Gotcha.common.exception.CustomException;
 import Gotcha.common.jwt.exception.JwtExceptionCode;
@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
-import static Gotcha.common.jwt.JwtProperties.REFRESH_COOKIE_VALUE;
-import static Gotcha.common.jwt.JwtProperties.TOKEN_PREFIX;
+import static Gotcha.common.jwt.token.JwtProperties.REFRESH_COOKIE_VALUE;
+import static Gotcha.common.jwt.token.JwtProperties.TOKEN_PREFIX;
 
 @RequiredArgsConstructor
 @Component
@@ -26,31 +26,49 @@ public class JwtHelper {
     public TokenDto createToken(User user) {
         Long userId = user.getId();
         String email = user.getEmail();
+        return getTokenDto(user, userId, email);
+    }
+
+    public TokenDto createGuestToken(User guest){
+        Long userId = guest.getId();
+        String username = guest.getNickname();
+        return getTokenDto(guest, userId, username);
+    }
+
+    private TokenDto getTokenDto(User user, Long userId, String username) {
         String role = String.valueOf(user.getRole());
 
-        String accessToken = TOKEN_PREFIX + tokenProvider.createAccessToken(role, userId, email);
-        String refreshToken = tokenProvider.createRefreshToken(role, userId, email);
+        String accessToken = TOKEN_PREFIX + tokenProvider.createAccessToken(role, userId, username);
+        String refreshToken = tokenProvider.createRefreshToken(role, userId, username);
+        LocalDateTime accessTokenExpiredAt = tokenProvider.getExpiryDate(
+                accessToken.replace(TOKEN_PREFIX, "").trim()
+        );
 
-        refreshTokenService.saveRefreshToken(email, refreshToken);
-        return new TokenDto(accessToken, refreshToken);
+        refreshTokenService.saveRefreshToken(username, refreshToken);
+        return new TokenDto(accessToken, refreshToken, accessTokenExpiredAt);
     }
 
     public TokenDto reissueToken(String refreshToken) {
-        String email = tokenProvider.getEmail(refreshToken);
+        refreshTokenService.isExpiredRefreshToken(refreshToken);
 
-        if (!refreshTokenService.existedRefreshToken(email, refreshToken))
+        String username = tokenProvider.getUsername(refreshToken);
+
+        if (!refreshTokenService.existedRefreshToken(username, refreshToken))
             throw new CustomException(JwtExceptionCode.REFRESH_TOKEN_NOT_FOUND);
 
         Long userId = tokenProvider.getUserId(refreshToken);
         String role = tokenProvider.getRole(refreshToken);
 
-        String newAccessToken = TOKEN_PREFIX + tokenProvider.createAccessToken(role, userId, email);
-        String newRefreshToken = tokenProvider.createRefreshToken(role, userId, email);
+        String newAccessToken = TOKEN_PREFIX + tokenProvider.createAccessToken(role, userId, username);
+        String newRefreshToken = tokenProvider.createRefreshToken(role, userId, username);
+        LocalDateTime newAccessTokenExpiredAt = tokenProvider.getExpiryDate(
+                newAccessToken.replace(TOKEN_PREFIX, "").trim()
+        );
 
         refreshTokenService.deleteRefreshToken(refreshToken);
-        refreshTokenService.saveRefreshToken(email, newRefreshToken);
+        refreshTokenService.saveRefreshToken(username, newRefreshToken);
 
-        return new TokenDto(newAccessToken, newRefreshToken);
+        return new TokenDto(newAccessToken, newRefreshToken, newAccessTokenExpiredAt);
     }
 
     public void removeToken(String accessToken, String refreshToken, HttpServletResponse response) {

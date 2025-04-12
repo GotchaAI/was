@@ -102,7 +102,8 @@ public class User extends BaseTimeEntity {
     private List<BugReport> bugReports = new ArrayList<>();
 
     @Builder
-    public User(String email, String password, String nickname, Role role){
+    public User(Long id, String email, String password, String nickname, Role role){
+        this.id = id;
         this.email = email;
         this.password = password;
         this.nickname = nickname;

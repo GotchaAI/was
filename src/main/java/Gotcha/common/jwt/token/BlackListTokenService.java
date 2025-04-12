@@ -1,4 +1,4 @@
-package Gotcha.common.jwt;
+package Gotcha.common.jwt.token;
 
 import Gotcha.common.util.RedisUtil;
 import lombok.RequiredArgsConstructor;

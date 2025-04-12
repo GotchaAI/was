@@ -1,5 +1,6 @@
 package Gotcha.domain.user.api;
 
+import Gotcha.common.jwt.auth.SecurityUserDetails;
 import Gotcha.domain.user.dto.NicknameReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "[사용자 API]", description = "사용자 관련 API")
@@ -49,4 +51,42 @@ public interface UserApi {
                     }))
     })
     ResponseEntity<?> checkNickname(@Valid @RequestBody NicknameReq nicknameReq);
+
+    @Operation(summary = "사용자 정보 조회", description = "사용자 정보 조회 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "사용자 정보 조회 성공",
+            content = @Content(mediaType = "application/json", examples = {
+                    @ExampleObject(name = "게스트 조회", value = """
+                            {
+                                "nickname": "웃긴너구리",
+                                "email": null,
+                                "role": "GUEST"
+                            }
+                            """),
+                    @ExampleObject(name = "사용자 조회", value = """
+                            {
+                                "nickname": "테스트",
+                                "email": "test@gmail.com",
+                                "role": "USER"
+                            }
+                            """),
+                    @ExampleObject(name = "관리자 조회", value = """
+                            {
+                                "nickname": "관리자",
+                                "email": "admin@gmail.com",
+                                "role": "ADMIN"
+                            }
+                            """)
+            })),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 사용자",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                    {
+                                         "status": "NOT_FOUND",
+                                         "message": "존재하지 않는 사용자입니다."
+                                     }
+                                    """)
+                    })),
+    })
+    ResponseEntity<?> getUserInfo(@AuthenticationPrincipal SecurityUserDetails userDetails);
 }

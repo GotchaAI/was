@@ -34,7 +34,7 @@ public class MailService {
     public void sendMail(String email, String code) {
         try {
             ClassPathResource resource = new ClassPathResource("templates/email-verification.html");
-            String htmlContent = Files.readString(resource.getFile().toPath(), StandardCharsets.UTF_8);
+            String htmlContent = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
 
             String finalContent = htmlContent.replace("{{CODE}}", code);
 

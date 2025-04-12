@@ -29,8 +29,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
-import static Gotcha.common.jwt.JwtProperties.ACCESS_HEADER_VALUE;
-import static Gotcha.common.jwt.JwtProperties.REFRESH_COOKIE_VALUE;
+import static Gotcha.common.jwt.token.JwtProperties.ACCESS_HEADER_VALUE;
+import static Gotcha.common.jwt.token.JwtProperties.REFRESH_COOKIE_VALUE;
 
 @RestController
 @RequiredArgsConstructor
@@ -51,6 +51,13 @@ public class AuthController implements AuthApi {
     @PostMapping("/sign-in")
     public ResponseEntity<?> signIn(@Valid @RequestBody SignInReq signInReq) {
         TokenDto tokenDto = authService.signIn(signInReq);
+
+        return createTokenRes(tokenDto);
+    }
+
+    @PostMapping("/guest/sign-in")
+    public ResponseEntity<?> guestSignIn(){
+        TokenDto tokenDto = authService.guestSignIn();
 
         return createTokenRes(tokenDto);
     }
@@ -93,6 +100,7 @@ public class AuthController implements AuthApi {
     private ResponseEntity<?> createTokenRes(TokenDto tokenDto) {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("accessToken", tokenDto.accessToken());
+        responseData.put("expiredAt", tokenDto.accessTokenExpiredAt());
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE,
