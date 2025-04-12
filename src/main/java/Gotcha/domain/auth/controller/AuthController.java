@@ -13,11 +13,14 @@ import Gotcha.domain.auth.dto.SignUpReq;
 import Gotcha.domain.auth.dto.TokenDto;
 import Gotcha.domain.auth.service.AuthService;
 import Gotcha.domain.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,6 +43,8 @@ public class AuthController implements AuthApi {
     private final CookieUtil cookieUtil;
     private final MailCodeService mailCodeService;
     private final UserService userService;
+    private final CookieCsrfTokenRepository csrfTokenRepository;
+
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(@Valid @RequestBody SignUpReq signUpReq) {
@@ -95,6 +100,13 @@ public class AuthController implements AuthApi {
         authService.signOut(accessToken, refreshToken, response);
 
         return ResponseEntity.ok(SuccessRes.from("로그아웃 되었습니다."));
+    }
+
+    @GetMapping("/csrf-token")
+    public ResponseEntity<Void> getCsrfToken(HttpServletRequest request, HttpServletResponse response) {
+        CsrfToken token = csrfTokenRepository.generateToken(request);
+        csrfTokenRepository.saveToken(token, request, response);
+        return ResponseEntity.ok().build();
     }
 
     private ResponseEntity<?> createTokenRes(TokenDto tokenDto, boolean autoSignIn) {
