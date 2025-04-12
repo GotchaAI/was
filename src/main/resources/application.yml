@@ -37,14 +37,15 @@ spring:
 
 jwt:
   secret-key: ${JWT_KEY:gotchaSecretKey_mN8xG4zH2K9YtR7mN1BvLpZ5QwX3T6JpC2DfV5LqZ7YgR8K1N9BvM3X6T2D}
-  access-expiration: ${JWT_ACCESS_EXPIRATION:1800000}
-  refresh-expiration: ${JWT_REFRESH_EXPIRATION:86400000}
+  access-expiration: ${JWT_ACCESS_EXPIRATION:1800000} #30분
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:86400000} #1일
+  auto-login-refresh-expiration: ${JWT_AUTO_REFRESH_EXPIRATION:1209600000} #14일
   issuer: ${JWT_ISSUER:gotcha!}
 
 token:
   refresh:
-    in-cookie: ${COOKIE_REFRESH_EXPIRATION:648000}
-    in-redis: ${REDIS_REFRESH_EXPIRATION:648000}
+    in-cookie: ${COOKIE_REFRESH_EXPIRATION:1209600} #14일
+    in-redis: ${REDIS_REFRESH_EXPIRATION:1209600} #14일
 
 cache:
   ttl: ${CACHE_TTL:60}
