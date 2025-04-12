@@ -11,15 +11,18 @@ public class CookieUtil {
     @Value("${token.refresh.in-cookie}")
     private long COOKIE_REFRESH_EXPIRATION;
 
-    public ResponseCookie createCookie(String key, String value) {
+    public ResponseCookie createCookie(String key, String value, boolean autoSignIn) {
 
-        return ResponseCookie.from(key, value)
+        ResponseCookie.ResponseCookieBuilder cookie = ResponseCookie.from(key, value)
                 .path("/")
                 .httpOnly(true)
-                .maxAge(COOKIE_REFRESH_EXPIRATION)
                 .secure(true)
-                .sameSite("None")
-                .build();
+                .sameSite("None");
+
+        if(autoSignIn)
+            cookie.maxAge(COOKIE_REFRESH_EXPIRATION);
+
+        return cookie.build();
     }
 
     public void deleteCookie(String cookieName, HttpServletResponse response) {

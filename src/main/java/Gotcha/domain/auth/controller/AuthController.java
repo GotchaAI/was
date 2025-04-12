@@ -45,21 +45,21 @@ public class AuthController implements AuthApi {
     public ResponseEntity<?> signUp(@Valid @RequestBody SignUpReq signUpReq) {
         TokenDto tokenDto = authService.signUp(signUpReq);
 
-        return createTokenRes(tokenDto);
+        return createTokenRes(tokenDto, false);
     }
 
     @PostMapping("/sign-in")
     public ResponseEntity<?> signIn(@Valid @RequestBody SignInReq signInReq) {
         TokenDto tokenDto = authService.signIn(signInReq);
 
-        return createTokenRes(tokenDto);
+        return createTokenRes(tokenDto, signInReq.autoSignIn());
     }
 
     @PostMapping("/guest/sign-in")
     public ResponseEntity<?> guestSignIn(){
         TokenDto tokenDto = authService.guestSignIn();
 
-        return createTokenRes(tokenDto);
+        return createTokenRes(tokenDto, false);
     }
 
     @PostMapping("/token-reissue")
@@ -69,7 +69,7 @@ public class AuthController implements AuthApi {
         }
         TokenDto tokenDto = authService.reissueAccessToken(refreshToken);
 
-        return createTokenRes(tokenDto);
+        return createTokenRes(tokenDto, false);
     }
 
     @PostMapping("/email/send")
@@ -97,7 +97,7 @@ public class AuthController implements AuthApi {
         return ResponseEntity.ok(SuccessRes.from("로그아웃 되었습니다."));
     }
 
-    private ResponseEntity<?> createTokenRes(TokenDto tokenDto) {
+    private ResponseEntity<?> createTokenRes(TokenDto tokenDto, boolean autoSignIn) {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("accessToken", tokenDto.accessToken());
         responseData.put("expiredAt", tokenDto.accessTokenExpiredAt());
@@ -105,7 +105,7 @@ public class AuthController implements AuthApi {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE,
                         cookieUtil.createCookie(REFRESH_COOKIE_VALUE,
-                                tokenDto.refreshToken()).toString())
+                                tokenDto.refreshToken(), autoSignIn).toString())
                 .body(responseData);
     }
 }

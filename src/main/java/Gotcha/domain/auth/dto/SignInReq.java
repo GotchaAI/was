@@ -12,6 +12,9 @@ public record SignInReq(
 
         @Schema(description = "비밀번호", example = "password123@")
         @NotBlank(message = "비밀번호를 입력해주세요.")
-        String password
+        String password,
+
+        @Schema(description = "자동 로그인 유무", example = "true")
+        boolean autoSignIn
 ) {
 }
