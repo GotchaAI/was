@@ -45,7 +45,7 @@ public class AuthController implements AuthApi {
     public ResponseEntity<?> signUp(@Valid @RequestBody SignUpReq signUpReq) {
         TokenDto tokenDto = authService.signUp(signUpReq);
 
-        return createTokenRes(tokenDto, false);
+        return createTokenRes(tokenDto, tokenDto.autoSignIn());
     }
 
     @PostMapping("/sign-in")
@@ -59,7 +59,7 @@ public class AuthController implements AuthApi {
     public ResponseEntity<?> guestSignIn(){
         TokenDto tokenDto = authService.guestSignIn();
 
-        return createTokenRes(tokenDto, false);
+        return createTokenRes(tokenDto, tokenDto.autoSignIn());
     }
 
     @PostMapping("/token-reissue")
@@ -69,7 +69,7 @@ public class AuthController implements AuthApi {
         }
         TokenDto tokenDto = authService.reissueAccessToken(refreshToken);
 
-        return createTokenRes(tokenDto, false);
+        return createTokenRes(tokenDto, tokenDto.autoSignIn());
     }
 
     @PostMapping("/email/send")

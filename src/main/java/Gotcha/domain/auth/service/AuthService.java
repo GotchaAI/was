@@ -61,7 +61,7 @@ public class AuthService {
 
         String encodePassword = passwordEncoder.encode(signUpReq.password());
         User createdUser = userRepository.save(signUpReq.toEntity(encodePassword));
-        return jwtHelper.createToken(createdUser);
+        return jwtHelper.createToken(createdUser, false);
     }
 
     @Transactional(readOnly = true)
@@ -73,7 +73,7 @@ public class AuthService {
             throw new CustomException(AuthExceptionCode.INVALID_USERNAME_AND_PASSWORD);
         }
 
-        return jwtHelper.createToken(user);
+        return jwtHelper.createToken(user, signInReq.autoSignIn());
     }
 
     public void signOut(String HeaderAccessToken, String refreshToken, HttpServletResponse response){

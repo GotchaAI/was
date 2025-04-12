@@ -23,29 +23,29 @@ public class JwtHelper {
     private final RefreshTokenService refreshTokenService;
     private final BlackListTokenService blackListTokenService;
 
-    public TokenDto createToken(User user) {
+    public TokenDto createToken(User user, boolean autoSignIn) {
         Long userId = user.getId();
         String email = user.getEmail();
-        return getTokenDto(user, userId, email);
+        return getTokenDto(user, userId, email, autoSignIn);
     }
 
     public TokenDto createGuestToken(User guest){
         Long userId = guest.getId();
         String username = guest.getNickname();
-        return getTokenDto(guest, userId, username);
+        return getTokenDto(guest, userId, username, false);
     }
 
-    private TokenDto getTokenDto(User user, Long userId, String username) {
+    private TokenDto getTokenDto(User user, Long userId, String username, boolean autoSignIn) {
         String role = String.valueOf(user.getRole());
 
         String accessToken = TOKEN_PREFIX + tokenProvider.createAccessToken(role, userId, username);
-        String refreshToken = tokenProvider.createRefreshToken(role, userId, username);
+        String refreshToken = tokenProvider.createRefreshToken(role, userId, username, autoSignIn);
         LocalDateTime accessTokenExpiredAt = tokenProvider.getExpiryDate(
                 accessToken.replace(TOKEN_PREFIX, "").trim()
         );
 
         refreshTokenService.saveRefreshToken(username, refreshToken);
-        return new TokenDto(accessToken, refreshToken, accessTokenExpiredAt);
+        return new TokenDto(accessToken, refreshToken, accessTokenExpiredAt, autoSignIn);
     }
 
     public TokenDto reissueToken(String refreshToken) {
@@ -59,8 +59,10 @@ public class JwtHelper {
         Long userId = tokenProvider.getUserId(refreshToken);
         String role = tokenProvider.getRole(refreshToken);
 
+        boolean autoSignIn = tokenProvider.isAutoSignIn(refreshToken);
+
         String newAccessToken = TOKEN_PREFIX + tokenProvider.createAccessToken(role, userId, username);
-        String newRefreshToken = tokenProvider.createRefreshToken(role, userId, username);
+        String newRefreshToken = tokenProvider.createRefreshToken(role, userId, username, autoSignIn);
         LocalDateTime newAccessTokenExpiredAt = tokenProvider.getExpiryDate(
                 newAccessToken.replace(TOKEN_PREFIX, "").trim()
         );
@@ -68,7 +70,7 @@ public class JwtHelper {
         refreshTokenService.deleteRefreshToken(refreshToken);
         refreshTokenService.saveRefreshToken(username, newRefreshToken);
 
-        return new TokenDto(newAccessToken, newRefreshToken, newAccessTokenExpiredAt);
+        return new TokenDto(newAccessToken, newRefreshToken, newAccessTokenExpiredAt, autoSignIn);
     }
 
     public void removeToken(String accessToken, String refreshToken, HttpServletResponse response) {
