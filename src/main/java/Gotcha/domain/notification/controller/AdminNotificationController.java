@@ -1,7 +1,7 @@
 package Gotcha.domain.notification.controller;
 
 import Gotcha.common.api.SuccessRes;
-import Gotcha.common.jwt.SecurityUserDetails;
+import Gotcha.common.jwt.auth.SecurityUserDetails;
 import Gotcha.domain.notification.api.AdminNotificationApi;
 import Gotcha.domain.notification.dto.NotificationReq;
 import Gotcha.domain.notification.entity.Notification;

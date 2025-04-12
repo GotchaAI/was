@@ -60,7 +60,7 @@ public class AdminNotificationService {
 
     private User validateAdmin(Long userId){
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_ID));
+                .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
         if(!user.getRole().equals(Role.ADMIN))
             throw new CustomException(NotificationExceptionCode.UNAUTHORIZED_ACTION);
         return user;
