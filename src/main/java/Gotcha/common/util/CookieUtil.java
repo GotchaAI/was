@@ -11,12 +11,15 @@ public class CookieUtil {
     @Value("${token.refresh.in-cookie}")
     private long COOKIE_REFRESH_EXPIRATION;
 
+    @Value("${csrf.cookie.secure}")
+    private boolean secure;
+
     public ResponseCookie createCookie(String key, String value, boolean autoSignIn) {
 
         ResponseCookie.ResponseCookieBuilder cookie = ResponseCookie.from(key, value)
                 .path("/")
                 .httpOnly(true)
-                .secure(true)
+                .secure(secure)
                 .sameSite("None");
 
         if(autoSignIn)
@@ -31,7 +34,7 @@ public class CookieUtil {
                 .path("/")
                 .httpOnly(true)
                 .maxAge(0)
-                .secure(true)
+                .secure(secure)
                 .sameSite("None")
                 .build();
 
