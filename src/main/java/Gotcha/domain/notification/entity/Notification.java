@@ -1,6 +1,7 @@
 package Gotcha.domain.notification.entity;
 
 import Gotcha.common.entity.BaseTimeEntity;
+import Gotcha.domain.notification.dto.NotificationReq;
 import Gotcha.domain.user.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -29,16 +30,19 @@ public class Notification extends BaseTimeEntity {
     @NotNull
     private String content;
 
-    private Boolean isFixed;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User writer;
 
     @Builder
-    public Notification(String title, String content, Boolean isFixed){
+    public Notification(String title, String content, User writer){
         this.title = title;
         this.content = content;
-        this.isFixed = isFixed;
+        this.writer = writer;
+    }
+
+    public void update(NotificationReq req){
+        this.title = req.title();
+        this.content = req.content();
     }
 }
