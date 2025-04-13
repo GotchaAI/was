@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -40,8 +39,6 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
             handleTokenException(response, JwtExceptionCode.UNKNOWN_TOKEN_ERROR, HttpServletResponse.SC_UNAUTHORIZED);
         } catch (AuthenticationServiceException e){
             handleTokenException(response, JwtExceptionCode.ACCESS_TOKEN_NOT_FOUND, HttpServletResponse.SC_UNAUTHORIZED);
-        } catch (AccessDeniedException e){
-            handleTokenException(response, JwtExceptionCode.ACCESS_DENIED, HttpServletResponse.SC_FORBIDDEN);
         }
     }
 
