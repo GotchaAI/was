@@ -1,10 +1,14 @@
 package Gotcha.common.jwt.filter;
 
 import Gotcha.common.constants.SecurityConstants;
+import Gotcha.common.exception.ExceptionRes;
+import Gotcha.common.exception.exceptionCode.ExceptionCode;
+import Gotcha.common.exception.exceptionCode.GlobalExceptionCode;
 import Gotcha.common.jwt.token.BlackListTokenService;
 import Gotcha.common.jwt.exception.JwtExceptionCode;
 import Gotcha.common.jwt.token.TokenProvider;
 import Gotcha.domain.user.entity.Role;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -18,6 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.util.AntPathMatcher;
 
@@ -33,6 +38,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService guestDetailsService;
     private final TokenProvider tokenProvider;
     private final BlackListTokenService blackListTokenService;
+    private final ObjectMapper objectMapper;
+
 
     private static final String SPECIAL_CHARACTERS_PATTERN = "[`':;|~!@#$%()^&*+=?/{}\\[\\]\\\"\\\\\"]+$";
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
@@ -41,12 +48,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService,
             @Qualifier("guestDetailsService") UserDetailsService guestDetailsService,
             TokenProvider tokenProvider,
-            BlackListTokenService blackListTokenService
+            BlackListTokenService blackListTokenService,
+            ObjectMapper objectMapper
     ) {
         this.userDetailsService = userDetailsService;
         this.guestDetailsService = guestDetailsService;
         this.tokenProvider = tokenProvider;
         this.blackListTokenService = blackListTokenService;
+        this.objectMapper = objectMapper;
     }
 
 
@@ -56,7 +65,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessTokenHeader = request.getHeader(ACCESS_HEADER_VALUE);
 
-        if(isPublicResource(request.getRequestURI())) {
+        if (isPublicResource(request.getRequestURI())
+                && !request.getRequestURI().equals("/api/v1/auth/guest/sign-up")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -65,23 +75,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throw new AuthenticationServiceException(JwtExceptionCode.ACCESS_TOKEN_NOT_FOUND.getMessage());
         }
 
-        String accessToken = resolveAccessToken(response, accessTokenHeader);
+        try{
+            String accessToken = resolveAccessToken(response, accessTokenHeader);
 
-        String role = tokenProvider.getRole(accessToken);
-        UserDetails userDetails;
-        if (role.equals(String.valueOf(Role.GUEST))) {
-            Long guestId = tokenProvider.getUserId(accessToken);
-            userDetails = guestDetailsService.loadUserByUsername(guestId.toString());
+            String role = tokenProvider.getRole(accessToken);
+            UserDetails userDetails;
+            if (role.equals(String.valueOf(Role.GUEST))) {
+                Long guestId = tokenProvider.getUserId(accessToken);
+                userDetails = guestDetailsService.loadUserByUsername(guestId.toString());
+            }
+            else{
+                String username = tokenProvider.getUsername(accessToken);
+                userDetails = userDetailsService.loadUserByUsername(username);
+            }
+
+            Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            filterChain.doFilter(request, response);
+        } catch (UsernameNotFoundException e){
+            log.warn("[사용자 인증 실패] {}", e.getMessage());
+
+            ExceptionCode exceptionCode = GlobalExceptionCode.USER_NOT_FOUND;
+
+            response.setStatus(exceptionCode.getStatus().value());
+            response.setContentType("application/json;charset=UTF-8");
+
+            objectMapper.writeValue(response.getWriter(), ExceptionRes.from(exceptionCode));
         }
-        else{
-            String username = tokenProvider.getUsername(accessToken);
-            userDetails = userDetailsService.loadUserByUsername(username);
-        }
-
-        Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
-        filterChain.doFilter(request, response);
     }
 
     private String resolveAccessToken(HttpServletResponse response, String accessTokenGetHeader) throws IOException {
