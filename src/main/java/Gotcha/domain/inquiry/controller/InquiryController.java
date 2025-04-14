@@ -72,7 +72,10 @@ public class InquiryController implements InquiryApi {
     }
 
     @Override
-    public ResponseEntity<?> deleteInquiry(Long inquiryId, SecurityUserDetails userDetails) {
-        return null;
+    @DeleteMapping("/{inquiryId}")
+    public ResponseEntity<?> deleteInquiry(@PathVariable(value = "inquiryId") Long inquiryId,
+                                           @AuthenticationPrincipal SecurityUserDetails userDetails) {
+        inquiryService.deleteInquiry(inquiryId, userDetails.getId());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

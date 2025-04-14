@@ -60,10 +60,6 @@ public class InquiryService {
         inquiryRepository.save(inquiry);
     }
 
-    private User getValidUser(Long userId){
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
-    }
 
     @Transactional
     public void updateInquiry(InquiryReq inquiryReq, Long inquiryId, Long userId) {
@@ -71,6 +67,20 @@ public class InquiryService {
         validateInquiryOwner(inquiry, userId);
         inquiry.update(inquiryReq.title(), inquiryReq.content(), inquiryReq.isPrivate());
     }
+
+    @Transactional
+    public void deleteInquiry(Long inquiryId, Long userId) {
+        Inquiry inquiry = getValidInquiry(inquiryId);
+        validateInquiryOwner(inquiry, userId);
+        inquiryRepository.delete(inquiry);
+    }
+
+
+    private User getValidUser(Long userId){
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
+    }
+
 
     private Inquiry getValidInquiry(Long inquiryId){
         return inquiryRepository.findById(inquiryId)
