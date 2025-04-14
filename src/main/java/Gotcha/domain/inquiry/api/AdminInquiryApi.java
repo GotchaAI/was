@@ -1,5 +1,6 @@
 package Gotcha.domain.inquiry.api;
 
+import Gotcha.common.jwt.auth.SecurityUserDetails;
 import Gotcha.domain.inquiry.dto.AnswerReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "[관리자 QnA API]", description = "관리자 QnA 처리 관련 API")
@@ -51,7 +53,8 @@ public interface AdminInquiryApi {
                     })
             )
     })
-    ResponseEntity<?> createAnswer(@Valid @RequestBody AnswerReq answerReq, @PathVariable(value = "inquiryId")Long inquiryId);
+    ResponseEntity<?> createAnswer(@Valid @RequestBody AnswerReq answerReq, @PathVariable(value = "inquiryId")Long inquiryId,
+                                   @AuthenticationPrincipal SecurityUserDetails userDetails);
 
 
 

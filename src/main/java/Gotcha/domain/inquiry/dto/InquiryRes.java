@@ -13,7 +13,7 @@ public record InquiryRes(
         Boolean isPrivate,
         LocalDateTime createdAt,
         Boolean isSolved,
-        AnswerRes answerRes
+        AnswerRes answer
 ) {
     public static InquiryRes fromEntity(Inquiry inquiry){
         return new InquiryRes(

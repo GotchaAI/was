@@ -76,7 +76,7 @@ public class InquiryService {
     }
 
 
-    private User getValidUser(Long userId){
+    User getValidUser(Long userId){
         return userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
     }

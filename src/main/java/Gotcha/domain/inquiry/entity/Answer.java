@@ -31,7 +31,8 @@ public class Answer extends BaseTimeEntity {
     private Inquiry inquiry;
 
     @Builder
-    public Answer(String content){
+    public Answer(String content, User writer){
         this.content = content;
+        this.writer = writer;
     }
 }

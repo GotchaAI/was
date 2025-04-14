@@ -8,6 +8,7 @@ import Gotcha.domain.inquiry.dto.InquiryRes;
 import Gotcha.domain.inquiry.dto.InquirySortType;
 import Gotcha.domain.inquiry.dto.InquirySummaryRes;
 import Gotcha.domain.inquiry.service.InquiryService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -56,7 +57,7 @@ public class InquiryController implements InquiryApi {
 
     @Override
     @PostMapping
-    public ResponseEntity<?> createInquiry(@RequestBody InquiryReq inquiryReq,
+    public ResponseEntity<?> createInquiry(@Valid @RequestBody InquiryReq inquiryReq,
                                            @AuthenticationPrincipal SecurityUserDetails userDetails) {
         inquiryService.createInquiry(inquiryReq, userDetails.getId());
         return ResponseEntity.ok(SuccessRes.from("QnA 생성에 성공했습니다."));
@@ -65,7 +66,7 @@ public class InquiryController implements InquiryApi {
     @Override
     @PutMapping("/{inquiryId}")
     public ResponseEntity<?> updateInquiry(@PathVariable(value = "inquiryId") Long inquiryId,
-                                           @RequestBody InquiryReq inquiryReq,
+                                           @Valid @RequestBody InquiryReq inquiryReq,
                                            @AuthenticationPrincipal SecurityUserDetails userDetails) {
         inquiryService.updateInquiry(inquiryReq, inquiryId, userDetails.getId());
         return ResponseEntity.ok(SuccessRes.from("QnA 수정에 성공했습니다."));
