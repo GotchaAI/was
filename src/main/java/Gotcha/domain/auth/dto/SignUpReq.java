@@ -45,7 +45,7 @@ public record SignUpReq(
         return User.builder()
                 .email(email)
                 .password(encodePassword)
-                .nickname(guest.getNickname())
+                .nickname(nickname)
                 .role(Role.USER)
                 .build();
     }
