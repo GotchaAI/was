@@ -192,7 +192,7 @@ public interface InquiryApi {
                     })
             )
     })
-    ResponseEntity<?> getInquiryById(@PathVariable(value = "inquiryId") Long inquiryId);
+    ResponseEntity<?> getInquiryById(@PathVariable(value = "qnaId") Long inquiryId);
 
     @Operation(summary = "QnA 생성", description = "QnA 생성 API")
     @ApiResponses({
@@ -282,7 +282,7 @@ public interface InquiryApi {
             )
     })
     ResponseEntity<?> updateInquiry(
-            @PathVariable(value = "inquiryId") Long inquiryId,
+            @PathVariable(value = "qnaId") Long inquiryId,
             @Valid @RequestBody InquiryReq inquiryReq,
             @AuthenticationPrincipal SecurityUserDetails userDetails);
 
@@ -311,6 +311,6 @@ public interface InquiryApi {
             )
     })
     ResponseEntity<?> deleteInquiry(
-            @PathVariable(value = "inquiryId")  Long inquiryId,
+            @PathVariable(value = "qnaId") Long inquiryId,
             @AuthenticationPrincipal SecurityUserDetails userDetails);
 }
