@@ -51,7 +51,7 @@ public interface AdminInquiryApi {
                     })
             )
     })
-    ResponseEntity<?> createAnswer(@Valid @RequestBody AnswerReq answerReq, @PathVariable(value = "qnaId")Long inquiryId);
+    ResponseEntity<?> createAnswer(@Valid @RequestBody AnswerReq answerReq, @PathVariable(value = "inquiryId")Long inquiryId);
 
 
 

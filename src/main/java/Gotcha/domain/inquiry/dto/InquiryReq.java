@@ -1,5 +1,6 @@
 package Gotcha.domain.inquiry.dto;
 
+import Gotcha.domain.inquiry.entity.Inquiry;
 import jakarta.validation.constraints.NotBlank;
 
 public record InquiryReq(
@@ -13,5 +14,12 @@ public record InquiryReq(
         if (isPrivate == null) {
             isPrivate = false;  // default value
         }
+    }
+    public Inquiry toEntity(){
+        return Inquiry.builder().
+                title(title).
+                content(content).
+                isSecret(isPrivate).
+                build();
     }
 }

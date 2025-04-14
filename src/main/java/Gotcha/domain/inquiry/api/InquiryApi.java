@@ -171,9 +171,11 @@ public interface InquiryApi {
                                         "isPrivate": false,
                                         "createdAt": "2025-04-14T16:13:32",
                                         "isSolved": true,
-                                        "answer_writer": "묘묘"
-                                        "answer_content": "감사합니묘! 더 발전하는 갓챠가 되겠습니묘!"
-                                        "answer_createdAt": "2025-04-14T18:00:00"
+                                        "answer":{
+                                            "writer": "묘묘",
+                                            "content": "감사합니묘! 더 발전하는 갓챠가 되겠습니묘!",
+                                            "createdAt": "2025-04-14T18:00:00"
+                                        }
                                     }
                                     """
                             )
@@ -192,7 +194,7 @@ public interface InquiryApi {
                     })
             )
     })
-    ResponseEntity<?> getInquiryById(@PathVariable(value = "qnaId") Long inquiryId);
+    ResponseEntity<?> getInquiryById(@PathVariable(value = "inquiryId") Long inquiryId);
 
     @Operation(summary = "QnA 생성", description = "QnA 생성 API")
     @ApiResponses({
@@ -282,7 +284,7 @@ public interface InquiryApi {
             )
     })
     ResponseEntity<?> updateInquiry(
-            @PathVariable(value = "qnaId") Long inquiryId,
+            @PathVariable(value = "inquiryId") Long inquiryId,
             @Valid @RequestBody InquiryReq inquiryReq,
             @AuthenticationPrincipal SecurityUserDetails userDetails);
 
@@ -311,6 +313,6 @@ public interface InquiryApi {
             )
     })
     ResponseEntity<?> deleteInquiry(
-            @PathVariable(value = "qnaId") Long inquiryId,
+            @PathVariable(value = "inquiryId") Long inquiryId,
             @AuthenticationPrincipal SecurityUserDetails userDetails);
 }
