@@ -3,6 +3,7 @@ package Gotcha.domain.inquiry.controller;
 import Gotcha.common.jwt.auth.SecurityUserDetails;
 import Gotcha.domain.inquiry.api.InquiryApi;
 import Gotcha.domain.inquiry.dto.InquiryReq;
+import Gotcha.domain.inquiry.dto.InquiryRes;
 import Gotcha.domain.inquiry.dto.InquirySortType;
 import Gotcha.domain.inquiry.dto.InquirySummaryRes;
 import Gotcha.domain.inquiry.service.InquiryService;
@@ -49,7 +50,9 @@ public class InquiryController implements InquiryApi {
 
     @Override
     public ResponseEntity<?> getInquiryById(Long inquiryId) {
-        return null;
+        InquiryRes inquiryRes = inquiryService.getInquiryById(inquiryId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(inquiryRes);
     }
 
     @Override
