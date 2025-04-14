@@ -63,8 +63,12 @@ public class InquiryController implements InquiryApi {
     }
 
     @Override
-    public ResponseEntity<?> updateInquiry(Long inquiryId, InquiryReq inquiryReq, SecurityUserDetails userDetails) {
-        return null;
+    @PutMapping("/{inquiryId}")
+    public ResponseEntity<?> updateInquiry(@PathVariable(value = "inquiryId") Long inquiryId,
+                                           @RequestBody InquiryReq inquiryReq,
+                                           @AuthenticationPrincipal SecurityUserDetails userDetails) {
+        inquiryService.updateInquiry(inquiryReq, inquiryId, userDetails.getId());
+        return ResponseEntity.ok(SuccessRes.from("QnA 수정에 성공했습니다."));
     }
 
     @Override

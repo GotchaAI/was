@@ -48,8 +48,7 @@ public class InquiryService {
 
     @Transactional(readOnly = true)
     public InquiryRes getInquiryById(Long inquiryId) {
-        Inquiry inquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new CustomException(InquiryExceptionCode.INVALID_INQUIRYID));
+        Inquiry inquiry = getValidInquiry(inquiryId);
 
         return InquiryRes.fromEntity(inquiry);
     }
@@ -64,6 +63,24 @@ public class InquiryService {
     private User getValidUser(Long userId){
         return userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
+    }
+
+    @Transactional
+    public void updateInquiry(InquiryReq inquiryReq, Long inquiryId, Long userId) {
+        Inquiry inquiry = getValidInquiry(inquiryId);
+        validateInquiryOwner(inquiry, userId);
+        inquiry.update(inquiryReq.title(), inquiryReq.content(), inquiryReq.isPrivate());
+    }
+
+    private Inquiry getValidInquiry(Long inquiryId){
+        return inquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new CustomException(InquiryExceptionCode.INVALID_INQUIRYID))
+    }
+
+    private void validateInquiryOwner(Inquiry inquiry, Long userId){
+        if (!inquiry.getWriter().getId().equals(userId)) {
+            throw new CustomException(InquiryExceptionCode.UNAUTHORIZED_ACTION);
+        }
     }
 
 }
