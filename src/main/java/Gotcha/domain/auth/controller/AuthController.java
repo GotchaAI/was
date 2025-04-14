@@ -2,6 +2,7 @@ package Gotcha.domain.auth.controller;
 
 import Gotcha.common.api.SuccessRes;
 import Gotcha.common.exception.CustomException;
+import Gotcha.common.jwt.auth.SecurityUserDetails;
 import Gotcha.common.jwt.exception.JwtExceptionCode;
 import Gotcha.common.mail.MailCodeService;
 import Gotcha.common.util.CookieUtil;
@@ -19,6 +20,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static Gotcha.common.jwt.token.JwtProperties.ACCESS_HEADER_VALUE;
 import static Gotcha.common.jwt.token.JwtProperties.REFRESH_COOKIE_VALUE;
@@ -49,6 +52,14 @@ public class AuthController implements AuthApi {
     @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(@Valid @RequestBody SignUpReq signUpReq) {
         TokenDto tokenDto = authService.signUp(signUpReq);
+
+        return createTokenRes(tokenDto, tokenDto.autoSignIn());
+    }
+
+    @PostMapping("/guest/sign-up")
+    public ResponseEntity<?> guestSignUp(@Valid @RequestBody SignUpReq signUpReq,
+                                    @AuthenticationPrincipal SecurityUserDetails userDetails) {
+        TokenDto tokenDto = authService.guestSignUp(signUpReq, userDetails);
 
         return createTokenRes(tokenDto, tokenDto.autoSignIn());
     }
