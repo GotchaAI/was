@@ -43,9 +43,10 @@ public class Inquiry extends BaseTimeEntity {
     private Answer answer;
 
     @Builder
-    public Inquiry(String title, String content, Boolean isSecret){
+    public Inquiry(String title, String content, Boolean isSecret, User writer){
         this.title = title;
         this.content = content;
         this.isSecret = isSecret;
+        this.writer = writer;
     }
 }

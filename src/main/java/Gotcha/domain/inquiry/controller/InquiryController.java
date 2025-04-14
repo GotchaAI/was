@@ -1,5 +1,6 @@
 package Gotcha.domain.inquiry.controller;
 
+import Gotcha.common.api.SuccessRes;
 import Gotcha.common.jwt.auth.SecurityUserDetails;
 import Gotcha.domain.inquiry.api.InquiryApi;
 import Gotcha.domain.inquiry.dto.InquiryReq;
@@ -13,10 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/qnas")
@@ -49,15 +47,19 @@ public class InquiryController implements InquiryApi {
     }
 
     @Override
-    public ResponseEntity<?> getInquiryById(Long inquiryId) {
+    @GetMapping("/{inquiryId}")
+    public ResponseEntity<?> getInquiryById(@PathVariable(value = "inquiryId") Long inquiryId) {
         InquiryRes inquiryRes = inquiryService.getInquiryById(inquiryId);
 
         return ResponseEntity.status(HttpStatus.OK).body(inquiryRes);
     }
 
     @Override
-    public ResponseEntity<?> createInquiry(InquiryReq inquiryReq, SecurityUserDetails userDetails) {
-        return null;
+    @PostMapping
+    public ResponseEntity<?> createInquiry(@RequestBody InquiryReq inquiryReq,
+                                           @AuthenticationPrincipal SecurityUserDetails userDetails) {
+        inquiryService.createInquiry(inquiryReq, userDetails.getId());
+        return ResponseEntity.ok(SuccessRes.from("QnA 생성에 성공했습니다."));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package Gotcha.domain.inquiry.dto;
 
 import Gotcha.domain.inquiry.entity.Inquiry;
+import Gotcha.domain.user.entity.User;
 import jakarta.validation.constraints.NotBlank;
 
 public record InquiryReq(
@@ -15,10 +16,11 @@ public record InquiryReq(
             isPrivate = false;  // default value
         }
     }
-    public Inquiry toEntity(){
+    public Inquiry toEntity(User writer){
         return Inquiry.builder().
                 title(title).
                 content(content).
+                writer(writer).
                 isSecret(isPrivate).
                 build();
     }
