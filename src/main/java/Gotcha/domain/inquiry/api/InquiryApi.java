@@ -208,26 +208,12 @@ public interface InquiryApi {
                     """)
                     })
             ),
-            @ApiResponse(responseCode = "400", description = "필드 검증 오류",
+            @ApiResponse(responseCode = "422", description = "필드 검증 오류",
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                     {
-                        "status": "BAD_REQUEST",
-                        "message": "필드 검증 오류입니다.",
-                        "fields": {
-                            "title": "제목은 필수 입력 사항입니다.",
-                            "content": "내용은 필수 입력 사항입니다."
-                        }
-                    }
-                    """)
-                    })
-            ),
-            @ApiResponse(responseCode = "403", description = "권한 없음",
-                    content = @Content(mediaType = "application/json", examples = {
-                            @ExampleObject(value = """
-                    {
-                        "status": "FORBIDDEN",
-                        "message": "권한이 없습니다."
+                        "title": "제목은 필수 입력 사항입니다.",
+                        "content": "내용은 필수 입력 사항입니다."
                     }
                     """)
                     })
