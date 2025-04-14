@@ -10,10 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @Entity
@@ -29,6 +26,7 @@ public class Answer extends BaseTimeEntity {
     @JoinColumn(name = "user_id")
     private User writer;
 
+    @Setter
     @OneToOne(mappedBy = "answer", fetch = FetchType.LAZY)
     private Inquiry inquiry;
 

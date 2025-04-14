@@ -36,7 +36,7 @@ public class Inquiry extends BaseTimeEntity {
 
     private Boolean isSecret;
 
-    private Boolean isSolved;
+    private Boolean isSolved = false;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "answer_id")
@@ -54,6 +54,12 @@ public class Inquiry extends BaseTimeEntity {
         this.title = title;
         this.content = content;
         this.isSecret = isPrivate;
+    }
+
+    public void solve(Answer answer){
+        this.answer = answer;
+        isSolved = true;
+        answer.setInquiry(this);
     }
 
 }

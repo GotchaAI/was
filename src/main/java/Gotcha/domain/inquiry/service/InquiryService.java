@@ -81,10 +81,9 @@ public class InquiryService {
                 .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
     }
 
-
-    private Inquiry getValidInquiry(Long inquiryId){
+    Inquiry getValidInquiry(Long inquiryId){
         return inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new CustomException(InquiryExceptionCode.INVALID_INQUIRYID))
+                .orElseThrow(() -> new CustomException(InquiryExceptionCode.INVALID_INQUIRYID));
     }
 
     private void validateInquiryOwner(Inquiry inquiry, Long userId){
@@ -92,5 +91,4 @@ public class InquiryService {
             throw new CustomException(InquiryExceptionCode.UNAUTHORIZED_ACTION);
         }
     }
-
 }
