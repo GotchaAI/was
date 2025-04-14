@@ -1,5 +1,6 @@
 package Gotcha.domain.auth.api;
 
+import Gotcha.common.jwt.auth.SecurityUserDetails;
 import Gotcha.domain.auth.dto.EmailCodeVerifyReq;
 import Gotcha.domain.auth.dto.EmailReq;
 import Gotcha.domain.auth.dto.SignInReq;
@@ -13,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -68,6 +70,60 @@ public interface AuthApi {
                     })),
     })
     ResponseEntity<?> signUp(@Valid @RequestBody SignUpReq signUpReq);
+
+    @Operation(summary = "게스트 회원가입", description = "게스트가 회원으로 전환하기 위한 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "회원 전환 성공",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                    {
+                                          "expiredAt": "2025-04-10T06:57:45",
+                                          "accessToken": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjo1LCJpc3MiOiJnb3RjaGEhIiwiaWF0IjoxNzQ0MjY2NDY1LCJleHAiOjE3NDQyNjgyNjV9.u8RTE1VFsxZjQNB_dsc3ibSKqoHQGbC9-ppbOQUvzVY"
+                                    }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "422", description = "유효성검사 실패",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(name = "notBlank", value = """
+                                        {
+                                            "email": "이메일은 필수 입력 값입니다.",
+                                            "password": "비밀번호는 필수 입력 값입니다.",
+                                            "passwordCheck": "비밀번호 확인은 필수 입력 값입니다.",
+                                            "nickname": "닉네임은 필수 입력 값입니다."
+                                        }
+                                    """),
+                            @ExampleObject(name = "patternError", value = """
+                                        {
+                                             "password": "비밀번호는 영문, 숫자, 특수문자를 포함하여 8~16자여야 합니다.",
+                                             "passwordCheck": "비밀번호 확인은 영문, 숫자, 특수문자를 포함하여 8~16자여야 합니다.",
+                                             "nickname": "닉네임은 한글, 영문, 숫자 조합의 2~6자리여야 합니다.",
+                                             "email": "유효한 이메일 형식이 아닙니다."
+                                        }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(name = "필드 검증 실패", value = """
+                                    {
+                                         "status": "BAD_REQUEST",
+                                         "message": "필드 검증 오류입니다.",
+                                         "fields": {
+                                             "password": "비밀번호가 일치하지 않습니다.",
+                                             "nickname": "닉네임 중복 확인이 완료되지 않았습니다.",
+                                             "email": "이메일 인증이 완료되지 않았습니다."
+                                         }
+                                    }
+                                    """),
+                            @ExampleObject(name = "게스트 아님", value = """
+                                    {
+                                        "status": "BAD_REQUEST",
+                                        "message": "게스트가 아닙니다."
+                                    }
+                                    """)
+                    })),
+    })
+    ResponseEntity<?> guestSignUp(@Valid @RequestBody SignUpReq signUpReq,
+                                  @AuthenticationPrincipal SecurityUserDetails userDetails);
 
     @Operation(summary = "로그인", description = "로그인 API")
     @ApiResponses({
