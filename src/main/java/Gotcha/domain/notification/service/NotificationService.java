@@ -27,7 +27,7 @@ public class NotificationService {
 
     @Transactional(readOnly = true)
     public Page<NotificationSummaryRes> getNotifications(String keyword, Integer page, NotificationSortType sort){
-        Pageable pageable = PageRequest.of(page, NOTIS_PER_PAGE);
+        Pageable pageable = PageRequest.of(page, NOTIS_PER_PAGE, sort.getSort());
 
         Page<Notification> notifications = notificationRepository.findByTitleContainingIgnoreCase(keyword, pageable);
 
