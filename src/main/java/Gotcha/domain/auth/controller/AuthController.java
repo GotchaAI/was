@@ -13,11 +13,14 @@ import Gotcha.domain.auth.dto.SignUpReq;
 import Gotcha.domain.auth.dto.TokenDto;
 import Gotcha.domain.auth.service.AuthService;
 import Gotcha.domain.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,26 +43,28 @@ public class AuthController implements AuthApi {
     private final CookieUtil cookieUtil;
     private final MailCodeService mailCodeService;
     private final UserService userService;
+    private final CookieCsrfTokenRepository csrfTokenRepository;
+
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(@Valid @RequestBody SignUpReq signUpReq) {
         TokenDto tokenDto = authService.signUp(signUpReq);
 
-        return createTokenRes(tokenDto);
+        return createTokenRes(tokenDto, tokenDto.autoSignIn());
     }
 
     @PostMapping("/sign-in")
     public ResponseEntity<?> signIn(@Valid @RequestBody SignInReq signInReq) {
         TokenDto tokenDto = authService.signIn(signInReq);
 
-        return createTokenRes(tokenDto);
+        return createTokenRes(tokenDto, signInReq.autoSignIn());
     }
 
     @PostMapping("/guest/sign-in")
     public ResponseEntity<?> guestSignIn(){
         TokenDto tokenDto = authService.guestSignIn();
 
-        return createTokenRes(tokenDto);
+        return createTokenRes(tokenDto, tokenDto.autoSignIn());
     }
 
     @PostMapping("/token-reissue")
@@ -69,7 +74,7 @@ public class AuthController implements AuthApi {
         }
         TokenDto tokenDto = authService.reissueAccessToken(refreshToken);
 
-        return createTokenRes(tokenDto);
+        return createTokenRes(tokenDto, tokenDto.autoSignIn());
     }
 
     @PostMapping("/email/send")
@@ -97,7 +102,14 @@ public class AuthController implements AuthApi {
         return ResponseEntity.ok(SuccessRes.from("로그아웃 되었습니다."));
     }
 
-    private ResponseEntity<?> createTokenRes(TokenDto tokenDto) {
+    @GetMapping("/csrf-token")
+    public ResponseEntity<Void> getCsrfToken(HttpServletRequest request, HttpServletResponse response) {
+        CsrfToken token = csrfTokenRepository.generateToken(request);
+        csrfTokenRepository.saveToken(token, request, response);
+        return ResponseEntity.ok().build();
+    }
+
+    private ResponseEntity<?> createTokenRes(TokenDto tokenDto, boolean autoSignIn) {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("accessToken", tokenDto.accessToken());
         responseData.put("expiredAt", tokenDto.accessTokenExpiredAt());
@@ -105,7 +117,7 @@ public class AuthController implements AuthApi {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE,
                         cookieUtil.createCookie(REFRESH_COOKIE_VALUE,
-                                tokenDto.refreshToken()).toString())
+                                tokenDto.refreshToken(), autoSignIn).toString())
                 .body(responseData);
     }
 }
