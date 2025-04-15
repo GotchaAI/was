@@ -1,12 +1,11 @@
 package Gotcha.domain.inquiry.dto;
 
-import Gotcha.domain.inquiry.entity.Answer;
 import Gotcha.domain.inquiry.entity.Inquiry;
 
 import java.time.LocalDateTime;
 
 public record InquiryRes(
-        Long qnaId,
+        Long inquiryId,
         String title,
         String writer,
         String content,

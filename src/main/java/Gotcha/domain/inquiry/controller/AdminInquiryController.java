@@ -21,7 +21,6 @@ public class AdminInquiryController implements AdminInquiryApi {
 
     @Override
     @PostMapping("/{inquiryId}/answer")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createAnswer(@Valid @RequestBody AnswerReq answerReq, @PathVariable(value = "inquiryId") Long inquiryId,
                                           @AuthenticationPrincipal SecurityUserDetails securityUserDetails) {
         answerService.createAnswer(answerReq, inquiryId, securityUserDetails.getId());
