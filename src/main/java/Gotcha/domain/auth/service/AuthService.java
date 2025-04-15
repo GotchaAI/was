@@ -48,8 +48,6 @@ public class AuthService {
 
         Long guestId = userDetails.getId();
 
-        System.out.println(guestId);
-
         User guest = Optional.ofNullable((User) redisUtil.getData(GUEST_KEY_PREFIX + guestId))
                 .orElseThrow(()-> new CustomException(AuthExceptionCode.INVALID_USERID));
 
