@@ -1,6 +1,8 @@
 package Gotcha.domain.inquiry.entity;
 
 import Gotcha.common.entity.BaseTimeEntity;
+import Gotcha.common.exception.CustomException;
+import Gotcha.domain.inquiry.exception.InquiryExceptionCode;
 import Gotcha.domain.user.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -57,9 +59,15 @@ public class Inquiry extends BaseTimeEntity {
     }
 
     public void solve(Answer answer){
+        validateSolved();
         this.answer = answer;
         isSolved = true;
         answer.setInquiry(this);
+    }
+
+    private void validateSolved(){
+        if(this.isSolved)
+            throw new CustomException(InquiryExceptionCode.ALREADY_SOLVED);
     }
 
 }

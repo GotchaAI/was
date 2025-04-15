@@ -23,8 +23,6 @@ public class AnswerService {
     public void createAnswer(AnswerReq answerReq, Long inquiryId, Long userId) {
         User writer = inquiryService.getValidUser(userId);
         Inquiry inquiry = inquiryService.getValidInquiry(inquiryId);
-        if(inquiry.getIsSolved())
-            throw new CustomException(InquiryExceptionCode.ALREADY_SOLVED);
         Answer answer = answerReq.toEntity(writer);
         inquiry.solve(answer);
         answerRepository.save(answer);
