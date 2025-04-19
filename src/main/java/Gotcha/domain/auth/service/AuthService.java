@@ -2,6 +2,7 @@ package Gotcha.domain.auth.service;
 
 import Gotcha.common.exception.CustomException;
 import Gotcha.common.exception.FieldValidationException;
+import Gotcha.common.jwt.auth.SecurityUserDetails;
 import Gotcha.common.jwt.token.JwtHelper;
 import Gotcha.common.util.RedisUtil;
 import Gotcha.domain.auth.dto.SignInReq;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static Gotcha.common.jwt.token.JwtProperties.TOKEN_PREFIX;
@@ -37,24 +39,28 @@ public class AuthService {
     private final RedisUtil redisUtil;
 
     @Transactional
+    public TokenDto guestSignUp(SignUpReq signUpReq, SecurityUserDetails userDetails){
+        if (!userDetails.getRole().equals(Role.GUEST)) {
+            throw new CustomException(AuthExceptionCode.INVALID_GUEST);
+        }
+
+        validateSignUpInfo(signUpReq);
+
+        Long guestId = userDetails.getId();
+
+        User guest = Optional.ofNullable((User) redisUtil.getData(GUEST_KEY_PREFIX + guestId))
+                .orElseThrow(()-> new CustomException(AuthExceptionCode.INVALID_USERID));
+
+        String encodePassword = passwordEncoder.encode(signUpReq.password());
+        User createdUser = userRepository.save(signUpReq.toEntityFromGuest(encodePassword, guest));
+
+        redisUtil.deleteData(GUEST_KEY_PREFIX + guestId);
+        return jwtHelper.createToken(createdUser, false);
+    }
+
+    @Transactional
     public TokenDto signUp(SignUpReq signUpReq) {
-        Map<String, String> fieldErrors = new HashMap<>();
-
-        if(!signUpReq.validatePasswordMatch()){
-            fieldErrors.put("password", "비밀번호가 일치하지 않습니다.");
-        }
-
-        if(!redisUtil.existed(NICKNAME_VERIFY_KEY_PREFIX+signUpReq.nickname())){
-            fieldErrors.put("nickname", "닉네임 중복 확인이 완료되지 않았습니다.");
-        }
-
-        if (!redisUtil.existed(EMAIL_VERIFY_KEY_PREFIX + signUpReq.email())) {
-            fieldErrors.put("email", "이메일 인증이 완료되지 않았습니다.");
-        }
-
-        if (!fieldErrors.isEmpty()) {
-            throw new FieldValidationException(fieldErrors);
-        }
+        validateSignUpInfo(signUpReq);
 
         redisUtil.deleteData(NICKNAME_VERIFY_KEY_PREFIX+signUpReq.nickname());
         redisUtil.deleteData(EMAIL_VERIFY_KEY_PREFIX + signUpReq.email());
@@ -108,5 +114,25 @@ public class AuthService {
 
     public TokenDto reissueAccessToken(String refreshToken) {
         return jwtHelper.reissueToken(refreshToken);
+    }
+
+    public void validateSignUpInfo(SignUpReq signUpReq){
+        Map<String, String> fieldErrors = new HashMap<>();
+
+        if(!signUpReq.validatePasswordMatch()){
+            fieldErrors.put("password", "비밀번호가 일치하지 않습니다.");
+        }
+
+        if(!redisUtil.existed(NICKNAME_VERIFY_KEY_PREFIX+signUpReq.nickname())){
+            fieldErrors.put("nickname", "닉네임 중복 확인이 완료되지 않았습니다.");
+        }
+
+        if (!redisUtil.existed(EMAIL_VERIFY_KEY_PREFIX + signUpReq.email())) {
+            fieldErrors.put("email", "이메일 인증이 완료되지 않았습니다.");
+        }
+
+        if (!fieldErrors.isEmpty()) {
+            throw new FieldValidationException(fieldErrors);
+        }
     }
 }

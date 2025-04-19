@@ -40,4 +40,13 @@ public record SignUpReq(
                 .role(Role.USER)
                 .build();
     }
+
+    public User toEntityFromGuest(String encodePassword, User guest){
+        return User.builder()
+                .email(email)
+                .password(encodePassword)
+                .nickname(nickname)
+                .role(Role.USER)
+                .build();
+    }
 }
