@@ -8,6 +8,8 @@ import Gotcha.domain.inquiry.dto.InquiryRes;
 import Gotcha.domain.inquiry.dto.InquirySortType;
 import Gotcha.domain.inquiry.dto.InquirySummaryRes;
 import Gotcha.domain.inquiry.service.InquiryService;
+import Gotcha.domain.user.entity.User;
+import Gotcha.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,8 @@ import org.springframework.web.bind.annotation.*;
 public class InquiryController implements InquiryApi {
 
     private final InquiryService inquiryService;
+
+    private final UserService userService;
 
     @Override
     @GetMapping
@@ -51,7 +55,6 @@ public class InquiryController implements InquiryApi {
     @GetMapping("/{inquiryId}")
     public ResponseEntity<?> getInquiryById(@PathVariable(value = "inquiryId") Long inquiryId) {
         InquiryRes inquiryRes = inquiryService.getInquiryById(inquiryId);
-
         return ResponseEntity.status(HttpStatus.OK).body(inquiryRes);
     }
 
@@ -59,7 +62,8 @@ public class InquiryController implements InquiryApi {
     @PostMapping
     public ResponseEntity<?> createInquiry(@Valid @RequestBody InquiryReq inquiryReq,
                                            @AuthenticationPrincipal SecurityUserDetails userDetails) {
-        inquiryService.createInquiry(inquiryReq, userDetails.getId());
+        User writer = userService.findUserByUserId(userDetails.getId());
+        inquiryService.createInquiry(inquiryReq, writer);
         return ResponseEntity.ok(SuccessRes.from("QnA 생성에 성공했습니다."));
     }
 

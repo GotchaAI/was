@@ -17,15 +17,10 @@ public class AnswerService {
 
     private final AnswerRepository answerRepository;
 
-    private final InquiryService inquiryService;
-
     @Transactional
-    public void createAnswer(AnswerReq answerReq, Long inquiryId, Long userId) {
-        User writer = inquiryService.getValidUser(userId);
-        Inquiry inquiry = inquiryService.getValidInquiry(inquiryId);
+    public void createAnswer(AnswerReq answerReq, Inquiry inquiry, User writer) {
         Answer answer = answerReq.toEntity(writer);
         inquiry.solve(answer);
         answerRepository.save(answer);
     }
-
 }

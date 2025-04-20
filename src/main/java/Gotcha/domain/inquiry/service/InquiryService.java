@@ -9,8 +9,6 @@ import Gotcha.domain.inquiry.entity.Inquiry;
 import Gotcha.domain.inquiry.exception.InquiryExceptionCode;
 import Gotcha.domain.inquiry.repository.InquiryRepository;
 import Gotcha.domain.user.entity.User;
-import Gotcha.domain.user.exceptionCode.UserExceptionCode;
-import Gotcha.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,9 +22,7 @@ public class InquiryService {
 
     private final InquiryRepository inquiryRepository;
 
-    private final UserRepository userRepository;
-
-    private final Integer INQUIRIES_PER_PAGE = 10;
+    private static final Integer INQUIRIES_PER_PAGE = 10;
 
     @Transactional(readOnly = true)
     public Page<InquirySummaryRes> getInquiries(String keyword, Integer page, InquirySortType sort, Boolean isSolved) {
@@ -48,14 +44,12 @@ public class InquiryService {
 
     @Transactional(readOnly = true)
     public InquiryRes getInquiryById(Long inquiryId) {
-        Inquiry inquiry = getValidInquiry(inquiryId);
-
+        Inquiry inquiry = findInquiryById(inquiryId);
         return InquiryRes.fromEntity(inquiry);
     }
 
     @Transactional
-    public void createInquiry(InquiryReq inquiryReq, Long userId) {
-        User writer = getValidUser(userId);
+    public void createInquiry(InquiryReq inquiryReq, User writer) {
         Inquiry inquiry = inquiryReq.toEntity(writer);
         inquiryRepository.save(inquiry);
     }
@@ -63,25 +57,20 @@ public class InquiryService {
 
     @Transactional
     public void updateInquiry(InquiryReq inquiryReq, Long inquiryId, Long userId) {
-        Inquiry inquiry = getValidInquiry(inquiryId);
+        Inquiry inquiry = findInquiryById(inquiryId);
         validateInquiryOwner(inquiry, userId);
         inquiry.update(inquiryReq.title(), inquiryReq.content(), inquiryReq.isPrivate());
     }
 
     @Transactional
     public void deleteInquiry(Long inquiryId, Long userId) {
-        Inquiry inquiry = getValidInquiry(inquiryId);
+        Inquiry inquiry = findInquiryById(inquiryId);
         validateInquiryOwner(inquiry, userId);
         inquiryRepository.delete(inquiry);
     }
 
-
-    User getValidUser(Long userId){
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
-    }
-
-    Inquiry getValidInquiry(Long inquiryId){
+    @Transactional(readOnly = true)
+    public Inquiry findInquiryById(Long inquiryId){
         return inquiryRepository.findById(inquiryId)
                 .orElseThrow(() -> new CustomException(InquiryExceptionCode.INVALID_INQUIRYID));
     }
