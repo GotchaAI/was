@@ -1,6 +1,8 @@
 package Gotcha.domain.inquiry.entity;
 
 import Gotcha.common.entity.BaseTimeEntity;
+import Gotcha.common.exception.CustomException;
+import Gotcha.domain.inquiry.exception.InquiryExceptionCode;
 import Gotcha.domain.user.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -36,14 +38,36 @@ public class Inquiry extends BaseTimeEntity {
 
     private Boolean isSecret;
 
+    private Boolean isSolved = false;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "answer_id")
     private Answer answer;
 
     @Builder
-    public Inquiry(String title, String content, Boolean isSecret){
+    public Inquiry(String title, String content, Boolean isSecret, User writer){
         this.title = title;
         this.content = content;
         this.isSecret = isSecret;
+        this.writer = writer;
     }
+
+    public void update(String title, String content, Boolean isPrivate){
+        this.title = title;
+        this.content = content;
+        this.isSecret = isPrivate;
+    }
+
+    public void solve(Answer answer){
+        validateSolved();
+        this.answer = answer;
+        isSolved = true;
+        answer.setInquiry(this);
+    }
+
+    private void validateSolved(){
+        if(this.isSolved)
+            throw new CustomException(InquiryExceptionCode.ALREADY_SOLVED);
+    }
+
 }

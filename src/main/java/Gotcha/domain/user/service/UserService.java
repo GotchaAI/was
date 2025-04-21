@@ -53,7 +53,8 @@ public class UserService {
         return UserInfoRes.fromEntity(user);
     }
 
-    private User findUserByUserId(Long userId){
+    @Transactional(readOnly = true)
+    public User findUserByUserId(Long userId){
         return userRepository.findById(userId)
                 .orElseThrow(()->new CustomException(UserExceptionCode.INVALID_USERID));
     }
