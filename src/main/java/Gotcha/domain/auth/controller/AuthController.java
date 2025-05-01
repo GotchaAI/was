@@ -14,15 +14,12 @@ import Gotcha.domain.auth.dto.SignUpReq;
 import Gotcha.domain.auth.dto.TokenDto;
 import Gotcha.domain.auth.service.AuthService;
 import Gotcha.domain.user.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static Gotcha.common.jwt.token.JwtProperties.ACCESS_HEADER_VALUE;
 import static Gotcha.common.jwt.token.JwtProperties.REFRESH_COOKIE_VALUE;
@@ -46,7 +42,7 @@ public class AuthController implements AuthApi {
     private final CookieUtil cookieUtil;
     private final MailCodeService mailCodeService;
     private final UserService userService;
-    private final CookieCsrfTokenRepository csrfTokenRepository;
+//    private final CookieCsrfTokenRepository csrfTokenRepository;
 
 
     @PostMapping("/sign-up")
@@ -113,12 +109,12 @@ public class AuthController implements AuthApi {
         return ResponseEntity.ok(SuccessRes.from("로그아웃 되었습니다."));
     }
 
-    @GetMapping("/csrf-token")
-    public ResponseEntity<Void> getCsrfToken(HttpServletRequest request, HttpServletResponse response) {
-        CsrfToken token = csrfTokenRepository.generateToken(request);
-        csrfTokenRepository.saveToken(token, request, response);
-        return ResponseEntity.ok().build();
-    }
+//    @GetMapping("/csrf-token")
+//    public ResponseEntity<Void> getCsrfToken(HttpServletRequest request, HttpServletResponse response) {
+//        CsrfToken token = csrfTokenRepository.generateToken(request);
+//        csrfTokenRepository.saveToken(token, request, response);
+//        return ResponseEntity.ok().build();
+//    }
 
     private ResponseEntity<?> createTokenRes(TokenDto tokenDto, boolean autoSignIn) {
         Map<String, Object> responseData = new HashMap<>();
