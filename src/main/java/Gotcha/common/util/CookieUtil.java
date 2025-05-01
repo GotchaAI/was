@@ -20,7 +20,7 @@ public class CookieUtil {
                 .path("/")
                 .httpOnly(true)
                 .secure(secure)
-                .sameSite("None");
+                .sameSite("Lax");
 
         if(autoSignIn)
             cookie.maxAge(COOKIE_REFRESH_EXPIRATION);
