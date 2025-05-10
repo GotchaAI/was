@@ -1,1 +1,4 @@
 rootProject.name = 'Gotcha'
+
+include 'gotcha'
+include 'gotcha-socket'

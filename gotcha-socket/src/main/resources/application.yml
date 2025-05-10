@@ -1,0 +1,13 @@
+spring:
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+  web:
+    resources:
+      static-locations: classpath:/static/
+
+server:
+  address: 0.0.0.0
+
+

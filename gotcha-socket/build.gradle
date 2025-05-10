@@ -1,0 +1,41 @@
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'//웹소켓을 사용하기 위한 라이브러리
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'//서버, 클라이언트 자동 시작을 도와줌
+    implementation 'org.springframework.boot:spring-boot-starter-web' //@Controller 사용 위해 추가
+
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+
+    //롬복 관련
+    compileOnly 'org.projectlombok:lombok:1.18.36' //컴파일 시 롬복 사용
+    annotationProcessor 'org.projectlombok:lombok:1.18.36' //롬복 자동 생성
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.36' //테스트 에서 컴파일 시 롬복 사용
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.36' //테스트 에서 롬복 자동 생성
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis' //redis
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+}
+
+tasks.register("prepareKotlinBuildScriptModel"){}
+
+test {
+    reports {
+        html.required.set(true)
+    }
+}
+
+bootJar {
+    archiveBaseName.set("myapp")
+    archiveVersion.set("0.0.1-SNAPSHOT")  // 선택
+}
+
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
