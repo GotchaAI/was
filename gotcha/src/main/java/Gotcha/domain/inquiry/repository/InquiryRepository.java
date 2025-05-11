@@ -1,6 +1,6 @@
 package Gotcha.domain.inquiry.repository;
 
-import Gotcha.domain.inquiry.entity.Inquiry;
+import gotcha_domain.inquiry.Inquiry;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

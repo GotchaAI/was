@@ -1,7 +1,7 @@
 package Gotcha.domain.inquiry.dto;
 
-import Gotcha.domain.inquiry.entity.Answer;
-import Gotcha.domain.user.entity.User;
+import gotcha_domain.inquiry.Answer;
+import gotcha_domain.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 

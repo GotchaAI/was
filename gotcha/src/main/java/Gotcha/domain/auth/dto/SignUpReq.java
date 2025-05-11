@@ -1,7 +1,7 @@
 package Gotcha.domain.auth.dto;
 
-import Gotcha.domain.user.entity.Role;
-import Gotcha.domain.user.entity.User;
+import gotcha_domain.user.Role;
+import gotcha_domain.user.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

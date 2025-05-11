@@ -1,12 +1,12 @@
 package Gotcha.domain.notification.service;
 
-import Gotcha.common.exception.CustomException;
 import Gotcha.domain.notification.dto.NotificationRes;
 import Gotcha.domain.notification.dto.NotificationSortType;
 import Gotcha.domain.notification.dto.NotificationSummaryRes;
-import Gotcha.domain.notification.entity.Notification;
 import Gotcha.domain.notification.exception.NotificationExceptionCode;
 import Gotcha.domain.notification.repository.NotificationRepository;
+import gotcha_common.exception.CustomException;
+import gotcha_domain.notification.Notification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

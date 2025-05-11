@@ -1,6 +1,6 @@
 package Gotcha.domain.inquiry.exception;
 
-import Gotcha.common.exception.exceptionCode.ExceptionCode;
+import gotcha_common.exception.exceptionCode.ExceptionCode;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 

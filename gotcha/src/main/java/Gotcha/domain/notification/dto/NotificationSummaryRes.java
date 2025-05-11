@@ -1,6 +1,6 @@
 package Gotcha.domain.notification.dto;
 
-import Gotcha.domain.notification.entity.Notification;
+import gotcha_domain.notification.Notification;
 
 import java.time.LocalDateTime;
 

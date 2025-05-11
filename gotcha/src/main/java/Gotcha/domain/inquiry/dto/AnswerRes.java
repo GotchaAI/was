@@ -1,6 +1,6 @@
 package Gotcha.domain.inquiry.dto;
 
-import Gotcha.domain.inquiry.entity.Answer;
+import gotcha_domain.inquiry.Answer;
 
 import java.time.LocalDateTime;
 

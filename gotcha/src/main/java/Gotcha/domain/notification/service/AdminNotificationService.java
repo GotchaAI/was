@@ -1,14 +1,14 @@
 package Gotcha.domain.notification.service;
 
-import Gotcha.common.exception.CustomException;
-import Gotcha.domain.notification.dto.NotificationReq;
-import Gotcha.domain.notification.entity.Notification;
 import Gotcha.domain.notification.exception.NotificationExceptionCode;
 import Gotcha.domain.notification.repository.NotificationRepository;
-import Gotcha.domain.user.entity.Role;
-import Gotcha.domain.user.entity.User;
-import Gotcha.domain.user.exceptionCode.UserExceptionCode;
-import Gotcha.domain.user.repository.UserRepository;
+import gotcha_common.exception.CustomException;
+import gotcha_domain.notification.Notification;
+import gotcha_domain.notification.NotificationReq;
+import gotcha_domain.user.Role;
+import gotcha_domain.user.User;
+import gotcha_user.exceptionCode.UserExceptionCode;
+import gotcha_user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

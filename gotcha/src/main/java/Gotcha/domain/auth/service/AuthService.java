@@ -1,18 +1,18 @@
 package Gotcha.domain.auth.service;
 
-import Gotcha.common.exception.CustomException;
-import Gotcha.common.exception.FieldValidationException;
-import Gotcha.common.jwt.auth.SecurityUserDetails;
-import Gotcha.common.jwt.token.JwtHelper;
-import Gotcha.common.util.RedisUtil;
 import Gotcha.domain.auth.dto.SignInReq;
 import Gotcha.domain.auth.dto.SignUpReq;
-import Gotcha.domain.auth.dto.TokenDto;
 import Gotcha.domain.auth.exception.AuthExceptionCode;
 import Gotcha.domain.auth.util.RandomNicknameGenerator;
-import Gotcha.domain.user.entity.Role;
-import Gotcha.domain.user.entity.User;
-import Gotcha.domain.user.repository.UserRepository;
+import gotcha_auth.dto.TokenDto;
+import gotcha_auth.jwt.JwtHelper;
+import gotcha_common.exception.CustomException;
+import gotcha_common.exception.FieldValidationException;
+import gotcha_common.util.RedisUtil;
+import gotcha_domain.auth.SecurityUserDetails;
+import gotcha_domain.user.Role;
+import gotcha_domain.user.User;
+import gotcha_user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,11 +24,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import static Gotcha.common.jwt.token.JwtProperties.TOKEN_PREFIX;
-import static Gotcha.common.redis.RedisProperties.EMAIL_VERIFY_KEY_PREFIX;
-import static Gotcha.common.redis.RedisProperties.GUEST_KEY_PREFIX;
-import static Gotcha.common.redis.RedisProperties.GUEST_TTL_SECONDS;
-import static Gotcha.common.redis.RedisProperties.NICKNAME_VERIFY_KEY_PREFIX;
+import static gotcha_auth.jwt.JwtProperties.TOKEN_PREFIX;
+import static gotcha_common.redis.RedisProperties.EMAIL_VERIFY_KEY_PREFIX;
+import static gotcha_common.redis.RedisProperties.GUEST_KEY_PREFIX;
+import static gotcha_common.redis.RedisProperties.GUEST_TTL_SECONDS;
+import static gotcha_common.redis.RedisProperties.NICKNAME_VERIFY_KEY_PREFIX;
 
 @Service
 @RequiredArgsConstructor

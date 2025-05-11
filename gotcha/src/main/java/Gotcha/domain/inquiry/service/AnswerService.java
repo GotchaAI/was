@@ -1,10 +1,10 @@
 package Gotcha.domain.inquiry.service;
 
 import Gotcha.domain.inquiry.dto.AnswerReq;
-import Gotcha.domain.inquiry.entity.Answer;
-import Gotcha.domain.inquiry.entity.Inquiry;
 import Gotcha.domain.inquiry.repository.AnswerRepository;
-import Gotcha.domain.user.entity.User;
+import gotcha_domain.inquiry.Answer;
+import gotcha_domain.inquiry.Inquiry;
+import gotcha_domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

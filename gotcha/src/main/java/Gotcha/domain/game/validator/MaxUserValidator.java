@@ -1,7 +1,7 @@
 package Gotcha.domain.game.validator;
 
 import Gotcha.domain.game.dto.GameRoom;
-import Gotcha.domain.game.entity.GameType;
+import gotcha_domain.game.GameType;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
