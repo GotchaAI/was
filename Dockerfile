@@ -8,6 +8,10 @@ COPY build.gradle .
 COPY settings.gradle .
 COPY gotcha gotcha
 COPY gotcha-socket gotcha-socket
+COPY gotcha-auth gotcha-auth
+COPY gotcha-user gotcha-user
+COPY gotcha-common gotcha-common
+COPY gotcha-domain gotcha-domain
 
 RUN chmod +x ./gradlew
 RUN microdnf install -y findutils
