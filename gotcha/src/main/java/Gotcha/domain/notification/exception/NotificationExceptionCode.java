@@ -1,6 +1,6 @@
 package Gotcha.domain.notification.exception;
 
-import Gotcha.common.exception.exceptionCode.ExceptionCode;
+import gotcha_common.exception.exceptionCode.ExceptionCode;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 import org.springframework.http.HttpStatus;

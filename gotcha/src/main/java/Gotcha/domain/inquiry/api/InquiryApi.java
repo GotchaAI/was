@@ -1,8 +1,8 @@
 package Gotcha.domain.inquiry.api;
 
-import Gotcha.common.jwt.auth.SecurityUserDetails;
 import Gotcha.domain.inquiry.dto.InquiryReq;
 import Gotcha.domain.inquiry.dto.InquirySortType;
+import gotcha_domain.auth.SecurityUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;

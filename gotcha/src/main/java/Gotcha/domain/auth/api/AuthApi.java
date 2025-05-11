@@ -1,10 +1,10 @@
 package Gotcha.domain.auth.api;
 
-import Gotcha.common.jwt.auth.SecurityUserDetails;
-import Gotcha.domain.auth.dto.EmailCodeVerifyReq;
 import Gotcha.domain.auth.dto.EmailReq;
 import Gotcha.domain.auth.dto.SignInReq;
 import Gotcha.domain.auth.dto.SignUpReq;
+import gotcha_domain.auth.SecurityUserDetails;
+import gotcha_common.dto.EmailCodeVerifyReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-import static Gotcha.common.jwt.token.JwtProperties.ACCESS_HEADER_VALUE;
-import static Gotcha.common.jwt.token.JwtProperties.REFRESH_COOKIE_VALUE;
+import static gotcha_auth.jwt.JwtProperties.ACCESS_HEADER_VALUE;
+import static gotcha_auth.jwt.JwtProperties.REFRESH_COOKIE_VALUE;
 
 @Tag(name = "[인증 API]", description = "인증 관련 API")
 public interface AuthApi {

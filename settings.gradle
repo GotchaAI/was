@@ -2,3 +2,7 @@ rootProject.name = 'Gotcha'
 
 include 'gotcha'
 include 'gotcha-socket'
+include 'gotcha-common'
+include 'gotcha-user'
+include 'gotcha-auth'
+include 'gotcha-domain'

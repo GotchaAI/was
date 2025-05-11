@@ -1,19 +1,19 @@
 package Gotcha.domain.auth.controller;
 
-import Gotcha.common.api.SuccessRes;
-import Gotcha.common.exception.CustomException;
-import Gotcha.common.jwt.auth.SecurityUserDetails;
-import Gotcha.common.jwt.exception.JwtExceptionCode;
-import Gotcha.common.mail.MailCodeService;
-import Gotcha.common.util.CookieUtil;
 import Gotcha.domain.auth.api.AuthApi;
-import Gotcha.domain.auth.dto.EmailCodeVerifyReq;
 import Gotcha.domain.auth.dto.EmailReq;
 import Gotcha.domain.auth.dto.SignInReq;
 import Gotcha.domain.auth.dto.SignUpReq;
-import Gotcha.domain.auth.dto.TokenDto;
 import Gotcha.domain.auth.service.AuthService;
-import Gotcha.domain.user.service.UserService;
+import gotcha_domain.auth.SecurityUserDetails;
+import gotcha_auth.dto.TokenDto;
+import gotcha_auth.exception.JwtExceptionCode;
+import gotcha_common.dto.EmailCodeVerifyReq;
+import gotcha_common.dto.SuccessRes;
+import gotcha_common.exception.CustomException;
+import gotcha_common.mail.MailCodeService;
+import gotcha_common.util.CookieUtil;
+import gotcha_user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
-import static Gotcha.common.jwt.token.JwtProperties.ACCESS_HEADER_VALUE;
-import static Gotcha.common.jwt.token.JwtProperties.REFRESH_COOKIE_VALUE;
+import static gotcha_auth.jwt.JwtProperties.ACCESS_HEADER_VALUE;
+import static gotcha_auth.jwt.JwtProperties.REFRESH_COOKIE_VALUE;
 
 @RestController
 @RequiredArgsConstructor

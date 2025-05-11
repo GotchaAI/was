@@ -1,8 +1,8 @@
 package Gotcha.domain.game.dto;
 
-import Gotcha.domain.game.entity.Difficulty;
-import Gotcha.domain.game.entity.GameType;
 import Gotcha.domain.game.validator.ValidMaxUser;
+import gotcha_domain.game.Difficulty;
+import gotcha_domain.game.GameType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

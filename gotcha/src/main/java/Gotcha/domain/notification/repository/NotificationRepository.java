@@ -1,6 +1,6 @@
 package Gotcha.domain.notification.repository;
 
-import Gotcha.domain.notification.entity.Notification;
+import gotcha_domain.notification.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;

@@ -1,7 +1,7 @@
 package Gotcha.domain.notification.api;
 
-import Gotcha.common.jwt.auth.SecurityUserDetails;
-import Gotcha.domain.notification.dto.NotificationReq;
+import gotcha_domain.auth.SecurityUserDetails;
+import gotcha_domain.notification.NotificationReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;

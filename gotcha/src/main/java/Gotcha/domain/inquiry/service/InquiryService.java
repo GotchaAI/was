@@ -1,14 +1,14 @@
 package Gotcha.domain.inquiry.service;
 
-import Gotcha.common.exception.CustomException;
 import Gotcha.domain.inquiry.dto.InquiryReq;
 import Gotcha.domain.inquiry.dto.InquiryRes;
 import Gotcha.domain.inquiry.dto.InquirySortType;
 import Gotcha.domain.inquiry.dto.InquirySummaryRes;
-import Gotcha.domain.inquiry.entity.Inquiry;
 import Gotcha.domain.inquiry.exception.InquiryExceptionCode;
 import Gotcha.domain.inquiry.repository.InquiryRepository;
-import Gotcha.domain.user.entity.User;
+import gotcha_common.exception.CustomException;
+import gotcha_domain.inquiry.Inquiry;
+import gotcha_domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
