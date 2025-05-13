@@ -23,7 +23,7 @@ public class RankingRedisService {
     private final StringRedisTemplate stringRedisTemplate;
     private final UserRepository userRepository;
 
-    private static final int SIZE = 3;
+    private static final int SIZE = 20;
 
     //경험치 기반 랭킹 등록/업데이트
     public void updateUserExpRanking(Long userId, Long exp) {
