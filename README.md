@@ -12,3 +12,22 @@
 | refact | 기능 변화가 아닌 코드 리팩터링 |
 | test | 테스트 코드 추가/수정 |
 | chore | 패키지 매니저 수정, 그 외 기타 수정 ex) .gitignore |
+
+
+## 모듈 의존성
+```
+gotcha
+├── gotcha-socket      (웹소켓 기능)
+├── gotcha-common      (공통 기능)
+├── gotcha-auth        (인증 모듈)
+│   ├── gotcha-common
+│   ├── gotcha-user
+│   └── gotcha-domain
+│       └── gotcha-common
+├── gotcha-user        (유저 관련 기능)
+│   ├── gotcha-common
+│   └── gotcha-domain
+│       └── gotcha-common
+└── gotcha-domain      (도메인 모델)
+    └── gotcha-common
+```
