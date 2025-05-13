@@ -22,6 +22,14 @@ dependencies {
 
 }
 
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
 tasks.register("prepareKotlinBuildScriptModel"){}
 
 test {
