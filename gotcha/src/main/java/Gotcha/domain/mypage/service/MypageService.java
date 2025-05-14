@@ -1,0 +1,24 @@
+package Gotcha.domain.mypage.service;
+
+import Gotcha.domain.game.dto.UserGameHistoriesRes;
+import Gotcha.domain.game.service.GameService;
+import gotcha_domain.user.User;
+import gotcha_user.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class MypageService {
+    private final UserService userService;
+    private final GameService gameService;
+
+    public List<UserGameHistoriesRes> getUserGameHistories(Long userId) {
+        User user = userService.findUserByUserId(userId);
+
+        return gameService.getUserGameHistories(userId);
+    }
+
+}
