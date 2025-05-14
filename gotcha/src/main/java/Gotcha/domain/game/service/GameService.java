@@ -1,6 +1,6 @@
 package Gotcha.domain.game.service;
 
-import Gotcha.domain.game.dto.UserGameHistoriesRes;
+import Gotcha.domain.game.dto.UserGameHistorySummaryRes;
 import Gotcha.domain.game.repository.UserGameRepository;
 import gotcha_domain.game.UserGame;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
 public class GameService {
     private final UserGameRepository userGameRepository;
 
-    public List<UserGameHistoriesRes> getUserGameHistories(Long userId) {
+    public List<UserGameHistorySummaryRes> getUserGameHistories(Long userId) {
         List<UserGame> userGames = userGameRepository.findAllByUserIdWithGame(userId);
 
-        return userGames.stream().map(UserGameHistoriesRes::from).collect(Collectors.toList());
+        return userGames.stream().map(UserGameHistorySummaryRes::from).collect(Collectors.toList());
     }
 }

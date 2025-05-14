@@ -6,15 +6,15 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record UserGameHistoriesRes(
+public record UserGameHistorySummaryRes(
         Long gameId,
         String gameType,
         String difficulty,
         LocalDateTime playedAt,
         int score
 ) {
-    public static UserGameHistoriesRes from(UserGame userGame){
-        return UserGameHistoriesRes.builder()
+    public static UserGameHistorySummaryRes from(UserGame userGame){
+        return UserGameHistorySummaryRes.builder()
                 .gameId(userGame.getGame().getId())
                 .gameType(String.valueOf(userGame.getGame().getGameType()))
                 .difficulty(String.valueOf(userGame.getGame().getDifficulty()))

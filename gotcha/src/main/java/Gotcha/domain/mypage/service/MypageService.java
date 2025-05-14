@@ -1,6 +1,6 @@
 package Gotcha.domain.mypage.service;
 
-import Gotcha.domain.game.dto.UserGameHistoriesRes;
+import Gotcha.domain.game.dto.UserGameHistorySummaryRes;
 import Gotcha.domain.game.service.GameService;
 import gotcha_domain.user.User;
 import gotcha_user.service.UserService;
@@ -15,7 +15,7 @@ public class MypageService {
     private final UserService userService;
     private final GameService gameService;
 
-    public List<UserGameHistoriesRes> getUserGameHistories(Long userId) {
+    public List<UserGameHistorySummaryRes> getUserGameHistories(Long userId) {
         User user = userService.findUserByUserId(userId);
 
         return gameService.getUserGameHistories(userId);
