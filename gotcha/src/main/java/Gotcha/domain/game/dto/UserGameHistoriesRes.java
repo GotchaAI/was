@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 @Builder
 public record UserGameHistoriesRes(
+        Long gameId,
         String gameType,
         String difficulty,
         LocalDateTime playedAt,
@@ -14,6 +15,7 @@ public record UserGameHistoriesRes(
 ) {
     public static UserGameHistoriesRes from(UserGame userGame){
         return UserGameHistoriesRes.builder()
+                .gameId(userGame.getGame().getId())
                 .gameType(String.valueOf(userGame.getGame().getGameType()))
                 .difficulty(String.valueOf(userGame.getGame().getDifficulty()))
                 .playedAt(userGame.getGame().getCreatedAt())
