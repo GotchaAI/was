@@ -29,6 +29,8 @@ public class RoundHistory extends BaseTimeEntity {
     @NotNull
     private String topic;
 
+    private Integer round;
+
     private Boolean isSuccess;
 
     private Double similarity;
