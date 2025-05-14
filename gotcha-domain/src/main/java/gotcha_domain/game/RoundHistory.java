@@ -37,7 +37,7 @@ public class RoundHistory extends BaseTimeEntity {
     @Column(name = "chat_log", length = 500)
     private List<String> prediction;
 
-    private String pciture;
+    private String picture;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id")
