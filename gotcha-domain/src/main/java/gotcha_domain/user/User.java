@@ -57,6 +57,10 @@ public class User extends BaseTimeEntity {
 
     private Boolean isLocked;
 
+    private int level;
+
+    private long exp;
+
     @JsonIgnore
     @OneToMany(mappedBy = "player")
     private List<UserGame> userGames = new ArrayList<>();
