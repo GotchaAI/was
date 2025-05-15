@@ -57,3 +57,8 @@ mail:
 csrf:
   cookie:
     secure: false
+
+server:
+  address: 0.0.0.0
+
+
