@@ -38,17 +38,4 @@ public class RedisConfig {
         return redisTemplate;
     }
 
-    @Bean(name = "socketStringRedisTemplate")
-    public RedisTemplate<String, String> redisStringTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setConnectionFactory(redisConnectionFactory);
-
-        // 모든 직렬화 방식은 String 중심으로 처리
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
-        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
-
-        return redisTemplate;
-    }
 }
