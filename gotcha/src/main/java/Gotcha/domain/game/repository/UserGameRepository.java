@@ -16,7 +16,6 @@ public interface UserGameRepository extends JpaRepository<UserGame, Long> {
 
     @Query("SELECT ug FROM UserGame ug " +
             "JOIN FETCH ug.game g " +
-            "WHERE ug.player.id = :userId and ug.game.id = :gameId " +
-            "ORDER BY g.createdAt DESC")
+            "WHERE ug.player.id = :userId and ug.game.id = :gameId ")
     Optional<UserGame> findByUserIdAndGameId(Long userId, Long gameId);
 }
