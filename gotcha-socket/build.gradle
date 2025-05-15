@@ -1,5 +1,8 @@
 
 dependencies {
+    implementation project(":gotcha-common")
+    implementation project(":gotcha-domain")
+
     implementation 'org.springframework.boot:spring-boot-starter'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -19,6 +22,22 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis' //redis
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // webSocket
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+
+    //redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.integration:spring-integration-core'
+    implementation 'org.springframework.integration:spring-integration-redis'
+    implementation 'org.springframework.integration:spring-integration-redis'
 
 }
 
