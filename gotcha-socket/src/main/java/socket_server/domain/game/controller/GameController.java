@@ -7,23 +7,19 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
-import socket_server.common.manager.ChannelManager;
-import socket_server.domain.game.api.GameApi;
 import socket_server.domain.game.dto.GameReadyStatus;
 
-import static socket_server.common.constants.WebSocketConstants.*;
+import static socket_server.common.constants.WebSocketConstants.GAME_READY_CHANNEL;
 
 //WebSocket으로 들어온 메시지를 Redis에 발행
 @Controller("/game")
 @RequiredArgsConstructor
-public class GameController implements GameApi {
+public class GameController {
     private final RedisTemplate<String, Object> pubSubHandler;
-    private final ChannelManager channelManager;
 
     // 1. 대기방 입장시 채널 관리
     @MessageMapping("/enter/room/{roomId}")
     public void enterGameRoom(@DestinationVariable String roomId, @Header("simpSessionId") String sessionId) {
-        channelManager.subscribeToWaitingRoom(roomId, sessionId);
     }
 
     // 3. 대기방 레디 상태 업데이트
