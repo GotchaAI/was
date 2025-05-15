@@ -24,7 +24,7 @@ servers:
       기본적으로 WebSocket(ws) 사용, 실패 시 HTTP long-polling 등으로 fallback 됩니다.
 
 channels:
-  pub/room/enter/{roomId}:
+  /pub/room/enter/{roomId}/:
     description: 클라이언트가 방 입장을 요청하는 채널
     parameters:
       roomId:
@@ -44,7 +44,7 @@ channels:
           description: 입력 페이로드 없음
 
 
-  pub/room/leave/{roomId}:
+  /pub/room/leave/{roomId}/:
     description: 클라이언트가 방 퇴장(나감)을 요청하는 채널
     parameters:
       roomId:
@@ -63,7 +63,7 @@ channels:
           type: object
           description: 입력 페이로드 없음
 
-  pub/room/create:
+  /pub/room/create/:
     description: 클라이언트가 새 방을 생성 요청하는 채널
     publish:
       message:
@@ -76,7 +76,7 @@ channels:
         payload:
           $ref: '#/components/schemas/CreateRoomRequest'
 
-  pub/room/update:
+  /pub/room/update/:
     description: 클라이언트가 방 속성을 수정 요청하는 채널
     publish:
       message:
@@ -89,7 +89,7 @@ channels:
         payload:
           $ref: '#/components/schemas/UpdateRoomFieldRequest'
 
-  /sub/room/init/info/{roomId}:
+  /sub/room/init/info/{roomId}/:
     description: 서버가 방 초기 정보(메타 + 참가자 목록) 브로드캐스트
     parameters:
       roomId:
