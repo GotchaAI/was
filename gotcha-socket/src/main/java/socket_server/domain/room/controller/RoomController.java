@@ -1,11 +1,14 @@
 package socket_server.domain.room.controller;
 
 import gotcha_common.exception.CustomException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import socket_server.common.config.RedisMessage;
 import socket_server.common.exception.room.RoomExceptionCode;
@@ -14,7 +17,6 @@ import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.service.RoomService;
 import socket_server.domain.room.service.RoomUserService;
 
-import java.security.Principal;
 
 import static socket_server.common.constants.WebSocketConstants.PERSONAL_ROOM_CREATE_RESPONSE;
 import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
@@ -29,9 +31,8 @@ public class RoomController {
     private final RedisTemplate<String, Object> objectRedisTemplate;
 
     @MessageMapping("/create")
-    public void createRoom(@Payload CreateRoomRequest request, Principal principal) {
-        String userId = principal.getName();
-        //request 수동 유효성 검사해주는 코드 필요함.
+    public void createRoom(@Valid @Payload CreateRoomRequest request, @AuthenticationPrincipal UserDetails user) {
+        String userId = user.getUsername();
 
         if (roomUserService.getCurrentRoomOfUser(userId).isPresent()) {
             throw new CustomException(RoomExceptionCode.USER_ALREADY_IN_ANOTHER_ROOM);
