@@ -9,3 +9,4 @@ public class SecurityConstants {
 
     public static final String[] ADMIN_ENDPOINTS = {"/api/v1/admin/**"};
 }
+
