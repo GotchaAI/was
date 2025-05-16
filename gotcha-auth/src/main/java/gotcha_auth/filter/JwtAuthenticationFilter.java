@@ -1,28 +1,20 @@
 package gotcha_auth.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gotcha_auth.exception.JwtExceptionCode;
-import gotcha_auth.jwt.BlackListTokenService;
+import gotcha_auth.jwt.JwtAuthService;
 import gotcha_auth.jwt.JwtProperties;
-import gotcha_auth.jwt.TokenProvider;
 import gotcha_common.constants.SecurityConstants;
 import gotcha_common.exception.ExceptionRes;
 import gotcha_common.exception.exceptionCode.ExceptionCode;
 import gotcha_common.exception.exceptionCode.GlobalExceptionCode;
-import gotcha_domain.user.Role;
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -31,33 +23,11 @@ import java.io.IOException;
 import java.util.Arrays;
 
 @Slf4j
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final UserDetailsService userDetailsService;
-    private final UserDetailsService guestDetailsService;
-    private final TokenProvider tokenProvider;
-    private final BlackListTokenService blackListTokenService;
+    private final JwtAuthService jwtAuthService;
     private final ObjectMapper objectMapper;
-
-
-    private static final String SPECIAL_CHARACTERS_PATTERN = "[`':;|~!@#$%()^&*+=?/{}\\[\\]\\\"\\\\\"]+$";
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
-
-    public JwtAuthenticationFilter(
-            @Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService,
-            @Qualifier("guestDetailsService") UserDetailsService guestDetailsService,
-            TokenProvider tokenProvider,
-            BlackListTokenService blackListTokenService,
-            ObjectMapper objectMapper
-    ) {
-        this.userDetailsService = userDetailsService;
-        this.guestDetailsService = guestDetailsService;
-        this.tokenProvider = tokenProvider;
-        this.blackListTokenService = blackListTokenService;
-        this.objectMapper = objectMapper;
-    }
-
-
-
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -69,25 +39,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (accessTokenHeader == null || !accessTokenHeader.startsWith("Bearer ")) {
-            throw new AuthenticationServiceException(JwtExceptionCode.ACCESS_TOKEN_NOT_FOUND.getMessage());
-        }
-
         try{
-            String accessToken = resolveAccessToken(response, accessTokenHeader);
-
-            String role = tokenProvider.getRole(accessToken);
-            UserDetails userDetails;
-            if (role.equals(String.valueOf(Role.GUEST))) {
-                Long guestId = tokenProvider.getUserId(accessToken);
-                userDetails = guestDetailsService.loadUserByUsername(guestId.toString());
-            }
-            else{
-                String username = tokenProvider.getUsername(accessToken);
-                userDetails = userDetailsService.loadUserByUsername(username);
-            }
-
-            Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            Authentication auth = jwtAuthService.authenticate(accessTokenHeader);
             SecurityContextHolder.getContext().setAuthentication(auth);
 
             filterChain.doFilter(request, response);
@@ -101,21 +54,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             objectMapper.writeValue(response.getWriter(), ExceptionRes.from(exceptionCode));
         }
-    }
-
-    private String resolveAccessToken(HttpServletResponse response, String accessTokenGetHeader) throws IOException {
-        String accessToken = accessTokenGetHeader.substring(JwtProperties.TOKEN_PREFIX.length()).trim();
-
-        accessToken = accessToken.replaceAll(SPECIAL_CHARACTERS_PATTERN, "");
-
-        if (tokenProvider.isExpired(accessToken)) {
-            throw new ExpiredJwtException(null, null, JwtExceptionCode.ACCESS_TOKEN_EXPIRED.getMessage());
-        }
-
-        if (blackListTokenService.existsBlackListCheck(accessToken)) {
-            throw new ExpiredJwtException(null, null, JwtExceptionCode.ACCESS_TOKEN_EXPIRED.getMessage());
-        }
-        return accessToken;
     }
 
     private boolean isPublicResource(String uri) {
