@@ -24,7 +24,8 @@ public class RoomService {
     }
 
     //todo : lua 스크립트 적용
-    public String createRoom(CreateRoomRequest request, String ownerId) {
+    public RoomMetadata createRoom(CreateRoomRequest request, String ownerId) {
+
         String roomId = roomIdService.allocateRoomId();
 
         Map<String, String> roomData = Map.of (
@@ -39,7 +40,7 @@ public class RoomService {
         );
 
         redisTemplate.opsForHash().putAll(getRoomKey(roomId), roomData);
-        return roomId;
+        return getRoomInfo(roomId);
     }
 
     public RoomMetadata getRoomInfo(String roomId) {
