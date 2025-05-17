@@ -1,9 +1,11 @@
 package socket_server.domain.room.service;
 
+import gotcha_common.exception.CustomException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import socket_server.common.exception.room.RoomExceptionCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,9 +60,12 @@ public class RoomUserService {
         return new ArrayList<>(redisTemplate.opsForSet().members(roomUserKey(roomId)));
     }
 
-    public Optional<String> getCurrentRoomOfUser(String userId) {
+    public void checkUserNotInAnyRoom (String userId) {
         String value = redisTemplate.opsForValue().get(userCurrentRoomKey(userId));
-        return Optional.ofNullable(value);
+
+        if (value != null) {
+            throw new CustomException(RoomExceptionCode.USER_ALREADY_IN_ANOTHER_ROOM);
+        }
     }
 }
 
