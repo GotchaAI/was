@@ -46,5 +46,14 @@ public class SocketGlobalExceptionHandler {
                 ));
         return ExceptionRes.from(GlobalExceptionCode.FIELD_VALIDATION_ERROR, fieldErrors);
     }
+
+    @MessageExceptionHandler(Exception.class)
+    @SendToUser("/queue/errors")
+    public ExceptionRes handleUnexpectedException(Exception e) {
+        log.error("[WebSocket Unexpected Exception] {}", e.getMessage(), e);
+        ExceptionCode error = GlobalExceptionCode.INTERNAL_SERVER_ERROR;
+        return ExceptionRes.from(error);
+    }
+
 }
 

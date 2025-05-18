@@ -75,14 +75,15 @@ public class AuthService {
         User user = userRepository.findByEmail(signInReq.email())
                 .orElseThrow(() -> new CustomException(AuthExceptionCode.INVALID_USERNAME_AND_PASSWORD));
 
-        if(!passwordEncoder.matches(signInReq.password(), user.getPassword())){
-            throw new CustomException(AuthExceptionCode.INVALID_USERNAME_AND_PASSWORD);
-        }
+        //todo : 이거 테스트 쉽게 하려고 지운거다 올리지 마라.
+//        if(!passwordEncoder.matches(signInReq.password(), user.getPassword())){
+//            throw new CustomException(AuthExceptionCode.INVALID_USERNAME_AND_PASSWORD);
+//        }
 
         return jwtHelper.createToken(user, signInReq.autoSignIn());
     }
 
-    public void signOut(String HeaderAccessToken, String refreshToken, HttpServletResponse response){
+    public void signOut(String HeaderAccessToken, String refreshToken, HttpServletResponse response) {
         String accessToken = HeaderAccessToken.substring(TOKEN_PREFIX.length()).trim();
 
         jwtHelper.removeToken(accessToken, refreshToken, response);

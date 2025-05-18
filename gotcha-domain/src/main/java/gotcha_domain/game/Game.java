@@ -3,6 +3,8 @@ package gotcha_domain.game;
 import gotcha_common.entity.BaseTimeEntity;
 import gotcha_domain.report.BugReport;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,10 +27,14 @@ public class Game extends BaseTimeEntity {
     private Long id;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private GameType gameType;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private Difficulty difficulty;
+
+    private int score;
 
     @OneToMany(mappedBy = "game")
     private List<BugReport> bugReports = new ArrayList<>();
