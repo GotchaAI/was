@@ -9,7 +9,9 @@ public enum GlobalExceptionCode implements ExceptionCode {
     FIELD_VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "GLOBAL-400-001", "요청한 필드 값이 유효하지 않습니다."),
     CSRF_INVALID(HttpStatus.FORBIDDEN, "GLOBAL-403-001", "CSRF 토큰이 유효하지 않습니다."),
     USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH-401-001", "인증된 사용자를 찾을 수 없습니다."),
-    ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH-403-001", "접근 권한이 없습니다.");
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH-403-001", "접근 권한이 없습니다."),
+    INVALID_MESSAGE_FORMAT(HttpStatus.BAD_REQUEST, "GLOBAL_400_002", "유효하지 않은 메시지 포맷 입니다."),
+    INVALID_CHANNEL(HttpStatus.BAD_REQUEST, "GLOBAL_400_003", "유효하지 않은 소켓 채널입니다.");
 
     private final HttpStatus status;
     private final String code;

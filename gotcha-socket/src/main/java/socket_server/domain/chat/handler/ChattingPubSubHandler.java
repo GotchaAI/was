@@ -1,13 +1,14 @@
 package socket_server.domain.chat.handler;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import socket_server.common.listener.PubSubHandler;
-import socket_server.domain.chat.dto.ChatMessageReq;
 
 import static socket_server.common.constants.WebSocketConstants.*;
 
 @Service
+@Qualifier("chattingPubSubHandler")
 public class ChattingPubSubHandler extends PubSubHandler {
 
     public ChattingPubSubHandler(SimpMessagingTemplate messagingTemplate) {
@@ -22,19 +23,13 @@ public class ChattingPubSubHandler extends PubSubHandler {
     }
 
     // 채팅 처리 메소드
-    private void handleAllChat(String message) {
-        ChatMessageReq chatMessageReq = convertMessageToDto(message, ChatMessageReq.class);
-        messagingTemplate.convertAndSend(CHAT_ALL_CHANNEL, chatMessageReq);  // 전체 채팅방 메시지 처리
+    private void handleAllChat( Object object) {
+
     }
 
-    private void handlePrivateChat(String channel, String message) {
-        String nickName = channel.replace(CHAT_PRIVATE_CHANNEL, "");
-        messagingTemplate.convertAndSend(CHAT_PRIVATE_CHANNEL + nickName, message);  // 귓속말 처리
+    private void handlePrivateChat(String channel,  Object object) {
     }
 
-    private void handleRoomChat(String channel, String message) {
-        String roomId = channel.replace(CHAT_ROOM_CHANNEL, "");
-        ChatMessageReq chatMessageReq = convertMessageToDto(message, ChatMessageReq.class);
-        messagingTemplate.convertAndSend(CHAT_ROOM_CHANNEL + roomId, chatMessageReq);  // 대기방 채팅 처리
+    private void handleRoomChat(String channel,  Object object) {
     }
 }

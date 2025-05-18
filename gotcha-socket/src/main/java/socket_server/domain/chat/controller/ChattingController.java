@@ -1,22 +1,25 @@
 package socket_server.domain.chat.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
-import socket_server.domain.chat.api.ChattingApi;
 import socket_server.domain.chat.dto.ChatMessageReq;
 
 import static socket_server.common.constants.WebSocketConstants.*;
 
 //WebSocket으로 들어온 메시지를 Redis에 발행
 @Controller("/chat")
-@RequiredArgsConstructor
-public class ChattingController implements ChattingApi {
+public class ChattingController {
     private final RedisTemplate<String, String> redisTemplate;
+
+    public ChattingController(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
 
     // 1. 전체 채팅방 메시지 전송
     @MessageMapping("/all")
