@@ -13,6 +13,7 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
                 .nullDestMatcher().permitAll() // 목적지가 null이면 허용 (초기 메세지)
                 .simpDestMatchers("/pub/**").authenticated() //인증된 사용자만 메시시 전송 가능
                 .simpSubscribeDestMatchers("/sub/**").authenticated() //인증된 사용자만 구독 가능
+                .simpSubscribeDestMatchers("/user/**").permitAll()
                 .anyMessage().denyAll(); //그 외는 허용x
     }
 
