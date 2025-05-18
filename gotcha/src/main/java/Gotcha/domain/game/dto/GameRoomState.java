@@ -1,5 +1,17 @@
 package Gotcha.domain.game.dto;
 
 public enum GameRoomState {
-    WAITING, PLAYING
+    WAITING("대기 중"),
+    PLAYING("진행 중"),
+    ENDED("종료됨");
+
+    private final String description;
+
+    GameRoomState(String description) {
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }
