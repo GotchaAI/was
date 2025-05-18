@@ -39,13 +39,6 @@ public abstract class PubSubHandler {
 
     protected abstract void initHandlers();
 
-    protected String extractParam(String topic, String prefix) {
-        if (!topic.startsWith(prefix)) {
-            throw new CustomException(GlobalExceptionCode.INVALID_CHANNEL);
-        }
-        return topic.substring(prefix.length());
-    }
-
     private void handleUnknownChannel(String topic, Object object ) {
         throw new CustomException(GlobalExceptionCode.INVALID_CHANNEL);
     }
@@ -60,7 +53,7 @@ public abstract class PubSubHandler {
     protected <T> T convertMessageToDto(Object raw, Class<T> clazz) {
         try {
             if (raw instanceof Map map) {
-                map.remove("@class");
+                map.remove("@class"); //dto내에 또 dto가 들어있는 경우 발생하는 에러 방지용 코드.
             }
             return objectMapper.convertValue(raw, clazz);
         } catch (Exception e) {
