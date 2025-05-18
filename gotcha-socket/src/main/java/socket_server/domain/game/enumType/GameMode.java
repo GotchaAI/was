@@ -1,8 +1,8 @@
 package socket_server.domain.game.enumType;
 
 public enum GameMode {
-    GAME_1("게임1", 2, 2),
-    GAME_2("게임2", 4, 8);
+    TRICK_MYOMYO("묘묘를 속여라", 2, 8),
+    LULU_ART_EXAM("루루의 미대입시", 1, 1);
 
     private final int minPlayers;
     private final int maxPlayers;
@@ -19,4 +19,5 @@ public enum GameMode {
     public int getMaxPlayers() {
         return maxPlayers;
     }
+
 }
