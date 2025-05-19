@@ -34,25 +34,25 @@ public class TokenProvider {
         this.issuer = issuer;
     }
 
-    public String createAccessToken(String role, Long userId, String username) {
-        return createToken(makeAccessTokenClaims(role, userId), username, accessExpiration);
+    public String createAccessToken(String role, String uuid, String username) {
+        return createToken(makeAccessTokenClaims(role, uuid), username, accessExpiration);
     }
 
-    public String createRefreshToken(String role, Long userId, String username, boolean autoSignIn) {
-        return createToken(makeRefreshTokenClaims(role, userId, autoSignIn), username, autoSignIn?autoRefreshExpiration:refreshExpiration);
+    public String createRefreshToken(String role, String uuid, String username, boolean autoSignIn) {
+        return createToken(makeRefreshTokenClaims(role, uuid, autoSignIn), username, autoSignIn ? autoRefreshExpiration : refreshExpiration);
     }
 
-    private Map<String, Object> makeAccessTokenClaims(String role, Long userId) {
+    private Map<String, Object> makeAccessTokenClaims(String role, String uuid) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
-        claims.put("userId", userId);
+        claims.put("uuid", uuid);
         return claims;
     }
 
-    private Map<String, Object> makeRefreshTokenClaims(String role, Long userId, boolean autoSignIn) {
+    private Map<String, Object> makeRefreshTokenClaims(String role, String uuid, boolean autoSignIn) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
-        claims.put("userId", userId);
+        claims.put("uuid", uuid);
         claims.put("auto", autoSignIn);
         return claims;
     }
@@ -89,8 +89,8 @@ public class TokenProvider {
         return getClaims(token).getSubject();
     }
 
-    public Long getUserId(String token) {
-        return getClaims(token).get("userId", Long.class);
+    public String getUuid(String token) {
+        return getClaims(token).get("uuid", String.class);
     }
 
     public String getRole(String token) {

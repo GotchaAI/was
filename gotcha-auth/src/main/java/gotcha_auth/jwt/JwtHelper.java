@@ -21,27 +21,27 @@ public class JwtHelper {
     private final BlackListTokenService blackListTokenService;
 
     public TokenDto createToken(User user, boolean autoSignIn) {
-        Long userId = user.getId();
-        String email = user.getEmail();
-        return getTokenDto(user, userId, email, autoSignIn);
+        String uuid = user.getUuid();
+        String username = user.getNickname();
+        return getTokenDto(user, uuid, username, autoSignIn);
     }
 
-    public TokenDto createGuestToken(User guest){
-        Long userId = guest.getId();
+    public TokenDto createGuestToken(User guest) {
+        String uuid = guest.getUuid();
         String username = guest.getNickname();
-        return getTokenDto(guest, userId, username, false);
+        return getTokenDto(guest, uuid, username, false);
     }
 
-    private TokenDto getTokenDto(User user, Long userId, String username, boolean autoSignIn) {
+    private TokenDto getTokenDto(User user, String uuid, String username, boolean autoSignIn) {
         String role = String.valueOf(user.getRole());
 
-        String accessToken = JwtProperties.TOKEN_PREFIX + tokenProvider.createAccessToken(role, userId, username);
-        String refreshToken = tokenProvider.createRefreshToken(role, userId, username, autoSignIn);
+        String accessToken = JwtProperties.TOKEN_PREFIX + tokenProvider.createAccessToken(role, uuid, username);
+        String refreshToken = tokenProvider.createRefreshToken(role, uuid, username, autoSignIn);
         LocalDateTime accessTokenExpiredAt = tokenProvider.getExpiryDate(
                 accessToken.replace(JwtProperties.TOKEN_PREFIX, "").trim()
         );
 
-        refreshTokenService.saveRefreshToken(username, refreshToken);
+        refreshTokenService.saveRefreshToken(uuid, refreshToken);
         return new TokenDto(accessToken, refreshToken, accessTokenExpiredAt, autoSignIn);
     }
 
@@ -53,13 +53,13 @@ public class JwtHelper {
         if (!refreshTokenService.existedRefreshToken(username, refreshToken))
             throw new CustomException(JwtExceptionCode.REFRESH_TOKEN_NOT_FOUND);
 
-        Long userId = tokenProvider.getUserId(refreshToken);
+        String uuid = tokenProvider.getUuid(refreshToken);
         String role = tokenProvider.getRole(refreshToken);
 
         boolean autoSignIn = tokenProvider.isAutoSignIn(refreshToken);
 
-        String newAccessToken = JwtProperties.TOKEN_PREFIX + tokenProvider.createAccessToken(role, userId, username);
-        String newRefreshToken = tokenProvider.createRefreshToken(role, userId, username, autoSignIn);
+        String newAccessToken = JwtProperties.TOKEN_PREFIX + tokenProvider.createAccessToken(role, uuid, username);
+        String newRefreshToken = tokenProvider.createRefreshToken(role, uuid, username, autoSignIn);
         LocalDateTime newAccessTokenExpiredAt = tokenProvider.getExpiryDate(
                 newAccessToken.replace(JwtProperties.TOKEN_PREFIX, "").trim()
         );
