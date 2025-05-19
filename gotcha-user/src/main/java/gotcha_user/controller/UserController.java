@@ -33,7 +33,7 @@ public class UserController implements UserApi {
 
     @GetMapping("/me/main-info")
     public ResponseEntity<?> getUserInfo(@AuthenticationPrincipal SecurityUserDetails userDetails){
-        UserInfoRes userInfoRes = userService.getUserInfo(userDetails.getUuid(), userDetails.getRole());
+        UserInfoRes userInfoRes = userService.getUserInfo(userDetails);
 
         return ResponseEntity.status(HttpStatus.OK).body(userInfoRes);
     }

@@ -2,6 +2,7 @@ package gotcha_user.service;
 
 import gotcha_common.exception.CustomException;
 import gotcha_common.util.RedisUtil;
+import gotcha_domain.auth.SecurityUserDetails;
 import gotcha_domain.user.Role;
 import gotcha_domain.user.User;
 import gotcha_user.dto.UserInfoRes;
@@ -43,10 +44,11 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserInfoRes getUserInfo(String uuid, Role role){
+    public UserInfoRes getUserInfo(SecurityUserDetails userDetails){
+        Role role = userDetails.getRole();
         User user = switch (role){
-            case GUEST -> findGuestByGuestId(uuid);
-            case USER,ADMIN -> findUserByUserUuid(uuid);
+            case GUEST -> findGuestByGuestId(userDetails.getUuid());
+            case USER,ADMIN -> findUserByUserId(userDetails.getId());
             default -> throw new CustomException(UserExceptionCode.INVALID_USERID);
         };
         return UserInfoRes.fromEntity(user);
@@ -55,12 +57,6 @@ public class UserService {
     @Transactional(readOnly = true)
     public User findUserByUserId(Long userId){
         return userRepository.findById(userId)
-                .orElseThrow(()->new CustomException(UserExceptionCode.INVALID_USERID));
-    }
-
-    @Transactional(readOnly = true)
-    public User findUserByUserUuid(String uuid){
-        return userRepository.findByUuid(uuid)
                 .orElseThrow(()->new CustomException(UserExceptionCode.INVALID_USERID));
     }
 
