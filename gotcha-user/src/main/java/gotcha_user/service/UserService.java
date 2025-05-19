@@ -43,10 +43,10 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserInfoRes getUserInfo(Long userId, Role role){
+    public UserInfoRes getUserInfo(String uuid, Role role){
         User user = switch (role){
-            case GUEST -> findGuestByGuestId(userId);
-            case USER,ADMIN -> findUserByUserId(userId);
+            case GUEST -> findGuestByGuestId(uuid);
+            case USER,ADMIN -> findUserByUserUuid(uuid);
             default -> throw new CustomException(UserExceptionCode.INVALID_USERID);
         };
         return UserInfoRes.fromEntity(user);
@@ -58,8 +58,14 @@ public class UserService {
                 .orElseThrow(()->new CustomException(UserExceptionCode.INVALID_USERID));
     }
 
-    private User findGuestByGuestId(Long guestId){
-        return Optional.ofNullable((User) redisUtil.getData(GUEST_KEY_PREFIX + guestId))
+    @Transactional(readOnly = true)
+    public User findUserByUserUuid(String uuid){
+        return userRepository.findByUuid(uuid)
+                .orElseThrow(()->new CustomException(UserExceptionCode.INVALID_USERID));
+    }
+
+    private User findGuestByGuestId(String uuid){
+        return Optional.ofNullable((User) redisUtil.getData(GUEST_KEY_PREFIX + uuid))
                 .orElseThrow(()-> new CustomException(UserExceptionCode.INVALID_USERID));
     }
 }

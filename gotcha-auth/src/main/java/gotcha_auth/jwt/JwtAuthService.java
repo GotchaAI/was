@@ -1,6 +1,7 @@
 package gotcha_auth.jwt;
 
 import gotcha_auth.exception.JwtExceptionCode;
+import gotcha_domain.user.Role;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -45,7 +46,7 @@ public class JwtAuthService {
         System.out.println(role);
 
         String uuid = tokenProvider.getUuid(accessToken);
-        userDetails = role.equals("GUEST")
+        userDetails = role.equals(String.valueOf(Role.GUEST))
                 ? guestDetailsService.loadUserByUsername(uuid)
                 : userDetailsService.loadUserByUsername(uuid);
 
