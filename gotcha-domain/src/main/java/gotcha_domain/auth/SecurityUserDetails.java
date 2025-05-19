@@ -51,6 +51,10 @@ public class SecurityUserDetails implements UserDetails {
         return user.getRole();
     }
 
+    public String getUuid(){
+        return user.getUuid();
+    }
+
     @Override
     public boolean isAccountNonExpired() {
         return true;

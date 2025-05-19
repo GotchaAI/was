@@ -18,7 +18,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     @Cacheable(value = "users", key = "#username")
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(username)
+        User user = userRepository.findByUuid(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found : " + username));
 
         return new SecurityUserDetails(user);

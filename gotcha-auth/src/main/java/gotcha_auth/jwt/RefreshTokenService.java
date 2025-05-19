@@ -18,8 +18,8 @@ public class RefreshTokenService {
     @Value("${token.refresh.in-redis}")
     private long REFRESH_EXPIRATION;
 
-    public void saveRefreshToken(String username, String refreshToken) {
-        String key = RedisProperties.REFRESH_TOKEN_KEY_PREFIX + username;
+    public void saveRefreshToken(String uuid, String refreshToken) {
+        String key = RedisProperties.REFRESH_TOKEN_KEY_PREFIX + uuid;
         redisUtil.setData(key, refreshToken);
         redisUtil.setDataExpire(key, REFRESH_EXPIRATION);
     }

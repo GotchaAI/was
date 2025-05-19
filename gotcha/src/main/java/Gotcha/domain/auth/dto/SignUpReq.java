@@ -32,12 +32,13 @@ public record SignUpReq(
         return password.equals(passwordCheck);
     }
 
-    public User toEntity(String encodePassword) {
+    public User toEntity(String encodePassword, String uuid) {
         return User.builder()
                 .email(email)
                 .password(encodePassword)
                 .nickname(nickname)
                 .role(Role.USER)
+                .uuid(uuid)
                 .build();
     }
 
@@ -47,6 +48,7 @@ public record SignUpReq(
                 .password(encodePassword)
                 .nickname(nickname)
                 .role(Role.USER)
+                .uuid(guest.getUuid())
                 .build();
     }
 }

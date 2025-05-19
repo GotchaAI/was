@@ -42,14 +42,13 @@ public class JwtAuthService {
 
         String role = tokenProvider.getRole(accessToken);
         UserDetails userDetails;
-        if (role.equals(String.valueOf(Role.GUEST))) {
-            Long guestId = tokenProvider.getUserId(accessToken);
-            userDetails = guestDetailsService.loadUserByUsername(guestId.toString());
-        }
-        else{
-            String username = tokenProvider.getUsername(accessToken);
-            userDetails = userDetailsService.loadUserByUsername(username);
-        }
+
+        System.out.println(role);
+
+        String uuid = tokenProvider.getUuid(accessToken);
+        userDetails = role.equals(String.valueOf(Role.GUEST))
+                ? guestDetailsService.loadUserByUsername(uuid)
+                : userDetailsService.loadUserByUsername(uuid);
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }

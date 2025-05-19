@@ -2,6 +2,7 @@ package gotcha_user.service;
 
 import gotcha_common.exception.CustomException;
 import gotcha_common.util.RedisUtil;
+import gotcha_domain.auth.SecurityUserDetails;
 import gotcha_domain.user.Role;
 import gotcha_domain.user.User;
 import gotcha_user.dto.UserInfoRes;
@@ -43,10 +44,11 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserInfoRes getUserInfo(Long userId, Role role){
+    public UserInfoRes getUserInfo(SecurityUserDetails userDetails){
+        Role role = userDetails.getRole();
         User user = switch (role){
-            case GUEST -> findGuestByGuestId(userId);
-            case USER,ADMIN -> findUserByUserId(userId);
+            case GUEST -> findGuestByGuestId(userDetails.getUuid());
+            case USER,ADMIN -> findUserByUserId(userDetails.getId());
             default -> throw new CustomException(UserExceptionCode.INVALID_USERID);
         };
         return UserInfoRes.fromEntity(user);
@@ -58,8 +60,8 @@ public class UserService {
                 .orElseThrow(()->new CustomException(UserExceptionCode.INVALID_USERID));
     }
 
-    private User findGuestByGuestId(Long guestId){
-        return Optional.ofNullable((User) redisUtil.getData(GUEST_KEY_PREFIX + guestId))
+    private User findGuestByGuestId(String uuid){
+        return Optional.ofNullable((User) redisUtil.getData(GUEST_KEY_PREFIX + uuid))
                 .orElseThrow(()-> new CustomException(UserExceptionCode.INVALID_USERID));
     }
 }
