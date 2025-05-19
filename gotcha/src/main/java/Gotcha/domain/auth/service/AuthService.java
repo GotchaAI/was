@@ -66,7 +66,8 @@ public class AuthService {
         redisUtil.deleteData(EMAIL_VERIFY_KEY_PREFIX + signUpReq.email());
 
         String encodePassword = passwordEncoder.encode(signUpReq.password());
-        User createdUser = userRepository.save(signUpReq.toEntity(encodePassword));
+        String uuid = generateUniqueUuid();
+        User createdUser = userRepository.save(signUpReq.toEntity(encodePassword, uuid));
         return jwtHelper.createToken(createdUser, false);
     }
 
@@ -75,10 +76,9 @@ public class AuthService {
         User user = userRepository.findByEmail(signInReq.email())
                 .orElseThrow(() -> new CustomException(AuthExceptionCode.INVALID_USERNAME_AND_PASSWORD));
 
-        //todo : 이거 테스트 쉽게 하려고 지운거다 올리지 마라.
-//        if(!passwordEncoder.matches(signInReq.password(), user.getPassword())){
-//            throw new CustomException(AuthExceptionCode.INVALID_USERNAME_AND_PASSWORD);
-//        }
+        if(!passwordEncoder.matches(signInReq.password(), user.getPassword())){
+            throw new CustomException(AuthExceptionCode.INVALID_USERNAME_AND_PASSWORD);
+        }
 
         return jwtHelper.createToken(user, signInReq.autoSignIn());
     }
@@ -91,23 +91,20 @@ public class AuthService {
 
     public TokenDto guestSignIn(){
         //무작위 아이디 값 생성
-        Long guestId;
-        do{
-            guestId = UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
-        }while(redisUtil.existed(GUEST_KEY_PREFIX + guestId));
+        String uuid = generateUniqueUuid();
         //무작위 닉네임 생성
         String nickname = RandomNicknameGenerator.generateNickname();
 
         //게스트 유저 생성
         User guestUser = User.builder()
-                .id(guestId)
+                .uuid(uuid)
                 .nickname(nickname)
                 .role(Role.GUEST)
                 .build();
 
         //게스트 유저 정보를 Redis에 저장
-        redisUtil.setData(GUEST_KEY_PREFIX + guestId, guestUser);
-        redisUtil.setDataExpire(GUEST_KEY_PREFIX + guestId, GUEST_TTL_SECONDS);
+        redisUtil.setData(GUEST_KEY_PREFIX + uuid, guestUser);
+        redisUtil.setDataExpire(GUEST_KEY_PREFIX + uuid, GUEST_TTL_SECONDS);
 
         //게스트 유저 토큰 생성
         return jwtHelper.createGuestToken(guestUser);
@@ -136,4 +133,13 @@ public class AuthService {
             throw new FieldValidationException(fieldErrors);
         }
     }
+
+    public String generateUniqueUuid() {
+        String uuid;
+        do {
+            uuid = UUID.randomUUID().toString();
+        } while (userRepository.existsByUuid(uuid) || redisUtil.existed(GUEST_KEY_PREFIX + uuid));
+        return uuid;
+    }
+
 }
