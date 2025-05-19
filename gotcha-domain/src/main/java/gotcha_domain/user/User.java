@@ -61,6 +61,9 @@ public class User extends BaseTimeEntity {
 
     private long exp;
 
+    @Column(unique = true, nullable = false)
+    private String uuid;
+
     @JsonIgnore
     @OneToMany(mappedBy = "player")
     private List<UserGame> userGames = new ArrayList<>();
@@ -106,12 +109,13 @@ public class User extends BaseTimeEntity {
     private List<BugReport> bugReports = new ArrayList<>();
 
     @Builder
-    public User(Long id, String email, String password, String nickname, Role role){
+    public User(Long id, String email, String password, String nickname, Role role, String uuid){
         this.id = id;
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.role = role;
+        this.uuid = uuid;
     }
 }
 
