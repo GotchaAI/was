@@ -36,7 +36,7 @@ public class SecurityUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return user.getUuid();
     }
 
     public String getNickname(){
