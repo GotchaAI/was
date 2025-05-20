@@ -1,4 +1,4 @@
-package Gotcha.domain.ranking.util;
+package gotcha_user.util;
 
 import java.util.List;
 
