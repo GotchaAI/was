@@ -30,8 +30,8 @@ public class RefreshTokenService {
         redisUtil.deleteData(key);
     }
 
-    public boolean existedRefreshToken(String username, String requestRefreshToken) {
-        String key = RedisProperties.REFRESH_TOKEN_KEY_PREFIX + username;
+    public boolean existedRefreshToken(String uuid, String requestRefreshToken) {
+        String key = RedisProperties.REFRESH_TOKEN_KEY_PREFIX + uuid;
 
         String storedRefreshToken = (String) redisUtil.getData(key);
 

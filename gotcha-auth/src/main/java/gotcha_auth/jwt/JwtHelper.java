@@ -49,11 +49,12 @@ public class JwtHelper {
         refreshTokenService.isExpiredRefreshToken(refreshToken);
 
         String username = tokenProvider.getUsername(refreshToken);
-
-        if (!refreshTokenService.existedRefreshToken(username, refreshToken))
-            throw new CustomException(JwtExceptionCode.REFRESH_TOKEN_NOT_FOUND);
-
         String uuid = tokenProvider.getUuid(refreshToken);
+
+        if (!refreshTokenService.existedRefreshToken(uuid, refreshToken)) {
+            throw new CustomException(JwtExceptionCode.REFRESH_TOKEN_NOT_FOUND);
+        }
+
         String role = tokenProvider.getRole(refreshToken);
 
         boolean autoSignIn = tokenProvider.isAutoSignIn(refreshToken);
