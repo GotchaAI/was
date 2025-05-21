@@ -39,10 +39,7 @@ public class RoomController {
         roomUserService.checkUserNotInAnyRoom(userId);
         RoomMetadata metadata = roomService.createRoom(request, userId);
 
-        objectRedisTemplate.convertAndSend(ROOM_CREATE_INFO,
-                new RedisMessage(userId, ROOM_CREATE_INFO, metadata)); //방 목록 생성 브로드 캐스트 용
-        objectRedisTemplate.convertAndSend(PERSONAL_ROOM_CREATE_RESPONSE,
-                new RedisMessage(userId, PERSONAL_ROOM_CREATE_RESPONSE, metadata)); //본인의 대기방 생성 확인 용
+        roomService.broadcastRoomInfo(userId, metadata);
     }
 
     @MessageMapping("/join/{roomId}")
