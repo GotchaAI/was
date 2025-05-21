@@ -1,15 +1,12 @@
 package socket_server.domain.room.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import gotcha_domain.auth.SecurityUserDetails;
 import gotcha_user.service.UserService;
 import gotcha_user.dto.UserInfoRes;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.asm.TypeReference;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -21,7 +18,6 @@ import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.service.RoomService;
 import socket_server.domain.room.service.RoomUserService;
-import java.util.List;
 
 import static socket_server.common.constants.WebSocketConstants.*;
 
@@ -30,11 +26,11 @@ import static socket_server.common.constants.WebSocketConstants.*;
 @MessageMapping("/room")
 @RequiredArgsConstructor
 public class RoomController {
+
     private final RoomService roomService;
     private final RoomUserService roomUserService;
     private final UserService userService;
-    private final RedisTemplate<String, Object> objectRedisTemplate;
-    private final ObjectMapper objectMapper;
+
 
     @MessageMapping("/create")
     public void createRoom(@Valid @Payload CreateRoomRequest request, @AuthenticationPrincipal SecurityUserDetails userDetails) {
@@ -60,17 +56,19 @@ public class RoomController {
         // room에 들어오면
         roomUserService.joinRoom(roomUserInfo, roomId);
 
-        // 그 방에 누가 있는지 조회 후
-        List<RoomUserInfo> userList = roomUserService.getUsersInRoom(roomId);
-
-        // 해당 방에 누가 있는지를 BroadCast
-        objectRedisTemplate.convertAndSend(ROOM_JOIN+roomId,
-                new RedisMessage(
-                    userId,
-                    ROOM_JOIN+roomId,
-                    objectMapper.writeValueAsString(userList)));
+        // 그 방에 있는 새로운 userList broadcast
+        roomUserService.broadcastUserList(roomId, userId);
 
     }
+
+/*    @MessageMapping("/ready/{roomId}")
+    public void ready(@DestinationVariable String roomId, @AuthenticationPrincipal SecurityUserDetails userDetails) throws JsonProcessingException {
+        String userId = userDetails.getUsername();
+
+        roomUserService.ready(userId, roomId);
+
+
+    }*/
 
 
 
