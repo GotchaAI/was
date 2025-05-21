@@ -30,7 +30,6 @@ public class RoomUserRepository {
         return "user:" + userId + ":room";
     }
 
-
     public void saveUserToRoom(RoomUserInfo roomUserInfo, String roomId) {
 
         String parsedJson = jsonSerializer.serialize(roomUserInfo);
@@ -55,7 +54,7 @@ public class RoomUserRepository {
 
     public List<RoomUserInfo> findUsersByRoomId(String roomId) {
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(roomUserKey(roomId));
-        return entries.values().stream().map(string -> jsonSerializer.deserialize((String) string, RoomUserInfo.class)).toList();
+        return entries.values().stream().map(raw -> jsonSerializer.deserialize(raw, RoomUserInfo.class)).toList();
     }
 
     public void removeUserFromRoom(String roomId, String userId) {

@@ -6,5 +6,5 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public record RedisMessage(
         String userId,
         String topic,
-        Object payload)
+        String payload)
 {}

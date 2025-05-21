@@ -12,14 +12,12 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import socket_server.common.config.RedisMessage;
 import socket_server.domain.room.dto.CreateRoomRequest;
 import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.service.RoomService;
 import socket_server.domain.room.service.RoomUserService;
 
-import static socket_server.common.constants.WebSocketConstants.*;
 
 @Slf4j
 @Controller
@@ -43,7 +41,7 @@ public class RoomController {
     }
 
     @MessageMapping("/join/{roomId}")
-    public void joinRoom(@DestinationVariable String roomId, @AuthenticationPrincipal SecurityUserDetails userDetails) throws JsonProcessingException {
+    public void joinRoom(@DestinationVariable String roomId, @AuthenticationPrincipal SecurityUserDetails userDetails){
         String userId = userDetails.getUsername();
 
         UserInfoRes userInfoRes = userService.getUserInfo(userDetails);

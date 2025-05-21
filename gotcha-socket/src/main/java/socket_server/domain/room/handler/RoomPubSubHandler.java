@@ -33,14 +33,14 @@ public class RoomPubSubHandler extends PubSubHandler {
 
     private void roomCreateInfo(String channel, Object object) {
         RedisMessage redisMessage = (RedisMessage) object;
-        RoomMetadata roomMetadata = jsonSerializer.deserialize((String) redisMessage.payload(), RoomMetadata.class);
+        RoomMetadata roomMetadata = jsonSerializer.deserialize(redisMessage.payload(), RoomMetadata.class);
         messagingTemplate.convertAndSend(channel, roomMetadata);
     }
 
     private void roomJoin(String channel, Object object) {
         RedisMessage redisMessage = (RedisMessage) object;
         // payload : List<RoomUserInfo>
-        List<RoomUserInfo> roomUserInfoList = jsonSerializer.deserializeList((String) redisMessage.payload(), RoomUserInfo.class);
+        List<RoomUserInfo> roomUserInfoList = jsonSerializer.deserializeList(redisMessage.payload(), RoomUserInfo.class);
         messagingTemplate.convertAndSend(channel, roomUserInfoList);
     }
 
