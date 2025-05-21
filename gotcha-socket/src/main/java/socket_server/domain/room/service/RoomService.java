@@ -48,6 +48,8 @@ public class RoomService {
         return RoomMetadata.fromRedisMap(roomId, fields);
     }
 
+
+
     private String getRoomKey(String roomId) {
         return "room:"  + roomId;
     }

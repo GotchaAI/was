@@ -10,6 +10,7 @@ public interface WebSocketConstants {
     //대기방 관련 채널
     String ROOM_PREFIX = "/sub/room/";
     String ROOM_LIST_INFO = ROOM_PREFIX + "list/info";
+    String ROOM_JOIN = ROOM_PREFIX+"join/"; // + roomId
     String ROOM_LEAVE = ROOM_PREFIX+"leave/"; // + roomId
     String ROOM_CREATE_INFO = ROOM_PREFIX + "create/info";
     String ROOM_UPDATE = ROOM_PREFIX + "update/"; // + roomId
@@ -19,7 +20,7 @@ public interface WebSocketConstants {
     String GAME_READY_CHANNEL = GAME_PREFIX + "ready/"; // + roomId
     String GAME_END_CHANNEL = GAME_PREFIX + "end/"; // + roomId
     String GAME_INFO_CHANNEL = GAME_PREFIX + "info/"; // + roomId
-    String GAME_START_CHANNEL = GAME_PREFIX + "start/"; // + roomId
+    String GAME_START_CHANNEL = GAME_PREFIX     + "start/"; // + roomId
 
     // 개인 유저 관련 채널
     String PERSONAL_PREFIX = "/sub/personal/";

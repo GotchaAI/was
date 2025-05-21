@@ -1,5 +1,10 @@
 package socket_server.domain.room.handler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import gotcha_common.exception.CustomException;
+import gotcha_common.exception.exceptionCode.GlobalExceptionCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -7,22 +12,29 @@ import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
 import socket_server.common.listener.PubSubHandler;
 import socket_server.domain.room.model.RoomMetadata;
+import socket_server.domain.room.model.RoomUserInfo;
+
+import java.util.List;
+
 import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
+import static socket_server.common.constants.WebSocketConstants.ROOM_JOIN;
 
 @Slf4j
 @Service
 @Qualifier("roomPubSubHandler")
 public class RoomPubSubHandler extends PubSubHandler {
-    private final RoomMetadata roomMetadata;
 
-    public RoomPubSubHandler(SimpMessagingTemplate messagingTemplate, RoomMetadata roomMetadata) {
+    private final ObjectMapper objectMapper;
+
+    public RoomPubSubHandler(SimpMessagingTemplate messagingTemplate, ObjectMapper objectMapper) {
         super(messagingTemplate);
-        this.roomMetadata = roomMetadata;
+        this.objectMapper = objectMapper;
     }
 
     @Override
     protected void initHandlers() {
         handlers.put(ROOM_CREATE_INFO, this::roomCreateInfo);
+        handlers.put(ROOM_JOIN, this::roomJoin);
     }
 
     private void roomCreateInfo(String channel, Object object) {
@@ -31,5 +43,11 @@ public class RoomPubSubHandler extends PubSubHandler {
         messagingTemplate.convertAndSend(channel, roomMetadata);
     }
 
+    private void roomJoin(String channel, Object object) {
+        RedisMessage redisMessage = (RedisMessage) object;
+        // payload : List<RoomUserInfo>
+        List<RoomUserInfo> roomUserInfoList = convertMessageToList(redisMessage.payload(), RoomUserInfo.class);
+        messagingTemplate.convertAndSend(channel, roomUserInfoList);
+    }
 
 }

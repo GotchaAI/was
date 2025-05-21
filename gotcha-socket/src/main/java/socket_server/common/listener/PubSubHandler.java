@@ -8,6 +8,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import socket_server.common.config.RedisMessage;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -44,7 +45,7 @@ public abstract class PubSubHandler {
     }
 
     // RedisIntegrationConfig에서 전달된 메시지가 RedisMessage 형식인지 검증
-    private void validatePayloadFormat(Object  payload){
+    private void validatePayloadFormat(Object payload){
         if (!(payload instanceof RedisMessage)) {
             throw new CustomException(GlobalExceptionCode.INVALID_MESSAGE_FORMAT);
         }
@@ -60,4 +61,23 @@ public abstract class PubSubHandler {
             throw new CustomException(GlobalExceptionCode.INVALID_MESSAGE_FORMAT);
         }
     }
+
+    protected <T> List<T> convertMessageToList(Object raw, Class<T> clazz) {
+        try {
+            if (raw instanceof String rawStr) { // String 으로 들어온 경우 readValue
+                return objectMapper.readValue(
+                        rawStr,
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, clazz)
+                );
+            }
+
+            return objectMapper.convertValue( // else convertValue
+                    raw,
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, clazz)
+            );
+        } catch (Exception e) {
+            throw new CustomException(GlobalExceptionCode.INVALID_MESSAGE_FORMAT);
+        }
+    }
+
 }

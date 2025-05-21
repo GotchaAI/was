@@ -1,10 +1,16 @@
 package socket_server.domain.room.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gotcha_domain.auth.SecurityUserDetails;
+import gotcha_user.service.UserService;
+import gotcha_user.dto.UserInfoRes;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.asm.TypeReference;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,11 +18,12 @@ import org.springframework.stereotype.Controller;
 import socket_server.common.config.RedisMessage;
 import socket_server.domain.room.dto.CreateRoomRequest;
 import socket_server.domain.room.model.RoomMetadata;
+import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.service.RoomService;
 import socket_server.domain.room.service.RoomUserService;
+import java.util.List;
 
-import static socket_server.common.constants.WebSocketConstants.PERSONAL_ROOM_CREATE_RESPONSE;
-import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
+import static socket_server.common.constants.WebSocketConstants.*;
 
 @Slf4j
 @Controller
@@ -25,7 +32,9 @@ import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO
 public class RoomController {
     private final RoomService roomService;
     private final RoomUserService roomUserService;
+    private final UserService userService;
     private final RedisTemplate<String, Object> objectRedisTemplate;
+    private final ObjectMapper objectMapper;
 
     @MessageMapping("/create")
     public void createRoom(@Valid @Payload CreateRoomRequest request, @AuthenticationPrincipal SecurityUserDetails userDetails) {
@@ -39,5 +48,30 @@ public class RoomController {
         objectRedisTemplate.convertAndSend(PERSONAL_ROOM_CREATE_RESPONSE,
                 new RedisMessage(userId, PERSONAL_ROOM_CREATE_RESPONSE, metadata)); //본인의 대기방 생성 확인 용
     }
+
+    @MessageMapping("/join/{roomId}")
+    public void joinRoom(@DestinationVariable String roomId, @AuthenticationPrincipal SecurityUserDetails userDetails) throws JsonProcessingException {
+        String userId = userDetails.getUsername();
+
+        UserInfoRes userInfoRes = userService.getUserInfo(userDetails);
+
+        RoomUserInfo roomUserInfo = RoomUserInfo.fromDTO(userDetails.getUuid(), userInfoRes);
+
+        // room에 들어오면
+        roomUserService.joinRoom(roomUserInfo, roomId);
+
+        // 그 방에 누가 있는지 조회 후
+        List<RoomUserInfo> userList = roomUserService.getUsersInRoom(roomId);
+
+        // 해당 방에 누가 있는지를 BroadCast
+        objectRedisTemplate.convertAndSend(ROOM_JOIN+roomId,
+                new RedisMessage(
+                    userId,
+                    ROOM_JOIN+roomId,
+                    objectMapper.writeValueAsString(userList)));
+
+    }
+
+
 
 }
