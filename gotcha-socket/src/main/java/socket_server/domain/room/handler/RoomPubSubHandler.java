@@ -11,6 +11,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
 import socket_server.common.listener.PubSubHandler;
+import socket_server.common.util.JsonSerializer;
 import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
 
@@ -24,11 +25,11 @@ import static socket_server.common.constants.WebSocketConstants.ROOM_JOIN;
 @Qualifier("roomPubSubHandler")
 public class RoomPubSubHandler extends PubSubHandler {
 
-    private final ObjectMapper objectMapper;
+    private final JsonSerializer jsonSerializer;
 
-    public RoomPubSubHandler(SimpMessagingTemplate messagingTemplate, ObjectMapper objectMapper) {
+    public RoomPubSubHandler(SimpMessagingTemplate messagingTemplate, JsonSerializer jsonSerializer) {
         super(messagingTemplate);
-        this.objectMapper = objectMapper;
+        this.jsonSerializer = jsonSerializer;
     }
 
     @Override
@@ -39,14 +40,14 @@ public class RoomPubSubHandler extends PubSubHandler {
 
     private void roomCreateInfo(String channel, Object object) {
         RedisMessage redisMessage = (RedisMessage) object;
-        RoomMetadata roomMetadata = convertMessageToDto(redisMessage.payload(), RoomMetadata.class);
+        RoomMetadata roomMetadata = jsonSerializer.deserialize((String) redisMessage.payload(), RoomMetadata.class);
         messagingTemplate.convertAndSend(channel, roomMetadata);
     }
 
     private void roomJoin(String channel, Object object) {
         RedisMessage redisMessage = (RedisMessage) object;
         // payload : List<RoomUserInfo>
-        List<RoomUserInfo> roomUserInfoList = convertMessageToList(redisMessage.payload(), RoomUserInfo.class);
+        List<RoomUserInfo> roomUserInfoList = jsonSerializer.deserializeList((String) redisMessage.payload(), RoomUserInfo.class);
         messagingTemplate.convertAndSend(channel, roomUserInfoList);
     }
 

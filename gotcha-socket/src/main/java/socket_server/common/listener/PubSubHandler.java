@@ -51,33 +51,5 @@ public abstract class PubSubHandler {
         }
     }
 
-    protected <T> T convertMessageToDto(Object raw, Class<T> clazz) {
-        try {
-            if (raw instanceof Map map) {
-                map.remove("@class"); //dto내에 또 dto가 들어있는 경우 발생하는 에러 방지용 코드.
-            }
-            return objectMapper.convertValue(raw, clazz);
-        } catch (Exception e) {
-            throw new CustomException(GlobalExceptionCode.INVALID_MESSAGE_FORMAT);
-        }
-    }
-
-    protected <T> List<T> convertMessageToList(Object raw, Class<T> clazz) {
-        try {
-            if (raw instanceof String rawStr) { // String 으로 들어온 경우 readValue
-                return objectMapper.readValue(
-                        rawStr,
-                        objectMapper.getTypeFactory().constructCollectionType(List.class, clazz)
-                );
-            }
-
-            return objectMapper.convertValue( // else convertValue
-                    raw,
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, clazz)
-            );
-        } catch (Exception e) {
-            throw new CustomException(GlobalExceptionCode.INVALID_MESSAGE_FORMAT);
-        }
-    }
 
 }
