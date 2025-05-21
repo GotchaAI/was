@@ -1,10 +1,5 @@
 package socket_server.domain.room.handler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import gotcha_common.exception.CustomException;
-import gotcha_common.exception.exceptionCode.GlobalExceptionCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -25,11 +20,9 @@ import static socket_server.common.constants.WebSocketConstants.ROOM_JOIN;
 @Qualifier("roomPubSubHandler")
 public class RoomPubSubHandler extends PubSubHandler {
 
-    private final JsonSerializer jsonSerializer;
 
     public RoomPubSubHandler(SimpMessagingTemplate messagingTemplate, JsonSerializer jsonSerializer) {
-        super(messagingTemplate);
-        this.jsonSerializer = jsonSerializer;
+        super(messagingTemplate, jsonSerializer);
     }
 
     @Override

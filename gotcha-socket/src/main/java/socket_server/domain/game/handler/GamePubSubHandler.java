@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import socket_server.common.listener.PubSubHandler;
+import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.dto.GameReadyStatus;
 
 import static socket_server.common.constants.WebSocketConstants.*;
@@ -12,8 +13,8 @@ import static socket_server.common.constants.WebSocketConstants.*;
 @Qualifier("gamePubSubHandler")
 public class GamePubSubHandler extends PubSubHandler {
 
-    public GamePubSubHandler(SimpMessagingTemplate messagingTemplate) {
-        super(messagingTemplate);
+    public GamePubSubHandler(SimpMessagingTemplate messagingTemplate, JsonSerializer jsonSerializer) {
+        super(messagingTemplate, jsonSerializer);
     }
 
     @Override
@@ -25,7 +26,7 @@ public class GamePubSubHandler extends PubSubHandler {
     }
 
     private void handleGameReady(String channel, Object object) {
-        GameReadyStatus gameReadyStatus = convertMessageToDto(object, GameReadyStatus.class);
+        GameReadyStatus gameReadyStatus = jsonSerializer.deserialize((String)object, GameReadyStatus.class);
         messagingTemplate.convertAndSend(channel, gameReadyStatus);
     }
 
