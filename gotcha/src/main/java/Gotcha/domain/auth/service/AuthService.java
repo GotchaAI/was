@@ -19,6 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.ByteBuffer;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -135,11 +137,19 @@ public class AuthService {
     }
 
     public String generateUniqueUuid() {
-        String uuid;
+        String shortUuid;
         do {
-            uuid = UUID.randomUUID().toString();
-        } while (userRepository.existsByUuid(uuid) || redisUtil.existed(GUEST_KEY_PREFIX + uuid));
-        return uuid;
-    }
+            UUID uuid = UUID.randomUUID();
+            ByteBuffer buffer = ByteBuffer.wrap(new byte[16]);
+            buffer.putLong(uuid.getMostSignificantBits());
+            buffer.putLong(uuid.getLeastSignificantBits());
 
+            shortUuid = Base64.getUrlEncoder()
+                    .withoutPadding()
+                    .encodeToString(buffer.array())
+                    .substring(0, 8);
+
+        } while (userRepository.existsByUuid(shortUuid) || redisUtil.existed(GUEST_KEY_PREFIX + shortUuid));
+        return shortUuid;
+    }
 }

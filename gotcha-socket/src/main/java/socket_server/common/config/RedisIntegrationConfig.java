@@ -1,6 +1,8 @@
 package socket_server.common.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import gotcha_common.exception.CustomException;
 import gotcha_common.exception.ExceptionRes;
 import gotcha_common.exception.exceptionCode.GlobalExceptionCode;
@@ -25,7 +27,23 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import socket_server.domain.personal.handler.PersonalPubSubHandler;
 import socket_server.domain.room.handler.RoomPubSubHandler;
 
-import static socket_server.common.constants.WebSocketConstants.*;
+import static socket_server.common.constants.WebSocketConstants.CHAT_ALL_CHANNEL;
+import static socket_server.common.constants.WebSocketConstants.CHAT_PREFIX;
+import static socket_server.common.constants.WebSocketConstants.CHAT_PRIVATE_CHANNEL;
+import static socket_server.common.constants.WebSocketConstants.CHAT_ROOM_CHANNEL;
+import static socket_server.common.constants.WebSocketConstants.ERROR_CHANEL;
+import static socket_server.common.constants.WebSocketConstants.ERROR_CHANNEL_PREFIX;
+import static socket_server.common.constants.WebSocketConstants.GAME_END_CHANNEL;
+import static socket_server.common.constants.WebSocketConstants.GAME_INFO_CHANNEL;
+import static socket_server.common.constants.WebSocketConstants.GAME_PREFIX;
+import static socket_server.common.constants.WebSocketConstants.GAME_READY_CHANNEL;
+import static socket_server.common.constants.WebSocketConstants.GAME_START_CHANNEL;
+import static socket_server.common.constants.WebSocketConstants.PERSONAL_PREFIX;
+import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
+import static socket_server.common.constants.WebSocketConstants.ROOM_LEAVE;
+import static socket_server.common.constants.WebSocketConstants.ROOM_LIST_INFO;
+import static socket_server.common.constants.WebSocketConstants.ROOM_PREFIX;
+import static socket_server.common.constants.WebSocketConstants.ROOM_UPDATE;
 
 @Slf4j
 @Configuration
@@ -89,6 +107,10 @@ public class RedisIntegrationConfig {
         return new ExecutorChannel(exec);
     }
 
+    @Bean
+    public MessageChannel chatMessageChannel(@Qualifier("redisExecutor") TaskExecutor exec) {
+        return new ExecutorChannel(exec);
+    }
 
     @Bean
     public MessageProducer redisInboundAdapter(RedisConnectionFactory cf) {
@@ -131,6 +153,25 @@ public class RedisIntegrationConfig {
                     return "unknownMessageChannel";
                 })
                 .get();
+    }
+
+    @Bean
+    public IntegrationFlow chatMessageFlow(SimpMessagingTemplate template) {
+        ObjectMapper mapper = new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        return IntegrationFlow.from("chatMessageChannel")
+                .handle((payload, headers) -> {
+                    RedisMessage redisMessage = mapper.convertValue(payload, RedisMessage.class);
+
+                    log.info("💬 [채팅 메시지] topic={}, user={}, payload={}",
+                            redisMessage.topic(), redisMessage.userId(), redisMessage.payload());
+
+                    template.convertAndSend(redisMessage.topic(), redisMessage.payload());
+
+                    return null;
+                }).get();
     }
 
     @Bean
