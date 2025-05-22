@@ -27,26 +27,23 @@ public class RoomController {
 
     private final RoomService roomService;
     private final RoomUserService roomUserService;
-    private final UserService userService;
-
 
     @MessageMapping("/create")
     public void createRoom(@Valid @Payload CreateRoomRequest request, @AuthenticationPrincipal SecurityUserDetails userDetails) {
-        String userId = userDetails.getUsername();
-
+        String userId = userDetails.getUuid();
         roomUserService.checkUserNotInAnyRoom(userId);
         RoomMetadata metadata = roomService.createRoom(request, userId);
-
         roomService.broadcastRoomInfo(userId, metadata);
     }
 
     @MessageMapping("/join/{roomId}")
     public void joinRoom(@DestinationVariable String roomId, @AuthenticationPrincipal SecurityUserDetails userDetails){
-        String userId = userDetails.getUsername();
-
-        UserInfoRes userInfoRes = userService.getUserInfo(userDetails);
-
-        RoomUserInfo roomUserInfo = RoomUserInfo.fromDTO(userDetails.getUuid(), userInfoRes);
+        String userId = userDetails.getUuid();
+        RoomUserInfo roomUserInfo = RoomUserInfo.builder().
+                userId(userId).
+                nickname(userDetails.getNickname()).
+                ready(false).
+                build();
 
         // room에 들어오면
         roomUserService.joinRoom(roomUserInfo, roomId);
