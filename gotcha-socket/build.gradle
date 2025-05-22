@@ -3,6 +3,8 @@ dependencies {
     implementation project(":gotcha-common")
     implementation project(":gotcha-domain")
     implementation project(":gotcha-auth")
+    implementation project(":gotcha-user")
+
 
     implementation 'org.springframework.boot:spring-boot-starter'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

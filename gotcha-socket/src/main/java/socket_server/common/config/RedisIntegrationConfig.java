@@ -128,6 +128,8 @@ public class RedisIntegrationConfig {
                 ROOM_CREATE_INFO,                    // /sub/room/create/info
                 ROOM_LEAVE + "*",                    // /sub/room/leave/*
                 ROOM_UPDATE + "*",                   // /sub/room/update/*
+                ROOM_JOIN + "*",                     // /sub/room/join/*
+
 
                 // 게임
                 GAME_READY_CHANNEL + "*",            // /sub/game/ready/*

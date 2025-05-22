@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import socket_server.common.listener.PubSubHandler;
+import socket_server.common.util.JsonSerializer;
 
 import static socket_server.common.constants.WebSocketConstants.*;
 
@@ -11,8 +12,8 @@ import static socket_server.common.constants.WebSocketConstants.*;
 @Qualifier("chattingPubSubHandler")
 public class ChattingPubSubHandler extends PubSubHandler {
 
-    public ChattingPubSubHandler(SimpMessagingTemplate messagingTemplate) {
-        super(messagingTemplate);
+    public ChattingPubSubHandler(SimpMessagingTemplate messagingTemplate, JsonSerializer jsonSerializer) {
+        super(messagingTemplate, jsonSerializer);
     }
 
     @Override

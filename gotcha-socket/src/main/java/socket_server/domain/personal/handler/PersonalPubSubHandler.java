@@ -6,6 +6,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
 import socket_server.common.listener.PubSubHandler;
+import socket_server.common.util.JsonSerializer;
 import socket_server.domain.room.model.RoomMetadata;
 
 import static socket_server.common.constants.WebSocketConstants.PERSONAL_ROOM_CREATE_RESPONSE;
@@ -15,8 +16,8 @@ import static socket_server.common.constants.WebSocketConstants.PERSONAL_ROOM_CR
 @Qualifier("PersonalPubSubHandler")
 public class PersonalPubSubHandler extends PubSubHandler {
 
-    public PersonalPubSubHandler(SimpMessagingTemplate messagingTemplate) {
-        super(messagingTemplate);
+    public PersonalPubSubHandler(SimpMessagingTemplate messagingTemplate, JsonSerializer jsonSerializer) {
+        super(messagingTemplate, jsonSerializer);
     }
 
     @Override
@@ -26,7 +27,7 @@ public class PersonalPubSubHandler extends PubSubHandler {
 
     private void roomCreateResponse (String channel, Object object) {
         RedisMessage redisMessage = (RedisMessage) object;
-        RoomMetadata roomMetadata = convertMessageToDto(redisMessage.payload(), RoomMetadata.class);
+        RoomMetadata roomMetadata = jsonSerializer.deserialize((String) redisMessage.payload(), RoomMetadata.class);
         messagingTemplate.convertAndSend(channel, roomMetadata);
     }
 
