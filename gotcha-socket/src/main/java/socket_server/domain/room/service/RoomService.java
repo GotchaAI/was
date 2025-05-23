@@ -116,9 +116,9 @@ public class RoomService {
         log.info("chat - roomId: {}, user: {}, content: {}", roomId, userDetails.getUuid(), content);
     }
 
-    public void broadcastRoomInfo(String userId, RoomMetadata metadata) {
+    public void broadcastRoomInfo(String userUuid, RoomMetadata metadata) {
         objectRedisTemplate.convertAndSend(ROOM_CREATE_INFO,
-                new RedisMessage(userId, ROOM_CREATE_INFO, jsonSerializer.serialize(metadata))); //방 목록 생성 브로드 캐스트 용
+                new RedisMessage(userUuid, ROOM_CREATE_INFO, jsonSerializer.serialize(metadata))); //방 목록 생성 브로드 캐스트 용
     }
 
     public RoomMetadata getRoomInfo(String roomId) {
