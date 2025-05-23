@@ -12,7 +12,8 @@ public enum RoomField {
     GAME_MODE("gameMode"),
     MIN("min"),
     MAX("max"),
-    OWNER("owner");
+    OWNER("owner"),
+    UUID("uuid");
 
     private final String redisField;
 

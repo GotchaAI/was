@@ -27,5 +27,8 @@ public record CreateRoomRequest(
         GameMode gameMode,
 
         @Min(1) @Max(5)
-        int roundCount
+        int roundCount,
+
+        @NotNull(message = "식별 번호는 필수 입력입니다.")
+        String uuid
 ) {}

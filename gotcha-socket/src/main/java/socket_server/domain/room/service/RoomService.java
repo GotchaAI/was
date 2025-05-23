@@ -1,16 +1,19 @@
 package socket_server.domain.room.service;
 
+import gotcha_common.exception.CustomException;
 import gotcha_domain.auth.SecurityUserDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
+import socket_server.common.exception.room.RoomExceptionCode;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.room.RoomField.RoomField;
 import socket_server.domain.room.dto.CreateRoomRequest;
 import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.repository.RoomRepository;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
@@ -50,16 +53,21 @@ public class RoomService {
 
         String roomId = roomIdService.allocateRoomId();
 
-        Map<String, String> roomData = Map.of (
-                RoomField.TITLE.getRedisField(), request.title(),
-                RoomField.OWNER.getRedisField(), ownerId,
-                RoomField.HAS_PASSWORD.getRedisField(), String.valueOf(request.hasPassword()),
-                RoomField.PASSWORD.getRedisField(), request.password(),
-                RoomField.MAX.getRedisField(), String.valueOf(request.gameMode().getMaxPlayers()),
-                RoomField.MIN.getRedisField(), String.valueOf(request.gameMode().getMinPlayers()),
-                RoomField.AI_LEVEL.getRedisField(), request.aimode().name(),
-                RoomField.GAME_MODE.getRedisField(), request.gameMode().name()
-        );
+        Map<String, String> roomData = new HashMap<>();
+        roomData.put(RoomField.TITLE.getRedisField(), request.title());
+        roomData.put(RoomField.OWNER.getRedisField(), ownerId);
+        roomData.put(RoomField.HAS_PASSWORD.getRedisField(), String.valueOf(request.hasPassword()));
+        if (request.hasPassword()) {
+            if (request.password() == null || request.password().isBlank()) {
+                throw new CustomException(RoomExceptionCode.PASSWORD_REQUIRED_BUT_MISSING);
+            }
+            roomData.put(RoomField.PASSWORD.getRedisField(), request.password());
+        }
+        roomData.put(RoomField.MAX.getRedisField(), String.valueOf(request.gameMode().getMaxPlayers()));
+        roomData.put(RoomField.MIN.getRedisField(), String.valueOf(request.gameMode().getMinPlayers()));
+        roomData.put(RoomField.AI_LEVEL.getRedisField(), request.aimode().name());
+        roomData.put(RoomField.GAME_MODE.getRedisField(), request.gameMode().name());
+        roomData.put(RoomField.UUID.getRedisField(), request.uuid());
 
         roomRepository.saveRoomData(roomId, roomData);
 

@@ -21,6 +21,7 @@ public class RoomMetadata {
     private int min;
     private String aiLevel;
     private String gameMode;
+    private String uuid;
 
 
     public static RoomMetadata fromRedisMap(String id, Map<Object, Object> map) {
@@ -34,6 +35,7 @@ public class RoomMetadata {
         metadata.min = Integer.parseInt((String) map.getOrDefault("min", "0"));
         metadata.aiLevel = (String) map.getOrDefault("aiLevel", "NORMAL");
         metadata.gameMode = (String) map.getOrDefault("gameMode", "STANDARD");
+        metadata.uuid = (String) map.getOrDefault("uuid", "");
         return metadata;
     }
 }
