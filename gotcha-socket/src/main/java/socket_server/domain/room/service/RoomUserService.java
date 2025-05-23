@@ -1,6 +1,5 @@
 package socket_server.domain.room.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import gotcha_common.exception.CustomException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -10,7 +9,7 @@ import socket_server.common.util.JsonSerializer;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomUserRepository;
 
-import java.util.*;
+import java.util.List;
 
 import static socket_server.common.constants.WebSocketConstants.ROOM_JOIN;
 
@@ -27,8 +26,15 @@ public class RoomUserService {
         this.objectRedisTemplate = objectRedisTemplate;
     }
 
-    public void joinRoom(RoomUserInfo roomUserInfo, String roomId) {
-        checkUserNotInAnyRoom(roomUserInfo.getUserId()); // after check not in any room
+    public void joinRoom(String roomId, String userUuid, String nickname) {
+        checkUserNotInAnyRoom(userUuid); // after check not in any room
+
+        RoomUserInfo roomUserInfo = RoomUserInfo.builder().
+                userUuid(userUuid).
+                nickname(nickname).
+                ready(false).
+                build();
+
         roomUserRepository.saveUserToRoom(roomUserInfo, roomId);
     }
 
@@ -45,8 +51,8 @@ public class RoomUserService {
 
     }
 
-    public void checkUserNotInAnyRoom(String userId) {
-        String value = roomUserRepository.findRoomIdByUserId(userId);
+    public void checkUserNotInAnyRoom(String userUuid) {
+        String value = roomUserRepository.findRoomIdByUserUuid(userUuid);
         if (value != null) {
             throw new CustomException(RoomExceptionCode.USER_ALREADY_IN_ANOTHER_ROOM);
         }
