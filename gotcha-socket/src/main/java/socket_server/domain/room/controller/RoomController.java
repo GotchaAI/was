@@ -13,7 +13,6 @@ import socket_server.domain.room.dto.CreateRoomRequest;
 import socket_server.domain.room.dto.RoomReq;
 import socket_server.domain.room.handler.RoomEventDispatcher;
 import socket_server.domain.room.service.RoomService;
-import socket_server.domain.room.service.RoomUserService;
 
 @Slf4j
 @Controller
@@ -22,7 +21,6 @@ import socket_server.domain.room.service.RoomUserService;
 public class RoomController {
 
     private final RoomService roomService;
-    private final RoomUserService roomUserService;
     private final RoomEventDispatcher dispatcher;
 
     @MessageMapping("/create")
@@ -35,9 +33,5 @@ public class RoomController {
                      @Valid @Payload RoomReq request,
                      @AuthenticationPrincipal SecurityUserDetails userDetails) {
         dispatcher.dispatch(request, roomId, userDetails);
-    }
-
-    public void joinRoom(String roomId, String userUuid, String nickname){
-        roomUserService.joinAndBroadcast(roomId, userUuid, nickname);
     }
 }

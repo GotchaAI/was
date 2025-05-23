@@ -21,6 +21,6 @@ public class JoinRoomHandler implements RoomEventHandler{
 
     @Override
     public void handle(String roomId, SecurityUserDetails userDetails, RoomReq request) {
-        roomUserService.joinAndBroadcast(roomId, userDetails.getUuid(), userDetails.getNickname());
+        roomUserService.joinAndBroadcast(roomId, userDetails.getUuid(), userDetails.getNickname() ,request.content());
     }
 }
