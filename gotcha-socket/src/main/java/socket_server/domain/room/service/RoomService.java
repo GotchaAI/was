@@ -55,18 +55,18 @@ public class RoomService {
 
     public void handleCreateRoom(CreateRoomRequest request, SecurityUserDetails userDetails) {
         roomUserService.checkUserNotInAnyRoom(userDetails.getUuid());
-        RoomMetadata roomMetadata = createRoom(request, userDetails.getUuid());
+        RoomMetadata roomMetadata = createRoom(request, userDetails);
         broadcastRoomInfo(userDetails.getUuid(), roomMetadata);
     }
 
     //todo : lua 스크립트 적용
-    public RoomMetadata createRoom(CreateRoomRequest request, String ownerId) {
+    public RoomMetadata createRoom(CreateRoomRequest request, SecurityUserDetails userDetails) {
 
         String roomId = roomIdService.allocateRoomId();
 
         Map<String, String> roomData = new HashMap<>();
         roomData.put(RoomField.TITLE.getRedisField(), request.title());
-        roomData.put(RoomField.OWNER.getRedisField(), ownerId);
+        roomData.put(RoomField.OWNER.getRedisField(), userDetails.getNickname());
         roomData.put(RoomField.HAS_PASSWORD.getRedisField(), String.valueOf(request.hasPassword()));
         if (request.hasPassword()) {
             if (request.password() == null || request.password().isBlank()) {
@@ -78,11 +78,11 @@ public class RoomService {
         roomData.put(RoomField.MIN.getRedisField(), String.valueOf(request.gameMode().getMinPlayers()));
         roomData.put(RoomField.AI_LEVEL.getRedisField(), request.aimode().name());
         roomData.put(RoomField.GAME_MODE.getRedisField(), request.gameMode().name());
-        roomData.put(RoomField.UUID.getRedisField(), request.uuid());
+        roomData.put(RoomField.OWNER_UUID.getRedisField(), userDetails.getUuid());
 
         roomRepository.saveRoomData(roomId, roomData);
 
-        log.info("User {} created Room {}", ownerId, roomId);
+        log.info("User {} created Room {}", userDetails.getNickname(), roomId);
         return getRoomInfo(roomId);
     }
 

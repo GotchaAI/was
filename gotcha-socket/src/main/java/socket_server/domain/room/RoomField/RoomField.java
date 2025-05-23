@@ -13,7 +13,7 @@ public enum RoomField {
     MIN("min"),
     MAX("max"),
     OWNER("owner"),
-    UUID("uuid");
+    OWNER_UUID("ownerUuid");
 
     private final String redisField;
 
