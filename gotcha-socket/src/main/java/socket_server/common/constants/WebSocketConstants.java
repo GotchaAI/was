@@ -9,6 +9,7 @@ public interface WebSocketConstants {
 
     //대기방 관련 채널
     String ROOM_PREFIX = "/sub/room/";
+    String ROOM_EVENT = ROOM_PREFIX + "event/";
     String ROOM_LIST_INFO = ROOM_PREFIX + "list/info";
     String ROOM_JOIN = ROOM_PREFIX+"join/"; // + roomId
     String ROOM_LEAVE = ROOM_PREFIX+"leave/"; // + roomId

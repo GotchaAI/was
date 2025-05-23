@@ -40,6 +40,7 @@ import static socket_server.common.constants.WebSocketConstants.GAME_READY_CHANN
 import static socket_server.common.constants.WebSocketConstants.GAME_START_CHANNEL;
 import static socket_server.common.constants.WebSocketConstants.PERSONAL_PREFIX;
 import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
+import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
 import static socket_server.common.constants.WebSocketConstants.ROOM_JOIN;
 import static socket_server.common.constants.WebSocketConstants.ROOM_LEAVE;
 import static socket_server.common.constants.WebSocketConstants.ROOM_LIST_INFO;
@@ -118,7 +119,7 @@ public class RedisIntegrationConfig {
         RedisInboundChannelAdapter adapter = new RedisInboundChannelAdapter(cf);
         adapter.setTopicPatterns(
                 // 개인 유저 메시지
-                PERSONAL_PREFIX +"*",
+                PERSONAL_PREFIX + "*",
                 // 채팅
                 CHAT_ALL_CHANNEL,                     // /sub/chat/all
                 CHAT_PRIVATE_CHANNEL + "*",          // /sub/chat/private/*
@@ -130,6 +131,7 @@ public class RedisIntegrationConfig {
                 ROOM_LEAVE + "*",                    // /sub/room/leave/*
                 ROOM_UPDATE + "*",                   // /sub/room/update/*
                 ROOM_JOIN + "*",                     // /sub/room/join/*
+                ROOM_EVENT + "*",
 
 
                 // 게임
