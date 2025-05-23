@@ -7,14 +7,17 @@ import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
 import socket_server.common.exception.room.RoomExceptionCode;
 import socket_server.common.util.JsonSerializer;
+import socket_server.domain.room.dto.EventRes;
+import socket_server.domain.room.dto.EventType;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomRepository;
 import socket_server.domain.room.repository.RoomUserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import static socket_server.common.constants.WebSocketConstants.ROOM_JOIN;
+import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
 
 @Service
 @Slf4j
@@ -59,12 +62,18 @@ public class RoomUserService {
         // 그 방에 누가 있는지 조회 후
         List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId);
 
+        EventRes eventRes = new EventRes(
+                EventType.JOIN,
+                userList,
+                LocalDateTime.now()
+        );
+
         // 해당 방에 누가 있는지를 BroadCast
-        objectRedisTemplate.convertAndSend(ROOM_JOIN+roomId,
+        objectRedisTemplate.convertAndSend(ROOM_EVENT+roomId,
                 new RedisMessage(
                         userId,
-                        ROOM_JOIN+roomId,
-                        jsonSerializer.serialize(userList)));
+                        ROOM_EVENT+roomId,
+                        jsonSerializer.serialize(eventRes)));
 
         log.debug("Broadcasted user list to room {} by user {}", roomId, userId);
     }
@@ -90,5 +99,8 @@ public class RoomUserService {
         }
     }
 
+    public String findRoomIdByUserUuid(String userUuid) {
+        return roomUserRepository.findRoomIdByUserUuid(userUuid);
+    }
 }
 
