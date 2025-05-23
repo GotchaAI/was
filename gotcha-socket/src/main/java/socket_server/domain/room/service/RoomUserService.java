@@ -1,6 +1,7 @@
 package socket_server.domain.room.service;
 
 import gotcha_common.exception.CustomException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
@@ -14,6 +15,7 @@ import java.util.List;
 import static socket_server.common.constants.WebSocketConstants.ROOM_JOIN;
 
 @Service
+@Slf4j
 public class RoomUserService {
 
     private final RedisTemplate<String, Object> objectRedisTemplate;
@@ -26,6 +28,11 @@ public class RoomUserService {
         this.objectRedisTemplate = objectRedisTemplate;
     }
 
+    public void joinAndBroadcast(String roomId, String userUuid, String nickname) {
+        joinRoom(roomId, userUuid, nickname);
+        broadcastUserList(roomId, userUuid);
+    }
+
     public void joinRoom(String roomId, String userUuid, String nickname) {
         checkUserNotInAnyRoom(userUuid); // after check not in any room
 
@@ -36,6 +43,7 @@ public class RoomUserService {
                 build();
 
         roomUserRepository.saveUserToRoom(roomUserInfo, roomId);
+        log.info("User {} joined room {}", userUuid, roomId);
     }
 
     public void broadcastUserList(String roomId, String userId){
@@ -49,6 +57,7 @@ public class RoomUserService {
                         ROOM_JOIN+roomId,
                         jsonSerializer.serialize(userList)));
 
+        log.debug("Broadcasted user list to room {} by user {}", roomId, userId);
     }
 
     public void checkUserNotInAnyRoom(String userUuid) {

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Controller;
 import socket_server.common.exception.room.RoomExceptionCode;
 import socket_server.domain.room.dto.CreateRoomRequest;
 import socket_server.domain.room.dto.RoomReq;
-import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.service.RoomService;
 import socket_server.domain.room.service.RoomUserService;
 
@@ -29,10 +28,7 @@ public class RoomController {
 
     @MessageMapping("/create")
     public void createRoom(@Valid @Payload CreateRoomRequest request, @AuthenticationPrincipal SecurityUserDetails userDetails) {
-        String userUuid = userDetails.getUuid();
-        roomUserService.checkUserNotInAnyRoom(userUuid);
-        RoomMetadata metadata = roomService.createRoom(request, userUuid);
-        roomService.broadcastRoomInfo(userUuid, metadata);
+        roomService.handleCreateRoom(request, userDetails);
     }
 
     @MessageMapping("/{roomId}")
@@ -46,10 +42,6 @@ public class RoomController {
     }
 
     public void joinRoom(String roomId, String userUuid, String nickname){
-        // room에 들어오면
-        roomUserService.joinRoom(roomId, userUuid, nickname);
-
-        // 그 방에 있는 새로운 userList broadcast
-        roomUserService.broadcastUserList(roomId, userUuid);
+        roomUserService.joinAndBroadcast(roomId, userUuid, nickname);
     }
 }
