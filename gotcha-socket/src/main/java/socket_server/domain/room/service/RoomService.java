@@ -3,20 +3,27 @@ package socket_server.domain.room.service;
 import gotcha_common.exception.CustomException;
 import gotcha_domain.auth.SecurityUserDetails;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
 import socket_server.common.exception.room.RoomExceptionCode;
 import socket_server.common.util.JsonSerializer;
+import socket_server.domain.chat.dto.ChatMessage;
+import socket_server.domain.chat.dto.ChatType;
 import socket_server.domain.room.RoomField.RoomField;
 import socket_server.domain.room.dto.CreateRoomRequest;
+import socket_server.domain.room.dto.EventRes;
+import socket_server.domain.room.dto.EventType;
 import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.repository.RoomRepository;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
+import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
 
 @Service
 @Slf4j
@@ -28,17 +35,21 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final RedisTemplate<String, Object> objectRedisTemplate;
 
+    private final RedisTemplate<String, String> redisTemplate;
+
     public RoomService(
             RoomIdService roomIdService,
             RoomUserService roomUserService,
             RoomRepository roomRepository,
             RedisTemplate<String, Object> objectRedisTemplate,
+            @Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
             JsonSerializer jsonSerializer
     ) {
         this.roomIdService = roomIdService;
         this.roomUserService = roomUserService;
         this.roomRepository = roomRepository;
         this.objectRedisTemplate = objectRedisTemplate;
+        this.redisTemplate = redisTemplate;
         this.jsonSerializer = jsonSerializer;
     }
 
@@ -73,6 +84,36 @@ public class RoomService {
 
         log.info("User {} created Room {}", ownerId, roomId);
         return getRoomInfo(roomId);
+    }
+
+    public void sendRoomChat(String roomId, SecurityUserDetails userDetails, String content) {
+        String userRoomId = roomUserService.findRoomIdByUserUuid(userDetails.getUuid());
+        if (!roomId.equals(userRoomId)) {
+            throw new CustomException(RoomExceptionCode.USER_NOT_IN_ROOM);
+        }
+
+        ChatMessage chatMessage = new ChatMessage(
+                userDetails.getNickname(),
+                content,
+                ChatType.ROOM,
+                LocalDateTime.now()
+        );
+
+        EventRes eventRes = new EventRes(
+                EventType.CHAT,
+                chatMessage,
+                chatMessage.sentAt()
+        );
+
+        RedisMessage redisMessage = new RedisMessage(
+                userDetails.getUuid(),
+                ROOM_EVENT + roomId,
+                jsonSerializer.serialize(eventRes)
+        );
+
+        redisTemplate.convertAndSend(ROOM_EVENT + roomId, jsonSerializer.serialize(redisMessage));
+
+        log.info("chat - roomId: {}, user: {}, content: {}", roomId, userDetails.getUuid(), content);
     }
 
     public void broadcastRoomInfo(String userId, RoomMetadata metadata) {
