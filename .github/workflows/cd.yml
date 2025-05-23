@@ -3,6 +3,8 @@ name: Continuous Deployment
 on:
   push:
     branches: ["develop"]
+    paths-ignore:
+      - 'gotcha-socket/src/main/resources/static/docs/**'
 
 jobs:
   deploy:
@@ -22,7 +24,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # 3. Docker 이미지 build 및 push
+        # 3. Docker 이미지 build 및 push
       - name: docker build and push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
