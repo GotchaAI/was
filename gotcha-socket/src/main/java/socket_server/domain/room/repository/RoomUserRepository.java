@@ -26,8 +26,8 @@ public class RoomUserRepository {
         return "room:" + roomId + ":users";
     }
 
-    private String userRoomKey(String userId) {
-        return "user:" + userId + ":room";
+    private String userRoomKey(String userUuid) {
+        return "user:" + userUuid + ":room";
     }
 
     public void saveUserToRoom(RoomUserInfo roomUserInfo, String roomId) {
@@ -45,9 +45,9 @@ public class RoomUserRepository {
             connection.multi();
             connection.hashCommands().hSet(
                     roomUserKey(roomId).getBytes(),
-                    roomUserInfo.getUserId().getBytes(),
+                    roomUserInfo.getUserUuid().getBytes(),
                     parsedJson.getBytes());
-            connection.stringCommands().set(userRoomKey(roomUserInfo.getUserId()).getBytes(), roomId.getBytes());
+            connection.stringCommands().set(userRoomKey(roomUserInfo.getUserUuid()).getBytes(), roomId.getBytes());
             return connection.exec();
         });
     }
@@ -57,17 +57,17 @@ public class RoomUserRepository {
         return entries.values().stream().map(raw -> jsonSerializer.deserialize(raw, RoomUserInfo.class)).toList();
     }
 
-    public void removeUserFromRoom(String roomId, String userId) {
+    public void removeUserFromRoom(String roomId, String userUuid) {
         redisTemplate.execute((RedisCallback<Object>) connection -> {
             connection.multi();
-            connection.sRem(roomUserKey(roomId).getBytes(), userId.getBytes());
-            connection.sRem(userRoomKey(userId).getBytes(), roomId.getBytes());
+            connection.sRem(roomUserKey(roomId).getBytes(), userUuid.getBytes());
+            connection.sRem(userRoomKey(userUuid).getBytes(), roomId.getBytes());
             return connection.exec();
         });
     }
 
-    public String findRoomIdByUserId(String userId) {
-        return redisTemplate.opsForValue().get(userRoomKey(userId));
+    public String findRoomIdByUserUuid(String userUuid) {
+        return redisTemplate.opsForValue().get(userRoomKey(userUuid));
     }
 
 
