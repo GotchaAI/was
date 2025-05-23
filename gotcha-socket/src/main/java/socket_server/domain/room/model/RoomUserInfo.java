@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class RoomUserInfo {
 
-    private String userId;
+    private String userUuid;
     private String nickname;
     private boolean ready;
 

@@ -11,7 +11,10 @@ public enum RoomExceptionCode implements ExceptionCode {
     USER_NOT_IN_ROOM(HttpStatus.BAD_REQUEST, "ROOM_400_003", "방에 존재하지 않는 유저입니다."),
     NOT_ROOM_OWNER(HttpStatus.FORBIDDEN, "ROOM_403_001", "방장 권한이 없습니다."),
     INVALID_ROOM_ID(HttpStatus.BAD_REQUEST, "ROOM_400_004", "유효하지 않은 고유 방 코드 입니다."),
-    ROOM_ID_EXHAUSTED(HttpStatus.SERVICE_UNAVAILABLE, "GLOBAL-503-001", "사용 가능한 방 코드가 모두 소진되었습니다. 서버 팀에 문의해주세요.");
+    ROOM_ID_EXHAUSTED(HttpStatus.SERVICE_UNAVAILABLE, "GLOBAL-503-001", "사용 가능한 방 코드가 모두 소진되었습니다. 서버 팀에 문의해주세요."),
+    INVALID_EVENT_TYPE(HttpStatus.BAD_REQUEST, "ROOM_400_005", "유효하지 않은 이벤트 타입입니다."),
+    PASSWORD_REQUIRED_BUT_MISSING(HttpStatus.BAD_REQUEST, "ROOM_400_006", "비밀번호 값이 없습니다."),
+    INCORRECT_PASSWORD(HttpStatus.BAD_REQUEST, "ROOM_400_007", "비밀번호가 잘못 되었습니다.");
 
     private final HttpStatus status;
     private final String code;

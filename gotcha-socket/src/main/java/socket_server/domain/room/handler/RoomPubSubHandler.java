@@ -7,13 +7,11 @@ import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
 import socket_server.common.listener.PubSubHandler;
 import socket_server.common.util.JsonSerializer;
+import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.model.RoomMetadata;
-import socket_server.domain.room.model.RoomUserInfo;
-
-import java.util.List;
 
 import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
-import static socket_server.common.constants.WebSocketConstants.ROOM_JOIN;
+import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
 
 @Slf4j
 @Service
@@ -28,7 +26,7 @@ public class RoomPubSubHandler extends PubSubHandler {
     @Override
     protected void initHandlers() {
         handlers.put(ROOM_CREATE_INFO, this::roomCreateInfo);
-        handlers.put(ROOM_JOIN, this::roomJoin);
+        handlers.put(ROOM_EVENT, this::roomEvent);
     }
 
     private void roomCreateInfo(String channel, Object object) {
@@ -37,11 +35,9 @@ public class RoomPubSubHandler extends PubSubHandler {
         messagingTemplate.convertAndSend(channel, roomMetadata);
     }
 
-    private void roomJoin(String channel, Object object) {
+    private void roomEvent(String channel, Object object) {
         RedisMessage redisMessage = (RedisMessage) object;
-        // payload : List<RoomUserInfo>
-        List<RoomUserInfo> roomUserInfoList = jsonSerializer.deserializeList(redisMessage.payload(), RoomUserInfo.class);
-        messagingTemplate.convertAndSend(channel, roomUserInfoList);
+        EventRes eventRes = jsonSerializer.deserialize(redisMessage.payload(), EventRes.class);
+        messagingTemplate.convertAndSend(channel, eventRes);
     }
-
 }

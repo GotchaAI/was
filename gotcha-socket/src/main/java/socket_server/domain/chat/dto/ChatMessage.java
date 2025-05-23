@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 public record ChatMessage(
         String nickname,
         String content,
-        ChatType type,
+        ChatType chatType,
         LocalDateTime sentAt
 ) {
 }
