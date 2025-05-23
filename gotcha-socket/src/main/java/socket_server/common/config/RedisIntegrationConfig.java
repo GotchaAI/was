@@ -40,6 +40,7 @@ import static socket_server.common.constants.WebSocketConstants.GAME_READY_CHANN
 import static socket_server.common.constants.WebSocketConstants.GAME_START_CHANNEL;
 import static socket_server.common.constants.WebSocketConstants.PERSONAL_PREFIX;
 import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
+import static socket_server.common.constants.WebSocketConstants.ROOM_JOIN;
 import static socket_server.common.constants.WebSocketConstants.ROOM_LEAVE;
 import static socket_server.common.constants.WebSocketConstants.ROOM_LIST_INFO;
 import static socket_server.common.constants.WebSocketConstants.ROOM_PREFIX;
