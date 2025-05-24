@@ -66,7 +66,7 @@ public class JwtHelper {
         );
 
         refreshTokenService.deleteRefreshToken(refreshToken);
-        refreshTokenService.saveRefreshToken(uuid, newRefreshToken);
+        refreshTokenService.saveRefreshToken(username, newRefreshToken);
 
         return new TokenDto(newAccessToken, newRefreshToken, newAccessTokenExpiredAt, autoSignIn);
     }

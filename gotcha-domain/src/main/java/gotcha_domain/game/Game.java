@@ -1,4 +1,4 @@
-package gotcha_domain.gamehistory;
+package gotcha_domain.game;
 
 import gotcha_common.entity.BaseTimeEntity;
 import gotcha_domain.report.BugReport;
@@ -21,7 +21,7 @@ import java.util.List;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class GameHistory extends BaseTimeEntity {
+public class Game extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,17 +36,17 @@ public class GameHistory extends BaseTimeEntity {
 
     private int score;
 
-    @OneToMany(mappedBy = "gameHistory")
+    @OneToMany(mappedBy = "game")
     private List<BugReport> bugReports = new ArrayList<>();
 
-    @OneToMany(mappedBy = "gameHistory")
-    private List<UserGameHistory> userGameHistories = new ArrayList<>();
+    @OneToMany(mappedBy = "game")
+    private List<UserGame> userGames = new ArrayList<>();
 
-    @OneToMany(mappedBy = "gameHistory")
+    @OneToMany(mappedBy = "game")
     private List<RoundHistory> roundHistories = new ArrayList<>();
 
     @Builder
-    public GameHistory(GameType gameType, Difficulty difficulty){
+    public Game(GameType gameType, Difficulty difficulty){
         this.gameType = gameType;
         this.difficulty = difficulty;
     }
