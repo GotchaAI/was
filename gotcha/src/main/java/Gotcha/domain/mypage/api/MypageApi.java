@@ -88,7 +88,7 @@ public interface MypageApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                     {
-                                        "code": "GAME-404-001",
+                                        "code": "GAME-HISTORY-404-001",
                                         "status": "NOT_FOUND",
                                         "message": "게임 정보가 존재하지 않습니다."
                                     }
