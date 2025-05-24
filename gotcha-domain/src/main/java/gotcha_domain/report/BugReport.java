@@ -44,7 +44,7 @@ public class BugReport extends BaseTimeEntity {
     private List<String> chatLog;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "game_id")
+    @JoinColumn(name = "game_history_id")
     private GameHistory gameHistory;
 
     @Builder

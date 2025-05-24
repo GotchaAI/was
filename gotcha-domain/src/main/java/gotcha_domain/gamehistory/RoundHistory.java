@@ -42,6 +42,6 @@ public class RoundHistory extends BaseTimeEntity {
     private String picture;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "game_id")
+    @JoinColumn(name = "game_history_id")
     private GameHistory gameHistory;
 }
