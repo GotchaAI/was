@@ -47,6 +47,9 @@ jobs:
       - name: Clean old docs
         run: rm -rf gotcha-socket/src/main/resources/static.docs gotcha-socket/src/main/resources/static/docs
 
+      - name: Clean old docs
+        run: rm -rf gotcha-socket/src/main/resources/static.docs gotcha-socket/src/main/resources/static/docs
+
       # 3. AsyncAPI Generator 전역 설치
       - name: Install AsyncAPI Generator
         run: npm install -g @asyncapi/generator
@@ -71,12 +74,13 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
-      # 6. 자바 환경 설정
+      # 7. 자바 환경 설정
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
+
 
       # 7. 테스트를 위한 DB 설정
       - name: Setup MySQL
