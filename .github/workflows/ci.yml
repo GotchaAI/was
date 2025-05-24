@@ -36,20 +36,11 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: List gotcha-socket folder contents
-        run: ls -l gotcha-socket
-
-      - name: Check asyncapi.yaml presence
-        run: ls -l gotcha-socket/asyncapi.yaml
-
       # 1. Node.js 설치 (AsyncAPI CLI 실행용)
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-
-      - name: Clean old docs
-        run: rm -rf gotcha-socket/src/main/resources/static.docs gotcha-socket/src/main/resources/static/docs
 
       - name: Clean old docs
         run: rm -rf gotcha-socket/src/main/resources/static.docs gotcha-socket/src/main/resources/static/docs
@@ -71,25 +62,6 @@ jobs:
           git add gotcha-socket/src/main/resources/static/docs
           git commit -m "Auto-update AsyncAPI docs"
           git push || echo "Nothing to push"
-
-      - name: List generated docs
-        run: |
-          echo "=== Generated Docs File List ==="
-          ls -l gotcha-socket/src/main/resources/static/docs
-          echo "=== Sample content from index.html ==="
-          head -30 gotcha-socket/src/main/resources/static/docs/index.html
-
-      # 6. Compare branch 코드 내려 받기
-      - name: Checkout PR
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-
-      - name: Print current directory and list files
-        run: |
-          pwd
-          ls -l      
-          
 
       # 7. 자바 환경 설정
       - name: Set up JDK 17
