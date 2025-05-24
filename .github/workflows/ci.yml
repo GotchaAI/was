@@ -24,7 +24,7 @@ on:
         required: false
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   develop-test:
@@ -72,6 +72,13 @@ jobs:
           git commit -m "Auto-update AsyncAPI docs"
           git push || echo "Nothing to push"
 
+      - name: List generated docs
+        run: |
+          echo "=== Generated Docs File List ==="
+          ls -l gotcha-socket/src/main/resources/static/docs
+          echo "=== Sample content from index.html ==="
+          head -30 gotcha-socket/src/main/resources/static/docs/index.html
+
       # 6. Compare branch 코드 내려 받기
       - name: Checkout PR
         uses: actions/checkout@v3
@@ -90,7 +97,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-
 
       # 7. 테스트를 위한 DB 설정
       - name: Setup MySQL
