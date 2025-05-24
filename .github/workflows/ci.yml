@@ -37,16 +37,22 @@ jobs:
         with:
           node-version: '18'
 
-      # 2. AsyncAPI Generator 전역 설치
+      # 2. Compare branch 코드 내려 받기
+      - name: Checkout PR
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      # 3. AsyncAPI Generator 전역 설치
       - name: Install AsyncAPI Generator
         run: npm install -g @asyncapi/generator
 
-      # 3. AsyncAPI → HTML 문서 자동 생성
+      # 4. AsyncAPI → HTML 문서 자동 생성
       - name: Generate HTML Docs
         run: |
-          npx @asyncapi/generator asyncapi.yaml @asyncapi/html-template -o src/main/resources/static/docs
+          npx @asyncapi/generator gotcha-socket/asyncapi.yaml @asyncapi/html-template -o src/main/resources/static/docs
 
-      # 4. 문서 변경사항 커밋 & 푸시
+      # 5. 문서 변경사항 커밋 & 푸시
       - name: Commit and Push Generated Docs
         run: |
           git config --global user.name "github-actions"
@@ -55,11 +61,6 @@ jobs:
           git diff --cached --quiet || git commit -m "Auto-update AsyncAPI docs"
           git push || echo "Nothing to push"
 
-      # 5. Compare branch 코드 내려 받기
-      - name: Checkout PR
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
 
       # 6. 자바 환경 설정
       - name: Set up JDK 17
