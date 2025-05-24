@@ -132,4 +132,5 @@ public class RoomService {
             throw new CustomException(RoomExceptionCode.NOT_ROOM_OWNER);
         }
     }
+
 }

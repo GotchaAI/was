@@ -1,5 +1,7 @@
 package socket_server.domain.game.model;
 
+import lombok.Getter;
+import lombok.Setter;
 import socket_server.domain.game.enumType.GameType;
 import socket_server.domain.game.enumType.Difficulty;
 
@@ -8,6 +10,8 @@ import java.util.List;
 /**
  * Game 데이터(Redis에 저장)
  */
+@Setter
+@Getter
 public class Game {
 
     private String gameUuid;
