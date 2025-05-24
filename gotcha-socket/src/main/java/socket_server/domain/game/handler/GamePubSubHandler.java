@@ -3,9 +3,11 @@ package socket_server.domain.game.handler;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import socket_server.common.config.RedisMessage;
 import socket_server.common.listener.PubSubHandler;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.dto.GameReadyStatus;
+import socket_server.domain.room.dto.EventRes;
 
 import static socket_server.common.constants.WebSocketConstants.*;
 
@@ -19,26 +21,13 @@ public class GamePubSubHandler extends PubSubHandler {
 
     @Override
     protected void initHandlers() {
-        handlers.put(GAME_READY_CHANNEL, this::handleGameReady);
-        handlers.put(GAME_START_CHANNEL , this::handleGameStart);
-        handlers.put(GAME_END_CHANNEL, this::handleGameEnd);
-        handlers.put(GAME_INFO_CHANNEL, this::handleGameInfo);
+        handlers.put(GAME_PREFIX, this::gameEvent);
     }
 
-    private void handleGameReady(String channel, Object object) {
-        GameReadyStatus gameReadyStatus = jsonSerializer.deserialize(object, GameReadyStatus.class);
-        messagingTemplate.convertAndSend(channel, gameReadyStatus);
+    private void gameEvent(String channel, Object object) {
+        RedisMessage redisMessage = (RedisMessage) object;
+        EventRes eventRes = jsonSerializer.deserialize(redisMessage.payload(), EventRes.class);
+        messagingTemplate.convertAndSend(channel, eventRes);
     }
 
-    private void handleGameStart(String channel, Object object) {
-        messagingTemplate.convertAndSend(channel, object);
-    }
-
-    private void handleGameEnd(String channel, Object object) {
-        messagingTemplate.convertAndSend(channel, object);
-    }
-
-    private void handleGameInfo(String channel, Object object) {
-
-    }
 }

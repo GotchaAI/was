@@ -13,13 +13,13 @@ import socket_server.domain.room.dto.RoomReq;
 
 @Component
 @RequiredArgsConstructor
-public class GameStartRequestHandler implements RoomEventHandler {
+public class GameStartHandler implements RoomEventHandler {
 
     private final GameService gameService;
 
     @Override
     public EventType getEventType() {
-        return EventType.GAME_START_REQUEST;
+        return EventType.START;
     }
 
     @Override
