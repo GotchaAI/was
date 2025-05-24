@@ -8,6 +8,7 @@ import socket_server.domain.game.model.Game;
 import socket_server.domain.game.model.GamePlayer;
 import socket_server.domain.game.model.Round;
 import socket_server.domain.game.model.Word;
+import socket_server.domain.game.repository.GameRepository;
 import socket_server.domain.game.util.WordUtils;
 import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
@@ -26,22 +27,19 @@ public class GameService {
     private final IDGenerator idGenerator;
     private final RoomService roomService;
     private final RoomUserRepository roomUserRepository;
+    private final GameRepository gameRepository;
 
     public void startGame(String roomId, String userUuid, int totalRounds) {
         // 1. host id check, 방 데이터 가져오기
         RoomMetadata roomMetadata = roomService.getHostingRoomMetadata(roomId, userUuid);
 
          // 2. Game 데이터 만들기
-        Game game = new Game(
-                idGenerator.allocateGameId(), // gameUUID
-                roomMetadata.getGameType(), // GameType
-                roomMetadata.getDifficulty(), // Difficulty
-                totalRounds, // totalRounds
-                0, // aiScore
-                null, // gamePlayers
-                null, // rounds
-                null // winner
-        );
+        Game game = Game.builder().
+                gameId(idGenerator.allocateGameId()).
+                gameType(roomMetadata.getGameType()).
+                difficulty(roomMetadata.getDifficulty()).
+                currentRound(1).
+                totalRounds(totalRounds).build();
 
         // 3. GamePlayerList 가져오기
         List<GamePlayer> gamePlayers = roomUserRepository.findUsersByRoomId(roomId).stream().map(RoomUserInfo::toGamePlayer).toList();
