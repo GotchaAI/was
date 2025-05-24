@@ -9,6 +9,7 @@ import socket_server.common.exception.room.RoomExceptionCode;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.dto.EventType;
+import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomRepository;
 import socket_server.domain.room.repository.RoomUserRepository;
@@ -102,5 +103,7 @@ public class RoomUserService {
     public String findRoomIdByUserUuid(String userUuid) {
         return roomUserRepository.findRoomIdByUserUuid(userUuid);
     }
+
+
 }
 
