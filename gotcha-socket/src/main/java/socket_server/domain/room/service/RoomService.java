@@ -8,6 +8,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
 import socket_server.common.exception.room.RoomExceptionCode;
+import socket_server.common.util.IDGenerator;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.chat.dto.ChatMessage;
 import socket_server.domain.chat.dto.ChatType;
@@ -29,23 +30,22 @@ import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
 @Slf4j
 public class RoomService {
 
-    private final RoomIdService roomIdService;
     private final RoomUserService roomUserService;
     private final JsonSerializer jsonSerializer;
     private final RoomRepository roomRepository;
     private final RedisTemplate<String, Object> objectRedisTemplate;
-
+    private final IDGenerator idGenerator;
     private final RedisTemplate<String, String> redisTemplate;
 
     public RoomService(
-            RoomIdService roomIdService,
+            IDGenerator idGenerator,
             RoomUserService roomUserService,
             RoomRepository roomRepository,
             RedisTemplate<String, Object> objectRedisTemplate,
             @Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
             JsonSerializer jsonSerializer
     ) {
-        this.roomIdService = roomIdService;
+        this.idGenerator = idGenerator;
         this.roomUserService = roomUserService;
         this.roomRepository = roomRepository;
         this.objectRedisTemplate = objectRedisTemplate;
@@ -62,7 +62,7 @@ public class RoomService {
     //todo : lua 스크립트 적용
     public RoomMetadata createRoom(CreateRoomRequest request, SecurityUserDetails userDetails) {
 
-        String roomId = roomIdService.allocateRoomId();
+        String roomId = idGenerator.allocateRoomId();
 
         Map<String, String> roomData = new HashMap<>();
         roomData.put(RoomField.TITLE.getRedisField(), request.title());
