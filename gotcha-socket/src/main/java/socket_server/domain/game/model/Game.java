@@ -14,8 +14,9 @@ public class Game {
     private GameType gameType;
     private Difficulty difficulty;
     private int totalRounds;
+    private int aiScore;
     private List<GamePlayer> gamePlayers;
     private List<Round> rounds;
-    private String winnerUuid;
+    private String winner; // AI or Player
 
 }
