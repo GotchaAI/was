@@ -149,6 +149,11 @@ channels:
 
   /sub/chat/private/{receiverId}:
     description: 개인 채팅 메시지를 수신하는 구독 채널입니다.
+    parameters:
+      receiverId:
+        description: ID of the message receiver
+        schema:
+          type: string
     subscribe:
       message:
         name: PrivateMessage
