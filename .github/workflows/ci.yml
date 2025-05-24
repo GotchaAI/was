@@ -61,7 +61,6 @@ jobs:
           git commit -m "Auto-update AsyncAPI docs"
           git push || echo "Nothing to push"
 
-
       # 6. 자바 환경 설정
       - name: Set up JDK 17
         uses: actions/setup-java@v3
