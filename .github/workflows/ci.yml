@@ -31,13 +31,6 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Print working directory and files
-        run: |
-          pwd
-          ls -l
-          ls -l gotcha-socket
-
-
       # 1. Node.js 설치 (AsyncAPI CLI 실행용)
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -73,6 +66,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Print current directory and list files
+        run: |
+          pwd
+          ls -l      
 
       # 7. 자바 환경 설정
       - name: Set up JDK 17
