@@ -40,4 +40,5 @@ public class RoomPubSubHandler extends PubSubHandler {
         EventRes eventRes = jsonSerializer.deserialize(redisMessage.payload(), EventRes.class);
         messagingTemplate.convertAndSend(channel, eventRes);
     }
+
 }

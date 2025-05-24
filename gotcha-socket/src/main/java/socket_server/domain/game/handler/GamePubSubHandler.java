@@ -26,7 +26,7 @@ public class GamePubSubHandler extends PubSubHandler {
     }
 
     private void handleGameReady(String channel, Object object) {
-        GameReadyStatus gameReadyStatus = jsonSerializer.deserialize((String)object, GameReadyStatus.class);
+        GameReadyStatus gameReadyStatus = jsonSerializer.deserialize(object, GameReadyStatus.class);
         messagingTemplate.convertAndSend(channel, gameReadyStatus);
     }
 
