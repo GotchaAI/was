@@ -1,4 +1,4 @@
-package gotcha_domain.game;
+package gotcha_domain.gamehistory;
 
 import gotcha_common.converter.StringListConverter;
 import gotcha_common.entity.BaseTimeEntity;
@@ -42,6 +42,6 @@ public class RoundHistory extends BaseTimeEntity {
     private String picture;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "game_id")
-    private Game game;
+    @JoinColumn(name = "game_history_id")
+    private GameHistory gameHistory;
 }

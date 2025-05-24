@@ -1,6 +1,6 @@
-package Gotcha.domain.game.dto;
+package Gotcha.domain.gamehistory.dto;
 
-import gotcha_domain.game.RoundHistory;
+import gotcha_domain.gamehistory.RoundHistory;
 import lombok.Builder;
 
 import java.util.List;

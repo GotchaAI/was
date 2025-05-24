@@ -5,7 +5,7 @@ import gotcha_common.entity.BaseTimeEntity;
 import gotcha_domain.achivement.UserAchievement;
 import gotcha_domain.friend.Friend;
 import gotcha_domain.friend.FriendRequest;
-import gotcha_domain.game.UserGame;
+import gotcha_domain.gamehistory.UserGameHistory;
 import gotcha_domain.inquiry.Answer;
 import gotcha_domain.inquiry.Inquiry;
 import gotcha_domain.notification.Notification;
@@ -66,7 +66,7 @@ public class User extends BaseTimeEntity {
 
     @JsonIgnore
     @OneToMany(mappedBy = "player")
-    private List<UserGame> userGames = new ArrayList<>();
+    private List<UserGameHistory> userGameHistories = new ArrayList<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "writer")
@@ -118,4 +118,3 @@ public class User extends BaseTimeEntity {
         this.uuid = uuid;
     }
 }
-
