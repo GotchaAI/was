@@ -51,3 +51,5 @@ public class GameHistory extends BaseTimeEntity {
         this.difficulty = difficulty;
     }
 }
+
+
