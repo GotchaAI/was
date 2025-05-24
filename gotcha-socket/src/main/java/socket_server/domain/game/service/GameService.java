@@ -9,11 +9,10 @@ import socket_server.domain.game.model.GamePlayer;
 import socket_server.domain.game.model.Round;
 import socket_server.domain.game.model.Word;
 import socket_server.domain.game.util.WordUtils;
+import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
-import socket_server.domain.room.repository.RoomRepository;
 import socket_server.domain.room.repository.RoomUserRepository;
 import socket_server.domain.room.service.RoomService;
-import socket_server.domain.room.service.RoomUserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,16 +25,23 @@ public class GameService {
      */
     private final IDGenerator idGenerator;
     private final RoomService roomService;
-    private final JsonSerializer jsonSerializer;
     private final RoomUserRepository roomUserRepository;
 
-    public void startGame(String roomId, String userUuid, String content) {
-        // 1. host id check
-        roomService.checkIsHost(roomId, userUuid);
+    public void startGame(String roomId, String userUuid, int totalRounds) {
+        // 1. host id check, 방 데이터 가져오기
+        RoomMetadata roomMetadata = roomService.getHostingRoomMetadata(roomId, userUuid);
 
-        // 2. Game 데이터 만들기
-        Game game = jsonSerializer.deserialize(content, Game.class);
-        game.setGameUuid(idGenerator.allocateGameId());
+         // 2. Game 데이터 만들기
+        Game game = new Game(
+                idGenerator.allocateGameId(), // gameUUID
+                roomMetadata.getGameType(), // GameType
+                roomMetadata.getDifficulty(), // Difficulty
+                totalRounds, // totalRounds
+                0, // aiScore
+                null, // gamePlayers
+                null, // rounds
+                null // winner
+        );
 
         // 3. GamePlayerList 가져오기
         List<GamePlayer> gamePlayers = roomUserRepository.findUsersByRoomId(roomId).stream().map(RoomUserInfo::toGamePlayer).toList();
