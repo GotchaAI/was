@@ -8,6 +8,7 @@ import gotcha_domain.user.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -51,6 +52,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize ->
                         authorize
+                                .requestMatchers(HttpMethod.GET, "/api/v1/qnas/**").permitAll()
                                 .requestMatchers("/api/v1/auth/guest/sign-up").authenticated()
                                 .requestMatchers(SecurityConstants.PUBLIC_ENDPOINTS).permitAll()
                                 .requestMatchers(SecurityConstants.ADMIN_ENDPOINTS).hasAnyRole(String.valueOf(Role.ADMIN))
