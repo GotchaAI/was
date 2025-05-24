@@ -26,6 +26,7 @@ public record CreateRoomRequest(
         @NotNull(message = "게임 유형은 필수 입력입니다.")
         GameType gameType,
 
+
         @Min(1) @Max(5)
         int roundCount
 ) {}

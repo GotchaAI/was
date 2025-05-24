@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
+import socket_server.domain.game.enumType.Difficulty;
+import socket_server.domain.game.enumType.GameType;
 
 import java.util.Map;
 
@@ -19,8 +21,8 @@ public class RoomMetadata {
     private String password;
     private int max;
     private int min;
-    private String aiLevel;
-    private String gameMode;
+    private Difficulty difficulty;
+    private GameType gameType;
     private String ownerUuid;
 
 
@@ -33,8 +35,8 @@ public class RoomMetadata {
         metadata.password = (String) map.getOrDefault("password", "");
         metadata.max = Integer.parseInt((String) map.getOrDefault("max", "0"));
         metadata.min = Integer.parseInt((String) map.getOrDefault("min", "0"));
-        metadata.aiLevel = (String) map.getOrDefault("aiLevel", "NORMAL");
-        metadata.gameMode = (String) map.getOrDefault("gameMode", "STANDARD");
+        metadata.difficulty = Difficulty.valueOf((String) map.getOrDefault("difficulty", "BASIC"));
+        metadata.gameType =  GameType.valueOf((String) map.getOrDefault("gameType", "TRICK_MYOMYO"));
         metadata.ownerUuid = (String) map.getOrDefault("ownerUuid", "");
         return metadata;
     }
