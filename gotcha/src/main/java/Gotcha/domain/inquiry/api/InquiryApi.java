@@ -131,9 +131,21 @@ public interface InquiryApi {
                                     """
                             )
                     })
+            ),
+            @ApiResponse(
+                    responseCode = "403", description = "권한이 없음",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                    {
+                                        "code": "QNA-403-001",
+                                        "status": "FORBIDDEN",
+                                        "message": "권한이 없습니다."
+                                    }
+                                    """)
+                    })
             )
     })
-    ResponseEntity<?> getInquiryById(@PathVariable(value = "inquiryId") Long inquiryId);
+    ResponseEntity<?> getInquiryById(@PathVariable(value = "inquiryId") Long inquiryId, @AuthenticationPrincipal SecurityUserDetails userDetails);
 
     @Operation(summary = "QnA 생성", description = "QnA 생성 API")
     @ApiResponses({
