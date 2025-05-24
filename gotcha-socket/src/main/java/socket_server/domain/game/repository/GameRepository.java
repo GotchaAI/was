@@ -65,9 +65,9 @@ public class GameRepository {
         Map<String, Object> gameData = Map.of(
                 "gameType", game.getGameType().name(),
                 "difficulty", game.getDifficulty().name(),
-                "currentRound", game.getCurrentRound(),
-                "totalRounds", game.getTotalRounds(),
-                "aiScore", game.getAiScore()
+                "currentRound", String.valueOf(game.getCurrentRound()),
+                "totalRounds", String.valueOf(game.getTotalRounds()),
+                "aiScore", String.valueOf(game.getAiScore())
         );
 
         redisTemplate.opsForHash().putAll(getGameKey(game.getGameId()), gameData);
