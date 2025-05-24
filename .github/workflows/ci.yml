@@ -36,10 +36,11 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Print current directory and list files
-        run: |
-          pwd
-          ls -l      
+      - name: List gotcha-socket folder contents
+        run: ls -l gotcha-socket
+
+      - name: Check asyncapi.yaml presence
+        run: ls -l gotcha-socket/asyncapi.yaml
 
       # 1. Node.js 설치 (AsyncAPI CLI 실행용)
       - name: Setup Node.js
