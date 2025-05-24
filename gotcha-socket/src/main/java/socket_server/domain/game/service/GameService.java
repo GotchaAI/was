@@ -1,7 +1,9 @@
 package socket_server.domain.game.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import socket_server.common.config.RedisMessage;
 import socket_server.common.util.IDGenerator;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.model.Game;
@@ -18,16 +20,18 @@ import socket_server.domain.room.service.RoomService;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
+
 @AllArgsConstructor
+@Service
 public class GameService {
-    /**
-     * 1. 게임 시작
-     */
+
     private final IDGenerator idGenerator;
     private final RoomService roomService;
     private final RoomUserRepository roomUserRepository;
     private final GameRepository gameRepository;
+    private final RedisTemplate<String, Object> objectRedisTemplate;
+    private final JsonSerializer jsonSerializer;
 
     public void startGame(String roomId, String userUuid, int totalRounds) {
         // 1. host id check, 방 데이터 가져오기
@@ -47,9 +51,7 @@ public class GameService {
 
         // 4. Round, Word 데이터 만들기
         List<Round> rounds = new ArrayList<>();
-
         List<Integer> indexes = WordUtils.getRandomIndexes(game.getTotalRounds() * 2); // get random indexes, 플레이어는 항상 2명이라고 가정
-
         for(int i = 0; i < game.getTotalRounds(); i++) {
             List<Word> words = new ArrayList<>();
             for(int j = 0; j < 2; j++){
@@ -76,6 +78,7 @@ public class GameService {
         gameRepository.savePlayers(game.getGameId(), game.getGamePlayers());
         gameRepository.saveRoundMetas(game.getGameId(), game.getRounds());
 
+        objectRedisTemplate.convertAndSend(ROOM_EVENT+roomId, new RedisMessage(userUuid, ROOM_EVENT+roomId, jsonSerializer.serialize(game)));
 
     }
 

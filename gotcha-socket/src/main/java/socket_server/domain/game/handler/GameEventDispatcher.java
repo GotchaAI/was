@@ -30,4 +30,5 @@ public class GameEventDispatcher {
 
         handler.handle(gameId, userDetails, request);
     }
+
 }
