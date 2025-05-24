@@ -6,11 +6,11 @@
   "info": {
     "title": "Gotcha WebSocket API",
     "version": "1.0.0",
-    "description": "이 문서는 Gotcha 게임 플랫폼의 실시간 WebSocket(STOMP) 통신 명세서입니다.\nSockJS를 통해 WebSocket 연결을 시도합니다.\n\n| 주체             | 동작       | 사용하는 STOMP 함수       | 경로 예시              |\n|------------------|------------|---------------------------|-------------------------|\n| 클라이언트 → 서버 | 메시지 보냄 | `stompClient.send()`      | `/pub/**`      |\n| 서버 → 클라이언트 | 메시지 보냄 | `stompClient.subscribe()` | `/sub/**`         |\n\n⭐본 서비스에서 사용하는 메시지 전송 경로는 총 5개로 구성됩니다. 로직에 따른 구독 경로를 달리하지 않고, dto로 로직을 구분합니다.\n\n[prefix 있는 채널들]\n- /pub/room/{roomId} : 대기방 관련 로직들 (대기방 내 채팅 포함)\n- /pub/chat/** : 채팅 관련 로직들 (전체 채팅 및 개인 채팅)\n- /pub/game/** : 게임 관련 로직들 \n- user/queue/{userUuid}/errors : 레디스 내 에러 처리 채널 \n\n[절대 경로 채널]\n- user/queue/errors : stomp 내 에러 처리 채널\n"
+    "description": "이 문서는 Gotcha 게임 플랫폼의 실시간 WebSocket(STOMP) 통신 명세서입니다.\nSockJS를 통해 WebSocket 연결을 시도합니다.\n\n| 주체             | 동작       | 사용하는 STOMP 함수       | 경로 예시              |\n|------------------|------------|---------------------------|-------------------------|\n| 클라이언트 → 서버 | 메시지 보냄 | `stompClient.send()`      | `/pub/**`      |\n| 서버 → 클라이언트 | 메시지 보냄 | `stompClient.subscribe()` | `/sub/**`         |\n\n⭐본 서비스에서 사용하는 메시지 전송 경로는 총 4개로 구성됩니다. 로직에 따른 구독 경로를 달리하지 않고, dto로 로직을 구분합니다.\n\n[prefix 있는 채널들]\n- /pub/room/{roomId} : 대기방 관련 로직들 (대기방 내 채팅 포함)\n- /pub/chat/** : 채팅 관련 로직들 (전체 채팅 및 개인 채팅)\n- /pub/game/** : 게임 관련 로직들 \n\n[절대 경로 채널]\n- user/queue/errors : 에러 처리 채널\n"
   },
   "servers": {
     "production": {
-      "url": "http://43.203.244.35:8080/ws-connect",
+      "url": "http://43.202.159.231:8080/ws-connect",
       "protocol": "ws",
       "description": "SockJS 기반 STOMP WebSocket 연결을 지원합니다. 기본적으로 WebSocket(ws) 사용, 실패 시 HTTP long-polling 등으로 fallback 됩니다.\n\n\n핸드쉐이크 시, 반드시 HTTP 헤더에 Authorization: Bearer {JWT 토큰} 를 포함해야 합니다.\n"
     }
@@ -59,16 +59,6 @@
             ],
             "x-parser-schema-id": "ExceptionRes"
           }
-        }
-      }
-    },
-    "/user/{userUuid}queue/errors": {
-      "description": "사용자별 에러 메시지를 수신하는 WebSocket 구독 채널입니다.\n서버에서 발생한 예외 정보를 이 채널로 전달합니다.\n",
-      "subscribe": {
-        "message": {
-          "name": "ExceptionResponse",
-          "summary": "에러 응답 메시지",
-          "payload": "$ref:$.channels./user/queue/errors.subscribe.message.payload"
         }
       }
     },
