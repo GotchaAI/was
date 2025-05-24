@@ -104,7 +104,7 @@ channels:
               $ref: '#/components/schemas/RedisResponse_Chat'
 
           - name: JoinEvent
-            summary: JOIN 이벤트 - 입장 유저 목록 수신
+            summary: JOIN 이벤트 - 대기방 내 기존 유저 목록 수신
             payload:
               $ref: '#/components/schemas/RedisResponse_Join'
 
@@ -119,7 +119,7 @@ channels:
             summary: START 이벤트 - 게임 시작 알림
 
   /pub/chat/all:
-    description: 클라이언트가 새 방을 생성 요청하는 채널
+    description: 클라이언트가 전체 채팅 메시지를 전송하는 채널
     publish:
       message:
         headers:
@@ -129,7 +129,7 @@ channels:
           $ref: '#/components/schemas/ChatMessageReq'
 
   /sub/chat/all:
-    description: 전체 채팅 메시지를 수신하는 구독 채널입니다.
+    description: 클라이언트가 전체 채팅 메시지를 수신하는 채널
     subscribe:
       message:
         name: AllChatMessage
@@ -328,10 +328,12 @@ components:
     RoomUserInfo:
       type: object
       properties:
-        userId:
+        userUuid:
           type: string
         nickname:
           type: string
+        ready:
+          type: boolean
 
     ReadyInfo:
       type: object
@@ -361,16 +363,13 @@ components:
       type: object
       description: |
         채팅 메시지 전송 요청 객체입니다.
-
-        - `receiverUuid`가 `null`이면 전체 채팅으로 간주됩니다.
-        - 특정 사용자의 UUID를 설정하면 1:1 개인 채팅으로 전송됩니다.
       properties:
         receiverUuid:
           type: string
           nullable: true
           description: |
-            수신 대상 사용자의 UUID입니다.  
-            null이면 전체 채팅, UUID가 지정되면 개인 채팅으로 처리됩니다.
+            - 전체 채팅 시, `receiverUuid`가 `null`이어도 됩니다.
+            - 개인 채팅 시,  `receiverUuid'는 필수입니다.
         content:
           type: string
           description: 메시지 내용
@@ -379,7 +378,9 @@ components:
 
     RedisResponse_AllChat:
       type: object
-      description: 전체 채팅 메시지를 포함하는 Redis 전송 구조
+      description: |
+        - 전체 채팅 메시지를 포함하는 Redis 전송 구조
+        - 응답 시 ChatType은 ALL, ROOM, PRIVATE중 하나로 전송됩니다.
       properties:
         userId:
           type: string
