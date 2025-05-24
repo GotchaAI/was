@@ -31,47 +31,22 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      # 1. Compare branch 코드 내려 받기
-      - name: Checkout PR
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-
-      # 2. 자바 환경 설정
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      # 3. 테스트를 위한 DB 설정
-      - name: Setup MySQL
-        uses: mirromutth/mysql-action@v1.1
-        with:
-          mysql database: ${{ secrets.MYSQL_TEST_DATABASE }}
-          mysql user: ${{ secrets.MYSQL_TEST_USER }}
-          mysql password: ${{ secrets.MYSQL_TEST_PASSWORD }}
-
-      # 4. Gradlew 실행 권한 설정
-      - name: Run chmod to make gradlew executable
-        run: chmod +x ./gradlew
-
-      # 2. Node.js 설치 (AsyncAPI CLI 실행용)
+      # 1. Node.js 설치 (AsyncAPI CLI 실행용)
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      # 3. AsyncAPI Generator 전역 설치
+      # 2. AsyncAPI Generator 전역 설치
       - name: Install AsyncAPI Generator
         run: npm install -g @asyncapi/generator
 
-      # 4. AsyncAPI → HTML 문서 자동 생성
+      # 3. AsyncAPI → HTML 문서 자동 생성
       - name: Generate HTML Docs
         run: |
           npx @asyncapi/generator asyncapi.yaml @asyncapi/html-template -o src/main/resources/static/docs
 
-      # 5. 문서 변경사항 커밋 & 푸시
+      # 4. 문서 변경사항 커밋 & 푸시
       - name: Commit and Push Generated Docs
         run: |
           git config --global user.name "github-actions"
@@ -80,7 +55,32 @@ jobs:
           git diff --cached --quiet || git commit -m "Auto-update AsyncAPI docs"
           git push || echo "Nothing to push"
 
-      # 5. Gradle Test 실행
+      # 5. Compare branch 코드 내려 받기
+      - name: Checkout PR
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      # 6. 자바 환경 설정
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 7. 테스트를 위한 DB 설정
+      - name: Setup MySQL
+        uses: mirromutth/mysql-action@v1.1
+        with:
+          mysql database: ${{ secrets.MYSQL_TEST_DATABASE }}
+          mysql user: ${{ secrets.MYSQL_TEST_USER }}
+          mysql password: ${{ secrets.MYSQL_TEST_PASSWORD }}
+
+      # 8. Gradlew 실행 권한 설정
+      - name: Run chmod to make gradlew executable
+        run: chmod +x ./gradlew
+
+      # 9. Gradle Test 실행
       - name: Build with Gradle
         uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25
         with:
