@@ -37,12 +37,6 @@ jobs:
         with:
           node-version: '18'
 
-      # 2. Compare branch 코드 내려 받기
-      - name: Checkout PR
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-
       - name: Clean old docs
         run: rm -rf gotcha-socket/src/main/resources/static.docs gotcha-socket/src/main/resources/static/docs
 
@@ -63,6 +57,12 @@ jobs:
           git add gotcha-socket/src/main/resources/static/docs
           git commit -m "Auto-update AsyncAPI docs"
           git push || echo "Nothing to push"
+
+      # 6. Compare branch 코드 내려 받기
+      - name: Checkout PR
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
 
       # 6. 자바 환경 설정
       - name: Set up JDK 17

@@ -22,11 +22,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
         # 3. Docker 이미지 build 및 push
       - name: docker build and push
         run: |
