@@ -12,11 +12,14 @@ import socket_server.domain.game.model.Round;
 import socket_server.domain.game.model.Word;
 import socket_server.domain.game.repository.GameRepository;
 import socket_server.domain.game.util.WordUtils;
+import socket_server.domain.room.dto.EventRes;
+import socket_server.domain.room.dto.EventType;
 import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomUserRepository;
 import socket_server.domain.room.service.RoomService;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,7 +81,20 @@ public class GameService {
         gameRepository.savePlayers(game.getGameId(), game.getGamePlayers());
         gameRepository.saveRoundMetas(game.getGameId(), game.getRounds());
 
-        objectRedisTemplate.convertAndSend(ROOM_EVENT+roomId, new RedisMessage(userUuid, ROOM_EVENT+roomId, jsonSerializer.serialize(game)));
+        //todo: AI 서버 메시지 받아오기
+
+        EventRes eventRes = new EventRes(
+                EventType.START,
+                game,
+                LocalDateTime.now()
+        );
+
+        RedisMessage redisMessage = new RedisMessage(
+                userUuid,
+                ROOM_EVENT+roomId,
+                jsonSerializer.serialize(eventRes));
+
+        objectRedisTemplate.convertAndSend(ROOM_EVENT+roomId, jsonSerializer.serialize(redisMessage));
 
     }
 
