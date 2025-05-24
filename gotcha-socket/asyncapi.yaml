@@ -14,19 +14,20 @@ info:
     | 클라이언트 → 서버 | 메시지 보냄 | `stompClient.send()`      | `/pub/**`      |
     | 서버 → 클라이언트 | 메시지 보냄 | `stompClient.subscribe()` | `/sub/**`         |
 
-    ⭐본 서비스에서 사용하는 메시지 전송 경로는 총 4개로 구성됩니다. 로직에 따른 구독 경로를 달리하지 않고, dto로 로직을 구분합니다.
+    ⭐본 서비스에서 사용하는 메시지 전송 경로는 총 5개로 구성됩니다. 로직에 따른 구독 경로를 달리하지 않고, dto로 로직을 구분합니다.
 
     [prefix 있는 채널들]
     - /pub/room/{roomId} : 대기방 관련 로직들 (대기방 내 채팅 포함)
     - /pub/chat/** : 채팅 관련 로직들 (전체 채팅 및 개인 채팅)
     - /pub/game/** : 게임 관련 로직들 
+    - user/queue/{userUuid}/errors : 레디스 내 에러 처리 채널 
     
     [절대 경로 채널]
-    - user/queue/errors : 에러 처리 채널
+    - user/queue/errors : stomp 내 에러 처리 채널
 
 servers:
   production:
-    url: http://43.202.159.231:8080/ws-connect
+    url: http://43.203.244.35:8080/ws-connect
     protocol: ws
     description: >
       SockJS 기반 STOMP WebSocket 연결을 지원합니다.
@@ -42,6 +43,17 @@ servers:
 channels:
 
   /user/queue/errors:
+    description: |
+      사용자별 에러 메시지를 수신하는 WebSocket 구독 채널입니다.
+      서버에서 발생한 예외 정보를 이 채널로 전달합니다.
+    subscribe:
+      message:
+        name: ExceptionResponse
+        summary: 에러 응답 메시지
+        payload:
+          $ref: '#/components/schemas/ExceptionRes'
+
+  /user/{userUuid}queue/errors:
     description: |
       사용자별 에러 메시지를 수신하는 WebSocket 구독 채널입니다.
       서버에서 발생한 예외 정보를 이 채널로 전달합니다.
