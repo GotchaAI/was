@@ -37,6 +37,7 @@ jobs:
           ls -l
           ls -l gotcha-socket
 
+
       # 1. Node.js 설치 (AsyncAPI CLI 실행용)
       - name: Setup Node.js
         uses: actions/setup-node@v3
