@@ -1,9 +1,6 @@
 package socket_server.domain.game.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import socket_server.domain.game.enumType.GameType;
 import socket_server.domain.game.enumType.Difficulty;
 
@@ -12,8 +9,7 @@ import java.util.List;
 /**
  * Game 데이터(Redis에 저장)
  */
-@Setter
-@Getter
+@Data
 @Builder
 @AllArgsConstructor
 public class Game {
