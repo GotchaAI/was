@@ -13,6 +13,14 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Check git status
+        run: git status
+
+      - name: Check staged changes
+        run: git diff --cached
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
