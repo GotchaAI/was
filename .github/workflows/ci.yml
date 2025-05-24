@@ -58,7 +58,7 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
           git add src/main/resources/static/docs
-          git diff --cached --quiet || git commit -m "Auto-update AsyncAPI docs"
+          git commit -m "Auto-update AsyncAPI docs"
           git push || echo "Nothing to push"
 
 
