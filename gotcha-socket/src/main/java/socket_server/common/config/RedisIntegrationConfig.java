@@ -24,6 +24,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.support.ErrorMessage;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import socket_server.common.util.JsonSerializer;
 import socket_server.domain.personal.handler.PersonalPubSubHandler;
 import socket_server.domain.room.handler.RoomPubSubHandler;
 
@@ -192,10 +193,10 @@ public class RedisIntegrationConfig {
     }
 
     @Bean
-    public IntegrationFlow roomMessageFlow() {
+    public IntegrationFlow roomMessageFlow(JsonSerializer jsonSerializer) {
         return IntegrationFlow.from("roomMessageChannel")
                 .handle((msg, headers) -> {
-                    RedisMessage redisMessage = objectMapper.convertValue(msg, RedisMessage.class);
+                    RedisMessage redisMessage = jsonSerializer.deserialize(msg, RedisMessage.class);
                     log.info("📦 [방 메시지] topic={}, user={}, payload={}",
                             redisMessage.topic(), redisMessage.userId(), redisMessage.payload());
                     roomHandler.onMessage(redisMessage.topic(), redisMessage);
