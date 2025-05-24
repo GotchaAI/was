@@ -3,8 +3,8 @@ package socket_server.domain.room.dto;
 
 import jakarta.validation.constraints.*;
 import socket_server.common.validator.ValidMaxUser;
-import socket_server.domain.game.enumType.AiMode;
-import socket_server.domain.game.enumType.GameMode;
+import socket_server.domain.game.enumType.Difficulty;
+import socket_server.domain.game.enumType.GameType;
 
 @ValidMaxUser
 public record CreateRoomRequest(
@@ -21,10 +21,10 @@ public record CreateRoomRequest(
         String password,
 
         @NotNull (message = "인공지능 난이도는 필수 입력입니다.")
-        AiMode aimode,
+        Difficulty difficulty,
 
         @NotNull(message = "게임 유형은 필수 입력입니다.")
-        GameMode gameMode,
+        GameType gameType,
 
         @Min(1) @Max(5)
         int roundCount
