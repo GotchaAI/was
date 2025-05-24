@@ -14,12 +14,12 @@ info:
     | 클라이언트 → 서버 | 메시지 보냄 | `stompClient.send()`      | `/pub/**`      |
     | 서버 → 클라이언트 | 메시지 보냄 | `stompClient.subscribe()` | `/sub/**`         |
 
-    ⭐본 서비스에서 사용하는 채널 경로는 총 4개로 구성됩니다.
+    ⭐본 서비스에서 사용하는 메시지 전송 경로는 총 4개로 구성됩니다. 로직에 따른 구독 경로를 달리하지 않고, dto로 로직을 구분합니다.
 
     [prefix 있는 채널들]
-    - room : 대기방 관련 로직들 (대기방 내 채팅 포함)
-    - chat : 채팅 관련 로직들 (전체 채팅 및 개인 채팅)
-    - game : 게임 관련 로직들 
+    - /pub/room/{roomId} : 대기방 관련 로직들 (대기방 내 채팅 포함)
+    - /pub/chat/** : 채팅 관련 로직들 (전체 채팅 및 개인 채팅)
+    - /pub/game/** : 게임 관련 로직들 
     
     [절대 경로 채널]
     - user/queue/errors : 에러 처리 채널
@@ -42,7 +42,7 @@ servers:
       기본적으로 WebSocket(ws) 사용, 실패 시 HTTP long-polling 등으로 fallback 됩니다.
 
 channels:
-  /pub/room/create/:
+  /pub/room/create:
     description: 클라이언트가 새 방을 생성 요청하는 채널
     publish:
       message:
@@ -60,9 +60,65 @@ channels:
           type: object
           properties: {}
         payload:
-          $ref: '#/components/schemas/RedisResponse'
+          $ref: '#/components/schemas/RedisResponse_RoomMetadata'
 
-  /pub/chat/all/:
+  /pub/room/{roomId}:
+    description: |
+      클라이언트가 대기방 내에서 발생 가능한 로직 요청을 전송하는 채널입니다.
+
+      [사용 가능한 이벤트 타입]
+      - CHAT: 대기방 채팅
+      - READY: 준비 완료
+      - JOIN: 방 참가
+      - EXIT: 방 퇴장
+      - START: 게임 시작
+
+      `eventType` 값에 따라 content의 의미는 다르게 해석됩니다.
+    parameters:
+      roomId:
+        description: 대상 대기방의 고유 ID
+        schema:
+          type: string
+    publish:
+      message:
+        name: RoomEventRequest
+        summary: 대기방 내 요청 이벤트 전송
+        contentType: application/json
+        payload:
+          $ref: '#/components/schemas/RoomReq'
+
+  /sub/room/event/{roomId}:
+    description: |
+      클라이언트가 대기방 내에서 발생 가능한 로직 처리 결과를 응답 받는 채널입니다.
+    parameters:
+      roomId:
+        description: 대기방 고유 ID
+        schema:
+          type: string
+    subscribe:
+      message:
+        oneOf:
+          - name: ChatEvent
+            summary: CHAT 이벤트 - 채팅 메시지 수신
+            payload:
+              $ref: '#/components/schemas/RedisResponse_Chat'
+
+          - name: JoinEvent
+            summary: JOIN 이벤트 - 입장 유저 목록 수신
+            payload:
+              $ref: '#/components/schemas/RedisResponse_Join'
+
+          - name: ReadyEvent
+            summary: READY 이벤트 - 준비 완료 정보
+
+
+          - name: ExitEvent
+            summary: EXIT 이벤트 - 퇴장 정보
+
+          - name: StartEvent
+            summary: START 이벤트 - 게임 시작 알림
+
+  /pub/chat/all:
     description: 클라이언트가 새 방을 생성 요청하는 채널
     publish:
       message:
@@ -70,8 +126,35 @@ channels:
           type: object
           properties: {}
         payload:
-          $ref: '#/components/schemas/CreateRoomRequest'
+          $ref: '#/components/schemas/ChatMessageReq'
 
+  /sub/chat/all:
+    description: 전체 채팅 메시지를 수신하는 구독 채널입니다.
+    subscribe:
+      message:
+        name: AllChatMessage
+        summary: 전체 채팅 메시지 수신
+        payload:
+          $ref: '#/components/schemas/RedisResponse_AllChat'
+
+  /pub/chat/private:
+    description: 클라이언트가 특정 사용자에게 개인 채팅(귓속말) 메시지를 전송하는 채널입니다. `receiverUuid`에 수신 대상 사용자의 UUID를 지정하여 메시지를 전송합니다
+    publish:
+      message:
+        headers:
+          type: object
+          properties: {}
+        payload:
+          $ref: '#/components/schemas/ChatMessageReq'
+
+  /sub/chat/private/{receiverId}:
+    description: 개인 채팅 메시지를 수신하는 구독 채널입니다.
+    subscribe:
+      message:
+        name: PrivateMessage
+        summary: 개인 채팅 메시지 수신
+        payload:
+          $ref: '#/components/schemas/RedisResponse_PrivateChat'
 
 components:
   schemas:
@@ -117,12 +200,33 @@ components:
           maximum: 5
           description: 라운드 수 (1~5 사이)
 
-    RedisResponse:
+    RoomReq:
       type: object
+      required:
+        - eventType
+      properties:
+        eventType:
+          type: string
+          enum: [CHAT, READY, JOIN, EXIT, START]
+          description: |
+            클라이언트가 수행하고자 하는 이벤트의 종류입니다.
+        content:
+          type: string
+          description: |
+            이벤트에 따라 의미가 달라지는 콘텐츠입니다.
+            - CHAT: 채팅 메시지
+            - READY: 사용자의 준비 상태
+            - JOIN : 방 참가
+            - EXIT : 방 퇴장
+            - START : 게임 시작
+
+    RedisResponse_RoomMetadata:
+      type: object
+      description: 방 생성/요청 응답용 Redis 메시지 (RoomMetadata 포함)
       properties:
         userId:
           type: string
-          description: 사용자 고유 UUID
+          description: 메시지를 보낸 사용자 UUID
         topic:
           type: string
           description: Redis로 발행된 채널명
@@ -167,3 +271,137 @@ components:
             이 방을 생성한 사용자의 UUID입니다.  
             클라이언트는 해당 값을 통해 수신된 방 정보가 본인이 생성한 것인지 식별할 수 있습니다.
 
+    RedisResponse_Chat:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [CHAT]
+            eventAt:
+              type: string
+              format: date-time
+            data:
+              $ref: '#/components/schemas/ChatMessage'
+
+    RedisResponse_Join:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [JOIN]
+            eventAt:
+              type: string
+              format: date-time
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/RoomUserInfo'
+
+    ChatMessage:
+      type: object
+      properties:
+        nickname:
+          type: string
+        content:
+          type: string
+        chatType:
+          type: string
+          enum: [ROOM]
+        sentAt:
+          type: string
+          format: date-time
+
+    RoomUserInfo:
+      type: object
+      properties:
+        userId:
+          type: string
+        nickname:
+          type: string
+
+    ReadyInfo:
+      type: object
+      properties:
+        userId:
+          type: string
+        nickname:
+          type: string
+
+    ExitInfo:
+      type: object
+      properties:
+        userId:
+          type: string
+        nickname:
+          type: string
+
+    StartInfo:
+      type: object
+      properties:
+        userId:
+          type: string
+        nickname:
+          type: string
+
+    ChatMessageReq:
+      type: object
+      description: |
+        채팅 메시지 전송 요청 객체입니다.
+
+        - `receiverUuid`가 `null`이면 전체 채팅으로 간주됩니다.
+        - 특정 사용자의 UUID를 설정하면 1:1 개인 채팅으로 전송됩니다.
+      properties:
+        receiverUuid:
+          type: string
+          nullable: true
+          description: |
+            수신 대상 사용자의 UUID입니다.  
+            null이면 전체 채팅, UUID가 지정되면 개인 채팅으로 처리됩니다.
+        content:
+          type: string
+          description: 메시지 내용
+      required:
+        - content
+
+    RedisResponse_AllChat:
+      type: object
+      description: 전체 채팅 메시지를 포함하는 Redis 전송 구조
+      properties:
+        userId:
+          type: string
+          nullable: true
+          description: null (전체 채팅이므로 사용자 구분 없음)
+        topic:
+          type: string
+          description: Redis로 발행된 전체 채팅 채널명
+        payload:
+          $ref: '#/components/schemas/ChatMessage'
+
+
+
+    RedisResponse_PrivateChat:
+      type: object
+      description: 특정 사용자에게 전송되는 개인 채팅 메시지 응답 구조입니다.
+      properties:
+        userId:
+          type: string
+          description: 수신 대상 사용자의 UUID입니다.
+        topic:
+          type: string
+          description: Redis로 발행된 개인 채팅 채널명 (`/sub/chat/private/{receiverUuid}`)
+        payload:
+          $ref: '#/components/schemas/ChatMessage'
