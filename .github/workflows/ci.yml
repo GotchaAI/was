@@ -98,7 +98,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-
       # 7. 테스트를 위한 DB 설정
       - name: Setup MySQL
         uses: mirromutth/mysql-action@v1.1
