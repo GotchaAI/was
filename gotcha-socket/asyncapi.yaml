@@ -458,3 +458,4 @@ components:
           description: Redis로 발행된 개인 채팅 채널명 (`/sub/chat/private/{receiverUuid}`)
         payload:
           $ref: '#/components/schemas/PrivateChatMessage'
+
