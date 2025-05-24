@@ -74,10 +74,10 @@ public class RoomService {
             }
             roomData.put(RoomField.PASSWORD.getRedisField(), request.password());
         }
-        roomData.put(RoomField.MAX.getRedisField(), String.valueOf(request.gameMode().getMaxPlayers()));
-        roomData.put(RoomField.MIN.getRedisField(), String.valueOf(request.gameMode().getMinPlayers()));
-        roomData.put(RoomField.AI_LEVEL.getRedisField(), request.aimode().name());
-        roomData.put(RoomField.GAME_MODE.getRedisField(), request.gameMode().name());
+//        roomData.put(RoomField.MAX.getRedisField(), String.valueOf(request.gameMode().getMaxPlayers()));
+//        roomData.put(RoomField.MIN.getRedisField(), String.valueOf(request.gameMode().getMinPlayers()));
+//        roomData.put(RoomField.AI_LEVEL.getRedisField(), request.aimode().name());
+//        roomData.put(RoomField.GAME_MODE.getRedisField(), request.gameMode().name());
         roomData.put(RoomField.OWNER_UUID.getRedisField(), userDetails.getUuid());
 
         roomRepository.saveRoomData(roomId, roomData);
@@ -126,5 +126,10 @@ public class RoomService {
         return RoomMetadata.fromRedisMap(roomId, fields);
     }
 
-
+    public void checkIsHost(String roomId, String userId){
+        RoomMetadata roomMetadata = getRoomInfo(roomId);
+        if(!roomMetadata.getOwnerUuid().equals(userId)){
+            throw new CustomException(RoomExceptionCode.NOT_ROOM_OWNER);
+        }
+    }
 }

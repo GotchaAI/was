@@ -13,7 +13,11 @@ public class GameService {
     private final IDGenerator idGenerator;
 
 
-    public void startGame() {
+    public void startGame(String roomId, String userUuid, String content) {
+        // 1. host id check
+        
+
+
 
     }
 
