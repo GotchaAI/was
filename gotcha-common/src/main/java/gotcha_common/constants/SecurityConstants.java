@@ -7,6 +7,11 @@ public class SecurityConstants {
             "/api/v1/notifications/**" , "/docs/**", "/ws-connect/**",  "/api/v1/ranking/**"
     };
 
+    public static final String[][] METHOD_BASED_PUBLIC_ENDPOINTS = {
+            {"GET", "/api/v1/qnas"},
+            {"GET", "/api/v1/qnas/*"},
+    };
+
     public static final String[] ADMIN_ENDPOINTS = {"/api/v1/admin/**"};
 }
 

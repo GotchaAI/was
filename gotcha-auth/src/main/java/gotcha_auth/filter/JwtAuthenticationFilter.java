@@ -33,23 +33,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessTokenHeader = request.getHeader(JwtProperties.ACCESS_HEADER_VALUE);
 
-        if (isPublicResource(request.getRequestURI())
+        if (isPublicResource(request.getMethod(), request.getRequestURI(), accessTokenHeader)
                 && !request.getRequestURI().equals("/api/v1/auth/guest/sign-up")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        try{
-            if (accessTokenHeader == null || accessTokenHeader.isBlank()) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
+        try {
             Authentication auth = jwtAuthService.authenticate(accessTokenHeader);
             SecurityContextHolder.getContext().setAuthentication(auth);
 
             filterChain.doFilter(request, response);
-        } catch (UsernameNotFoundException e){
+        } catch (UsernameNotFoundException e) {
             log.warn("[사용자 인증 실패] {}", e.getMessage());
 
             ExceptionCode exceptionCode = GlobalExceptionCode.USER_NOT_FOUND;
@@ -61,9 +56,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    private boolean isPublicResource(String uri) {
-        return Arrays.stream(SecurityConstants.PUBLIC_ENDPOINTS)
+    private boolean isPublicResource(String method, String uri, String accessToken) {
+        boolean uriOnlyMatch = Arrays.stream(SecurityConstants.PUBLIC_ENDPOINTS)
                 .anyMatch(pattern -> antPathMatcher.match(pattern, uri));
+
+        boolean methodUriMatch = Arrays.stream(SecurityConstants.METHOD_BASED_PUBLIC_ENDPOINTS)
+                .anyMatch(entry -> method.equalsIgnoreCase(entry[0]) &&
+                        (antPathMatcher.match(entry[1], uri) && !antPathMatcher.match("/api/v1/qnas/mine", uri)));
+
+        return uriOnlyMatch || (methodUriMatch && (accessToken == null || accessToken.isBlank()));
     }
+
 }
 
