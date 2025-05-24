@@ -53,30 +53,28 @@ public class GameService {
         for(int i = 0; i < game.getTotalRounds(); i++) {
             List<Word> words = new ArrayList<>();
             for(int j = 0; j < 2; j++){
-                Word word = new Word(
-                        indexes.get(j),
-                        WordUtils.getEngWord(indexes.get(i * 2 + j)),
-                        gamePlayers.get(j).getPlayerUuid(),
-                        new ArrayList<>(),
-                        new ArrayList<>()
-                );
+                Word word = Word.builder()
+                        .wordIndex(j)
+                        .word(WordUtils.getEngWord(indexes.get(i * 2 + j)))
+                        .drawerUuid(gamePlayers.get(j).getPlayerUuid())
+                        .guesses(new ArrayList<>())
+                        .aiPredictions(new ArrayList<>()).build();
                 words.add(word);
             }
 
-            Round round = new Round(
-                    i,
-                    null,
-                    null,
-                    words
-            );
+            Round round = Round.builder().
+                    roundIndex(i).
+                    words(words).
+                    build();
             rounds.add(round);
         }
 
         game.setRounds(rounds);
 
-        // 5. Redis에 저장
-
-
+        // 5. Redis에 저장 : GameMeta, GamePlayers, Rounds
+        gameRepository.saveGameMeta(game);
+        gameRepository.savePlayers(game.getGameId(), game.getGamePlayers());
+        gameRepository.saveRoundMetas(game.getGameId(), game.getRounds());
 
 
     }
