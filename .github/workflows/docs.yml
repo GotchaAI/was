@@ -1,43 +1,43 @@
-name: Update AsyncAPI Docs
-
-on:
-  pull_request:
-    branches: [develop]
-    paths:
-      - 'gotcha-socket/asyncapi.yaml'
-
-jobs:
-  generate-docs:
-    if: github.actor != 'github-actions'  # 무한 루프 방지
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Check git status
-        run: git status
-
-      - name: Check staged changes
-        run: git diff --cached
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install AsyncAPI Generator
-        run: npm install -g @asyncapi/generator
-
-      - name: Generate HTML Docs
-        run: |
-          npx @asyncapi/generator gotcha-socket/asyncapi.yaml @asyncapi/html-template -o gotcha-socket/src/main/resources/static/docs
-
-      - name: Commit and Push Generated Docs
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-          git add gotcha-socket/src/main/resources/static/docs
-          git diff --cached --quiet || git commit -m "Auto-update AsyncAPI docs"
-          git push || echo "Nothing to push"
+#name: Update AsyncAPI Docs
+#
+#on:
+#  pull_request:
+#    branches: [develop]
+#    paths:
+#      - 'gotcha-socket/asyncapi.yaml'
+#
+#jobs:
+#  generate-docs:
+#    if: github.actor != 'github-actions'  # 무한 루프 방지
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout Code
+#        uses: actions/checkout@v3
+#        with:
+#          fetch-depth: 0
+#
+#      - name: Check git status
+#        run: git status
+#
+#      - name: Check staged changes
+#        run: git diff --cached
+#
+#      - name: Setup Node.js
+#        uses: actions/setup-node@v3
+#        with:
+#          node-version: '18'
+#
+#      - name: Install AsyncAPI Generator
+#        run: npm install -g @asyncapi/generator
+#
+#      - name: Generate HTML Docs
+#        run: |
+#          npx @asyncapi/generator gotcha-socket/asyncapi.yaml @asyncapi/html-template -o gotcha-socket/src/main/resources/static/docs
+#
+#      - name: Commit and Push Generated Docs
+#        run: |
+#          git config --global user.name "github-actions"
+#          git config --global user.email "actions@github.com"
+#          git add gotcha-socket/src/main/resources/static/docs
+#          git diff --cached --quiet || git commit -m "Auto-update AsyncAPI docs"
+#          git push || echo "Nothing to push"
