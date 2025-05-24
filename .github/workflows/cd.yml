@@ -30,6 +30,12 @@ jobs:
       - name: Install AsyncAPI Generator
         run: npm install -g @asyncapi/generator
 
+      - name: Show AsyncAPI YAML content
+        run: |
+          echo "=== AsyncAPI YAML Content ==="
+          cat gotcha-socket/asyncapi.yaml
+          echo "============================"
+
       - name: Generate HTML Docs
         run: |
           npx @asyncapi/generator gotcha-socket/asyncapi.yaml @asyncapi/html-template -o gotcha-socket/src/main/resources/static/docs
