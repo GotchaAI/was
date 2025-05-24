@@ -31,6 +31,16 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
+      - name: Checkout PR
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Print current directory and list files
+        run: |
+          pwd
+          ls -l      
+
       # 1. Node.js 설치 (AsyncAPI CLI 실행용)
       - name: Setup Node.js
         uses: actions/setup-node@v3
