@@ -1,13 +1,13 @@
-package Gotcha.domain.game.exception;
+package Gotcha.domain.gamehistory.exception;
 
 import gotcha_common.exception.exceptionCode.ExceptionCode;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 @AllArgsConstructor
-public enum GameExceptionCode implements ExceptionCode {
+public enum GameHistoryExceptionCode implements ExceptionCode {
 
-    GAME_NOT_FOUND(HttpStatus.NOT_FOUND, "GAME-404-001", "게임 정보가 존재하지 않습니다.");
+    GAME_HISTORY_NOT_FOUND(HttpStatus.NOT_FOUND, "GAME-404-001", "게임 정보가 존재하지 않습니다.");
 
     private final HttpStatus status;
     private final String code;

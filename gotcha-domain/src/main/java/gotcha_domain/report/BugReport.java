@@ -2,7 +2,7 @@ package gotcha_domain.report;
 
 import gotcha_common.converter.StringListConverter;
 import gotcha_common.entity.BaseTimeEntity;
-import gotcha_domain.game.Game;
+import gotcha_domain.gamehistory.GameHistory;
 import gotcha_domain.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -45,7 +45,7 @@ public class BugReport extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id")
-    private Game game;
+    private GameHistory gameHistory;
 
     @Builder
     public BugReport(BugReportType bugReportType, String detail, List<String> chatLog) {
