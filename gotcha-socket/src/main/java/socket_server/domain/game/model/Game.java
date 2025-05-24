@@ -1,6 +1,7 @@
 package socket_server.domain.game.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import socket_server.domain.game.enumType.GameType;
@@ -13,12 +14,14 @@ import java.util.List;
  */
 @Setter
 @Getter
+@Builder
 @AllArgsConstructor
 public class Game {
 
-    private String gameUuid;
+    private String gameId;
     private GameType gameType;
     private Difficulty difficulty;
+    private int currentRound; // 1, 2, 3, 4, 5
     private int totalRounds;
     private int aiScore;
     private List<GamePlayer> gamePlayers;
