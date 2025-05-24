@@ -27,27 +27,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install AsyncAPI Generator
-        run: npm install -g @asyncapi/generator
-
-      - name: Show AsyncAPI YAML content
-        run: |
-          echo "=== AsyncAPI YAML Content ==="
-          cat gotcha-socket/asyncapi.yaml
-          echo "============================"
-
-      - name: Generate HTML Docs
-        run: |
-          npx @asyncapi/generator gotcha-socket/asyncapi.yaml @asyncapi/html-template -o gotcha-socket/src/main/resources/static/docs
-
-      - name: Commit and Push Generated Docs
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-          git add gotcha-socket/src/main/resources/static/docs
-          git commit -m "Auto-update AsyncAPI docs" || echo "No changes to commit"
-          git push || echo "Nothing to push"
-
         # 3. Docker 이미지 build 및 push
       - name: docker build and push
         run: |

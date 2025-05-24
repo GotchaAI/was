@@ -56,6 +56,30 @@ jobs:
       - name: Run chmod to make gradlew executable
         run: chmod +x ./gradlew
 
+      # 2. Node.js 설치 (AsyncAPI CLI 실행용)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # 3. AsyncAPI Generator 전역 설치
+      - name: Install AsyncAPI Generator
+        run: npm install -g @asyncapi/generator
+
+      # 4. AsyncAPI → HTML 문서 자동 생성
+      - name: Generate HTML Docs
+        run: |
+          npx @asyncapi/generator asyncapi.yaml @asyncapi/html-template -o src/main/resources/static/docs
+
+      # 5. 문서 변경사항 커밋 & 푸시
+      - name: Commit and Push Generated Docs
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add src/main/resources/static/docs
+          git diff --cached --quiet || git commit -m "Auto-update AsyncAPI docs"
+          git push || echo "Nothing to push"
+
       # 5. Gradle Test 실행
       - name: Build with Gradle
         uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25
