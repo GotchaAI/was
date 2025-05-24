@@ -3,8 +3,6 @@ name: Continuous Deployment
 on:
   push:
     branches: ["develop"]
-    paths-ignore:
-      - 'gotcha-socket/src/main/resources/static/docs/**'
 
 jobs:
   deploy:

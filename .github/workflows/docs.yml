@@ -1,19 +1,15 @@
 name: Update AsyncAPI Docs
 
 on:
-  push:
-    branches:
-      - develop
+  pull_request:
+    branches: [develop]
     paths:
-      - 'gotcha-socket/asyncapi.yaml'  # asyncapi.yaml 변경될 때만 실행
-
-#permissions:
-  contents: write
+      - 'gotcha-socket/asyncapi.yaml'
 
 jobs:
   generate-docs:
+    if: github.actor != 'github-actions'  # 무한 루프 방지
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
