@@ -1,4 +1,4 @@
-package gotcha_domain.game;
+package gotcha_domain.gamehistory;
 
 import gotcha_domain.user.User;
 import jakarta.persistence.Entity;
@@ -12,7 +12,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-public class UserGame {
+public class UserGameHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,6 +22,6 @@ public class UserGame {
     private User player;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "game_id")
-    private Game game;
+    @JoinColumn(name = "game_history_id")
+    private GameHistory gameHistory;
 }
