@@ -70,3 +70,4 @@ jobs:
             docker rmi ${{ secrets.DOCKER_USERNAME }}/gotcha:latest
             docker pull ${{ secrets.DOCKER_USERNAME }}/gotcha:latest
             docker-compose up -d
+
