@@ -79,14 +79,6 @@ jobs:
           mysql user: ${{ secrets.MYSQL_TEST_USER }}
           mysql password: ${{ secrets.MYSQL_TEST_PASSWORD }}
 
-      - name: List generated docs
-        run: |
-          echo "=== Generated Docs File List ==="
-          ls -l src/main/resources/static/docs
-          echo "=== Sample content from index.html ==="
-          head -30 src/main/resources/static/docs/index.html
-          
-
       # 8. Gradlew 실행 권한 설정
       - name: Run chmod to make gradlew executable
         run: chmod +x ./gradlew
