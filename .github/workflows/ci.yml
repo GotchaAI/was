@@ -43,6 +43,9 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
+      - name: Clean old docs
+        run: rm -rf gotcha-socket/src/main/resources/static.docs gotcha-socket/src/main/resources/static/docs
+
       # 3. AsyncAPI Generator 전역 설치
       - name: Install AsyncAPI Generator
         run: npm install -g @asyncapi/generator
@@ -50,17 +53,16 @@ jobs:
       # 4. AsyncAPI → HTML 문서 자동 생성
       - name: Generate HTML Docs
         run: |
-          npx @asyncapi/generator gotcha-socket/asyncapi.yaml @asyncapi/html-template -o src/main/resources/static/docs
+          npx @asyncapi/generator gotcha-socket/asyncapi.yaml @asyncapi/html-template -o gotcha-socket/src/main/resources/static/docs
 
       # 5. 문서 변경사항 커밋 & 푸시
       - name: Commit and Push Generated Docs
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-          git add src/main/resources/static/docs
-          git diff --cached --quiet || git commit -m "Auto-update AsyncAPI docs"
+          git add gotcha-socket/src/main/resources/static/docs
+          git commit -m "Auto-update AsyncAPI docs"
           git push || echo "Nothing to push"
-
 
       # 6. 자바 환경 설정
       - name: Set up JDK 17
