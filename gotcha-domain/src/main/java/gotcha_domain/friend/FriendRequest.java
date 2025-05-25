@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -32,4 +33,11 @@ public class FriendRequest extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "to_user_id")
     private User toUser;
+
+    @Builder
+    public FriendRequest(User fromUser, User toUser) {
+        this.fromUser = fromUser;
+        this.toUser = toUser;
+        this.requestStatus = RequestStatus.UNREAD;
+    }
 }
