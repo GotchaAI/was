@@ -39,7 +39,7 @@ public class GameService {
         RoomMetadata roomMetadata = roomService.getHostingRoomMetadata(roomId, userUuid);
 
         // 2. 모든 플레이어 준비 상태인지 Check
-//        roomService.checkAllPlayerReady(roomId);
+        roomService.checkAllPlayerReady(roomId);
 
         // 3. Game 데이터 만들기
         Game game = Game.builder().
