@@ -252,12 +252,12 @@ components:
           type: string
           description: 문자열이 숫자 4자리로만 구성되어 있어야 한다
 
-        aimode:
+        difficulty:
           type: string
           enum: [BASIC, ADVANCED]
           description: 인공지능 난이도 (필수)
 
-        gameMode:
+        gameType:
           type: string
           enum: [TRICK_MYOMYO, LULU_ART_EXAM]
           description: 묘묘 - 2인 / 루루 - 1인 게임 모드
@@ -275,7 +275,7 @@ components:
       properties:
         eventType:
           type: string
-          enum: [CHAT, READY, JOIN, EXIT, START]
+          enum: [CHAT, READY, JOIN, EXIT, UNREADY, START]
           description: |
             클라이언트가 수행하고자 하는 이벤트의 종류입니다.
         content:
@@ -567,3 +567,145 @@ components:
           description: Redis로 발행된 개인 채팅 채널명 (`/sub/chat/private/{receiverUuid}`)
         payload:
           $ref: '#/components/schemas/PrivateChatMessage'
+
+    Game:
+      type: object
+      properties:
+        roomId:
+          type: string
+          description: "게임 방의 고유 식별자"
+          example: "9827"
+        gameType:
+          type: string
+          description: "게임의 타입"
+          enum: [ TRICK_MYOMYO, LULU_ART_EXAM ]
+          example: "TRICK_MYOMYO"
+        difficulty:
+          type: string
+          description: "게임 난이도"
+          enum: [ BASIC, ADVANCED ]
+          example: "BASIC"
+        currentRound:
+          type: integer
+          description: "현재 라운드 번호 (1부터 시작)"
+          example: 1
+        totalRounds:
+          type: integer
+          description: "전체 라운드 수"
+          example: 3
+        aiScore:
+          type: integer
+          description: "AI의 현재 점수"
+          example: 0
+        gamePlayers:
+          type: array
+          description: "게임에 참여 중인 플레이어 목록"
+          items:
+            $ref: '#/components/schemas/GamePlayer'
+        rounds:
+          type: array
+          description: "게임의 라운드 정보 목록"
+          items:
+            $ref: '#/components/schemas/Round'
+        winner:
+          type: string
+          description: "게임 최종 우승자 (playerUuid 또는 'AI' 또는 'players')"
+          nullable: true
+          example: "AI"
+
+    GamePlayer:
+      type: object
+      properties:
+        playerUuid:
+          type: string
+          description: "플레이어의 UUID"
+          example: "l3lwXGrb"
+        nickname:
+          type: string
+          description: "플레이어의 닉네임"
+          example: "test1"
+        score:
+          type: integer
+          description: "플레이어의 점수"
+          example: 0
+    Round:
+      type: object
+      properties:
+        roundIndex:
+          type: integer
+          description: "라운드 번호 (0부터 시작)"
+          example: 0
+        drawingEndTime:
+          type: string
+          format: date-time
+          nullable: true
+          description: "그리기 종료 시간 (ISO 8601)"
+          example: null
+        roundWinner:
+          type: string
+          nullable: true
+          description: "라운드 승리자 (playerUuid 또는 'AI' 또는 'players')"
+          example: null
+        words:
+          type: array
+          description: "라운드에서 그릴 단어 목록"
+          items:
+            $ref: '#/components/schemas/Word'
+    Word:
+      type: object
+      properties:
+        wordIndex:
+          type: integer
+          description: "단어 인덱스"
+          example: 0
+        word:
+          type: string
+          description: "제시어"
+          example: "bush"
+        drawerUuid:
+          type: string
+          description: "그림을 그린 플레이어의 UUID"
+          example: "l3lwXGrb"
+        guesses:
+          type: array
+          description: "플레이어의 추측 목록"
+          items:
+            $ref: '#/components/schemas/Guess'
+        aiPredictions:
+          type: array
+          description: "AI의 추측 목록"
+          items:
+            $ref: '#/components/schemas/AIPrediction'
+    Guess:
+      type: object
+      properties:
+        guesserUuid:
+          type: string
+          description: "추측을 시도한 플레이어의 UUID"
+          example: "z2E63KqK"
+        guessWord:
+          type: string
+          description: "플레이어의 추측 단어"
+          example: "tree"
+        attempts:
+          type: integer
+          description: "플레이어의 추측 시도 수"
+          example: 1
+        correct:
+          type: boolean
+          description: "플레이어의 추측 정답 여부"
+          example: true
+
+
+    AIPrediction:
+      type: object
+      properties:
+        predicted:
+          type: string
+          description: "AI의 추측 단어"
+          example: "apple"
+        confidence:
+          type: number
+          format: float
+          description: "AI 추측의 신뢰도 (0~1)"
+          example: 0.85
