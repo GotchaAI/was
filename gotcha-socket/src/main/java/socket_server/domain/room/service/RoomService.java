@@ -12,9 +12,7 @@ import socket_server.common.util.JsonSerializer;
 import socket_server.domain.chat.dto.ChatMessage;
 import socket_server.domain.chat.dto.ChatType;
 import socket_server.domain.room.RoomField.RoomField;
-import socket_server.domain.room.dto.CreateRoomRequest;
-import socket_server.domain.room.dto.EventRes;
-import socket_server.domain.room.dto.EventType;
+import socket_server.domain.room.dto.*;
 import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomRepository;
@@ -24,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
 import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
@@ -120,6 +117,18 @@ public class RoomService {
         redisTemplate.convertAndSend(ROOM_EVENT + roomId, jsonSerializer.serialize(redisMessage));
 
         log.info("chat - roomId: {}, user: {}, content: {}", roomId, userDetails.getUuid(), content);
+    }
+
+    public void updateRoomField(String roomId, List<RoomFieldUpdateReq> updateReqs) {
+        RoomField.validateAll(updateReqs);
+
+        Map<String, String> updateMap = new HashMap<>();
+        for (RoomFieldUpdateReq req : updateReqs) {
+            RoomField field = RoomField.from(req.field());
+            updateMap.put(field.getRedisField(), req.value());
+        }
+
+        roomRepository.updateAllFields(roomId, updateMap);
     }
 
     public void broadcastRoomInfo(String userUuid, RoomMetadata metadata) {
