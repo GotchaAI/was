@@ -7,6 +7,7 @@ import Gotcha.domain.inquiry.dto.InquirySummaryRes;
 import Gotcha.domain.inquiry.exception.InquiryExceptionCode;
 import Gotcha.domain.inquiry.repository.InquiryRepository;
 import gotcha_common.exception.CustomException;
+import gotcha_domain.auth.SecurityUserDetails;
 import gotcha_domain.inquiry.Inquiry;
 import gotcha_domain.user.User;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -43,8 +46,18 @@ public class InquiryService {
     }
 
     @Transactional(readOnly = true)
-    public InquiryRes getInquiryById(Long inquiryId) {
+    public InquiryRes getInquiryById(Long inquiryId, SecurityUserDetails userDetails) {
         Inquiry inquiry = findInquiryById(inquiryId);
+
+        if (inquiry.getIsSecret()) {
+            Long userId = userDetails != null ? userDetails.getId() : null;
+            Long writerId = inquiry.getWriter() != null ? inquiry.getWriter().getId() : null;
+
+            if (!Objects.equals(writerId, userId)) {
+                throw new CustomException(InquiryExceptionCode.UNAUTHORIZED_ACTION);
+            }
+        }
+
         return InquiryRes.fromEntity(inquiry);
     }
 

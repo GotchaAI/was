@@ -61,8 +61,8 @@ public class InquiryController implements InquiryApi {
 
     @Override
     @GetMapping("/{inquiryId}")
-    public ResponseEntity<?> getInquiryById(@PathVariable(value = "inquiryId") Long inquiryId) {
-        InquiryRes inquiryRes = inquiryService.getInquiryById(inquiryId);
+    public ResponseEntity<?> getInquiryById(@PathVariable(value = "inquiryId") Long inquiryId, @AuthenticationPrincipal SecurityUserDetails userDetails) {
+        InquiryRes inquiryRes = inquiryService.getInquiryById(inquiryId, userDetails);
         return ResponseEntity.status(HttpStatus.OK).body(inquiryRes);
     }
 
