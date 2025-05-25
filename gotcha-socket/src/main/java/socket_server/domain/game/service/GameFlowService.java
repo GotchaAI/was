@@ -8,8 +8,7 @@ import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
 import socket_server.common.exception.game.GameExceptionCode;
 import socket_server.common.util.JsonSerializer;
-import socket_server.domain.game.dto.GameEventType;
-import socket_server.domain.game.dto.GameRes;
+import socket_server.domain.game.dto.*;
 import socket_server.domain.game.meta.GameMeta;
 import socket_server.domain.game.meta.RoundMeta;
 import socket_server.domain.game.meta.WordMeta;
@@ -44,6 +43,7 @@ public class GameFlowService {
     private final GameRepository gameRepository;
     private final RoundRepository roundRepository;
     private final GamePlayerRepository gamePlayerRepository;
+    private final AIClientService aIClientService;
 
     public void startGame(String roomId, String userUuid)  {
         // 1. 게임 시작 가능한지(레디 상태, 플레이어 수) check 후 방 메타정보 조회
@@ -70,9 +70,10 @@ public class GameFlowService {
         saveGame(game);
 
         //todo: 6. AI 서버 메시지 받아오기
+        String aiSays = aIClientService.getGameStartMessage(roomId, new AIGameStartReq(gamePlayers.stream().map(GamePlayer::getNickname).toList())).message();
 
         // 7. 시작 이벤트 브로드캐스트
-        broadcastStartEvent(userUuid, roomId, game);
+        broadcastStartEvent(userUuid, roomId, new GameStartRes(game, aiSays));
 
         // 8. 5초 후 게임 시작(EntryPoint)
         try{
@@ -99,15 +100,16 @@ public class GameFlowService {
         gameMeta.setCurrentRound(currentRound);
         gameRepository.saveGameMeta(gameMeta);
 
+
+
+
         List<RoundMeta> roundMetaList = roundRepository.findRoundMetas(roomId);
         RoundMeta currentRoundMeta = roundMetaList.get(currentRound);
 
+        String aiSays = aIClientService.getRoundStartMesssage(String roomId, new AIRoundStartReq())
         currentRoundMeta.setDrawingEndTime(LocalDateTime.now().plusSeconds(30));
         broadcastRoundMeta(userUuid, roomId,  currentRoundMeta);
     }
-
-
-
 
     // 게임 종료 check시 반드시 필요
     public boolean canStartNextRound(GameMeta gameMeta){
@@ -153,10 +155,10 @@ public class GameFlowService {
         roundRepository.saveRoundMetas(game.getRoomId(), game.getRounds());
     }
 
-    private void broadcastStartEvent(String userUuid, String roomId, Game game) {
+    private void broadcastStartEvent(String userUuid, String roomId, GameStartRes gameStartRes) {
         EventRes eventRes = new EventRes(
                 EventType.START,
-                game,
+                gameStartRes,
                 LocalDateTime.now()
         );
 

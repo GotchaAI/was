@@ -19,7 +19,7 @@ public class Game {
     private String roomId;
     private GameType gameType;
     private Difficulty difficulty;
-    private int currentRound; // 1, 2, 3, 4, 5
+    private int currentRound; // 0, 1, 2, 3, 4, 5
     private int totalRounds;
     private int aiScore;
     private List<GamePlayer> gamePlayers;
