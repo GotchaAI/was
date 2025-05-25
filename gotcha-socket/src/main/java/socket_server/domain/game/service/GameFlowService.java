@@ -70,10 +70,10 @@ public class GameFlowService {
         saveGame(game);
 
         //todo: 6. AI 서버 메시지 받아오기
-        String aiSays = aIClientService.getGameStartMessage(roomId, new AIGameStartReq(gamePlayers.stream().map(GamePlayer::getNickname).toList())).message();
+        String aiSays = aIClientService.getGameStartMessage(roomId, new AIGameStartReq(gamePlayers.stream().map(GamePlayer::getNickname).toList()));
 
         // 7. 시작 이벤트 브로드캐스트
-        broadcastStartEvent(userUuid, roomId, new GameStartRes(game, aiSays));
+        broadcastStartEvent(userUuid, roomId, new AISaysRes(game, aiSays));
 
         // 8. 5초 후 게임 시작(EntryPoint)
         try{
@@ -100,15 +100,12 @@ public class GameFlowService {
         gameMeta.setCurrentRound(currentRound);
         gameRepository.saveGameMeta(gameMeta);
 
-
-
-
         List<RoundMeta> roundMetaList = roundRepository.findRoundMetas(roomId);
         RoundMeta currentRoundMeta = roundMetaList.get(currentRound);
 
-        String aiSays = aIClientService.getRoundStartMesssage(String roomId, new AIRoundStartReq())
+        String aiSays = aIClientService.getRoundStartMessage(roomId, new AIRoundStartReq(currentRound, gameMeta.getTotalRounds()));
         currentRoundMeta.setDrawingEndTime(LocalDateTime.now().plusSeconds(30));
-        broadcastRoundMeta(userUuid, roomId,  currentRoundMeta);
+        broadcastRoundMeta(userUuid, roomId,  currentRoundMeta, aiSays);
     }
 
     // 게임 종료 check시 반드시 필요
@@ -119,8 +116,6 @@ public class GameFlowService {
     private int getNextRoundIndex(GameMeta gameMeta) {
         return gameMeta.getCurrentRound() + 1;
     }
-
-
 
     /**
      * 게임 전체 정보 조회
@@ -145,8 +140,8 @@ public class GameFlowService {
 
 
 
-    private void broadcastRoundMeta(String userUuid, String roomId, RoundMeta roundMeta) {
-        broadcastGameEvent(userUuid, roomId, GameEventType.ROUND_START, roundMeta);
+    private void broadcastRoundMeta(String userUuid, String roomId, RoundMeta roundMeta, String aiSays) {
+        broadcastGameEvent(userUuid, roomId, GameEventType.ROUND_START, new AISaysRes(roundMeta, aiSays));
     }
 
     private void saveGame(Game game) {
@@ -155,10 +150,10 @@ public class GameFlowService {
         roundRepository.saveRoundMetas(game.getRoomId(), game.getRounds());
     }
 
-    private void broadcastStartEvent(String userUuid, String roomId, GameStartRes gameStartRes) {
+    private void broadcastStartEvent(String userUuid, String roomId, AISaysRes aiSaysRes) {
         EventRes eventRes = new EventRes(
                 EventType.START,
-                gameStartRes,
+                aiSaysRes,
                 LocalDateTime.now()
         );
 
@@ -171,7 +166,7 @@ public class GameFlowService {
         objectRedisTemplate.convertAndSend(ROOM_EVENT + roomId, jsonSerializer.serialize(redisMessage));
     }
 
-    private void broadcastGameEvent(String senderUuid, String roomId, GameEventType gameEventType, Object data) {
+    private void broadcastGameEvent(String senderUuid, String roomId, GameEventType gameEventType, AISaysRes data) {
         GameRes gameRes = new GameRes(
                 gameEventType,
                 data,
@@ -186,6 +181,5 @@ public class GameFlowService {
                 )
         );
 
-        log.debug("Broadcasted {} game event in room {} from user {}", gameEventType, roomId, senderUuid);
     }
 }

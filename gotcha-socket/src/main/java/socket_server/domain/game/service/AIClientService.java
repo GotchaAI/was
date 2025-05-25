@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import socket_server.domain.game.dto.AIGameStartReq;
-import socket_server.domain.game.dto.AIGameStartRes;
+import socket_server.domain.game.dto.AIRoundStartReq;
 
 @Service
 @RequiredArgsConstructor
@@ -15,12 +15,21 @@ public class AIClientService {
     private static final String AI_SERVER_BASE_URL = "http://localhost:8000/api/v1/";
 
 
-    public AIGameStartRes getGameStartMessage(String roomId, AIGameStartReq request){
+    public String getGameStartMessage(String roomId, AIGameStartReq request){
         return webClient.post()
                 .uri(AI_SERVER_BASE_URL + "chat/" + roomId + "/start")
                 .bodyValue(request)
                 .retrieve()
-                .bodyToMono(AIGameStartRes.class)
+                .bodyToMono(String.class)
+                .block();
+    }
+
+    public String getRoundStartMessage(String roomId, AIRoundStartReq request){
+        return webClient.post()
+                .uri(AI_SERVER_BASE_URL + "chat/" + roomId + "/round/start")
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(String.class)
                 .block();
     }
 
