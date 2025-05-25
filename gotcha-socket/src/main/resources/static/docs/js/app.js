@@ -284,7 +284,7 @@
               },
               "content": {
                 "type": "string",
-                "description": "이벤트에 따라 의미가 달라지는 콘텐츠입니다.\n- CHAT: 채팅 메시지\n- READY: 사용자의 준비 상태\n- JOIN : 방 참가\n- EXIT : 방 퇴장\n- START : 게임 시작\n",
+                "description": "이벤트에 따라 의미가 달라지는 콘텐츠입니다.\n- CHAT: 채팅 메시지\n- JOIN: 비밀번호가 있는 대기방의 경우 비밀번호, 비밀번호가 없다면 안보내도 됩니다.\n- 나머지는 content를 사용하지 않습니다.\n",
                 "x-parser-schema-id": "<anonymous-schema-28>"
               }
             },
