@@ -23,6 +23,7 @@ public class RoomMetadata {
     private int min;
     private Difficulty difficulty;
     private GameType gameType;
+    private int roundCount;
     private String ownerUuid;
 
 
@@ -35,6 +36,7 @@ public class RoomMetadata {
         metadata.password = (String) map.getOrDefault("password", "");
         metadata.max = Integer.parseInt((String) map.getOrDefault("max", "0"));
         metadata.min = Integer.parseInt((String) map.getOrDefault("min", "0"));
+        metadata.roundCount = Integer.parseInt((String) map.getOrDefault("roundCount", "1"));
         metadata.difficulty = Difficulty.valueOf((String) map.getOrDefault("difficulty", "BASIC"));
         metadata.gameType =  GameType.valueOf((String) map.getOrDefault("gameType", "TRICK_MYOMYO"));
         metadata.ownerUuid = (String) map.getOrDefault("ownerUuid", "");

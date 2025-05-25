@@ -12,6 +12,7 @@ public enum RoomField {
     GAME_TYPE("gameType"),
     MIN("min"),
     MAX("max"),
+    ROUND_COUNT("roundCount"),
     OWNER("owner"),
     OWNER_UUID("ownerUuid");
 

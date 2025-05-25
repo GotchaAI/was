@@ -34,12 +34,12 @@ public class GameService {
     private final RedisTemplate<String, Object> objectRedisTemplate;
     private final JsonSerializer jsonSerializer;
 
-    public void startGame(String roomId, String userUuid, int totalRounds) {
+    public void startGame(String roomId, String userUuid) {
         // 1. host id check, 방 데이터 가져오기
         RoomMetadata roomMetadata = roomService.getHostingRoomMetadata(roomId, userUuid);
 
         // 2. 모든 플레이어 준비 상태인지 Check
-        roomService.checkAllPlayerReady(roomId);
+//        roomService.checkAllPlayerReady(roomId);
 
         // 3. Game 데이터 만들기
         Game game = Game.builder().
@@ -47,7 +47,7 @@ public class GameService {
                 gameType(roomMetadata.getGameType()).
                 difficulty(roomMetadata.getDifficulty()).
                 currentRound(1).
-                totalRounds(totalRounds).build();
+                totalRounds(roomMetadata.getRoundCount()).build();
 
         // 4. GamePlayerList 가져오기
         List<GamePlayer> gamePlayers = roomUserRepository.findUsersByRoomId(roomId).stream().map(RoomUserInfo::toGamePlayer).toList();

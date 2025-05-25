@@ -78,6 +78,7 @@ public class RoomService {
             }
             roomData.put(RoomField.PASSWORD.getRedisField(), request.password());
         }
+        roomData.put(RoomField.ROUND_COUNT.getRedisField(), String.valueOf(request.roundCount()));
         roomData.put(RoomField.MAX.getRedisField(), String.valueOf(request.gameType().getMaxPlayers()));
         roomData.put(RoomField.MIN.getRedisField(), String.valueOf(request.gameType().getMinPlayers()));
         roomData.put(RoomField.DIFFICULTY.getRedisField(), request.difficulty().name());
