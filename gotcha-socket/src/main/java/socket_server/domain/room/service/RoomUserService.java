@@ -43,6 +43,23 @@ public class RoomUserService {
         broadcastUserList(roomId, userUuid);
     }
 
+    public void updatePlayerReady(String roomId, String userUuid, boolean isReady) {
+        RoomUserInfo userInfo = roomUserRepository.findUserInfoInRoom(roomId, userUuid);
+
+        if (userInfo == null) {
+            throw new CustomException(RoomExceptionCode.USER_NOT_IN_ROOM);
+        }
+
+        userInfo.setReady(isReady);
+        roomUserRepository.saveUserToRoom(userInfo, roomId);
+        broadcastReadyStatus(roomId, userUuid, isReady);
+    }
+
+    public void exitRoom(String roomId, String userUuid) {
+        roomUserRepository.removeUserFromRoom(roomId, userUuid);
+        broadcastExit(roomId, userUuid);
+    }
+
     public void joinRoom(String roomId, String userUuid, String nickname, String password) {
         checkUserNotInAnyRoom(userUuid); // after check not in any room
 
@@ -58,32 +75,13 @@ public class RoomUserService {
         log.info("User {} joined room {}", userUuid, roomId);
     }
 
-    public void broadcastUserList(String roomId, String userId){
-        // 그 방에 누가 있는지 조회 후
-        List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId);
-
-        EventRes eventRes = new EventRes(
-                EventType.JOIN,
-                userList,
-                LocalDateTime.now()
-        );
-
-        // 해당 방에 누가 있는지를 BroadCast
-        objectRedisTemplate.convertAndSend(ROOM_EVENT+roomId,
-                new RedisMessage(
-                        userId,
-                        ROOM_EVENT+roomId,
-                        jsonSerializer.serialize(eventRes)));
-
-        log.debug("Broadcasted user list to room {} by user {}", roomId, userId);
-    }
-
     public void checkUserNotInAnyRoom(String userUuid) {
         String value = roomUserRepository.findRoomIdByUserUuid(userUuid);
         if (value != null) {
             throw new CustomException(RoomExceptionCode.USER_ALREADY_IN_ANOTHER_ROOM);
         }
     }
+
 
     private void validatePasswordIfRequired(String roomId, String password) {
         Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
@@ -101,6 +99,39 @@ public class RoomUserService {
 
     public String findRoomIdByUserUuid(String userUuid) {
         return roomUserRepository.findRoomIdByUserUuid(userUuid);
+    }
+
+    private void broadcastUserList(String roomId, String userId){
+        List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId);
+        broadcastToRoom(roomId, userId, EventType.JOIN, userList);
+    }
+
+    private void broadcastReadyStatus(String roomId, String userUuid, boolean isReady) {
+        broadcastToRoom(roomId, userUuid, isReady ? EventType.READY : EventType.UNREADY, userUuid);
+    }
+
+
+    private void broadcastExit(String roomId, String userUuid) {
+        broadcastToRoom(roomId, userUuid, EventType.EXIT, userUuid);
+    }
+
+    private void broadcastToRoom(String roomId, String senderId, EventType type, Object data) {
+        EventRes eventRes = new EventRes(
+                type,
+                data,
+                LocalDateTime.now()
+        );
+
+        objectRedisTemplate.convertAndSend(
+                ROOM_EVENT + roomId,
+                new RedisMessage(
+                        senderId,
+                        ROOM_EVENT + roomId,
+                        jsonSerializer.serialize(eventRes)
+                )
+        );
+
+        log.debug("Broadcasted {} event in room {} from user {}", type, roomId, senderId);
     }
 }
 
