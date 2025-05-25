@@ -16,13 +16,10 @@ public class GamePlayerService {
      * 도메인 데이터 GamePlayer 처리 담당.
      */
     private final RoomUserRepository roomUserRepository;
-    private final GameRepository gameRepository;
 
     public List<GamePlayer> getGamePlayersFromRoom(String roomId) {
-        return  roomUserRepository.findUsersByRoomId(roomId).stream().map(RoomUserInfo::toGamePlayer).toList();
+        return roomUserRepository.findUsersByRoomId(roomId).stream().map(RoomUserInfo::toGamePlayer).toList();
     }
 
-    public void savePlayers(String roomId, List<GamePlayer> gamePlayers) {
-        gameRepository.savePlayers(roomId, gamePlayers);
-    }
+
 }

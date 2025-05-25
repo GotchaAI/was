@@ -3,6 +3,7 @@ package socket_server.domain.game.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import socket_server.domain.game.meta.RoundMeta;
 import socket_server.domain.game.model.GamePlayer;
 import socket_server.domain.game.model.Round;
 import socket_server.domain.game.model.Word;
@@ -44,8 +45,5 @@ public class RoundService {
         return rounds;
     }
 
-    public void saveRounds(String roomId, List<Round> rounds) {
-        gameRepository.saveRoundMetas(roomId, rounds);
-    }
 
 }
