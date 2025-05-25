@@ -45,7 +45,7 @@ public class GameFlowService {
     private final RoundRepository roundRepository;
     private final GamePlayerRepository gamePlayerRepository;
 
-    public void startGame(String roomId, String userUuid) {
+    public void startGame(String roomId, String userUuid) throws InterruptedException {
         // 1. 게임 시작 가능한지(레디 상태, 플레이어 수) check 후 방 메타정보 조회
         RoomMetadata roomMetadata = roomService.getHostingRoomMetadata(roomId, userUuid);
         roomService.checkGameStart(roomId, roomMetadata.getGameType());
@@ -74,9 +74,35 @@ public class GameFlowService {
         // 7. 시작 이벤트 브로드캐스트
         broadcastStartEvent(userUuid, roomId, game);
 
+        // 8. 5초 후 게임 시작(EntryPoint)
+        Thread.sleep(5000); // 5000ms = 5초
+        startNextRound(userUuid, roomId);
+
     }
 
+    /**
+     * 1. 게임 메타 정보 조회 후 currentRound 조회
+     * 2. currentRound + 1 한 다음 게임 메타정보 저장
+     * 3. roundIndex = currentRound + 1, 해당 라운드 정보 조회
+     * 4. drawingEndTime 설정 후 데이터 broadcast
+     * 5. 라운드 메타 정보 저장
+     */
+    public void startNextRound(String userUuid, String roomId){
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
 
+        if(!canStartNextRound(gameMeta))
+            throw new CustomException(GameExceptionCode.ALREADY_FINISHED_GAME);
+
+        int currentRound = getNextRoundIndex(gameMeta);
+        gameMeta.setCurrentRound(currentRound);
+        gameRepository.saveGameMeta(gameMeta);
+
+        List<RoundMeta> roundMetaList = roundRepository.findRoundMetas(roomId);
+        RoundMeta currentRoundMeta = roundMetaList.get(currentRound);
+
+        currentRoundMeta.setDrawingEndTime(LocalDateTime.now().plusSeconds(30));
+        broadcastRoundMeta(userUuid, roomId,  currentRoundMeta);
+    }
 
 
 
@@ -115,6 +141,10 @@ public class GameFlowService {
 
 
 
+    private void broadcastRoundMeta(String userUuid, String roomId, RoundMeta roundMeta) {
+        broadcastGameEvent(userUuid, roomId, GameEventType.ROUND_START, roundMeta);
+    }
+
     private void saveGame(Game game) {
         gameRepository.saveGameMeta(GameMeta.fromGame(game));
         gamePlayerRepository.savePlayers(game.getRoomId(), game.getGamePlayers());
@@ -137,7 +167,7 @@ public class GameFlowService {
         objectRedisTemplate.convertAndSend(ROOM_EVENT + roomId, jsonSerializer.serialize(redisMessage));
     }
 
-    private void broadcastGameEvent(String roomId, String senderUuid,GameEventType gameEventType, Object data) {
+    private void broadcastGameEvent(String senderUuid, String roomId, GameEventType gameEventType, Object data) {
         GameRes gameRes = new GameRes(
                 gameEventType,
                 data,

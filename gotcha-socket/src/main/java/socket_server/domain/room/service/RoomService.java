@@ -141,7 +141,7 @@ public class RoomService {
         return roomMetadata;
     }
 
-    public void checkGameStartable(String roomId, GameType gameType) {
+    public void checkGameStart(String roomId, GameType gameType) {
         List<RoomUserInfo> users = roomUserRepository.findUsersByRoomId(roomId);
 
         if(gameType == GameType.LULU_ART_EXAM) {
