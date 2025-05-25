@@ -8,7 +8,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
 import socket_server.common.exception.room.RoomExceptionCode;
-import socket_server.common.util.IDGenerator;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.chat.dto.ChatMessage;
 import socket_server.domain.chat.dto.ChatType;
@@ -17,10 +16,13 @@ import socket_server.domain.room.dto.CreateRoomRequest;
 import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.dto.EventType;
 import socket_server.domain.room.model.RoomMetadata;
+import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomRepository;
+import socket_server.domain.room.repository.RoomUserRepository;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
@@ -34,23 +36,25 @@ public class RoomService {
     private final JsonSerializer jsonSerializer;
     private final RoomRepository roomRepository;
     private final RedisTemplate<String, Object> objectRedisTemplate;
-    private final IDGenerator idGenerator;
+    private final RoomIdService roomIdService;
     private final RedisTemplate<String, String> redisTemplate;
+    private final RoomUserRepository roomUserRepository;
 
     public RoomService(
-            IDGenerator idGenerator,
+            RoomIdService roomIdService,
             RoomUserService roomUserService,
             RoomRepository roomRepository,
             RedisTemplate<String, Object> objectRedisTemplate,
             @Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
-            JsonSerializer jsonSerializer
-    ) {
-        this.idGenerator = idGenerator;
+            JsonSerializer jsonSerializer,
+            RoomUserRepository roomUserRepository) {
+        this.roomIdService = roomIdService;
         this.roomUserService = roomUserService;
         this.roomRepository = roomRepository;
         this.objectRedisTemplate = objectRedisTemplate;
         this.redisTemplate = redisTemplate;
         this.jsonSerializer = jsonSerializer;
+        this.roomUserRepository = roomUserRepository;
     }
 
     public void handleCreateRoom(CreateRoomRequest request, SecurityUserDetails userDetails) {
@@ -62,7 +66,7 @@ public class RoomService {
     //todo : lua 스크립트 적용
     public RoomMetadata createRoom(CreateRoomRequest request, SecurityUserDetails userDetails) {
 
-        String roomId = idGenerator.allocateRoomId();
+        String roomId = roomIdService.allocateRoomId();
 
         Map<String, String> roomData = new HashMap<>();
         roomData.put(RoomField.TITLE.getRedisField(), request.title());
@@ -135,4 +139,10 @@ public class RoomService {
         return roomMetadata;
     }
 
+    public void checkAllPlayerReady(String roomId) {
+        List<RoomUserInfo> users = roomUserRepository.findUsersByRoomId(roomId);
+        if (users.stream().noneMatch(RoomUserInfo::isReady)) {
+            throw new CustomException(RoomExceptionCode.NOT_ALL_PLAYER_READY);
+        }
+    }
 }
