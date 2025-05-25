@@ -153,7 +153,9 @@ channels:
               $ref: '#/components/schemas/RedisResponse_RoomExit'
 
           - name: StartEvent
-            summary: START 이벤트 - 게임 시작 알림
+            summary: START 이벤트 - 게임 시작 알림(게임 메타데이터 포함)
+            payload:
+              $ref: '#/components/schemas/Game'
 
   /pub/chat/all:
     description: 클라이언트가 전체 채팅 메시지를 전송하는 채널
@@ -279,9 +281,12 @@ components:
         content:
           type: string
           description: |
-            특정 이벤트에만 필요한 콘텐츠입니다.
+            이벤트에 따라 의미가 달라지는 콘텐츠입니다.
             - CHAT: 채팅 메시지
-            - JOIN: 비밀방일 경우 비밀번호
+            - READY: 사용자의 준비 상태
+            - JOIN : 방 참가
+            - EXIT : 방 퇴장
+            - START : 게임 시작
 
     RedisResponse_RoomMetadata:
       type: object
@@ -433,6 +438,27 @@ components:
             data:
               type: string
               description: 퇴장한 사용자의 UUID
+
+    RedisResponse_GameStart:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [START]
+            eventAt:
+              type: string
+              format: date-time
+            data:
+              type: object
+              $ref: '#/components/schemas/Game'
+
 
     AllChatMessage:
       type: object
