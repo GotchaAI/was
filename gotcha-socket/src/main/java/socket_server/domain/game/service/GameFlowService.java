@@ -45,7 +45,7 @@ public class GameFlowService {
     private final RoundRepository roundRepository;
     private final GamePlayerRepository gamePlayerRepository;
 
-    public void startGame(String roomId, String userUuid) throws InterruptedException {
+    public void startGame(String roomId, String userUuid)  {
         // 1. 게임 시작 가능한지(레디 상태, 플레이어 수) check 후 방 메타정보 조회
         RoomMetadata roomMetadata = roomService.getHostingRoomMetadata(roomId, userUuid);
         roomService.checkGameStart(roomId, roomMetadata.getGameType());
@@ -75,7 +75,9 @@ public class GameFlowService {
         broadcastStartEvent(userUuid, roomId, game);
 
         // 8. 5초 후 게임 시작(EntryPoint)
-        Thread.sleep(5000); // 5000ms = 5초
+        try{
+            Thread.sleep(5000); // 5000ms = 5초
+        } catch (InterruptedException e){  }
         startNextRound(userUuid, roomId);
 
     }

@@ -24,9 +24,9 @@ public class GameMeta {
                 roomId(roomId).
                 gameType(GameType.valueOf((String) map.get("gameType"))).
                 difficulty(Difficulty.valueOf((String) map.get("difficulty"))).
-                currentRound((Integer) map.get("currentRound")).
-                totalRounds((Integer) map.get("totalRounds")).
-                aiScore((Integer) map.get("aiScore")).
+                currentRound(Integer.parseInt((String) map.get("currentRound"))).
+                totalRounds(Integer.parseInt((String) map.get("totalRounds"))).
+                aiScore(Integer.parseInt((String) map.get("aiScore"))).
                 build();
     }
 
