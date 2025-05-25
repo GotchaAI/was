@@ -20,7 +20,7 @@ info:
     - /pub/room/{roomId} : 대기방 관련 로직들 (대기방 내 채팅 포함)
     - /pub/chat/** : 채팅 관련 로직들 (전체 채팅 및 개인 채팅)
     - /pub/game/** : 게임 관련 로직들 
-    - user/queue/{userUuid}/errors : 레디스 내 에러 처리 채널 
+    - /user/{userUuid}/queue/errors : 레디스 내 에러 처리 채널 
     
     [절대 경로 채널]
     - user/queue/errors : stomp 내 에러 처리 채널
@@ -53,7 +53,7 @@ channels:
         payload:
           $ref: '#/components/schemas/ExceptionRes'
 
-  /user/{userUuid}queue/errors:
+  /user/{userUuid}/queue/errors:
     description: |
       사용자별 에러 메시지를 수신하는 WebSocket 구독 채널입니다.
       서버에서 발생한 예외 정보를 이 채널로 전달합니다.
