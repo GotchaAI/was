@@ -59,9 +59,14 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
+
           git add gotcha-socket/src/main/resources/static/docs
-          git commit -m "Auto-update AsyncAPI docs"
-          git push || echo "Nothing to push"
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-update AsyncAPI docs"
+            git push
+          fi
 
       # 7. 자바 환경 설정
       - name: Set up JDK 17
