@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
 import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
@@ -142,8 +143,11 @@ public class RoomService {
 
     public void checkAllPlayerReady(String roomId) {
         List<RoomUserInfo> users = roomUserRepository.findUsersByRoomId(roomId);
-        if (users.stream().noneMatch(RoomUserInfo::isReady)) {
-            throw new CustomException(RoomExceptionCode.NOT_ALL_PLAYER_READY);
+
+        for(RoomUserInfo user : users) {
+            if(!user.isReady()) {
+                throw new CustomException(RoomExceptionCode.NOT_ALL_PLAYER_READY);
+            }
         }
     }
 }
