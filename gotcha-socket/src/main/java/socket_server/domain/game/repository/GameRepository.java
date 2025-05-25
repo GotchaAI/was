@@ -24,19 +24,19 @@ public class GameRepository {
     private final JsonSerializer jsonSerializer;
     /**
      * <pre>
-     * game:{gameId} (HASH) // List Player, List Round 빼고 저장
+     * game:{roomId} (HASH) // List Player, List Round 빼고 저장
      * ├── gameType, difficulty, currentRound, totalRounds, aiScore, status
      *
-     * game:{gameId}:players (STRING, JSON)
+     * game:{roomId}:players (STRING, JSON)
      * └── [{"playerUuid":"p1","nickname":"user1","score":10}, {"playerUuid":"p2",...}]
      *
-     * game:{gameId}:rounds (STRING, JSON) List Word 빼고 저장
+     * game:{roomId}:rounds (STRING, JSON) List Word 빼고 저장
      * └── [{"roundIndex":1,"drawingEndTime":123,"roundWinner":"AI"}, ...]
      *
-     * game:{gameId}:round:{roundIndex}:words (STRING, JSON) List Guess 빼고 저장
+     * game:{roomId}:round:{roundIndex}:words (STRING, JSON) List Guess 빼고 저장
      * └── [{"wordIndex":0,"word":"cat","drawerUuid":"p1"}, {"wordIndex":1,...}]
      *
-     * game:{gameId}:round:{roundIndex}:word:{wordIndex}:guesses (LIST)
+     * game:{roomId}:round:{roundIndex}:word:{wordIndex}:guesses (LIST)
      * └──
      * </pre>
      * @param redisTemplate
@@ -48,12 +48,12 @@ public class GameRepository {
     }
 
     /**
-     * game:{gameId}
-     * @param gameId
+     * game:{roomId}
+     * @param roomId
      * @return
      */
-    public String getGameKey(String gameId) {
-        return "game:" + gameId;
+    public String getGameKey(String roomId) {
+        return "game:" + roomId;
     }
 
 
@@ -70,24 +70,24 @@ public class GameRepository {
                 "aiScore", String.valueOf(game.getAiScore())
         );
 
-        redisTemplate.opsForHash().putAll(getGameKey(game.getGameId()), gameData);
+        redisTemplate.opsForHash().putAll(getGameKey(game.getRoomId()), gameData);
 
         log.info("Game {} saved", gameData);
     }
 
     /**
      * Game 메타데이터 조회
-     * @param gameId
+     * @param roomId
      * @return
      */
-    public Optional<Game> getGameMeta(String gameId) {
-        String key = getGameKey(gameId);
+    public Optional<Game> getGameMeta(String roomId) {
+        String key = getGameKey(roomId);
         Map<Object, Object> gameData = redisTemplate.opsForHash().entries(key);
         if (gameData.isEmpty()) {
             return Optional.empty();
         }
         Game game = Game.builder()
-                .gameId(gameId)
+                .roomId(roomId)
                 .gameType(GameType.valueOf((String) gameData.get("gameType")))
                 .difficulty(Difficulty.valueOf((String) gameData.get("difficulty")))
                 .currentRound((Integer) gameData.get("currentRound"))
@@ -98,21 +98,21 @@ public class GameRepository {
     }
 
     /**
-     * game:{gameId}:players
-     * @param gameId
+     * game:{roomId}:players
+     * @param roomId
      * @return
      */
-    private String getGamePlayersKey(String gameId) {
-        return getGameKey(gameId) + ":players";
+    private String getGamePlayersKey(String roomId) {
+        return getGameKey(roomId) + ":players";
     }
 
     /**
      * GamePlayers 저장
-     * @param gameId
+     * @param roomId
      * @param players
      */
-    public void savePlayers(String gameId, List<GamePlayer> players) {
-        String key = getGamePlayersKey(gameId);
+    public void savePlayers(String roomId, List<GamePlayer> players) {
+        String key = getGamePlayersKey(roomId);
         String playersJson = jsonSerializer.serialize(players);
         redisTemplate.opsForValue().set(key, playersJson);
         log.info("Players {} saved", playersJson);
@@ -120,11 +120,11 @@ public class GameRepository {
 
     /**
      * GamePlayers 조회
-     * @param gameId
+     * @param roomId
      * @return
      */
-    public List<GamePlayer> getPlayers(String gameId) {
-        String key = getGamePlayersKey(gameId);
+    public List<GamePlayer> getPlayers(String roomId) {
+        String key = getGamePlayersKey(roomId);
         String playersJson = redisTemplate.opsForValue().get(key);
         if (playersJson == null) {
             return List.of();
@@ -133,21 +133,21 @@ public class GameRepository {
     }
 
     /**
-     * game:{gameId}:rounds
-     * @param gameId
+     * game:{roomId}:rounds
+     * @param roomId
      * @return
      */
-    private String getGameRoundsKey(String gameId) {
-        return getGameKey(gameId) + ":rounds";
+    private String getGameRoundsKey(String roomId) {
+        return getGameKey(roomId) + ":rounds";
     }
 
     /**
      * Round 메타정보 List 저장 (roundIndex, drawingEndTime, roundWinner)
-     * @param gameId
+     * @param roomId
      * @param rounds
      */
-    public void saveRoundMetas(String gameId, List<Round> rounds) {
-        String key = getGameRoundsKey(gameId);
+    public void saveRoundMetas(String roomId, List<Round> rounds) {
+        String key = getGameRoundsKey(roomId);
         List<RoundMeta> roundMetas = rounds.stream().map(Round::toRoundMeta).toList();
         String roundsJson = jsonSerializer.serialize(roundMetas);
         redisTemplate.opsForValue().set(key, roundsJson);
@@ -156,11 +156,11 @@ public class GameRepository {
 
     /**
      * Round 메타정보 List 조회 (roundIndex, drawingEndTime, roundWinner)
-     * @param gameId
+     * @param roomId
      * @return
      */
-    public List<RoundMeta> getRoundMetas(String gameId) {
-        String key = getGameRoundsKey(gameId);
+    public List<RoundMeta> getRoundMetas(String roomId) {
+        String key = getGameRoundsKey(roomId);
         String roundsJson = redisTemplate.opsForValue().get(key);
         if (roundsJson == null) {
             return List.of();
@@ -169,23 +169,23 @@ public class GameRepository {
     }
 
     /**
-     * game:{gameId}:round:{roundIndex}:words
-     * @param gameId
+     * game:{roomId}:round:{roundIndex}:words
+     * @param roomId
      * @param roundIndex
      * @return
      */
-    private String getRoundWordsKey(String gameId, int roundIndex) {
-        return getGameRoundsKey(gameId) + roundIndex + ":words";
+    private String getRoundWordsKey(String roomId, int roundIndex) {
+        return getGameRoundsKey(roomId) + roundIndex + ":words";
     }
 
     /**
      * Word 메타정보 List 저장(wordIndex, word, drawerUuid)
-     * @param gameId
+     * @param roomId
      * @param roundIndex
      * @param words
      */
-    public void saveWords(String gameId, int roundIndex, List<Word> words) {
-        String key = getRoundWordsKey(gameId, roundIndex);
+    public void saveWords(String roomId, int roundIndex, List<Word> words) {
+        String key = getRoundWordsKey(roomId, roundIndex);
         List<WordMeta> wordMetas = words.stream().map(Word::toWordMeta).toList();
         String wordsJson = jsonSerializer.serialize(wordMetas);
         redisTemplate.opsForValue().set(key, wordsJson);
@@ -194,12 +194,12 @@ public class GameRepository {
 
     /**
      * Word 메타정보 List 조회(wordIndex, word, drawerUuid)
-     * @param gameId
+     * @param roomId
      * @param roundIndex
      * @return
      */
-    public List<WordMeta> getWords(String gameId, int roundIndex) {
-        String key = getRoundWordsKey(gameId, roundIndex);
+    public List<WordMeta> getWords(String roomId, int roundIndex) {
+        String key = getRoundWordsKey(roomId, roundIndex);
         String wordsJson = redisTemplate.opsForValue().get(key);
         if (wordsJson == null) {
             return List.of();
@@ -208,19 +208,19 @@ public class GameRepository {
     }
 
 
-    private String getGuessKey(String gameId, int roundIndex, int wordIndex){
-        return getRoundWordsKey(gameId, roundIndex) + wordIndex + ":guesses";
+    private String getGuessKey(String roomId, int roundIndex, int wordIndex){
+        return getRoundWordsKey(roomId, roundIndex) + wordIndex + ":guesses";
     }
 
     /**
      * GUESS 정보 추가
-     * @param gameId
+     * @param roomId
      * @param roundIndex
      * @param wordIndex
      * @param guess
      */
-    public void addGuess(String gameId, int roundIndex, int wordIndex, Guess guess){
-        String key = getGuessKey(gameId, roundIndex, wordIndex);
+    public void addGuess(String roomId, int roundIndex, int wordIndex, Guess guess){
+        String key = getGuessKey(roomId, roundIndex, wordIndex);
         String guessJson = jsonSerializer.serialize(guess);
         redisTemplate.opsForList().rightPush(key, guessJson);
         log.info("Guess {} saved", guessJson);
@@ -228,13 +228,13 @@ public class GameRepository {
 
     /**
      * List Guess 조회
-     * @param gameId
+     * @param roomId
      * @param roundIndex
      * @param wordIndex
      * @return
      */
-    public List<Guess> getGuesses(String gameId, int roundIndex, int wordIndex){
-        String key = getGuessKey(gameId, roundIndex, wordIndex);
+    public List<Guess> getGuesses(String roomId, int roundIndex, int wordIndex){
+        String key = getGuessKey(roomId, roundIndex, wordIndex);
         List<String> guessesJsonList = redisTemplate.opsForList().range(key, 0, -1);
         if (guessesJsonList == null || guessesJsonList.isEmpty()) {
             return List.of();
@@ -245,19 +245,19 @@ public class GameRepository {
     /**
      * 게임 전체 정보 조회
      */
-    public Optional<Game> getGame(String gameId) {
-        Optional<Game> gameOpt = getGameMeta(gameId);
+    public Optional<Game> getGame(String roomId) {
+        Optional<Game> gameOpt = getGameMeta(roomId);
         if (gameOpt.isEmpty()) {
             return Optional.empty();
         }
         Game game = gameOpt.get();
         // Round 가져와서 roundIndex로 WordMeta 조회
-        List<Round> rounds = getRoundMetas(gameId).stream().map(RoundMeta::toRound).toList();
+        List<Round> rounds = getRoundMetas(roomId).stream().map(RoundMeta::toRound).toList();
         for(Round round: rounds) {
             // Word 가져와서 wordIndex로 Guess 조회
-            List<Word> words = getWords(gameId, round.getRoundIndex()).stream().map(WordMeta::toWord).toList();
+            List<Word> words = getWords(roomId, round.getRoundIndex()).stream().map(WordMeta::toWord).toList();
             for(Word word: words) {
-                List<Guess> guesses = getGuesses(gameId, round.getRoundIndex(), word.getWordIndex());
+                List<Guess> guesses = getGuesses(roomId, round.getRoundIndex(), word.getWordIndex());
                 word.setGuesses(guesses);
             }
             round.setWords(words);

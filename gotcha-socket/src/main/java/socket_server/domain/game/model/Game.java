@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class Game {
 
-    private String gameId;
+    private String roomId;
     private GameType gameType;
     private Difficulty difficulty;
     private int currentRound; // 1, 2, 3, 4, 5
