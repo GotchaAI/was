@@ -35,28 +35,49 @@ public class GameService {
     private final JsonSerializer jsonSerializer;
 
     public void startGame(String roomId, String userUuid) {
-        // 1. host id check, 방 데이터 가져오기
+        // 1. 방 데이터 조회 및 호스트 검증
         RoomMetadata roomMetadata = roomService.getHostingRoomMetadata(roomId, userUuid);
 
-        // 2. 모든 플레이어 준비 상태인지 Check
-        roomService.checkAllPlayerReady(roomId);
+        // 2. 게임 시작 가능한지 확인(레디 상태, 플레이어 수)
+        roomService.checkGameStartable(roomId, roomMetadata.getGameType());
 
-        // 3. Game 데이터 만들기
-        Game game = Game.builder().
+        // 3. 게임 메타데이터 생성
+        Game game = initGame(roomId, roomMetadata);
+
+        // 4. 게임 플레이어 정보 조회 후 연결
+        List<GamePlayer> gamePlayers = getGamePlayersFromRoom(roomId);
+        game.setGamePlayers(gamePlayers);
+
+        // 5. 라운드 정보 초기화 후 연결
+        List<Round> rounds = initRounds(game.getTotalRounds(), gamePlayers);
+        game.setRounds(rounds);
+
+        // 6. Redis에 저장 : GameMeta, GamePlayers, Rounds
+        gameRepository.saveGameMeta(game);
+        gameRepository.savePlayers(game.getRoomId(), game.getGamePlayers());
+        gameRepository.saveRoundMetas(game.getRoomId(), game.getRounds());
+
+        //todo: 7. AI 서버 메시지 받아오기
+
+        // 8. 시작 이벤트 브로드캐스트
+        broadcastStartEvent(userUuid, roomId, game);
+
+    }
+
+    private Game initGame(String roomId, RoomMetadata roomMetadata) {
+        return Game.builder().
                 roomId(roomId).
                 gameType(roomMetadata.getGameType()).
                 difficulty(roomMetadata.getDifficulty()).
                 currentRound(1).
                 totalRounds(roomMetadata.getRoundCount()).build();
+    }
 
-        // 4. GamePlayerList 가져오기
-        List<GamePlayer> gamePlayers = roomUserRepository.findUsersByRoomId(roomId).stream().map(RoomUserInfo::toGamePlayer).toList();
-        game.setGamePlayers(gamePlayers);
 
-        // 5. Round, Word 데이터 만들기
+    private List<Round> initRounds(int totalRounds, List<GamePlayer> gamePlayers) {
         List<Round> rounds = new ArrayList<>();
-        List<Integer> indexes = WordUtils.getRandomIndexes(game.getTotalRounds() * 2); // get random indexes, 플레이어는 항상 2명이라고 가정
-        for(int i = 0; i < game.getTotalRounds(); i++) {
+        List<Integer> indexes = WordUtils.getRandomIndexes(totalRounds * 2); // get random indexes, 플레이어는 항상 2명이라고 가정
+        for(int i = 0; i < totalRounds; i++) {
             List<Word> words = new ArrayList<>();
             for(int j = 0; j < 2; j++){
                 Word word = Word.builder()
@@ -74,15 +95,14 @@ public class GameService {
                     build();
             rounds.add(round);
         }
-        game.setRounds(rounds);
+        return rounds;
+    }
 
-        // 5. Redis에 저장 : GameMeta, GamePlayers, Rounds
-        gameRepository.saveGameMeta(game);
-        gameRepository.savePlayers(game.getRoomId(), game.getGamePlayers());
-        gameRepository.saveRoundMetas(game.getRoomId(), game.getRounds());
+    private List<GamePlayer> getGamePlayersFromRoom(String roomId) {
+        return  roomUserRepository.findUsersByRoomId(roomId).stream().map(RoomUserInfo::toGamePlayer).toList();
+    }
 
-        //todo: AI 서버 메시지 받아오기
-
+    private void broadcastStartEvent(String userUuid, String roomId, Game game) {
         EventRes eventRes = new EventRes(
                 EventType.START,
                 game,
@@ -91,12 +111,12 @@ public class GameService {
 
         RedisMessage redisMessage = new RedisMessage(
                 userUuid,
-                ROOM_EVENT+roomId,
-                jsonSerializer.serialize(eventRes));
+                ROOM_EVENT + roomId,
+                jsonSerializer.serialize(eventRes)
+        );
 
-        objectRedisTemplate.convertAndSend(ROOM_EVENT+roomId, jsonSerializer.serialize(redisMessage));
+        objectRedisTemplate.convertAndSend(ROOM_EVENT + roomId, jsonSerializer.serialize(redisMessage));
     }
-
 
 
 }

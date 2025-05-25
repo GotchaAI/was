@@ -11,6 +11,7 @@ import socket_server.common.exception.room.RoomExceptionCode;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.chat.dto.ChatMessage;
 import socket_server.domain.chat.dto.ChatType;
+import socket_server.domain.game.enumType.GameType;
 import socket_server.domain.room.RoomField.RoomField;
 import socket_server.domain.room.dto.CreateRoomRequest;
 import socket_server.domain.room.dto.EventRes;
@@ -24,7 +25,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
 import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
@@ -141,8 +141,16 @@ public class RoomService {
         return roomMetadata;
     }
 
-    public void checkAllPlayerReady(String roomId) {
+    public void checkGameStartable(String roomId, GameType gameType) {
         List<RoomUserInfo> users = roomUserRepository.findUsersByRoomId(roomId);
+
+        if(gameType == GameType.LULU_ART_EXAM) {
+            if(users.size() < 2 || users.size() > 8) throw new CustomException(RoomExceptionCode.NOT_ENOUGH_PLAYER);
+        }
+
+        if(gameType == GameType.TRICK_MYOMYO) {
+            if(users.size() < 2) throw new CustomException(RoomExceptionCode.NOT_ENOUGH_PLAYER);
+        }
 
         for(RoomUserInfo user : users) {
             if(!user.isReady()) {
