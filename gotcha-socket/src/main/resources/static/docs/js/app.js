@@ -66,7 +66,7 @@
       "description": "사용자별 에러 메시지를 수신하는 WebSocket 구독 채널입니다.\n서버에서 발생한 예외 정보를 이 채널로 전달합니다.\n",
       "parameters": {
         "userUuid": {
-          "description": "에러 메시지를 수신할 사용자의 UUID",
+          "description": "The UUID of the user",
           "schema": {
             "type": "string",
             "x-parser-schema-id": "userUuid"
@@ -248,7 +248,7 @@
       }
     },
     "/pub/room/{roomId}": {
-      "description": "클라이언트가 대기방 내에서 발생 가능한 로직 요청을 전송하는 채널입니다.\n\n[사용 가능한 이벤트 타입]\n- CHAT: 대기방 채팅\n- READY: 준비\n- UNREADY: 준비 해제\n- JOIN: 방 참가\n- EXIT: 방 퇴장\n- START: 게임 시작\n\n`eventType` 값에 따라 content의 의미는 다르게 해석됩니다.\n",
+      "description": "클라이언트가 대기방 내에서 발생 가능한 로직 요청을 전송하는 채널입니다.\n\n[사용 가능한 이벤트 타입]\n- CHAT: 대기방 채팅\n- READY: 준비 상태 변경\n- JOIN: 방 참가\n- EXIT: 방 퇴장\n- START: 게임 시작\n\n`eventType` 값에 따라 content의 의미는 다르게 해석됩니다.\n",
       "parameters": {
         "roomId": {
           "description": "대상 대기방의 고유 ID",
@@ -283,7 +283,7 @@
               },
               "content": {
                 "type": "string",
-                "description": "특정 이벤트에만 필요한 콘텐츠입니다.\n- CHAT: 채팅 메시지\n- JOIN: 비밀방일 경우 비밀번호\n",
+                "description": "이벤트에 따라 의미가 달라지는 콘텐츠입니다.\n- CHAT: 채팅 메시지\n- READY: 사용자의 준비 상태\n- JOIN : 방 참가\n- EXIT : 방 퇴장\n- START : 게임 시작\n",
                 "x-parser-schema-id": "<anonymous-schema-28>"
               }
             },
@@ -428,130 +428,195 @@
             },
             {
               "name": "ReadyEvent",
-              "summary": "READY 이벤트 - 준비",
-              "payload": {
-                "type": "object",
-                "properties": {
-                  "userId": {
-                    "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-47>"
-                  },
-                  "topic": {
-                    "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-48>"
-                  },
-                  "payload": {
-                    "type": "object",
-                    "properties": {
-                      "eventType": {
-                        "type": "string",
-                        "enum": [
-                          "READY"
-                        ],
-                        "x-parser-schema-id": "<anonymous-schema-50>"
-                      },
-                      "eventAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-51>"
-                      },
-                      "data": {
-                        "type": "string",
-                        "description": "레디를 한 사용자의 UUID",
-                        "x-parser-schema-id": "<anonymous-schema-52>"
-                      }
-                    },
-                    "x-parser-schema-id": "<anonymous-schema-49>"
-                  }
-                },
-                "x-parser-schema-id": "RedisResponse_RoomReady"
-              }
-            },
-            {
-              "name": "UnReadyEvent",
-              "summary": "UnREADY 이벤트 - 준비 해제",
-              "payload": {
-                "type": "object",
-                "properties": {
-                  "userId": {
-                    "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-53>"
-                  },
-                  "topic": {
-                    "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-54>"
-                  },
-                  "payload": {
-                    "type": "object",
-                    "properties": {
-                      "eventType": {
-                        "type": "string",
-                        "enum": [
-                          "UNREADY"
-                        ],
-                        "x-parser-schema-id": "<anonymous-schema-56>"
-                      },
-                      "eventAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-57>"
-                      },
-                      "data": {
-                        "type": "string",
-                        "description": "레디 취소를 한 사용자의 UUID",
-                        "x-parser-schema-id": "<anonymous-schema-58>"
-                      }
-                    },
-                    "x-parser-schema-id": "<anonymous-schema-55>"
-                  }
-                },
-                "x-parser-schema-id": "RedisResponse_RoomUnReady"
-              }
+              "summary": "READY 이벤트 - 준비 상태 변경"
             },
             {
               "name": "ExitEvent",
-              "summary": "EXIT 이벤트 - 퇴장 정보",
-              "payload": {
-                "type": "object",
-                "properties": {
-                  "userId": {
-                    "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-59>"
-                  },
-                  "topic": {
-                    "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-60>"
-                  },
-                  "payload": {
-                    "type": "object",
-                    "properties": {
-                      "eventType": {
-                        "type": "string",
-                        "enum": [
-                          "EXIT"
-                        ],
-                        "x-parser-schema-id": "<anonymous-schema-62>"
-                      },
-                      "eventAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-63>"
-                      },
-                      "data": {
-                        "type": "string",
-                        "description": "퇴장한 사용자의 UUID",
-                        "x-parser-schema-id": "<anonymous-schema-64>"
-                      }
-                    },
-                    "x-parser-schema-id": "<anonymous-schema-61>"
-                  }
-                },
-                "x-parser-schema-id": "RedisResponse_RoomExit"
-              }
+              "summary": "EXIT 이벤트 - 퇴장 정보"
             },
             {
               "name": "StartEvent",
-              "summary": "START 이벤트 - 게임 시작 알림"
+              "summary": "START 이벤트 - 게임 시작 알림(게임 메타데이터 포함)",
+              "payload": {
+                "type": "object",
+                "description": "게임의 메타정보 및 상태를 포함하는 데이터 타입",
+                "properties": {
+                  "gameUuid": {
+                    "type": "string",
+                    "description": "게임의 고유 ID",
+                    "x-parser-schema-id": "<anonymous-schema-47>"
+                  },
+                  "gameType": {
+                    "type": "string",
+                    "enum": [
+                      "TRICK_MYOMYO",
+                      "LULU_ART_EXAM"
+                    ],
+                    "description": "게임 종류",
+                    "x-parser-schema-id": "<anonymous-schema-48>"
+                  },
+                  "difficulty": {
+                    "type": "string",
+                    "enum": [
+                      "BASIC",
+                      "ADVANCED"
+                    ],
+                    "description": "AI 난이도",
+                    "x-parser-schema-id": "<anonymous-schema-49>"
+                  },
+                  "totalRounds": {
+                    "type": "integer",
+                    "description": "전체 라운드 수",
+                    "x-parser-schema-id": "<anonymous-schema-50>"
+                  },
+                  "aiScore": {
+                    "type": "integer",
+                    "description": "AI의 현재 점수",
+                    "x-parser-schema-id": "<anonymous-schema-51>"
+                  },
+                  "gamePlayers": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "description": "게임 참가자 정보",
+                      "properties": {
+                        "playerUuid": {
+                          "type": "string",
+                          "description": "플레이어의 UUID",
+                          "x-parser-schema-id": "<anonymous-schema-53>"
+                        },
+                        "nickname": {
+                          "type": "string",
+                          "description": "플레이어 닉네임",
+                          "x-parser-schema-id": "<anonymous-schema-54>"
+                        },
+                        "score": {
+                          "type": "integer",
+                          "description": "플레이어의 현재 점수",
+                          "x-parser-schema-id": "<anonymous-schema-55>"
+                        }
+                      },
+                      "x-parser-schema-id": "GamePlayer"
+                    },
+                    "x-parser-schema-id": "<anonymous-schema-52>"
+                  },
+                  "rounds": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "description": "각 라운드의 메타데이터",
+                      "properties": {
+                        "roundIndex": {
+                          "type": "integer",
+                          "description": "라운드 인덱스 (0부터 시작)",
+                          "x-parser-schema-id": "<anonymous-schema-57>"
+                        },
+                        "drawingEndTime": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true,
+                          "description": "라운드 그림 제출 마감 시간",
+                          "x-parser-schema-id": "<anonymous-schema-58>"
+                        },
+                        "roundWinner": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "라운드 승자 ('AI' 또는 'Players')",
+                          "x-parser-schema-id": "<anonymous-schema-59>"
+                        },
+                        "words": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "description": "각 라운드별 단어와 그림 정보",
+                            "properties": {
+                              "wordIndex": {
+                                "type": "integer",
+                                "description": "단어 인덱스",
+                                "x-parser-schema-id": "<anonymous-schema-61>"
+                              },
+                              "word": {
+                                "type": "string",
+                                "description": "제시어 단어",
+                                "x-parser-schema-id": "<anonymous-schema-62>"
+                              },
+                              "drawerUuid": {
+                                "type": "string",
+                                "description": "그림 그린 사람의 UUID",
+                                "x-parser-schema-id": "<anonymous-schema-63>"
+                              },
+                              "guesses": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "description": "사용자 또는 AI의 추측 정보",
+                                  "properties": {
+                                    "guesserUuid": {
+                                      "type": "string",
+                                      "description": "추측을 시도한 주체의 UUID ('AI' 또는 플레이어의 UUID)",
+                                      "x-parser-schema-id": "<anonymous-schema-65>"
+                                    },
+                                    "attempts": {
+                                      "type": "integer",
+                                      "description": "몇 번째 시도인지를 나타냄",
+                                      "x-parser-schema-id": "<anonymous-schema-66>"
+                                    },
+                                    "guess": {
+                                      "type": "string",
+                                      "description": "추측한 단어",
+                                      "x-parser-schema-id": "<anonymous-schema-67>"
+                                    },
+                                    "correct": {
+                                      "type": "boolean",
+                                      "description": "추측이 정답인지 여부",
+                                      "x-parser-schema-id": "<anonymous-schema-68>"
+                                    }
+                                  },
+                                  "x-parser-schema-id": "Guess"
+                                },
+                                "x-parser-schema-id": "<anonymous-schema-64>"
+                              },
+                              "aiPredictions": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "description": "AI가 예측한 단어 및 신뢰도 정보",
+                                  "properties": {
+                                    "predicted": {
+                                      "type": "string",
+                                      "description": "AI가 예측한 단어",
+                                      "x-parser-schema-id": "<anonymous-schema-70>"
+                                    },
+                                    "confidence": {
+                                      "type": "number",
+                                      "format": "float",
+                                      "description": "해당 예측의 신뢰도 (0.0 ~ 1.0 사이)",
+                                      "x-parser-schema-id": "<anonymous-schema-71>"
+                                    }
+                                  },
+                                  "x-parser-schema-id": "AiPrediction"
+                                },
+                                "x-parser-schema-id": "<anonymous-schema-69>"
+                              }
+                            },
+                            "x-parser-schema-id": "Word"
+                          },
+                          "x-parser-schema-id": "<anonymous-schema-60>"
+                        }
+                      },
+                      "x-parser-schema-id": "Round"
+                    },
+                    "x-parser-schema-id": "<anonymous-schema-56>"
+                  },
+                  "winner": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "최종 게임 승자 ('AI' 또는 'Player')",
+                    "x-parser-schema-id": "<anonymous-schema-72>"
+                  }
+                },
+                "x-parser-schema-id": "Game"
+              }
             }
           ]
         }
@@ -564,7 +629,7 @@
           "headers": {
             "type": "object",
             "properties": {},
-            "x-parser-schema-id": "<anonymous-schema-65>"
+            "x-parser-schema-id": "<anonymous-schema-73>"
           },
           "payload": {
             "type": "object",
@@ -573,7 +638,7 @@
               "content": {
                 "type": "string",
                 "description": "메시지 내용",
-                "x-parser-schema-id": "<anonymous-schema-66>"
+                "x-parser-schema-id": "<anonymous-schema-74>"
               }
             },
             "required": [
@@ -599,35 +664,35 @@
                 "type": "string",
                 "nullable": true,
                 "description": "null (전체 채팅이므로 사용자 구분 없음)",
-                "x-parser-schema-id": "<anonymous-schema-67>"
+                "x-parser-schema-id": "<anonymous-schema-75>"
               },
               "topic": {
                 "type": "string",
                 "description": "Redis로 발행된 전체 채팅 채널명",
-                "x-parser-schema-id": "<anonymous-schema-68>"
+                "x-parser-schema-id": "<anonymous-schema-76>"
               },
               "payload": {
                 "type": "object",
                 "properties": {
                   "nickname": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-69>"
+                    "x-parser-schema-id": "<anonymous-schema-77>"
                   },
                   "content": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-70>"
+                    "x-parser-schema-id": "<anonymous-schema-78>"
                   },
                   "chatType": {
                     "type": "string",
                     "enum": [
                       "ALL"
                     ],
-                    "x-parser-schema-id": "<anonymous-schema-71>"
+                    "x-parser-schema-id": "<anonymous-schema-79>"
                   },
                   "sentAt": {
                     "type": "string",
                     "format": "date-time",
-                    "x-parser-schema-id": "<anonymous-schema-72>"
+                    "x-parser-schema-id": "<anonymous-schema-80>"
                   }
                 },
                 "x-parser-schema-id": "AllChatMessage"
@@ -645,7 +710,7 @@
           "headers": {
             "type": "object",
             "properties": {},
-            "x-parser-schema-id": "<anonymous-schema-73>"
+            "x-parser-schema-id": "<anonymous-schema-81>"
           },
           "payload": {
             "type": "object",
@@ -655,12 +720,12 @@
                 "type": "string",
                 "nullable": true,
                 "description": "- 개인 채팅 시, `receiverUuid'는 필수입니다.\n",
-                "x-parser-schema-id": "<anonymous-schema-74>"
+                "x-parser-schema-id": "<anonymous-schema-82>"
               },
               "content": {
                 "type": "string",
                 "description": "메시지 내용",
-                "x-parser-schema-id": "<anonymous-schema-75>"
+                "x-parser-schema-id": "<anonymous-schema-83>"
               }
             },
             "required": [
@@ -694,35 +759,35 @@
               "userId": {
                 "type": "string",
                 "description": "수신 대상 사용자의 UUID입니다.",
-                "x-parser-schema-id": "<anonymous-schema-76>"
+                "x-parser-schema-id": "<anonymous-schema-84>"
               },
               "topic": {
                 "type": "string",
                 "description": "Redis로 발행된 개인 채팅 채널명 (`/sub/chat/private/{receiverUuid}`)",
-                "x-parser-schema-id": "<anonymous-schema-77>"
+                "x-parser-schema-id": "<anonymous-schema-85>"
               },
               "payload": {
                 "type": "object",
                 "properties": {
                   "nickname": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-78>"
+                    "x-parser-schema-id": "<anonymous-schema-86>"
                   },
                   "content": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-79>"
+                    "x-parser-schema-id": "<anonymous-schema-87>"
                   },
                   "chatType": {
                     "type": "string",
                     "enum": [
                       "PRIVATE"
                     ],
-                    "x-parser-schema-id": "<anonymous-schema-80>"
+                    "x-parser-schema-id": "<anonymous-schema-88>"
                   },
                   "sentAt": {
                     "type": "string",
                     "format": "date-time",
-                    "x-parser-schema-id": "<anonymous-schema-81>"
+                    "x-parser-schema-id": "<anonymous-schema-89>"
                   }
                 },
                 "x-parser-schema-id": "PrivateChatMessage"
@@ -743,9 +808,39 @@
       "RoomMetadata": "$ref:$.channels./sub/room/create/info.subscribe.message.payload.properties.payload",
       "RedisResponse_RoomChat": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[0].payload",
       "RedisResponse_RoomJoin": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[1].payload",
-      "RedisResponse_RoomReady": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[2].payload",
-      "RedisResponse_RoomUnReady": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[3].payload",
-      "RedisResponse_RoomExit": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[4].payload",
+      "RedisResponse_GameStart": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "x-parser-schema-id": "<anonymous-schema-90>"
+          },
+          "topic": {
+            "type": "string",
+            "x-parser-schema-id": "<anonymous-schema-91>"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "eventType": {
+                "type": "string",
+                "enum": [
+                  "START"
+                ],
+                "x-parser-schema-id": "<anonymous-schema-93>"
+              },
+              "eventAt": {
+                "type": "string",
+                "format": "date-time",
+                "x-parser-schema-id": "<anonymous-schema-94>"
+              },
+              "data": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[4].payload"
+            },
+            "x-parser-schema-id": "<anonymous-schema-92>"
+          }
+        },
+        "x-parser-schema-id": "RedisResponse_GameStart"
+      },
       "AllChatMessage": "$ref:$.channels./sub/chat/all.subscribe.message.payload.properties.payload",
       "PrivateChatMessage": "$ref:$.channels./sub/chat/private/{receiverId}.subscribe.message.payload.properties.payload",
       "RoomChatMessage": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[0].payload.properties.payload.properties.data",
@@ -753,7 +848,13 @@
       "RedisReq_PrivateChat": "$ref:$.channels./pub/chat/private.publish.message.payload",
       "RedisReq_AllChat": "$ref:$.channels./pub/chat/all.publish.message.payload",
       "RedisRes_AllChat": "$ref:$.channels./sub/chat/all.subscribe.message.payload",
-      "RedisRes_PrivateChat": "$ref:$.channels./sub/chat/private/{receiverId}.subscribe.message.payload"
+      "RedisRes_PrivateChat": "$ref:$.channels./sub/chat/private/{receiverId}.subscribe.message.payload",
+      "Game": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[4].payload",
+      "GamePlayer": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[4].payload.properties.gamePlayers.items",
+      "Round": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[4].payload.properties.rounds.items",
+      "Word": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[4].payload.properties.rounds.items.properties.words.items",
+      "Guess": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[4].payload.properties.rounds.items.properties.words.items.properties.guesses.items",
+      "AiPrediction": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[4].payload.properties.rounds.items.properties.words.items.properties.aiPredictions.items"
     }
   },
   "x-parser-spec-parsed": true,
