@@ -60,8 +60,8 @@ public class RoomUserRepository {
     public void removeUserFromRoom(String roomId, String userUuid) {
         redisTemplate.execute((RedisCallback<Object>) connection -> {
             connection.multi();
-            connection.sRem(roomUserKey(roomId).getBytes(), userUuid.getBytes());
-            connection.sRem(userRoomKey(userUuid).getBytes(), roomId.getBytes());
+            connection.hashCommands().hDel(roomUserKey(roomId).getBytes(), userUuid.getBytes());
+            connection.keyCommands().del(userRoomKey(userUuid).getBytes());
             return connection.exec();
         });
     }
@@ -70,5 +70,9 @@ public class RoomUserRepository {
         return redisTemplate.opsForValue().get(userRoomKey(userUuid));
     }
 
-
+    public RoomUserInfo findUserInfoInRoom(String roomId, String userUuid) {
+        Object raw = redisTemplate.opsForHash().get(roomUserKey(roomId), userUuid);
+        if (raw == null) return null;
+        return jsonSerializer.deserialize(raw, RoomUserInfo.class);
+    }
 }

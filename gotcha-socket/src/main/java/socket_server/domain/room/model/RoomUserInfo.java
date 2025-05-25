@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @AllArgsConstructor
@@ -13,6 +14,7 @@ public class RoomUserInfo {
 
     private String userUuid;
     private String nickname;
+    @Setter
     private boolean ready;
 
 }

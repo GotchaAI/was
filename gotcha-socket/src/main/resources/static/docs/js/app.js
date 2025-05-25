@@ -64,6 +64,15 @@
     },
     "/user/{userUuid}queue/errors": {
       "description": "사용자별 에러 메시지를 수신하는 WebSocket 구독 채널입니다.\n서버에서 발생한 예외 정보를 이 채널로 전달합니다.\n",
+      "parameters": {
+        "userUuid": {
+          "description": "에러 메시지를 수신할 사용자의 UUID",
+          "schema": {
+            "type": "string",
+            "x-parser-schema-id": "userUuid"
+          }
+        }
+      },
       "subscribe": {
         "message": {
           "name": "ExceptionResponse",
@@ -239,7 +248,7 @@
       }
     },
     "/pub/room/{roomId}": {
-      "description": "클라이언트가 대기방 내에서 발생 가능한 로직 요청을 전송하는 채널입니다.\n\n[사용 가능한 이벤트 타입]\n- CHAT: 대기방 채팅\n- READY: 준비 상태 변경\n- JOIN: 방 참가\n- EXIT: 방 퇴장\n- START: 게임 시작\n\n`eventType` 값에 따라 content의 의미는 다르게 해석됩니다.\n",
+      "description": "클라이언트가 대기방 내에서 발생 가능한 로직 요청을 전송하는 채널입니다.\n\n[사용 가능한 이벤트 타입]\n- CHAT: 대기방 채팅\n- READY: 준비\n- UNREADY: 준비 해제\n- JOIN: 방 참가\n- EXIT: 방 퇴장\n- START: 게임 시작\n\n`eventType` 값에 따라 content의 의미는 다르게 해석됩니다.\n",
       "parameters": {
         "roomId": {
           "description": "대상 대기방의 고유 ID",
@@ -274,7 +283,7 @@
               },
               "content": {
                 "type": "string",
-                "description": "이벤트에 따라 의미가 달라지는 콘텐츠입니다.\n- CHAT: 채팅 메시지\n- READY: 사용자의 준비 상태\n- JOIN : 방 참가\n- EXIT : 방 퇴장\n- START : 게임 시작\n",
+                "description": "특정 이벤트에만 필요한 콘텐츠입니다.\n- CHAT: 채팅 메시지\n- JOIN: 비밀방일 경우 비밀번호\n",
                 "x-parser-schema-id": "<anonymous-schema-28>"
               }
             },
@@ -419,11 +428,126 @@
             },
             {
               "name": "ReadyEvent",
-              "summary": "READY 이벤트 - 준비 상태 변경"
+              "summary": "READY 이벤트 - 준비",
+              "payload": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "x-parser-schema-id": "<anonymous-schema-47>"
+                  },
+                  "topic": {
+                    "type": "string",
+                    "x-parser-schema-id": "<anonymous-schema-48>"
+                  },
+                  "payload": {
+                    "type": "object",
+                    "properties": {
+                      "eventType": {
+                        "type": "string",
+                        "enum": [
+                          "READY"
+                        ],
+                        "x-parser-schema-id": "<anonymous-schema-50>"
+                      },
+                      "eventAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-parser-schema-id": "<anonymous-schema-51>"
+                      },
+                      "data": {
+                        "type": "string",
+                        "description": "레디를 한 사용자의 UUID",
+                        "x-parser-schema-id": "<anonymous-schema-52>"
+                      }
+                    },
+                    "x-parser-schema-id": "<anonymous-schema-49>"
+                  }
+                },
+                "x-parser-schema-id": "RedisResponse_RoomReady"
+              }
+            },
+            {
+              "name": "UnReadyEvent",
+              "summary": "UnREADY 이벤트 - 준비 해제",
+              "payload": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "x-parser-schema-id": "<anonymous-schema-53>"
+                  },
+                  "topic": {
+                    "type": "string",
+                    "x-parser-schema-id": "<anonymous-schema-54>"
+                  },
+                  "payload": {
+                    "type": "object",
+                    "properties": {
+                      "eventType": {
+                        "type": "string",
+                        "enum": [
+                          "UNREADY"
+                        ],
+                        "x-parser-schema-id": "<anonymous-schema-56>"
+                      },
+                      "eventAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-parser-schema-id": "<anonymous-schema-57>"
+                      },
+                      "data": {
+                        "type": "string",
+                        "description": "레디 취소를 한 사용자의 UUID",
+                        "x-parser-schema-id": "<anonymous-schema-58>"
+                      }
+                    },
+                    "x-parser-schema-id": "<anonymous-schema-55>"
+                  }
+                },
+                "x-parser-schema-id": "RedisResponse_RoomUnReady"
+              }
             },
             {
               "name": "ExitEvent",
-              "summary": "EXIT 이벤트 - 퇴장 정보"
+              "summary": "EXIT 이벤트 - 퇴장 정보",
+              "payload": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "x-parser-schema-id": "<anonymous-schema-59>"
+                  },
+                  "topic": {
+                    "type": "string",
+                    "x-parser-schema-id": "<anonymous-schema-60>"
+                  },
+                  "payload": {
+                    "type": "object",
+                    "properties": {
+                      "eventType": {
+                        "type": "string",
+                        "enum": [
+                          "EXIT"
+                        ],
+                        "x-parser-schema-id": "<anonymous-schema-62>"
+                      },
+                      "eventAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-parser-schema-id": "<anonymous-schema-63>"
+                      },
+                      "data": {
+                        "type": "string",
+                        "description": "퇴장한 사용자의 UUID",
+                        "x-parser-schema-id": "<anonymous-schema-64>"
+                      }
+                    },
+                    "x-parser-schema-id": "<anonymous-schema-61>"
+                  }
+                },
+                "x-parser-schema-id": "RedisResponse_RoomExit"
+              }
             },
             {
               "name": "StartEvent",
@@ -440,7 +564,7 @@
           "headers": {
             "type": "object",
             "properties": {},
-            "x-parser-schema-id": "<anonymous-schema-47>"
+            "x-parser-schema-id": "<anonymous-schema-65>"
           },
           "payload": {
             "type": "object",
@@ -449,7 +573,7 @@
               "content": {
                 "type": "string",
                 "description": "메시지 내용",
-                "x-parser-schema-id": "<anonymous-schema-48>"
+                "x-parser-schema-id": "<anonymous-schema-66>"
               }
             },
             "required": [
@@ -475,35 +599,35 @@
                 "type": "string",
                 "nullable": true,
                 "description": "null (전체 채팅이므로 사용자 구분 없음)",
-                "x-parser-schema-id": "<anonymous-schema-49>"
+                "x-parser-schema-id": "<anonymous-schema-67>"
               },
               "topic": {
                 "type": "string",
                 "description": "Redis로 발행된 전체 채팅 채널명",
-                "x-parser-schema-id": "<anonymous-schema-50>"
+                "x-parser-schema-id": "<anonymous-schema-68>"
               },
               "payload": {
                 "type": "object",
                 "properties": {
                   "nickname": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-51>"
+                    "x-parser-schema-id": "<anonymous-schema-69>"
                   },
                   "content": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-52>"
+                    "x-parser-schema-id": "<anonymous-schema-70>"
                   },
                   "chatType": {
                     "type": "string",
                     "enum": [
                       "ALL"
                     ],
-                    "x-parser-schema-id": "<anonymous-schema-53>"
+                    "x-parser-schema-id": "<anonymous-schema-71>"
                   },
                   "sentAt": {
                     "type": "string",
                     "format": "date-time",
-                    "x-parser-schema-id": "<anonymous-schema-54>"
+                    "x-parser-schema-id": "<anonymous-schema-72>"
                   }
                 },
                 "x-parser-schema-id": "AllChatMessage"
@@ -521,7 +645,7 @@
           "headers": {
             "type": "object",
             "properties": {},
-            "x-parser-schema-id": "<anonymous-schema-55>"
+            "x-parser-schema-id": "<anonymous-schema-73>"
           },
           "payload": {
             "type": "object",
@@ -531,12 +655,12 @@
                 "type": "string",
                 "nullable": true,
                 "description": "- 개인 채팅 시, `receiverUuid'는 필수입니다.\n",
-                "x-parser-schema-id": "<anonymous-schema-56>"
+                "x-parser-schema-id": "<anonymous-schema-74>"
               },
               "content": {
                 "type": "string",
                 "description": "메시지 내용",
-                "x-parser-schema-id": "<anonymous-schema-57>"
+                "x-parser-schema-id": "<anonymous-schema-75>"
               }
             },
             "required": [
@@ -570,35 +694,35 @@
               "userId": {
                 "type": "string",
                 "description": "수신 대상 사용자의 UUID입니다.",
-                "x-parser-schema-id": "<anonymous-schema-58>"
+                "x-parser-schema-id": "<anonymous-schema-76>"
               },
               "topic": {
                 "type": "string",
                 "description": "Redis로 발행된 개인 채팅 채널명 (`/sub/chat/private/{receiverUuid}`)",
-                "x-parser-schema-id": "<anonymous-schema-59>"
+                "x-parser-schema-id": "<anonymous-schema-77>"
               },
               "payload": {
                 "type": "object",
                 "properties": {
                   "nickname": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-60>"
+                    "x-parser-schema-id": "<anonymous-schema-78>"
                   },
                   "content": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-61>"
+                    "x-parser-schema-id": "<anonymous-schema-79>"
                   },
                   "chatType": {
                     "type": "string",
                     "enum": [
                       "PRIVATE"
                     ],
-                    "x-parser-schema-id": "<anonymous-schema-62>"
+                    "x-parser-schema-id": "<anonymous-schema-80>"
                   },
                   "sentAt": {
                     "type": "string",
                     "format": "date-time",
-                    "x-parser-schema-id": "<anonymous-schema-63>"
+                    "x-parser-schema-id": "<anonymous-schema-81>"
                   }
                 },
                 "x-parser-schema-id": "PrivateChatMessage"
@@ -619,6 +743,9 @@
       "RoomMetadata": "$ref:$.channels./sub/room/create/info.subscribe.message.payload.properties.payload",
       "RedisResponse_RoomChat": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[0].payload",
       "RedisResponse_RoomJoin": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[1].payload",
+      "RedisResponse_RoomReady": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[2].payload",
+      "RedisResponse_RoomUnReady": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[3].payload",
+      "RedisResponse_RoomExit": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[4].payload",
       "AllChatMessage": "$ref:$.channels./sub/chat/all.subscribe.message.payload.properties.payload",
       "PrivateChatMessage": "$ref:$.channels./sub/chat/private/{receiverId}.subscribe.message.payload.properties.payload",
       "RoomChatMessage": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[0].payload.properties.payload.properties.data",

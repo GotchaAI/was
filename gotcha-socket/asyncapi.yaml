@@ -57,6 +57,11 @@ channels:
     description: |
       사용자별 에러 메시지를 수신하는 WebSocket 구독 채널입니다.
       서버에서 발생한 예외 정보를 이 채널로 전달합니다.
+    parameters:
+      userUuid:
+        description: 에러 메시지를 수신할 사용자의 UUID
+        schema:
+          type: string
     subscribe:
       message:
         name: ExceptionResponse
@@ -91,7 +96,8 @@ channels:
 
       [사용 가능한 이벤트 타입]
       - CHAT: 대기방 채팅
-      - READY: 준비 상태 변경
+      - READY: 준비
+      - UNREADY: 준비 해제
       - JOIN: 방 참가
       - EXIT: 방 퇴장
       - START: 게임 시작
@@ -132,11 +138,19 @@ channels:
               $ref: '#/components/schemas/RedisResponse_RoomJoin'
 
           - name: ReadyEvent
-            summary: READY 이벤트 - 준비 상태 변경
+            summary: READY 이벤트 - 준비
+            payload:
+              $ref: '#/components/schemas/RedisResponse_RoomReady'
 
+          - name: UnReadyEvent
+            summary: UnREADY 이벤트 - 준비 해제
+            payload:
+              $ref: '#/components/schemas/RedisResponse_RoomUnReady'
 
           - name: ExitEvent
             summary: EXIT 이벤트 - 퇴장 정보
+            payload:
+              $ref: '#/components/schemas/RedisResponse_RoomExit'
 
           - name: StartEvent
             summary: START 이벤트 - 게임 시작 알림
@@ -265,12 +279,9 @@ components:
         content:
           type: string
           description: |
-            이벤트에 따라 의미가 달라지는 콘텐츠입니다.
+            특정 이벤트에만 필요한 콘텐츠입니다.
             - CHAT: 채팅 메시지
-            - READY: 사용자의 준비 상태
-            - JOIN : 방 참가
-            - EXIT : 방 퇴장
-            - START : 게임 시작
+            - JOIN: 비밀방일 경우 비밀번호
 
     RedisResponse_RoomMetadata:
       type: object
@@ -362,6 +373,66 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/RoomUserInfo'
+
+    RedisResponse_RoomReady:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [ READY ]
+            eventAt:
+              type: string
+              format: date-time
+            data:
+              type: string
+              description: 레디를 한 사용자의 UUID
+
+    RedisResponse_RoomUnReady:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [ UNREADY ]
+            eventAt:
+              type: string
+              format: date-time
+            data:
+              type: string
+              description: 레디 취소를 한 사용자의 UUID
+
+    RedisResponse_RoomExit:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [ EXIT ]
+            eventAt:
+              type: string
+              format: date-time
+            data:
+              type: string
+              description: 퇴장한 사용자의 UUID
 
     AllChatMessage:
       type: object
