@@ -9,14 +9,14 @@ public class MaxUserValidator implements ConstraintValidator<ValidMaxUser, Creat
 
     @Override
     public boolean isValid(CreateRoomRequest req, ConstraintValidatorContext context) {
-//        if (req == null || req.gameMode() == null || req.maxUser() == null) {
+        if (req == null || req.gameType() == null || req.maxUser() == null) {
             return true;
-//        }
-//
-//        GameMode gameMode = req.gameMode();
-//        int maxUser = req.maxUser();
-//
-//        return maxUser >= gameMode.getMinPlayers() && maxUser <= gameMode.getMaxPlayers();
+        }
+
+        GameType gameMode = req.gameType();
+        int maxUser = req.maxUser();
+
+        return maxUser >= gameMode.getMinPlayers() && maxUser <= gameMode.getMaxPlayers();
     }
 
 }
