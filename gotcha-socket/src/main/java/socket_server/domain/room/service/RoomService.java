@@ -16,11 +16,15 @@ import socket_server.domain.room.dto.CreateRoomRequest;
 import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.dto.EventType;
 import socket_server.domain.room.model.RoomMetadata;
+import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomRepository;
+import socket_server.domain.room.repository.RoomUserRepository;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
 import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
@@ -29,13 +33,13 @@ import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
 @Slf4j
 public class RoomService {
 
-    private final RoomIdService roomIdService;
     private final RoomUserService roomUserService;
     private final JsonSerializer jsonSerializer;
     private final RoomRepository roomRepository;
     private final RedisTemplate<String, Object> objectRedisTemplate;
-
+    private final RoomIdService roomIdService;
     private final RedisTemplate<String, String> redisTemplate;
+    private final RoomUserRepository roomUserRepository;
 
     public RoomService(
             RoomIdService roomIdService,
@@ -43,14 +47,15 @@ public class RoomService {
             RoomRepository roomRepository,
             RedisTemplate<String, Object> objectRedisTemplate,
             @Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
-            JsonSerializer jsonSerializer
-    ) {
+            JsonSerializer jsonSerializer,
+            RoomUserRepository roomUserRepository) {
         this.roomIdService = roomIdService;
         this.roomUserService = roomUserService;
         this.roomRepository = roomRepository;
         this.objectRedisTemplate = objectRedisTemplate;
         this.redisTemplate = redisTemplate;
         this.jsonSerializer = jsonSerializer;
+        this.roomUserRepository = roomUserRepository;
     }
 
     public void handleCreateRoom(CreateRoomRequest request, SecurityUserDetails userDetails) {
@@ -74,10 +79,11 @@ public class RoomService {
             }
             roomData.put(RoomField.PASSWORD.getRedisField(), request.password());
         }
-        roomData.put(RoomField.MAX.getRedisField(), String.valueOf(request.gameMode().getMaxPlayers()));
-        roomData.put(RoomField.MIN.getRedisField(), String.valueOf(request.gameMode().getMinPlayers()));
-        roomData.put(RoomField.AI_LEVEL.getRedisField(), request.aimode().name());
-        roomData.put(RoomField.GAME_MODE.getRedisField(), request.gameMode().name());
+        roomData.put(RoomField.ROUND_COUNT.getRedisField(), String.valueOf(request.roundCount()));
+        roomData.put(RoomField.MAX.getRedisField(), String.valueOf(request.gameType().getMaxPlayers()));
+        roomData.put(RoomField.MIN.getRedisField(), String.valueOf(request.gameType().getMinPlayers()));
+        roomData.put(RoomField.DIFFICULTY.getRedisField(), request.difficulty().name());
+        roomData.put(RoomField.GAME_TYPE.getRedisField(), request.gameType().name());
         roomData.put(RoomField.OWNER_UUID.getRedisField(), userDetails.getUuid());
 
         roomRepository.saveRoomData(roomId, roomData);
@@ -126,5 +132,22 @@ public class RoomService {
         return RoomMetadata.fromRedisMap(roomId, fields);
     }
 
+    public RoomMetadata getHostingRoomMetadata(String roomId, String userId){
+        RoomMetadata roomMetadata = getRoomInfo(roomId);
+        if(!roomMetadata.getOwnerUuid().equals(userId)){
+            throw new CustomException(RoomExceptionCode.NOT_ROOM_OWNER);
+        }
 
+        return roomMetadata;
+    }
+
+    public void checkAllPlayerReady(String roomId) {
+        List<RoomUserInfo> users = roomUserRepository.findUsersByRoomId(roomId);
+
+        for(RoomUserInfo user : users) {
+            if(!user.isReady()) {
+                throw new CustomException(RoomExceptionCode.NOT_ALL_PLAYER_READY);
+            }
+        }
+    }
 }

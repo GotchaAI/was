@@ -8,10 +8,11 @@ public enum RoomField {
     TITLE("title"),
     PASSWORD("password"),
     HAS_PASSWORD("hasPassword"),
-    AI_LEVEL("aiLevel"),
-    GAME_MODE("gameMode"),
+    DIFFICULTY("difficulty"),
+    GAME_TYPE("gameType"),
     MIN("min"),
     MAX("max"),
+    ROUND_COUNT("roundCount"),
     OWNER("owner"),
     OWNER_UUID("ownerUuid");
 
