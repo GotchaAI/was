@@ -16,7 +16,15 @@ public class MaxUserValidator implements ConstraintValidator<ValidMaxUser, Creat
         GameType gameMode = req.gameType();
         int maxUser = req.maxUser();
 
-        return maxUser >= gameMode.getMinPlayers() && maxUser <= gameMode.getMaxPlayers();
+        boolean valid = maxUser >= gameMode.getMinPlayers() && maxUser <= gameMode.getMaxPlayers();
+
+        if (!valid) {
+            context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
+                    .addPropertyNode("maxUser")
+                    .addConstraintViolation();
+        }
+
+        return valid;
     }
 
 }
