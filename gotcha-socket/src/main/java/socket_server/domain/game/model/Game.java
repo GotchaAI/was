@@ -6,7 +6,6 @@ import socket_server.domain.game.enumType.Difficulty;
 import socket_server.domain.game.meta.GameMeta;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Game 데이터(Redis에 저장)

@@ -2,7 +2,6 @@ package socket_server.domain.game.service;
 
 import gotcha_common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
@@ -14,13 +13,17 @@ import socket_server.domain.game.meta.RoundMeta;
 import socket_server.domain.game.meta.WordMeta;
 import socket_server.domain.game.model.*;
 import socket_server.domain.game.repository.GamePlayerRepository;
+import socket_server.domain.game.model.Game;
+import socket_server.domain.game.model.GamePlayer;
+import socket_server.domain.game.model.Round;
+import socket_server.domain.game.model.Word;
 import socket_server.domain.game.repository.GameRepository;
 import socket_server.domain.game.repository.RoundRepository;
 import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.dto.EventType;
 import socket_server.domain.room.model.RoomMetadata;
-import socket_server.domain.room.service.RoomService;
 import socket_server.domain.room.service.RoomUserService;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.List;
