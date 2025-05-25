@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.enumType.Difficulty;
 import socket_server.domain.game.enumType.GameType;
+import socket_server.domain.game.meta.GameMeta;
 import socket_server.domain.game.meta.WordMeta;
 import socket_server.domain.game.model.*;
 import socket_server.domain.game.meta.RoundMeta;
@@ -59,42 +60,35 @@ public class GameRepository {
 
     /**
      * Game 메타데이터만 저장(List GamePlayers, List Rounds 제외)
-     * @param game
+     * @param gameMeta
      */
-    public void saveGameMeta(Game game){
+    public void saveGameMeta(GameMeta gameMeta){
         Map<String, Object> gameData = Map.of(
-                "gameType", game.getGameType().name(),
-                "difficulty", game.getDifficulty().name(),
-                "currentRound", String.valueOf(game.getCurrentRound()),
-                "totalRounds", String.valueOf(game.getTotalRounds()),
-                "aiScore", String.valueOf(game.getAiScore())
+                "gameType", gameMeta.getGameType().name(),
+                "difficulty", gameMeta.getDifficulty().name(),
+                "currentRound", String.valueOf(gameMeta.getCurrentRound()),
+                "totalRounds", String.valueOf(gameMeta.getTotalRounds()),
+                "aiScore", String.valueOf(gameMeta.getAiScore())
         );
 
-        redisTemplate.opsForHash().putAll(getGameKey(game.getRoomId()), gameData);
+        redisTemplate.opsForHash().putAll(getGameKey(gameMeta.getRoomId()), gameData);
 
         log.info("Game {} saved", gameData);
     }
 
     /**
-     * Game 메타데이터 조회
+     * Game 메타데이터만 조회(List GamePlayers, List Rounds 제외)
      * @param roomId
      * @return
      */
-    public Optional<Game> getGameMeta(String roomId) {
+    public Optional<GameMeta> getGameMeta(String roomId) {
         String key = getGameKey(roomId);
-        Map<Object, Object> gameData = redisTemplate.opsForHash().entries(key);
-        if (gameData.isEmpty()) {
+        Map<Object, Object> gameDataMap = redisTemplate.opsForHash().entries(key);
+        if (gameDataMap.isEmpty()) {
             return Optional.empty();
         }
-        Game game = Game.builder()
-                .roomId(roomId)
-                .gameType(GameType.valueOf((String) gameData.get("gameType")))
-                .difficulty(Difficulty.valueOf((String) gameData.get("difficulty")))
-                .currentRound((Integer) gameData.get("currentRound"))
-                .totalRounds((Integer) gameData.get("totalRounds"))
-                .aiScore((Integer) gameData.get("aiScore"))
-                .build();
-        return Optional.of(game);
+        GameMeta gameMeta = GameMeta.fromRedisMap(roomId, gameDataMap);
+        return Optional.of(gameMeta);
     }
 
     /**
