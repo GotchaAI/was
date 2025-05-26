@@ -9,8 +9,9 @@ import socket_server.common.listener.PubSubHandler;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.room.dto.EventRes;
 
-import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
+import static socket_server.common.constants.WebSocketConstants.ROOM_LIST_EVENT;
 import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
+import static socket_server.common.constants.WebSocketConstants.ROOM_OWNER_CREATE_INFO;
 
 @Slf4j
 @Service
@@ -24,7 +25,8 @@ public class RoomPubSubHandler extends PubSubHandler {
 
     @Override
     protected void initHandlers() {
-        handlers.put(ROOM_CREATE_INFO, this::handleEventResMessage);
+        handlers.put(ROOM_LIST_EVENT, this::handleEventResMessage);
+        handlers.put(ROOM_OWNER_CREATE_INFO, this::handleEventResMessage);
         handlers.put(ROOM_EVENT, this::handleEventResMessage);
     }
 

@@ -40,13 +40,11 @@ import static socket_server.common.constants.WebSocketConstants.GAME_PREFIX;
 import static socket_server.common.constants.WebSocketConstants.GAME_READY_CHANNEL;
 import static socket_server.common.constants.WebSocketConstants.GAME_START_CHANNEL;
 import static socket_server.common.constants.WebSocketConstants.PERSONAL_PREFIX;
-import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
 import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
-import static socket_server.common.constants.WebSocketConstants.ROOM_JOIN;
-import static socket_server.common.constants.WebSocketConstants.ROOM_LEAVE;
+import static socket_server.common.constants.WebSocketConstants.ROOM_LIST_EVENT;
 import static socket_server.common.constants.WebSocketConstants.ROOM_LIST_INFO;
+import static socket_server.common.constants.WebSocketConstants.ROOM_OWNER_CREATE_INFO;
 import static socket_server.common.constants.WebSocketConstants.ROOM_PREFIX;
-import static socket_server.common.constants.WebSocketConstants.ROOM_UPDATE;
 
 @Slf4j
 @Configuration
@@ -128,11 +126,9 @@ public class RedisIntegrationConfig {
 
                 // 대기방
                 ROOM_LIST_INFO,                      // /sub/room/list/info
-                ROOM_CREATE_INFO + "*",                    // /sub/room/create/info
-                ROOM_LEAVE + "*",                    // /sub/room/leave/*
-                ROOM_UPDATE + "*",                   // /sub/room/update/*
-                ROOM_JOIN + "*",                     // /sub/room/join/*
+                ROOM_LIST_EVENT,                    // /sub/room/list/event
                 ROOM_EVENT + "*",
+                ROOM_OWNER_CREATE_INFO + "*",
 
 
                 // 게임

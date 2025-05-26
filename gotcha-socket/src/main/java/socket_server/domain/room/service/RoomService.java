@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
+import static socket_server.common.constants.WebSocketConstants.ROOM_LIST_EVENT;
 import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
 import static socket_server.common.constants.WebSocketConstants.ROOM_OWNER_CREATE_INFO;
 
@@ -161,11 +161,11 @@ public class RoomService {
 
         RedisMessage message = new RedisMessage(
                 userUuid,
-                ROOM_CREATE_INFO,
+                ROOM_LIST_EVENT,
                 jsonSerializer.serialize(eventRes)
         );
 
-        objectRedisTemplate.convertAndSend(ROOM_CREATE_INFO, jsonSerializer.serialize(message));
+        objectRedisTemplate.convertAndSend(ROOM_LIST_EVENT, jsonSerializer.serialize(message));
     }
 
     private void sendRoomMetadataToOwner(RoomMetadata metadata, String userUuid) {
