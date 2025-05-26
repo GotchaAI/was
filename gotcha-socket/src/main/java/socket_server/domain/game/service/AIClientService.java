@@ -1,6 +1,7 @@
 package socket_server.domain.game.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import socket_server.domain.game.dto.AIGameStartReq;
@@ -12,8 +13,8 @@ public class AIClientService {
 
     private final WebClient webClient;
 
-    private static final String AI_SERVER_BASE_URL = "http://localhost:8000/api/v1/";
-
+    @Value("${ai-server.url}")
+    private String AI_SERVER_BASE_URL;
 
     public String getGameStartMessage(String roomId, AIGameStartReq request){
         return webClient.post()
