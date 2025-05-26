@@ -24,6 +24,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class User extends BaseTimeEntity {
 
     private Integer warningCount;
 
+    @Setter
     private LocalDateTime lastLogout;
 
     private Boolean isLocked;
@@ -89,20 +91,20 @@ public class User extends BaseTimeEntity {
     private List<UserAchievement> userAchievements = new ArrayList<>();
 
     @JsonIgnore
+    @OneToMany(mappedBy = "user1")
+    private List<Friend> friends = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user2")
+    private List<Friend> friendOf = new ArrayList<>();
+
+    @JsonIgnore
     @OneToMany(mappedBy = "fromUser")
     private List<FriendRequest> sentFriendRequests = new ArrayList<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "toUser")
     private List<FriendRequest> receivedFriendRequests = new ArrayList<>();
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "user")
-    private List<Friend> friends = new ArrayList<>();
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "friend")
-    private List<Friend> friendOf = new ArrayList<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "user")

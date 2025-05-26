@@ -1,8 +1,12 @@
 package socket_server.domain.room.RoomField;
 
 import gotcha_common.exception.FieldValidationException;
+import socket_server.domain.room.dto.RoomFieldUpdateReq;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public enum RoomField {
     TITLE("title"),
@@ -33,6 +37,22 @@ public enum RoomField {
                 .orElseThrow(() -> new FieldValidationException(
                         "field", name+" : 지원하지 않는 필드입니다: "
                 ));
+    }
+
+    public static void validateAll(List<RoomFieldUpdateReq> requests) {
+        Map<String, String> errors = new HashMap<>();
+
+        for (RoomFieldUpdateReq req : requests) {
+            try {
+                from(req.field());
+            } catch (FieldValidationException e) {
+                errors.put(req.field(), req.field() + " : 지원하지 않는 필드입니다");
+            }
+        }
+
+        if (!errors.isEmpty()) {
+            throw new FieldValidationException(errors);
+        }
     }
 }
 

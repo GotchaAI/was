@@ -7,7 +7,7 @@ import gotcha_common.exception.exceptionCode.ExceptionCode;
 import gotcha_common.exception.exceptionCode.GlobalExceptionCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.validation.FieldError;
@@ -50,7 +50,17 @@ public class SocketGlobalExceptionHandler {
     @MessageExceptionHandler(Exception.class)
     @SendToUser("/queue/errors")
     public ExceptionRes handleUnexpectedException(Exception e) {
-        log.error("[WebSocket Unexpected Exception] {}", e.getMessage(), e);
+        log.error("[WebSocket Unexpected Exception] {} - {}", e.getClass().getName(), e.getMessage(), e);
+
+        if (e instanceof MethodArgumentNotValidException manve) {
+            Map<String, String> fieldErrors = manve.getBindingResult().getFieldErrors().stream()
+                    .collect(Collectors.toMap(
+                            FieldError::getField,
+                            FieldError::getDefaultMessage,
+                            (existing, replacement) -> existing
+                    ));
+            return ExceptionRes.from(GlobalExceptionCode.FIELD_VALIDATION_ERROR, fieldErrors);
+        }
         ExceptionCode error = GlobalExceptionCode.INTERNAL_SERVER_ERROR;
         return ExceptionRes.from(error);
     }

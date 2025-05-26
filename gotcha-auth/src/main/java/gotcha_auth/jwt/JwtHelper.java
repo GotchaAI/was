@@ -5,6 +5,7 @@ import gotcha_auth.exception.JwtExceptionCode;
 import gotcha_common.exception.CustomException;
 import gotcha_common.util.CookieUtil;
 import gotcha_domain.user.User;
+import gotcha_user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,7 @@ public class JwtHelper {
     private final CookieUtil cookieUtil;
     private final RefreshTokenService refreshTokenService;
     private final BlackListTokenService blackListTokenService;
+    private final UserService userService;
 
     public TokenDto createToken(User user, boolean autoSignIn) {
         String uuid = user.getUuid();
@@ -40,6 +42,8 @@ public class JwtHelper {
         LocalDateTime accessTokenExpiredAt = tokenProvider.getExpiryDate(
                 accessToken.replace(JwtProperties.TOKEN_PREFIX, "").trim()
         );
+
+        userService.updateLastLogout(user, accessTokenExpiredAt);
 
         refreshTokenService.saveRefreshToken(uuid, refreshToken);
         return new TokenDto(accessToken, refreshToken, accessTokenExpiredAt, autoSignIn);
@@ -64,6 +68,9 @@ public class JwtHelper {
         LocalDateTime newAccessTokenExpiredAt = tokenProvider.getExpiryDate(
                 newAccessToken.replace(JwtProperties.TOKEN_PREFIX, "").trim()
         );
+
+        User user = userService.findUserByUuid(uuid);
+        userService.updateLastLogout(user, newAccessTokenExpiredAt);
 
         refreshTokenService.deleteRefreshToken(refreshToken);
         refreshTokenService.saveRefreshToken(uuid, newRefreshToken);

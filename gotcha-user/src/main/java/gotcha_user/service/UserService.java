@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static gotcha_common.redis.RedisProperties.GUEST_KEY_PREFIX;
@@ -63,5 +64,23 @@ public class UserService {
     private User findGuestByGuestId(String uuid){
         return Optional.ofNullable((User) redisUtil.getData(GUEST_KEY_PREFIX + uuid))
                 .orElseThrow(()-> new CustomException(UserExceptionCode.INVALID_USERID));
+    }
+
+    @Transactional(readOnly = true)
+    public User findUserByNickname(String nickname){
+        return userRepository.findByNickname(nickname)
+                .orElseThrow(()->new CustomException(UserExceptionCode.INVALID_USERID));
+    }
+
+    @Transactional(readOnly = true)
+    public User findUserByUuid(String uuid) {
+        return userRepository.findByUuid(uuid)
+                .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
+    }
+
+    @Transactional
+    public void updateLastLogout(User user, LocalDateTime accessTokenExpiredAt) {
+        user.setLastLogout(accessTokenExpiredAt);
+        userRepository.save(user);
     }
 }
