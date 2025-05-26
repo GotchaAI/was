@@ -212,7 +212,7 @@ channels:
       message:
         oneOf:
           - name: ROUND_START
-            summary: 라운드의 시작을 알립니다. Payload.data.gameData에는 Round 타입이 전송됩니다.
+            summary: 라운드의 시작을 알립니다. Payload의 data.gameData에는 Round 타입이 전송됩니다.
             payload:
               $ref: '#/components/schemas/RedisResponse_GameEvent'
 
