@@ -128,7 +128,16 @@ public class RoomService {
             updateMap.put(field.getRedisField(), req.value());
         }
 
+//        //이전 방 내용 조회 -> 로직 확인용
+//        Map<Object, Object> exitRoom = roomRepository.getRoomData(roomId);
+//        log.info("✅ 이전 방 필드 정보: {}", exitRoom);
+
         roomRepository.updateAllFields(roomId, updateMap);
+
+//        //제대로 바뀐게 맞나 조회 -> 로직 확인용
+//        Map<Object, Object> updatedRoom = roomRepository.getRoomData(roomId);
+//        log.info("✅ 수정된 방 필드 정보: {}", updatedRoom);
+
     }
 
     public void broadcastRoomInfo(String userUuid, RoomMetadata metadata) {
