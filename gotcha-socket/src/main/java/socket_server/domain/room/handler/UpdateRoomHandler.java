@@ -27,7 +27,7 @@ public class UpdateRoomHandler implements RoomEventHandler{
     @Override
     public void handle(String roomId, SecurityUserDetails userDetails, RoomReq roomReq) {
         List<RoomFieldUpdateReq> updateRequests = jsonSerializer.deserializeList(roomReq.content(), RoomFieldUpdateReq.class);
-        roomUserService.validateRoomUser(roomId, userDetails.getUuid());
+        roomUserService.validateRoomHost(roomId, userDetails.getUuid());
         roomService.updateRoomField(roomId, updateRequests);
     }
 

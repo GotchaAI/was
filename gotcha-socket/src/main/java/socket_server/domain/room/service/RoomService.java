@@ -150,14 +150,6 @@ public class RoomService {
         return RoomMetadata.fromRedisMap(roomId, fields);
     }
 
-    public RoomMetadata getHostingRoomMetadata(String roomId, String userId){
-        RoomMetadata roomMetadata = getRoomInfo(roomId);
-        if(!roomMetadata.getOwnerUuid().equals(userId)){
-            throw new CustomException(RoomExceptionCode.NOT_ROOM_OWNER);
-        }
-
-        return roomMetadata;
-    }
 
     public void checkAllPlayerReady(String roomId) {
         List<RoomUserInfo> users = roomUserRepository.findUsersByRoomId(roomId);

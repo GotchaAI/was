@@ -10,6 +10,7 @@ import socket_server.common.util.JsonSerializer;
 import socket_server.domain.room.RoomField.RoomField;
 import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.dto.EventType;
+import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomRepository;
 import socket_server.domain.room.repository.RoomUserRepository;
@@ -102,7 +103,17 @@ public class RoomUserService {
         return roomUserRepository.findRoomIdByUserUuid(userUuid);
     }
 
-    public void validateRoomUser(String roomId, String userUuid) {
+    public void checkAllPlayersReady(String roomId) {
+        List<RoomUserInfo> users = roomUserRepository.findUsersByRoomId(roomId);
+        for(RoomUserInfo user : users) {
+            if(!user.isReady()) {
+                throw new CustomException(RoomExceptionCode.NOT_ALL_PLAYER_READY);
+            }
+        }
+    }
+
+
+    public RoomMetadata validateRoomHost(String roomId, String userUuid) {
         //방이 실존하는지 확인
         Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
         if (roomData == null || roomData.isEmpty()) {
@@ -120,6 +131,8 @@ public class RoomUserService {
         if (!userUuid.equals(ownerUuid)) {
             throw new CustomException(RoomExceptionCode.NOT_ROOM_OWNER);
         }
+
+        return RoomMetadata.fromRedisMap(roomId, roomData);
     }
 
     private void broadcastUserList(String roomId, String userId){
