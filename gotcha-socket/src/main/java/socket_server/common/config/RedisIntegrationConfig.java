@@ -128,7 +128,7 @@ public class RedisIntegrationConfig {
 
                 // 대기방
                 ROOM_LIST_INFO,                      // /sub/room/list/info
-                ROOM_CREATE_INFO,                    // /sub/room/create/info
+                ROOM_CREATE_INFO + "*",                    // /sub/room/create/info
                 ROOM_LEAVE + "*",                    // /sub/room/leave/*
                 ROOM_UPDATE + "*",                   // /sub/room/update/*
                 ROOM_JOIN + "*",                     // /sub/room/join/*
