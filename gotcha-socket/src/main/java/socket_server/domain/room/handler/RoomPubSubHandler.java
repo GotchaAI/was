@@ -8,7 +8,6 @@ import socket_server.common.config.RedisMessage;
 import socket_server.common.listener.PubSubHandler;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.room.dto.EventRes;
-import socket_server.domain.room.model.RoomMetadata;
 
 import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
 import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
@@ -25,17 +24,11 @@ public class RoomPubSubHandler extends PubSubHandler {
 
     @Override
     protected void initHandlers() {
-        handlers.put(ROOM_CREATE_INFO, this::roomCreateInfo);
-        handlers.put(ROOM_EVENT, this::roomEvent);
+        handlers.put(ROOM_CREATE_INFO, this::handleEventResMessage);
+        handlers.put(ROOM_EVENT, this::handleEventResMessage);
     }
 
-    private void roomCreateInfo(String channel, Object object) {
-        RedisMessage redisMessage = (RedisMessage) object;
-        RoomMetadata roomMetadata = jsonSerializer.deserialize(redisMessage.payload(), RoomMetadata.class);
-        messagingTemplate.convertAndSend(channel, roomMetadata);
-    }
-
-    private void roomEvent(String channel, Object object) {
+    private void handleEventResMessage(String channel, Object object) {
         RedisMessage redisMessage = (RedisMessage) object;
         EventRes eventRes = jsonSerializer.deserialize(redisMessage.payload(), EventRes.class);
         messagingTemplate.convertAndSend(channel, eventRes);
