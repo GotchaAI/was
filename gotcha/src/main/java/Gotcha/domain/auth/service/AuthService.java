@@ -73,7 +73,7 @@ public class AuthService {
         return jwtHelper.createToken(createdUser, false);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public TokenDto signIn(SignInReq signInReq){
         User user = userRepository.findByEmail(signInReq.email())
                 .orElseThrow(() -> new CustomException(AuthExceptionCode.INVALID_USERNAME_AND_PASSWORD));
@@ -112,6 +112,7 @@ public class AuthService {
         return jwtHelper.createGuestToken(guestUser);
     }
 
+    @Transactional
     public TokenDto reissueAccessToken(String refreshToken) {
         return jwtHelper.reissueToken(refreshToken);
     }
