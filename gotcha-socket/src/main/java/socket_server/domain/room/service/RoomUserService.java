@@ -28,17 +28,15 @@ public class RoomUserService {
     private final JsonSerializer jsonSerializer;
     private final RoomUserRepository roomUserRepository;
     private final RoomRepository roomRepository;
-    private final RoomService roomService;
 
     public RoomUserService(RedisTemplate<String, Object> objectRedisTemplate,
                            RoomUserRepository roomUserRepository,
                            JsonSerializer jsonSerializer,
-                           RoomRepository roomRepository, RoomService roomService) {
+                           RoomRepository roomRepository) {
         this.jsonSerializer = jsonSerializer;
         this.roomUserRepository = roomUserRepository;
         this.objectRedisTemplate = objectRedisTemplate;
         this.roomRepository = roomRepository;
-        this.roomService = roomService;
     }
 
     public void joinAndBroadcast(String roomId, String userUuid, String nickname, String password) {
