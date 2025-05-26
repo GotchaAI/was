@@ -25,6 +25,7 @@ import java.util.Map;
 
 import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
 import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
+import static socket_server.common.constants.WebSocketConstants.ROOM_OWNER_CREATE_INFO;
 
 @Service
 @Slf4j
@@ -58,6 +59,13 @@ public class RoomService {
     public void handleCreateRoom(CreateRoomRequest request, SecurityUserDetails userDetails) {
         roomUserService.checkUserNotInAnyRoom(userDetails.getUuid());
         RoomMetadata roomMetadata = createRoom(request, userDetails);
+        roomUserService.joinRoom(
+                roomMetadata.getId(),
+                userDetails.getUuid(),
+                userDetails.getNickname(),
+                request.hasPassword() ? request.password() : null
+        );
+        sendRoomMetadataToOwner(roomMetadata, userDetails.getUuid());
         broadcastRoomInfo(userDetails.getUuid(), roomMetadata);
     }
 
@@ -141,9 +149,38 @@ public class RoomService {
     }
 
     public void broadcastRoomInfo(String userUuid, RoomMetadata metadata) {
-        objectRedisTemplate.convertAndSend(ROOM_CREATE_INFO,
-                new RedisMessage(userUuid, ROOM_CREATE_INFO, jsonSerializer.serialize(metadata))); //방 목록 생성 브로드 캐스트 용
+        int currentUser = roomUserRepository.findUsersByRoomId(metadata.getId()).size();
+
+        RoomSummaryRes summary = RoomSummaryRes.of(metadata, currentUser);
+
+        EventRes eventRes = new EventRes(
+                EventType.CREATE,
+                summary,
+                LocalDateTime.now()
+        );
+
+        RedisMessage message = new RedisMessage(
+                userUuid,
+                ROOM_CREATE_INFO,
+                jsonSerializer.serialize(eventRes)
+        );
+
+        objectRedisTemplate.convertAndSend(ROOM_CREATE_INFO, jsonSerializer.serialize(message));
     }
+
+    private void sendRoomMetadataToOwner(RoomMetadata metadata, String userUuid) {
+        EventRes eventRes = new EventRes(
+                EventType.JOIN,
+                metadata,
+                LocalDateTime.now()
+        );
+
+        RedisMessage message = new RedisMessage(userUuid, ROOM_OWNER_CREATE_INFO + userUuid, jsonSerializer.serialize(eventRes));
+        objectRedisTemplate.convertAndSend(ROOM_OWNER_CREATE_INFO + userUuid, jsonSerializer.serialize(message));
+
+        log.info("방장 {} 에게 방 전체 정보 전송 : {}", ROOM_OWNER_CREATE_INFO + userUuid, metadata.getId());
+    }
+
 
     public RoomMetadata getRoomInfo(String roomId) {
         Map<Object, Object> fields = roomRepository.getRoomData(roomId);
@@ -154,8 +191,8 @@ public class RoomService {
     public void checkAllPlayerReady(String roomId) {
         List<RoomUserInfo> users = roomUserRepository.findUsersByRoomId(roomId);
 
-        for(RoomUserInfo user : users) {
-            if(!user.isReady()) {
+        for (RoomUserInfo user : users) {
+            if (!user.isReady()) {
                 throw new CustomException(RoomExceptionCode.NOT_ALL_PLAYER_READY);
             }
         }
