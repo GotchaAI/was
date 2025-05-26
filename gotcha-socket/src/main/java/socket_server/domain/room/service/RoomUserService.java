@@ -10,6 +10,7 @@ import socket_server.common.util.JsonSerializer;
 import socket_server.domain.room.RoomField.RoomField;
 import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.dto.EventType;
+import socket_server.domain.room.dto.RoomJoinRes;
 import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomRepository;
@@ -42,7 +43,7 @@ public class RoomUserService {
 
     public void joinAndBroadcast(String roomId, String userUuid, String nickname, String password) {
         joinRoom(roomId, userUuid, nickname, password);
-        broadcastUserList(roomId, userUuid);
+        broadcastRoomInfo(roomId, userUuid);
     }
 
     public void updatePlayerReady(String roomId, String userUuid, boolean isReady) {
@@ -135,9 +136,12 @@ public class RoomUserService {
         return RoomMetadata.fromRedisMap(roomId, roomData);
     }
 
-    private void broadcastUserList(String roomId, String userId){
+    private void broadcastRoomInfo(String roomId, String userId){
         List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId);
-        broadcastToRoom(roomId, userId, EventType.JOIN, userList);
+        RoomMetadata roomMetadata = RoomMetadata.fromRedisMap(roomId, roomRepository.getRoomData(roomId));
+
+        RoomJoinRes roomJoinRes = new RoomJoinRes(roomMetadata, userList);
+        broadcastToRoom(roomId, userId, EventType.JOIN, roomJoinRes);
     }
 
     private void broadcastReadyStatus(String roomId, String userUuid, boolean isReady) {
