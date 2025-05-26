@@ -12,7 +12,12 @@ import socket_server.common.util.JsonSerializer;
 import socket_server.domain.chat.dto.ChatMessage;
 import socket_server.domain.chat.dto.ChatType;
 import socket_server.domain.room.RoomField.RoomField;
-import socket_server.domain.room.dto.*;
+import socket_server.domain.room.dto.CreateRoomRequest;
+import socket_server.domain.room.dto.EventRes;
+import socket_server.domain.room.dto.EventType;
+import socket_server.domain.room.dto.RoomJoinRes;
+import socket_server.domain.room.dto.RoomSummaryRes;
+import socket_server.domain.room.dto.RoomUpdateReq;
 import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomRepository;
@@ -23,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static socket_server.common.constants.WebSocketConstants.ROOM_LIST_EVENT;
 import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
 import static socket_server.common.constants.WebSocketConstants.ROOM_OWNER_CREATE_INFO;
 
@@ -38,6 +42,7 @@ public class RoomService {
     private final RoomIdService roomIdService;
     private final RedisTemplate<String, String> redisTemplate;
     private final RoomUserRepository roomUserRepository;
+    private final RoomBroadcaster roomBroadcaster;
 
     public RoomService(
             RoomIdService roomIdService,
@@ -46,7 +51,8 @@ public class RoomService {
             RedisTemplate<String, Object> objectRedisTemplate,
             @Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
             JsonSerializer jsonSerializer,
-            RoomUserRepository roomUserRepository) {
+            RoomUserRepository roomUserRepository,
+            RoomBroadcaster roomBroadcaster) {
         this.roomIdService = roomIdService;
         this.roomUserService = roomUserService;
         this.roomRepository = roomRepository;
@@ -54,6 +60,7 @@ public class RoomService {
         this.redisTemplate = redisTemplate;
         this.jsonSerializer = jsonSerializer;
         this.roomUserRepository = roomUserRepository;
+        this.roomBroadcaster = roomBroadcaster;
     }
 
     public void handleCreateRoom(CreateRoomRequest request, SecurityUserDetails userDetails) {
@@ -66,7 +73,7 @@ public class RoomService {
                 request.hasPassword() ? request.password() : null
         );
         sendRoomMetadataToOwner(roomMetadata, userDetails.getUuid());
-        broadcastRoomInfo(userDetails.getUuid(), roomMetadata);
+        broadcastCreatedRoomInfo(userDetails.getUuid(), roomMetadata);
     }
 
     public void deleteRoom(SecurityUserDetails userDetails, String roomId) {
@@ -160,62 +167,31 @@ public class RoomService {
 //        //제대로 바뀐게 맞나 조회 -> 로직 확인용
 //        Map<Object, Object> updatedRoom = roomRepository.getRoomData(roomId);
 //        log.info("✅ 수정된 방 필드 정보: {}", updatedRoom);
-        broadcastRoomInfoToListAndRoom(roomId, roomMetadata);
+        broadcastUpdatedRoomInfoToListAndRoom(roomId, roomMetadata);
     }
 
-    private void broadcastRoomInfoToListAndRoom(String roomId, RoomMetadata metadata) {
+    private void broadcastUpdatedRoomInfoToListAndRoom(String roomId, RoomMetadata metadata) {
         int currentUser = roomUserRepository.findUsersByRoomId(roomId).size();
 
-        // 1. RoomList 업데이트용
         RoomSummaryRes summary = RoomSummaryRes.of(metadata, currentUser);
-        EventRes listEvent = new EventRes(EventType.UPDATE, summary, LocalDateTime.now());
-        RedisMessage listMessage = new RedisMessage("SYSTEM", ROOM_LIST_EVENT, jsonSerializer.serialize(listEvent));
-        objectRedisTemplate.convertAndSend(ROOM_LIST_EVENT, jsonSerializer.serialize(listMessage));
+        roomBroadcaster.broadcastToRoomList("SYSTEM", EventType.UPDATE, summary);
 
-        // 2. Room 내부 사용자들에게 전체 방 정보 전송
         List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId);
         RoomJoinRes roomJoinRes = new RoomJoinRes(metadata, userList);
-        EventRes roomEvent = new EventRes(EventType.UPDATE, roomJoinRes, LocalDateTime.now());
-        RedisMessage roomMessage = new RedisMessage("SYSTEM", ROOM_EVENT + roomId, jsonSerializer.serialize(roomEvent));
-        objectRedisTemplate.convertAndSend(ROOM_EVENT + roomId, jsonSerializer.serialize(roomMessage));
+        roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", EventType.UPDATE, roomJoinRes);
 
         log.info("방 {} 업데이트 정보를 ROOM_LIST_EVENT 및 ROOM_EVENT 로 브로드캐스트 완료", roomId);
     }
 
-    public void broadcastRoomInfo(String userUuid, RoomMetadata metadata) {
+    public void broadcastCreatedRoomInfo(String userUuid, RoomMetadata metadata) {
         int currentUser = roomUserRepository.findUsersByRoomId(metadata.getId()).size();
-
         RoomSummaryRes summary = RoomSummaryRes.of(metadata, currentUser);
 
-        EventRes eventRes = new EventRes(
-                EventType.CREATE,
-                summary,
-                LocalDateTime.now()
-        );
-
-        RedisMessage message = new RedisMessage(
-                userUuid,
-                ROOM_LIST_EVENT,
-                jsonSerializer.serialize(eventRes)
-        );
-
-        objectRedisTemplate.convertAndSend(ROOM_LIST_EVENT, jsonSerializer.serialize(message));
+        roomBroadcaster.broadcastToRoomList(userUuid, EventType.CREATE, summary);
     }
 
     private void broadcastRoomDeleted(String roomId) {
-        EventRes eventRes = new EventRes(
-                EventType.DELETE,
-                "방이 삭제되었습니다.",
-                LocalDateTime.now()
-        );
-
-        RedisMessage redisMessage = new RedisMessage(
-                "SYSTEM",  // 시스템 발신자
-                ROOM_EVENT + roomId,
-                jsonSerializer.serialize(eventRes)
-        );
-
-        objectRedisTemplate.convertAndSend(ROOM_EVENT + roomId, jsonSerializer.serialize(redisMessage));
+        roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", EventType.DELETE, "방이 삭제되었습니다");
         log.info("방 {} 삭제 브로드캐스트 전송 완료", roomId);
     }
 

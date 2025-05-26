@@ -4,11 +4,9 @@ import gotcha_common.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import socket_server.common.config.RedisMessage;
 import socket_server.common.exception.room.RoomExceptionCode;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.room.RoomField.RoomField;
-import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.dto.EventType;
 import socket_server.domain.room.dto.RoomJoinRes;
 import socket_server.domain.room.model.RoomMetadata;
@@ -16,11 +14,8 @@ import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomRepository;
 import socket_server.domain.room.repository.RoomUserRepository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-
-import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
 
 @Service
 @Slf4j
@@ -30,15 +25,18 @@ public class RoomUserService {
     private final JsonSerializer jsonSerializer;
     private final RoomUserRepository roomUserRepository;
     private final RoomRepository roomRepository;
+    private final RoomBroadcaster roomBroadcaster;
 
     public RoomUserService(RedisTemplate<String, Object> objectRedisTemplate,
                            RoomUserRepository roomUserRepository,
                            JsonSerializer jsonSerializer,
-                           RoomRepository roomRepository) {
+                           RoomRepository roomRepository,
+                           RoomBroadcaster roomBroadcaster) {
         this.jsonSerializer = jsonSerializer;
         this.roomUserRepository = roomUserRepository;
         this.objectRedisTemplate = objectRedisTemplate;
         this.roomRepository = roomRepository;
+        this.roomBroadcaster = roomBroadcaster;
     }
 
     public void joinAndBroadcast(String roomId, String userUuid, String nickname, String password) {
@@ -141,35 +139,16 @@ public class RoomUserService {
         RoomMetadata roomMetadata = RoomMetadata.fromRedisMap(roomId, roomRepository.getRoomData(roomId));
 
         RoomJoinRes roomJoinRes = new RoomJoinRes(roomMetadata, userList);
-        broadcastToRoom(roomId, userId, EventType.JOIN, roomJoinRes);
+        roomBroadcaster.broadcastToRoom(roomId, userId, EventType.JOIN, roomJoinRes);
     }
 
     private void broadcastReadyStatus(String roomId, String userUuid, boolean isReady) {
-        broadcastToRoom(roomId, userUuid, isReady ? EventType.READY : EventType.UNREADY, userUuid);
+        roomBroadcaster.broadcastToRoom(roomId, userUuid, isReady ? EventType.READY : EventType.UNREADY, userUuid);
     }
 
 
     private void broadcastExit(String roomId, String userUuid) {
-        broadcastToRoom(roomId, userUuid, EventType.EXIT, userUuid);
-    }
-
-    private void broadcastToRoom(String roomId, String senderId, EventType type, Object data) {
-        EventRes eventRes = new EventRes(
-                type,
-                data,
-                LocalDateTime.now()
-        );
-
-        objectRedisTemplate.convertAndSend(
-                ROOM_EVENT + roomId,
-                new RedisMessage(
-                        senderId,
-                        ROOM_EVENT + roomId,
-                        jsonSerializer.serialize(eventRes)
-                )
-        );
-
-        log.debug("Broadcasted {} event in room {} from user {}", type, roomId, senderId);
+        roomBroadcaster.broadcastToRoom(roomId, userUuid, EventType.EXIT, userUuid);
     }
 }
 
