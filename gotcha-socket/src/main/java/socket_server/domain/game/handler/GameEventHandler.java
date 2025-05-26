@@ -7,5 +7,5 @@ import socket_server.domain.game.dto.GameReq;
 public interface GameEventHandler {
     GameEventType getEventType();
 
-    void handle(String gameId, SecurityUserDetails userDetails, GameReq request);
+    void handle(String roomId, SecurityUserDetails userDetails, GameReq request);
 }

@@ -4,7 +4,6 @@ import gotcha_common.exception.CustomException;
 import gotcha_domain.auth.SecurityUserDetails;
 import org.springframework.stereotype.Component;
 import socket_server.common.exception.game.GameExceptionCode;
-import socket_server.common.exception.room.RoomExceptionCode;
 import socket_server.domain.game.dto.GameEventType;
 import socket_server.domain.game.dto.GameReq;
 
@@ -21,14 +20,14 @@ public class GameEventDispatcher {
                 .collect(Collectors.toMap(GameEventHandler::getEventType, h -> h));
     }
 
-    public void dispatch(GameReq request, String gameId, SecurityUserDetails userDetails) {
+    public void dispatch(GameReq request, String roomId, SecurityUserDetails userDetails) {
         GameEventHandler handler = handlers.get(request.gameEventType());
 
         if (handler == null) {
             throw new CustomException(GameExceptionCode.INVALID_EVENT_TYPE);
         }
 
-        handler.handle(gameId, userDetails, request);
+        handler.handle(roomId, userDetails, request);
     }
 
 }
