@@ -20,6 +20,7 @@ import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.dto.EventType;
 import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.service.RoomService;
+import socket_server.domain.room.service.RoomUserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,7 +37,7 @@ public class GameFlowService {
 
 
     private final GamePlayerService gamePlayerService;
-    private final RoomService roomService;
+    private final RoomUserService roomUserService;
     private final RoundService roundService;
     private final RedisTemplate<String, Object> objectRedisTemplate;
     private final JsonSerializer jsonSerializer;
@@ -47,8 +48,8 @@ public class GameFlowService {
 
     public void startGame(String roomId, String userUuid)  {
         // 1. 게임 시작 가능한지(레디 상태, 플레이어 수) check 후 방 메타정보 조회
-        RoomMetadata roomMetadata = roomService.getHostingRoomMetadata(roomId, userUuid);
-        roomService.checkGameStart(roomId, roomMetadata.getGameType());
+        RoomMetadata roomMetadata = roomUserService.validateRoomHost(roomId, userUuid);
+        roomUserService.checkGameStart(roomId, roomMetadata.getGameType());
 
         // 2. 게임 메타데이터 생성
         Game game = Game.builder().

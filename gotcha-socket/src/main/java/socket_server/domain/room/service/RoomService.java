@@ -152,21 +152,5 @@ public class RoomService {
     }
 
 
-    public void checkGameStart(String roomId, GameType gameType) {
-        List<RoomUserInfo> users = roomUserRepository.findUsersByRoomId(roomId);
 
-        if(gameType == GameType.LULU_ART_EXAM) {
-            if(users.size() < 2 || users.size() > 8) throw new CustomException(RoomExceptionCode.NOT_ENOUGH_PLAYER);
-        }
-
-        if(gameType == GameType.TRICK_MYOMYO) {
-            if(users.size() < 2) throw new CustomException(RoomExceptionCode.NOT_ENOUGH_PLAYER);
-        }
-
-        for(RoomUserInfo user : users) {
-            if(!user.isReady()) {
-                throw new CustomException(RoomExceptionCode.NOT_ALL_PLAYER_READY);
-            }
-        }
-    }
 }
