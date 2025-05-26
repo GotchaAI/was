@@ -69,6 +69,18 @@ public class RoomService {
         broadcastRoomInfo(userDetails.getUuid(), roomMetadata);
     }
 
+    public void deleteRoom(SecurityUserDetails userDetails, String roomId) {
+        roomUserService.validateRoomHost(roomId, userDetails.getUuid());
+
+        roomRepository.deleteRoom(roomId);
+        roomUserRepository.deleteUserList(roomId);
+
+        roomIdService.releaseRoomId(roomId);
+
+        broadcastRoomDeleted(roomId);
+        log.info("방 {} 삭제 완료. 방장: {}", roomId, userDetails.getUuid());
+    }
+
     //todo : lua 스크립트 적용
     public RoomMetadata createRoom(CreateRoomRequest request, SecurityUserDetails userDetails) {
 
@@ -166,6 +178,23 @@ public class RoomService {
         );
 
         objectRedisTemplate.convertAndSend(ROOM_LIST_EVENT, jsonSerializer.serialize(message));
+    }
+
+    private void broadcastRoomDeleted(String roomId) {
+        EventRes eventRes = new EventRes(
+                EventType.DELETE,
+                "방이 삭제되었습니다.",
+                LocalDateTime.now()
+        );
+
+        RedisMessage redisMessage = new RedisMessage(
+                "SYSTEM",  // 시스템 발신자
+                ROOM_EVENT + roomId,
+                jsonSerializer.serialize(eventRes)
+        );
+
+        objectRedisTemplate.convertAndSend(ROOM_EVENT + roomId, jsonSerializer.serialize(redisMessage));
+        log.info("방 {} 삭제 브로드캐스트 전송 완료", roomId);
     }
 
     private void sendRoomMetadataToOwner(RoomMetadata metadata, String userUuid) {
