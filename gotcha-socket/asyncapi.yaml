@@ -155,7 +155,7 @@ channels:
           - name: StartEvent
             summary: START 이벤트 - 게임 시작 알림(게임 메타데이터 포함)
             payload:
-              $ref: '#/components/schemas/Game'
+              $ref: '#/components/schemas/RedisResponse_GameStart'
 
   /pub/chat/all:
     description: 클라이언트가 전체 채팅 메시지를 전송하는 채널
@@ -232,8 +232,8 @@ components:
         - title
         - maxUser
         - hasPassword
-        - aimode
-        - gameMode
+        - difficulty
+        - gameType
         - roundCount
       properties:
         title:
@@ -566,6 +566,8 @@ components:
         payload:
           $ref: '#/components/schemas/PrivateChatMessage'
 
+
+
     Game:
       type: object
       properties:
@@ -585,8 +587,8 @@ components:
           example: "BASIC"
         currentRound:
           type: integer
-          description: "현재 라운드 번호 (1부터 시작)"
-          example: 1
+          description: "현재 라운드 번호 (0이면 아직 아무 라운드 시작하지 않음, 1부터 시작)"
+          example: 0
         totalRounds:
           type: integer
           description: "전체 라운드 수"
@@ -707,3 +709,5 @@ components:
           format: float
           description: "AI 추측의 신뢰도 (0~1)"
           example: 0.85
+
+    A
