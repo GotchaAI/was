@@ -79,7 +79,7 @@ public class RankingRedisService {
 
     //사용자 랭킹 조회
     public RankingUserRes getUserRank(Long userId) {
-        Long rank = stringRedisTemplate.opsForZSet().reverseRank(RANKING_KEY_PREFIX, userId.toString()) + 1;
+        Long rank = stringRedisTemplate.opsForZSet().reverseRank(RANKING_KEY_PREFIX, userId.toString());
 
         User user = userService.findUserByUserId(userId);
 
@@ -87,7 +87,7 @@ public class RankingRedisService {
             throw new CustomException(RankingExceptionCode.RANKING_NOT_FOUND);
         }
 
-        return RankingUserRes.of(user, rank);
+        return RankingUserRes.of(user, rank + 1);
     }
 
     //사용자 경험치 조회
