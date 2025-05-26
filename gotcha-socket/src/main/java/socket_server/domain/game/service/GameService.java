@@ -21,5 +21,8 @@ public class GameService {
         gameFlowService.startGame(roomId, userUuid);
     }
 
+    public void submitDrawing(String roomId, String userUuid, String drawing) {
+        roundService.submitDrawing(roomId, userUuid, drawing);
+    }
 
 }
