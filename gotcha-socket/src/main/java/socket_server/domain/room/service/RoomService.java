@@ -86,16 +86,15 @@ public class RoomService {
 
         String roomId = roomIdService.allocateRoomId();
 
+        if (request.hasPassword() && (request.password() == null || request.password().isBlank())) {
+            throw new CustomException(RoomExceptionCode.PASSWORD_REQUIRED_BUT_MISSING);
+        }
+
         Map<String, String> roomData = new HashMap<>();
         roomData.put(RoomField.TITLE.getRedisField(), request.title());
         roomData.put(RoomField.OWNER.getRedisField(), userDetails.getNickname());
         roomData.put(RoomField.HAS_PASSWORD.getRedisField(), String.valueOf(request.hasPassword()));
-        if (request.hasPassword()) {
-            if (request.password() == null || request.password().isBlank()) {
-                throw new CustomException(RoomExceptionCode.PASSWORD_REQUIRED_BUT_MISSING);
-            }
-            roomData.put(RoomField.PASSWORD.getRedisField(), request.password());
-        }
+        roomData.put(RoomField.PASSWORD.getRedisField(), request.password());
         roomData.put(RoomField.ROUND_COUNT.getRedisField(), String.valueOf(request.roundCount()));
         roomData.put(RoomField.MAX.getRedisField(), String.valueOf(request.gameType().getMaxPlayers()));
         roomData.put(RoomField.MIN.getRedisField(), String.valueOf(request.gameType().getMinPlayers()));
@@ -139,25 +138,48 @@ public class RoomService {
         log.info("chat - roomId: {}, user: {}, content: {}", roomId, userDetails.getUuid(), content);
     }
 
-    public void updateRoomField(String roomId, List<RoomFieldUpdateReq> updateReqs) {
-        RoomField.validateAll(updateReqs);
+    public void updateRoomField(String roomId, RoomUpdateReq roomUpdateReq, String userUuid) {
+        RoomMetadata roomMetadata = roomUserService.validateRoomHost(roomId, userUuid);
 
-        Map<String, String> updateMap = new HashMap<>();
-        for (RoomFieldUpdateReq req : updateReqs) {
-            RoomField field = RoomField.from(req.field());
-            updateMap.put(field.getRedisField(), req.value());
+        if (roomUpdateReq.hasPassword() && (roomUpdateReq.password() == null || roomUpdateReq.password().isBlank())) {
+            throw new CustomException(RoomExceptionCode.PASSWORD_REQUIRED_BUT_MISSING);
         }
 
 //        //이전 방 내용 조회 -> 로직 확인용
 //        Map<Object, Object> exitRoom = roomRepository.getRoomData(roomId);
 //        log.info("✅ 이전 방 필드 정보: {}", exitRoom);
 
-        roomRepository.updateAllFields(roomId, updateMap);
+        roomMetadata.setTitle(roomUpdateReq.title());
+        roomMetadata.setHasPassword(roomUpdateReq.hasPassword());
+        roomMetadata.setPassword(roomUpdateReq.hasPassword() ? roomUpdateReq.password() : "");
+        roomMetadata.setDifficulty(roomUpdateReq.difficulty());
+        roomMetadata.setRoundCount(roomUpdateReq.roundCount());
+
+        roomRepository.updateAllFields(roomId, roomMetadata.toRedisMap());
 
 //        //제대로 바뀐게 맞나 조회 -> 로직 확인용
 //        Map<Object, Object> updatedRoom = roomRepository.getRoomData(roomId);
 //        log.info("✅ 수정된 방 필드 정보: {}", updatedRoom);
+        broadcastRoomInfoToListAndRoom(roomId, roomMetadata);
+    }
 
+    private void broadcastRoomInfoToListAndRoom(String roomId, RoomMetadata metadata) {
+        int currentUser = roomUserRepository.findUsersByRoomId(roomId).size();
+
+        // 1. RoomList 업데이트용
+        RoomSummaryRes summary = RoomSummaryRes.of(metadata, currentUser);
+        EventRes listEvent = new EventRes(EventType.UPDATE, summary, LocalDateTime.now());
+        RedisMessage listMessage = new RedisMessage("SYSTEM", ROOM_LIST_EVENT, jsonSerializer.serialize(listEvent));
+        objectRedisTemplate.convertAndSend(ROOM_LIST_EVENT, jsonSerializer.serialize(listMessage));
+
+        // 2. Room 내부 사용자들에게 전체 방 정보 전송
+        List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId);
+        RoomJoinRes roomJoinRes = new RoomJoinRes(metadata, userList);
+        EventRes roomEvent = new EventRes(EventType.UPDATE, roomJoinRes, LocalDateTime.now());
+        RedisMessage roomMessage = new RedisMessage("SYSTEM", ROOM_EVENT + roomId, jsonSerializer.serialize(roomEvent));
+        objectRedisTemplate.convertAndSend(ROOM_EVENT + roomId, jsonSerializer.serialize(roomMessage));
+
+        log.info("방 {} 업데이트 정보를 ROOM_LIST_EVENT 및 ROOM_EVENT 로 브로드캐스트 완료", roomId);
     }
 
     public void broadcastRoomInfo(String userUuid, RoomMetadata metadata) {
