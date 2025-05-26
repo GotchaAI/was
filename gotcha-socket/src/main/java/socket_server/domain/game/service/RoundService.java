@@ -45,5 +45,10 @@ public class RoundService {
         return rounds;
     }
 
+    public void submitDrawing(String roomId, String userUuid, String drawing) {
+
+//     todo: Is "roundIndex" needed? After current round check, find word by drawer UUID and submit drawing. so roundIndex is not needed
+  
+    }
 
 }
