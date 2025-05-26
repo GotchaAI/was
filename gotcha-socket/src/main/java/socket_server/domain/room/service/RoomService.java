@@ -12,9 +12,7 @@ import socket_server.common.util.JsonSerializer;
 import socket_server.domain.chat.dto.ChatMessage;
 import socket_server.domain.chat.dto.ChatType;
 import socket_server.domain.room.RoomField.RoomField;
-import socket_server.domain.room.dto.CreateRoomRequest;
-import socket_server.domain.room.dto.EventRes;
-import socket_server.domain.room.dto.EventType;
+import socket_server.domain.room.dto.*;
 import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomRepository;
@@ -24,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static socket_server.common.constants.WebSocketConstants.ROOM_CREATE_INFO;
 import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
@@ -122,6 +119,27 @@ public class RoomService {
         log.info("chat - roomId: {}, user: {}, content: {}", roomId, userDetails.getUuid(), content);
     }
 
+    public void updateRoomField(String roomId, List<RoomFieldUpdateReq> updateReqs) {
+        RoomField.validateAll(updateReqs);
+
+        Map<String, String> updateMap = new HashMap<>();
+        for (RoomFieldUpdateReq req : updateReqs) {
+            RoomField field = RoomField.from(req.field());
+            updateMap.put(field.getRedisField(), req.value());
+        }
+
+//        //이전 방 내용 조회 -> 로직 확인용
+//        Map<Object, Object> exitRoom = roomRepository.getRoomData(roomId);
+//        log.info("✅ 이전 방 필드 정보: {}", exitRoom);
+
+        roomRepository.updateAllFields(roomId, updateMap);
+
+//        //제대로 바뀐게 맞나 조회 -> 로직 확인용
+//        Map<Object, Object> updatedRoom = roomRepository.getRoomData(roomId);
+//        log.info("✅ 수정된 방 필드 정보: {}", updatedRoom);
+
+    }
+
     public void broadcastRoomInfo(String userUuid, RoomMetadata metadata) {
         objectRedisTemplate.convertAndSend(ROOM_CREATE_INFO,
                 new RedisMessage(userUuid, ROOM_CREATE_INFO, jsonSerializer.serialize(metadata))); //방 목록 생성 브로드 캐스트 용
@@ -132,14 +150,6 @@ public class RoomService {
         return RoomMetadata.fromRedisMap(roomId, fields);
     }
 
-    public RoomMetadata getHostingRoomMetadata(String roomId, String userId){
-        RoomMetadata roomMetadata = getRoomInfo(roomId);
-        if(!roomMetadata.getOwnerUuid().equals(userId)){
-            throw new CustomException(RoomExceptionCode.NOT_ROOM_OWNER);
-        }
-
-        return roomMetadata;
-    }
 
     public void checkAllPlayerReady(String roomId) {
         List<RoomUserInfo> users = roomUserRepository.findUsersByRoomId(roomId);

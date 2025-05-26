@@ -26,4 +26,9 @@ public class RoomRepository {
     private String getRoomKey(String roomId) {
         return "room:" + roomId;
     }
+
+    public void updateAllFields(String roomId, Map<String, String> updates) {
+        redisTemplate.opsForHash().putAll(getRoomKey(roomId), updates);
+    }
+
 }

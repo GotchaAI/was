@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
 import socket_server.common.exception.room.RoomExceptionCode;
 import socket_server.common.util.JsonSerializer;
+import socket_server.domain.room.RoomField.RoomField;
 import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.dto.EventType;
+import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomRepository;
 import socket_server.domain.room.repository.RoomUserRepository;
@@ -28,10 +30,10 @@ public class RoomUserService {
     private final RoomUserRepository roomUserRepository;
     private final RoomRepository roomRepository;
 
-    public RoomUserService( RedisTemplate<String, Object> objectRedisTemplate,
-                            RoomUserRepository roomUserRepository,
-                            JsonSerializer jsonSerializer,
-                            RoomRepository roomRepository) {
+    public RoomUserService(RedisTemplate<String, Object> objectRedisTemplate,
+                           RoomUserRepository roomUserRepository,
+                           JsonSerializer jsonSerializer,
+                           RoomRepository roomRepository) {
         this.jsonSerializer = jsonSerializer;
         this.roomUserRepository = roomUserRepository;
         this.objectRedisTemplate = objectRedisTemplate;
@@ -99,6 +101,38 @@ public class RoomUserService {
 
     public String findRoomIdByUserUuid(String userUuid) {
         return roomUserRepository.findRoomIdByUserUuid(userUuid);
+    }
+
+    public void checkAllPlayersReady(String roomId) {
+        List<RoomUserInfo> users = roomUserRepository.findUsersByRoomId(roomId);
+        for(RoomUserInfo user : users) {
+            if(!user.isReady()) {
+                throw new CustomException(RoomExceptionCode.NOT_ALL_PLAYER_READY);
+            }
+        }
+    }
+
+
+    public RoomMetadata validateRoomHost(String roomId, String userUuid) {
+        //방이 실존하는지 확인
+        Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
+        if (roomData == null || roomData.isEmpty()) {
+            throw new CustomException(RoomExceptionCode.INVALID_ROOM_ID);
+        }
+
+        // 유저가 방에 실제 존재하는지 확인
+        RoomUserInfo userInfo = roomUserRepository.findUserInfoInRoom(roomId, userUuid);
+        if (userInfo == null) {
+            throw new CustomException(RoomExceptionCode.USER_NOT_IN_ROOM);
+        }
+
+        // 방장이 맞는지 확인
+        String ownerUuid = (String) roomData.get(RoomField.OWNER_UUID.getRedisField());
+        if (!userUuid.equals(ownerUuid)) {
+            throw new CustomException(RoomExceptionCode.NOT_ROOM_OWNER);
+        }
+
+        return RoomMetadata.fromRedisMap(roomId, roomData);
     }
 
     private void broadcastUserList(String roomId, String userId){

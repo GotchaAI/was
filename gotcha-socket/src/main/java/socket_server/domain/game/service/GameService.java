@@ -17,6 +17,7 @@ import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomUserRepository;
 import socket_server.domain.room.service.RoomService;
+import socket_server.domain.room.service.RoomUserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
 @Service
 public class GameService {
 
-    private final RoomService roomService;
+    private final RoomUserService roomUserService;
     private final RoomUserRepository roomUserRepository;
     private final GameRepository gameRepository;
     private final RedisTemplate<String, Object> objectRedisTemplate;
@@ -36,10 +37,10 @@ public class GameService {
 
     public void startGame(String roomId, String userUuid) {
         // 1. host id check, 방 데이터 가져오기
-        RoomMetadata roomMetadata = roomService.getHostingRoomMetadata(roomId, userUuid);
+        RoomMetadata roomMetadata = roomUserService.validateRoomHost(roomId, userUuid);
 
         // 2. 모든 플레이어 준비 상태인지 Check
-        roomService.checkAllPlayerReady(roomId);
+        roomUserService.checkAllPlayersReady(roomId);
 
         // 3. Game 데이터 만들기
         Game game = Game.builder().
