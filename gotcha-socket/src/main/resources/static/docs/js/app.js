@@ -1010,7 +1010,7 @@
           "oneOf": [
             {
               "name": "ROUND_START",
-              "summary": "라운드의 시작을 알립니다. Payload.data.gameData에는 Round 타입이 전송됩니다.",
+              "summary": "라운드의 시작을 알립니다. Payload의 data.gameData에는 Round 타입이 전송됩니다.",
               "payload": {
                 "type": "object",
                 "description": "게임 이벤트 발행 시 해당 방에 있는 유저들에게 전송 될 메시지 구조입니다.",
