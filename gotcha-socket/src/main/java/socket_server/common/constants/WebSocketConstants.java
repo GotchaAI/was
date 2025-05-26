@@ -14,6 +14,7 @@ public interface WebSocketConstants {
     String ROOM_JOIN = ROOM_PREFIX+"join/"; // + roomId
     String ROOM_LEAVE = ROOM_PREFIX+"leave/"; // + roomId
     String ROOM_CREATE_INFO = ROOM_PREFIX + "create/info";
+    String ROOM_OWNER_CREATE_INFO = ROOM_CREATE_INFO + "/"; // + uuid
     String ROOM_UPDATE = ROOM_PREFIX + "update/"; // + roomId
 
     // 게임 관련 채널
