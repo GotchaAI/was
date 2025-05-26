@@ -47,6 +47,8 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
                 throw new MessagingException(toErrorPayload(GlobalExceptionCode.USER_NOT_FOUND));
             } catch (AuthenticationServiceException e) {
                 throw new MessagingException(toErrorPayload(JwtExceptionCode.ACCESS_TOKEN_NOT_FOUND));
+            } catch (Throwable e) {
+                throw new MessagingException(toErrorPayload(GlobalExceptionCode.INTERNAL_SERVER_ERROR));
             }
         }
         return message;
