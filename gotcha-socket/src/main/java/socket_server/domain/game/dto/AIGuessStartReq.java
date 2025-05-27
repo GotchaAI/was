@@ -6,6 +6,7 @@ package socket_server.domain.game.dto;
 public record AIGuessStartReq(
         int roundNum,
         int totalRounds,
-        String drawer
+        String drawer,
+        String guesser
 ) {
 }

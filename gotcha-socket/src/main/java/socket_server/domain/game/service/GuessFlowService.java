@@ -50,6 +50,7 @@ public class GuessFlowService {
         Round currentRound = getCurrentRound(roomId);
 
         // 2. WordMeta BroadCast (현재 라운드에 대해서)
+        // GUESS_START 이벤트 발행
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_START,
                 currentRound.getWords().stream().map(Word::toWordMeta).toList());
 
@@ -86,11 +87,11 @@ public class GuessFlowService {
 
         boolean isAITurn = determineNextGuesser(currentWord);
 
-        if(isAITurn){
+        if(isAITurn){ // next guess
             Guess newGuess = guessRequestService.requestGuessAI(roomId, gameMeta, currentWord);
             handleAIGuessSubmit(roomId, currentRound, currentWord, newGuess);
         } else {
-            // todo: request Guess to Player
+            guessRequestService.requestGuessPlayer(roomId, gameMeta, currentWord);
         }
 
     }
@@ -168,8 +169,9 @@ public class GuessFlowService {
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_RESULT, new AISaysRes(guess, aiSays));
 
         if(guess.getCorrect()){
-            // GUESS 성공
+            // GUESS 성공. attempts와 함께 점수 업데이트
             //todo: update score
+            updateScore(roomId, guess);
         } else {
             // 다음 턴 (GUESS 실패)
             processNextGuessRequest(roomId);
@@ -178,9 +180,25 @@ public class GuessFlowService {
     }
 
 
+    /**
+     * 추측 종료 후 점수 업데이트
+     * SCORE_UPDATE 이벤트 발행
+     *     "scores": {
+     *       "AI": 30,
+     *       "playerA": 0,
+     *       "playerB": 0
+     *     }
+     */
+    private void updateScore(String roomId, Guess guess){
+        // 상태 검증
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.SCORE_UPDATE)){
+            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+        }
 
+        // todo: update score
 
-
+    }
 
 
     /**
@@ -219,27 +237,6 @@ public class GuessFlowService {
         }
         return round.getWords().get(round.getCurrentWordIndex());
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     private int getCurrentRoundIndex(String roomId){
         GameMeta gameMeta = gameRepository.findGameMeta(roomId);
