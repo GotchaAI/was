@@ -32,6 +32,7 @@ public class GuessFlowService {
     private final GuessRequestService guessRequestService;
     private final AIClientService aiClientService;
     private final GamePlayerRepository gamePlayerRepository;
+    private final RoundStartService roundStartService;
 
     /**
      * GUESS_START (ENTRY_POINT)
@@ -169,6 +170,50 @@ public class GuessFlowService {
         handleGuessResult(roomId, currentWord.getWord(), guess);
     }
 
+
+    /**
+     * 라운드 종료 처리 (GUESSING_PHASE -> ROUND_ENDED)
+     * ROUND_END 발행, BROADCAST
+     */
+    private void handleRoundEnd(String roomId){
+        // 상태 검증
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.ROUND_END)){
+            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+        }
+
+        if(gameMeta.getCurrentRound() <= gameMeta.getTotalRounds()){
+            // 상태 업데이트
+            gameMeta.setGameStatus(GameStatus.ROUND_ENDED);
+            gameRepository.saveGameMeta(gameMeta);
+
+            // 현재 ROUND 정보 모으기
+            Round currentRound = getCurrentRound(roomId);
+            List<Word> words = roundRepository.findWordMetas(roomId, currentRound.getRoundIndex()).stream().map(WordMeta::toWord).toList();
+
+            for(Word word : words){
+                List<Guess> aiGuesses = roundRepository.findAIGuesses(roomId, currentRound.getRoundIndex(), word.getWordIndex());
+                List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, currentRound.getRoundIndex(), word.getWordIndex());
+                List<AiPrediction> aiPredictions = roundRepository.findAIPredictions(roomId, currentRound.getRoundIndex(), word.getWordIndex());
+
+                word.setAiGuesses(aiGuesses);
+                word.setPlayerGuesses(playerGuesses);
+                word.setAiPredictions(aiPredictions);
+            }
+            currentRound.setWords(words);
+
+            // ROUND_END 이벤트 발행, 현재 라운드 정보 broadcast
+            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_END, currentRound, null, null);
+
+            // next round 시작
+            // todo: 일정 시간 기다렸다가?
+            roundStartService.startNextRound(roomId);
+
+        } else {
+            //todo: 게임 종료
+            //endGame(roomId);
+        }
+    }
 
 
     /**
