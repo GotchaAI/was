@@ -3,24 +3,22 @@ package socket_server.domain.game.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import socket_server.domain.game.dto.AIGuessStartReq;
-import socket_server.domain.game.dto.AISaysRes;
 import socket_server.domain.game.enumType.GameEventType;
 import socket_server.domain.game.meta.GameMeta;
 import socket_server.domain.game.model.GamePlayer;
 import socket_server.domain.game.model.Guess;
-import socket_server.domain.game.model.Round;
 import socket_server.domain.game.model.Word;
 import socket_server.domain.game.repository.GamePlayerRepository;
 import socket_server.domain.game.repository.GameRepository;
 import socket_server.domain.game.repository.RoundRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class GuessRequestService {
 
-    private final GameRepository gameRepository;
     private final GamePlayerRepository gamePlayerRepository;
     private final AIClientService aIClientService;
     private final GameBroadCaster gameBroadCaster;
@@ -81,7 +79,7 @@ public class GuessRequestService {
         Guess guess = Guess.builder().guesserUuid(gusser.getPlayerUuid()).attempts(guesses.size()+1).build();
 
         // 4. BroadCast
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_REQUEST, guess, aiSays, null);
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_REQUEST, guess, aiSays, LocalDateTime.now().plusSeconds(30));
     }
 
 

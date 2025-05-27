@@ -130,6 +130,16 @@ public class RoundRepository {
         log.info("AI Guess {} saved", guessJson);
     }
 
+    /**
+     * Player GUESS 정보 추가
+     */
+    public void addPlayerGuess(String roomId, int roundIndex, int wordIndex, Guess guess){
+        String key = getPlayerGuessKey(roomId, roundIndex, wordIndex);
+        String guessJson = jsonSerializer.serialize(guess);
+        redisTemplate.opsForList().rightPush(key, guessJson);
+        log.info("Player Guess {} saved", guessJson);
+    }
+
 
     /**
      * AI Guess 정보 저장

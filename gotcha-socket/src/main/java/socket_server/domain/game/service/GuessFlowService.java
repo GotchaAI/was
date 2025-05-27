@@ -29,7 +29,6 @@ public class GuessFlowService {
     private final RoundRepository roundRepository;
     private final GameBroadCaster gameBroadCaster;
     private final GuessRequestService guessRequestService;
-    private final GuessSubmitService guessSubmitService;
     private final AIClientService aiClientService;
     private final GamePlayerRepository gamePlayerRepository;
 
@@ -139,6 +138,38 @@ public class GuessFlowService {
         handleGuessResult(roomId, currentWord.getWord(), guess);
     }
 
+
+    public void handlePlayerGuessSubmit(String roomId, Guess guess, String guesserUuid){
+        //0. 상태 검증
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GUESS_SUBMIT)){
+            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+        }
+
+        //1. GUESS 정보 Broadcast
+        gameBroadCaster.broadcastGameEvent(guesserUuid, roomId, GameEventType.GUESS_SUBMIT, guess, null, null);
+
+        //2. Handle Guess Result
+        handleGuessResult(roomId, guess.getGuessWord(), guess);
+
+        Round currentRound = getCurrentRound(roomId);
+        Word currentWord = getCurrentWord(getCurrentRound(roomId));
+
+
+        //3. 정답 확인
+        guess.setCorrect(guess.getGuessWord().equalsIgnoreCase(currentWord.getWord()));
+
+        //4. 현재 Word에 guess 추가
+        currentWord.getPlayerGuesses().add(guess);
+        roundRepository.addPlayerGuess(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), guess);
+
+        //5. handle guess result
+        //todo: handlerguessresult() 호출 시에 정답 확인, word에 guess를 추가하는건 어떨까? handlerAIGuessSubmit()과 코드가 중복된 내용이 있음.
+        handleGuessResult(roomId, currentWord.getWord(), guess);
+    }
+
+
+
     /**
      * 추측 결과 처리(CurrentWord와 Guess 비교)
      * GUESS_RESULT 발행, BROADCAST
@@ -158,11 +189,12 @@ public class GuessFlowService {
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GUESS_RESULT)){
             throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
         }
-        String guesserUuid = guess.getGuesserUuid();
 
+        // guesser 이름 받음
+        String guesserUuid = guess.getGuesserUuid();
         String guesser = guesserUuid.equals("AI") ? "묘묘" : gamePlayerRepository.findPlayerByUuid(roomId, guesserUuid).getNickname();
         
-        // GUESS _ RESULT 만들어야
+        // AI 반응 받음
         String aiSays = aiClientService.getGuessReactMessage(roomId, new AIGuessReactReq(guess.getCorrect(), currentWord, guesser));
 
         // GUESS RESULT Broadcast
@@ -170,7 +202,6 @@ public class GuessFlowService {
 
         if(guess.getCorrect()){
             // GUESS 성공. attempts와 함께 점수 업데이트
-            //todo: update score
             updateScore(roomId, guess);
         } else {
             // 다음 턴 (GUESS 실패)
