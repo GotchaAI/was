@@ -73,7 +73,7 @@ public class GameFlowService {
         // 5. Redis에 저장 : GameMeta, GamePlayers, Rounds
         saveGame(game);
 
-        //todo: 6. AI 서버 메시지 받아오기
+        // 6. AI 서버 메시지 받아오기
         String aiSays = aIClientService.getGameStartMessage(roomId, new AIGameStartReq(gamePlayers.stream().map(GamePlayer::getNickname).toList()));
 
         // 7. 시작 이벤트 브로드캐스트
@@ -131,7 +131,7 @@ public class GameFlowService {
         List<Round> rounds = roundRepository.findRoundMetas(roomId).stream().map(RoundMeta::toRound).toList();
         for(Round round: rounds) {
             // Word 가져와서 wordIndex로 Guess 조회
-            List<Word> words = roundRepository.findWords(roomId, round.getRoundIndex()).stream().map(WordMeta::toWord).toList();
+            List<Word> words = roundRepository.findWordMetas(roomId, round.getRoundIndex()).stream().map(WordMeta::toWord).toList();
             for(Word word: words) {
                 List<Guess> guesses = roundRepository.findGuesses(roomId, round.getRoundIndex(), word.getWordIndex());
                 word.setGuesses(guesses);

@@ -24,7 +24,7 @@ public class DrawingSubmitHandler implements GameEventHandler {
     @Override
     public void handle(String roomId, SecurityUserDetails userDetails, GameReq request) {
         DrawingSubmitReq drawingSubmit = jsonSerializer.deserialize(request.data(), DrawingSubmitReq.class);
-        gameService.submitDrawing(roomId, userDetails.getUuid(), drawingSubmit.imageData());
+        gameService.submitDrawing(roomId, userDetails.getUuid(), drawingSubmit.imageURL());
     }
 
 }
