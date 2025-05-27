@@ -20,7 +20,7 @@ public class DrawingSubmitService {
 
     private final GameRepository gameRepository;
     private final RoundRepository roundRepository;
-    private final GuessStartService guessStartService;
+    private final GuessFlowService guessFlowService;
     private final AIClientService aiClientService;
 
 
@@ -48,7 +48,7 @@ public class DrawingSubmitService {
 
 
         if(checkAllDrawingSubmitted(roomId)) {
-            guessStartService.startGuessing(roomId);
+            guessFlowService.startGuessing(roomId);
         }
     }
 

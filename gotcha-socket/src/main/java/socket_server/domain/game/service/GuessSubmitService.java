@@ -45,10 +45,7 @@ public class GuessSubmitService {
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_SUBMIT, new AISaysRes(guess, aiSays));
 
 
-
-
-
-
+        // 다음 GUESS REQUEST : PLAYER
     }
 
 
