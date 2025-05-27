@@ -1,7 +1,7 @@
 package socket_server.domain.game.dto;
 
 /**
- *  AI 추측 시작 시 AI서버로 보낼 DTO
+ *  추측 시작 시(GUESS_REQUEST) AI서버로 보낼 DTO
  */
 public record AIGuessStartReq(
         int roundNum,
