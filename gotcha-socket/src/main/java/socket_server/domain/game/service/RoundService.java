@@ -10,6 +10,7 @@ import socket_server.domain.game.meta.GameMeta;
 import socket_server.domain.game.meta.RoundMeta;
 import socket_server.domain.game.meta.WordMeta;
 import socket_server.domain.game.model.GamePlayer;
+import socket_server.domain.game.model.Guess;
 import socket_server.domain.game.model.Round;
 import socket_server.domain.game.model.Word;
 import socket_server.domain.game.repository.GameRepository;
@@ -29,6 +30,9 @@ public class RoundService {
     private final GameRepository gameRepository;
 
 
+    /**
+     * START
+     */
     public List<Round> initRounds(int totalRounds, List<GamePlayer> gamePlayers) {
         List<Round> rounds = new ArrayList<>();
         List<Integer> indexes = WordUtils.getRandomIndexes(totalRounds * 2); // get random indexes, 플레이어는 항상 2명이라고 가정
@@ -39,7 +43,8 @@ public class RoundService {
                         .wordIndex(j)
                         .word(WordUtils.getEngWord(indexes.get(i * 2 + j)))
                         .drawerUuid(gamePlayers.get(j).getPlayerUuid())
-                        .guesses(new ArrayList<>())
+                        .aiGuesses(new ArrayList<>())
+                        .playerGuesses(new ArrayList<>())
                         .aiPredictions(new ArrayList<>()).build();
                 words.add(word);
             }
@@ -123,4 +128,5 @@ public class RoundService {
 
         return round;
     }
+
 }
