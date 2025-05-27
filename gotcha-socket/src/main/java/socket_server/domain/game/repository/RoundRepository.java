@@ -39,9 +39,8 @@ public class RoundRepository {
     /**
      * Round 메타정보 List 저장 (roundIndex, drawingEndTime, roundWinner)
      */
-    public void saveRoundMetas(String roomId, List<Round> rounds) {
+    public void saveRoundMetas(String roomId, List<RoundMeta> roundMetas) {
         String key = getGameRoundsKey(roomId);
-        List<RoundMeta> roundMetas = rounds.stream().map(Round::toRoundMeta).toList();
         String roundsJson = jsonSerializer.serialize(roundMetas);
         redisTemplate.opsForValue().set(key, roundsJson);
         log.info("RoundMetas {} saved", roundsJson);
