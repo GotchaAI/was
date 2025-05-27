@@ -11,7 +11,8 @@ public enum GlobalExceptionCode implements ExceptionCode {
     USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH-401-001", "인증된 사용자를 찾을 수 없습니다."),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "AUTH-403-001", "접근 권한이 없습니다."),
     INVALID_MESSAGE_FORMAT(HttpStatus.BAD_REQUEST, "GLOBAL_400_002", "유효하지 않은 메시지 포맷 입니다."),
-    INVALID_CHANNEL(HttpStatus.BAD_REQUEST, "GLOBAL_400_003", "유효하지 않은 소켓 채널입니다.");
+    INVALID_CHANNEL(HttpStatus.BAD_REQUEST, "GLOBAL_400_003", "유효하지 않은 소켓 채널입니다."),
+    INVALID_IMAGE(HttpStatus.BAD_REQUEST, "GLOBAL_400_004", "유효하지 않은 이미지 파일입니다.");
 
     private final HttpStatus status;
     private final String code;
