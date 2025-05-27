@@ -21,16 +21,15 @@ public enum GameStatus {
     private String description;
 
     public boolean canHandleEvent(GameEventType gameEventType) {
-        return switch (this) {
-            case GAME_STARTED, ROUND_ENDED -> gameEventType == GameEventType.ROUND_START;
-            case DRAWING_PHASE -> gameEventType == GameEventType.DRAWING_SUBMIT || gameEventType == GameEventType.GUESS_START; // ROUND_STARTED, DRAWING_PHASE에서는 DRAWING_SUBMIT 만 시작 가능
-            case GUESSING_PHASE -> gameEventType == GameEventType.GUESS_SUBMIT ||
-                    gameEventType == GameEventType.GUESS_REQUEST ||
-                    gameEventType == GameEventType.GUESS_RESULT ||
-                    gameEventType == GameEventType.SCORE_UPDATE ||
-                    gameEventType == GameEventType.ROUND_END;
+
+        return switch(gameEventType){
+            case ROUND_START -> this == GameStatus.GAME_STARTED || this == GameStatus.ROUND_ENDED;
+            case DRAWING_SUBMIT, GUESS_START -> this == GameStatus.DRAWING_PHASE;
+            case GUESS_SUBMIT, ROUND_END, GUESS_REQUEST, GUESS_RESULT, SCORE_UPDATE -> this == GameStatus.GUESSING_PHASE;
+            case GAME_END -> this == GameStatus.GAME_ENDED;
             default -> false;
         };
+
     }
 
 }
