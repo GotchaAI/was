@@ -52,7 +52,7 @@ public class GuessFlowService {
         // 2. WordMeta BroadCast (현재 라운드에 대해서)
         // GUESS_START 이벤트 발행
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_START,
-                currentRound.getWords().stream().map(Word::toWordMeta).toList());
+                currentRound.getWords().stream().map(Word::toWordMeta).toList(), null, null);
 
 
         processNextGuessRequest(roomId);
@@ -126,7 +126,7 @@ public class GuessFlowService {
         String aiSays = aiClientService.getGuessMessage(roomId, new AIGuessMessageReq(predictions.get(guess.getAttempts()-1).getPredicted()));
 
         // 4. AI GUESS Broadcast
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_SUBMIT, new AISaysRes(guess, aiSays));
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_SUBMIT, guess, aiSays, null);
 
         // 5. 정답 확인
         guess.setCorrect(aiPredicted.equalsIgnoreCase(currentWord.getWord()));
@@ -166,7 +166,7 @@ public class GuessFlowService {
         String aiSays = aiClientService.getGuessReactMessage(roomId, new AIGuessReactReq(guess.getCorrect(), currentWord, guesser));
 
         // GUESS RESULT Broadcast
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_RESULT, new AISaysRes(guess, aiSays));
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_RESULT, guess, aiSays, null);
 
         if(guess.getCorrect()){
             // GUESS 성공. attempts와 함께 점수 업데이트

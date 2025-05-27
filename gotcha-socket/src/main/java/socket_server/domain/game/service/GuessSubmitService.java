@@ -40,7 +40,7 @@ public class GuessSubmitService {
         String aiSays = aiClientService.getGuessMessage(roomId, new AIGuessMessageReq(aiPredictions.get(guess.getAttempts()-1).getPredicted()));
 
         //5. AI GUESS Broadcast
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_SUBMIT, new AISaysRes(guess, aiSays));
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_SUBMIT, guess, aiSays, null);
 
         return guess.getGuessWord();
     }

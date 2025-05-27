@@ -40,7 +40,7 @@ public class GuessRequestService {
         Guess guess = Guess.builder().guesserUuid("AI").attempts(guesses.size()+1).build();
 
         // 3. 해당 정보 브로드캐스트
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_REQUEST, new AISaysRes(guess, aiSays));
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_REQUEST, guess, aiSays, null);
         return guess;
 
     }
@@ -81,7 +81,7 @@ public class GuessRequestService {
         Guess guess = Guess.builder().guesserUuid(gusser.getPlayerUuid()).attempts(guesses.size()+1).build();
 
         // 4. BroadCast
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_REQUEST, new AISaysRes(guess, aiSays));
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_REQUEST, guess, aiSays, null);
     }
 
 

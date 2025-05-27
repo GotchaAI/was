@@ -24,6 +24,7 @@ public class GameBroadCaster {
     private final RedisTemplate<String, Object> objectRedisTemplate;
 
     public void broadcastStartEvent(String userUuid, String roomId, AISaysRes aiSaysRes) {
+
         EventRes eventRes = new EventRes(
                 EventType.START,
                 aiSaysRes,
@@ -39,11 +40,14 @@ public class GameBroadCaster {
         objectRedisTemplate.convertAndSend(ROOM_EVENT + roomId, jsonSerializer.serialize(redisMessage));
     }
 
-    public void broadcastGameEvent(String senderUuid, String roomId, GameEventType gameEventType, Object data) {
-        GameRes gameRes = new GameRes(
-                gameEventType,
-                data,
-                LocalDateTime.now());
+    public void broadcastGameEvent(String senderUuid, String roomId, GameEventType gameEventType, Object data, String aiSays, LocalDateTime endTime) {
+        GameRes gameRes = GameRes.builder()
+                .eventType(gameEventType)
+                .data(data)
+                .aiSays(aiSays)
+                .eventAt(LocalDateTime.now())
+                .endTime(endTime)
+                .build();
 
         objectRedisTemplate.convertAndSend(
                 GAME_PREFIX + roomId,

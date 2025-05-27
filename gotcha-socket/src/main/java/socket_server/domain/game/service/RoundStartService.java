@@ -51,7 +51,7 @@ public class RoundStartService {
                 new AIRoundStartReq(currentRound, gameMeta.getTotalRounds())
         );
 
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_START, new AISaysRes(currentRoundMeta, aiSays));
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_START, currentRoundMeta, aiSays, null);
     }
 
     // 게임 종료 check시 반드시 필요
