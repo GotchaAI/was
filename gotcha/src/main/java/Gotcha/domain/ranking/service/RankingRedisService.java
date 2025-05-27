@@ -1,8 +1,11 @@
 package Gotcha.domain.ranking.service;
 
 import Gotcha.domain.ranking.dto.RankingUserRes;
+import Gotcha.domain.ranking.exception.RankingExceptionCode;
+import gotcha_common.exception.CustomException;
 import gotcha_domain.user.User;
 import gotcha_user.repository.UserRepository;
+import gotcha_user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -22,6 +25,7 @@ import static gotcha_common.redis.RedisProperties.RANKING_KEY_PREFIX;
 public class RankingRedisService {
     private final StringRedisTemplate stringRedisTemplate;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     private static final int SIZE = 20;
 
@@ -74,8 +78,16 @@ public class RankingRedisService {
     }
 
     //사용자 랭킹 조회
-    public Long getUserRank(Long userId) {
-        return stringRedisTemplate.opsForZSet().reverseRank(RANKING_KEY_PREFIX, userId.toString());
+    public RankingUserRes getUserRank(Long userId) {
+        Long rank = stringRedisTemplate.opsForZSet().reverseRank(RANKING_KEY_PREFIX, userId.toString());
+
+        User user = userService.findUserByUserId(userId);
+
+        if (rank == null) {
+            throw new CustomException(RankingExceptionCode.RANKING_NOT_FOUND);
+        }
+
+        return RankingUserRes.of(user, rank + 1);
     }
 
     //사용자 경험치 조회
