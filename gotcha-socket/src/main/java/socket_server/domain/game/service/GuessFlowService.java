@@ -24,10 +24,12 @@ public class GuessFlowService {
     private final RoundRepository roundRepository;
     private final GameBroadCaster gameBroadCaster;
     private final GuessRequestService guessRequestService;
+    private final GuessSubmitService guessSubmitService;
     /**
      * GUESS_START (ENTRY_POINT)
+     * DRAWING_PHASE -> GUESSING_PHASE
      */
-    public void startGuessing(String roomId) {
+    public void startGuessingPhase(String roomId) {
         // 0. 게임 메타정보 조회 -> GameStatus 업데이트
         GameMeta gameMeta = gameRepository.findGameMeta(roomId);
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GUESS_START)){
@@ -40,34 +42,86 @@ public class GuessFlowService {
         Round currentRound = getCurrentRound(roomId);
 
         // 2. WordMeta BroadCast (현재 라운드에 대해서)
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_START, currentRound.getWords().stream().map(Word::toWordMeta).toList());
-
-        // todo: GUESS_REQUEST(EntryPoint)
-
-        // 3. 현재 라운드에서, Guess 해야하는 Word 찾음
-        Word guessTargetWord = currentRound.getWords().get(currentRound.getCurrentWordIndex());
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_START,
+                currentRound.getWords().stream().map(Word::toWordMeta).toList());
 
 
-        // 4. request Guess to AI
-        guessRequestService.requestGuessAI(roomId, currentRound, guessTargetWord);
+        processNextGuessRequest(roomId);
     }
 
 
     /**
-     * 다음 추측을 진행. 흐름 제어용 코드
+     * GUESS_REQUEST 이벤트 발행.
+     * GUESSING_PHASE -> GUESSING_PHASE
+     * 현재 GUESS 상태 확인.
+     * 1. Round 종료 여부 확인
+     * 2. Guess 완료 여부 확인
+     * 3. check whether AI turn or Player turn
      */
-    public void processNextGuess(String roomId){
+    public void processNextGuessRequest(String roomId){
+        // 상태 검증
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GUESS_REQUEST)){
+            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+        }
         Round currentRound = getCurrentRound(roomId);
         Word currentWord = getCurrentWord(currentRound);
-        if(currentWord== null){
-            // todo: next round
 
+        if(currentWord == null){
+            // todo: next round
             return;
         }
 
+        if(isWordGuessCompleted(currentWord)){
+            // todo: next word
+            return;
+        }
+
+        boolean isAITurn = determineNextGuesser(currentWord);
+
+        if(isAITurn){
+            guessRequestService.requestGuessAI(roomId, currentRound, currentWord);
+            handleAIGuessSubmit(roomId, currentRound, currentWord);
+        } else {
+            // todo: request Guess to Player
+        }
+
+    }
+
+
+    /**
+     * AI 추측 제출 처리(GUESS_SUBMIT) 이벤트
+     */
+    public void handleAIGuessSubmit(String roomId, Round currentRound, Word currentWord) {
+        // 0. 상태 검증
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GUESS_SUBMIT)){
+            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+        }
+        // 1. 실제 AI 추측 시작
+        Guess guess = Guess.builder()
+                .guesserUuid("AI")
+                .attempts(currentWord.getAiGuesses().size() + 1)
+                .build();
+        String guessedWord = guessSubmitService.submitGuessAI(roomId, currentRound, currentWord, guess);
+
+        guess.setCorrect(guessedWord.equalsIgnoreCase(currentWord.getWord()));
+
+
+    }
 
 
 
+
+
+
+
+    /**
+     * 다음 추측자는 누구?
+     * attempts 지금까지 몇 번 했는지 확인
+     */
+    private boolean determineNextGuesser(Word word){
+        return word.getAiGuesses().size() == word.getPlayerGuesses().size(); // AI가 먼저 시작, 번갈아가며 진행
     }
 
 

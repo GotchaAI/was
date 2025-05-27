@@ -48,7 +48,7 @@ public class DrawingSubmitService {
 
 
         if(checkAllDrawingSubmitted(roomId)) {
-            guessFlowService.startGuessing(roomId);
+            guessFlowService.startGuessingPhase(roomId);
         }
     }
 

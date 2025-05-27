@@ -23,13 +23,12 @@ public class GuessSubmitService {
     private final AIClientService aiClientService;
 
 
-    public void submitGuessAI(String roomId, Round currentRound, Word guessTargetWord, Guess guess){
+    public String submitGuessAI(String roomId, Round currentRound, Word guessTargetWord, Guess guess){
         // 1. AI PREDICTION 가져와서
         List<AiPrediction> aiPredictions = roundRepository.findAIPredictions(roomId, currentRound.getRoundIndex(), guessTargetWord.getWordIndex());
 
         // 2. attempts에 따라 GUESS 데이터 저장
         guess.setGuessWord(aiPredictions.get(guess.getAttempts()-1).getPredicted());
-
 
         // 2. 현재 Word 에 Guess 추가
         guessTargetWord.getAiGuesses().add(guess);
@@ -40,12 +39,10 @@ public class GuessSubmitService {
         //4. get ai says
         String aiSays = aiClientService.getGuessMessage(roomId, new AIGuessMessageReq(aiPredictions.get(guess.getAttempts()-1).getPredicted()));
 
-
-        //4. AI GUESS Broadcast
+        //5. AI GUESS Broadcast
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_SUBMIT, new AISaysRes(guess, aiSays));
 
-
-        // 다음 GUESS REQUEST : PLAYER
+        return guess.getGuessWord();
     }
 
 
