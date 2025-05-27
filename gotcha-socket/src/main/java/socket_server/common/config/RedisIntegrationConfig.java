@@ -25,6 +25,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.support.ErrorMessage;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import socket_server.common.util.JsonSerializer;
+import socket_server.domain.game.handler.GamePubSubHandler;
 import socket_server.domain.personal.handler.PersonalPubSubHandler;
 import socket_server.domain.room.handler.RoomPubSubHandler;
 
@@ -54,10 +55,12 @@ public class RedisIntegrationConfig {
     ObjectMapper objectMapper = new ObjectMapper();
     private final RoomPubSubHandler roomHandler;
     private final PersonalPubSubHandler personalPubSubHandler;
+    private final GamePubSubHandler gamePubSubHandler;
 
-    public RedisIntegrationConfig(RoomPubSubHandler roomHandler, PersonalPubSubHandler personalPubSubHandler) {
+    public RedisIntegrationConfig(RoomPubSubHandler roomHandler, PersonalPubSubHandler personalPubSubHandler, GamePubSubHandler gamePubSubHandler) {
         this.roomHandler = roomHandler;
         this.personalPubSubHandler=personalPubSubHandler;
+        this.gamePubSubHandler = gamePubSubHandler;
     }
 
     @Bean("redisExecutor")
@@ -114,6 +117,11 @@ public class RedisIntegrationConfig {
     }
 
     @Bean
+    public MessageChannel gameMessageChannel(@Qualifier("redisExecutor") TaskExecutor exec) {
+        return new ExecutorChannel(exec);
+    }
+
+    @Bean
     public MessageProducer redisInboundAdapter(RedisConnectionFactory cf) {
         RedisInboundChannelAdapter adapter = new RedisInboundChannelAdapter(cf);
         adapter.setTopicPatterns(
@@ -132,6 +140,7 @@ public class RedisIntegrationConfig {
 
 
                 // 게임
+                GAME_PREFIX + "*",                   // /sub/game/*
                 GAME_READY_CHANNEL + "*",            // /sub/game/ready/*
                 GAME_END_CHANNEL + "*",              // /sub/game/end/*
                 GAME_INFO_CHANNEL + "*",             // /sub/game/info/*
@@ -196,6 +205,18 @@ public class RedisIntegrationConfig {
                     log.info("📦 [방 메시지] topic={}, user={}, payload={}",
                             redisMessage.topic(), redisMessage.userId(), redisMessage.payload());
                     roomHandler.onMessage(redisMessage.topic(), redisMessage);
+                    return null;
+                }).get();
+    }
+
+    @Bean
+    public IntegrationFlow gameMessageFlow(JsonSerializer jsonSerializer) {
+        return IntegrationFlow.from("gameMessageChannel")
+                .handle((msg, headers) -> {
+                    RedisMessage redisMessage = jsonSerializer.deserialize(msg, RedisMessage.class);
+                    log.info("🎮 [게임 메시지] topic={}, user={}, payload={}",
+                            redisMessage.topic(), redisMessage.userId(), redisMessage.payload());
+                    gamePubSubHandler.onMessage(redisMessage.topic(), redisMessage);
                     return null;
                 }).get();
     }

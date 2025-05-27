@@ -2,7 +2,6 @@
 package socket_server.domain.room.handler;
 
 
-import gotcha_common.exception.CustomException;
 import gotcha_domain.auth.SecurityUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,7 +14,6 @@ import socket_server.domain.room.dto.RoomReq;
 public class GameStartHandler implements RoomEventHandler {
 
     private final GameService gameService;
-
     @Override
     public EventType getEventType() {
         return EventType.START;

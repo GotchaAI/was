@@ -7,7 +7,9 @@ dependencies {
 
 
     implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'//웹소켓을 사용하기 위한 라이브러리
     developmentOnly 'org.springframework.boot:spring-boot-devtools'//서버, 클라이언트 자동 시작을 도와줌

@@ -96,8 +96,8 @@
               "title",
               "maxUser",
               "hasPassword",
-              "aimode",
-              "gameMode",
+              "difficulty",
+              "gameType",
               "roundCount"
             ],
             "properties": {
@@ -720,208 +720,262 @@
               "payload": {
                 "type": "object",
                 "properties": {
-                  "roomId": {
+                  "userId": {
                     "type": "string",
-                    "description": "게임 방의 고유 식별자",
-                    "example": "9827",
-                    "x-parser-schema-id": "<anonymous-schema-86>"
+                    "x-parser-schema-id": "<anonymous-schema-65>"
                   },
-                  "gameType": {
+                  "topic": {
                     "type": "string",
-                    "description": "게임의 타입",
-                    "enum": [
-                      "TRICK_MYOMYO",
-                      "LULU_ART_EXAM"
-                    ],
-                    "example": "TRICK_MYOMYO",
-                    "x-parser-schema-id": "<anonymous-schema-87>"
+                    "x-parser-schema-id": "<anonymous-schema-66>"
                   },
-                  "difficulty": {
-                    "type": "string",
-                    "description": "게임 난이도",
-                    "enum": [
-                      "BASIC",
-                      "ADVANCED"
-                    ],
-                    "example": "BASIC",
-                    "x-parser-schema-id": "<anonymous-schema-88>"
-                  },
-                  "currentRound": {
-                    "type": "integer",
-                    "description": "현재 라운드 번호 (1부터 시작)",
-                    "example": 1,
-                    "x-parser-schema-id": "<anonymous-schema-89>"
-                  },
-                  "totalRounds": {
-                    "type": "integer",
-                    "description": "전체 라운드 수",
-                    "example": 3,
-                    "x-parser-schema-id": "<anonymous-schema-90>"
-                  },
-                  "aiScore": {
-                    "type": "integer",
-                    "description": "AI의 현재 점수",
-                    "example": 0,
-                    "x-parser-schema-id": "<anonymous-schema-91>"
-                  },
-                  "gamePlayers": {
-                    "type": "array",
-                    "description": "게임에 참여 중인 플레이어 목록",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "playerUuid": {
-                          "type": "string",
-                          "description": "플레이어의 UUID",
-                          "example": "l3lwXGrb",
-                          "x-parser-schema-id": "<anonymous-schema-93>"
-                        },
-                        "nickname": {
-                          "type": "string",
-                          "description": "플레이어의 닉네임",
-                          "example": "test1",
-                          "x-parser-schema-id": "<anonymous-schema-94>"
-                        },
-                        "score": {
-                          "type": "integer",
-                          "description": "플레이어의 점수",
-                          "example": 0,
-                          "x-parser-schema-id": "<anonymous-schema-95>"
-                        }
+                  "payload": {
+                    "type": "object",
+                    "properties": {
+                      "eventType": {
+                        "type": "string",
+                        "enum": [
+                          "START"
+                        ],
+                        "x-parser-schema-id": "<anonymous-schema-68>"
                       },
-                      "x-parser-schema-id": "GamePlayer"
-                    },
-                    "x-parser-schema-id": "<anonymous-schema-92>"
-                  },
-                  "rounds": {
-                    "type": "array",
-                    "description": "게임의 라운드 정보 목록",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "roundIndex": {
-                          "type": "integer",
-                          "description": "라운드 번호 (0부터 시작)",
-                          "example": 0,
-                          "x-parser-schema-id": "<anonymous-schema-97>"
-                        },
-                        "drawingEndTime": {
-                          "type": "string",
-                          "format": "date-time",
-                          "nullable": true,
-                          "description": "그리기 종료 시간 (ISO 8601)",
-                          "example": null,
-                          "x-parser-schema-id": "<anonymous-schema-98>"
-                        },
-                        "roundWinner": {
-                          "type": "string",
-                          "nullable": true,
-                          "description": "라운드 승리자 (playerUuid 또는 'AI' 또는 'players')",
-                          "example": null,
-                          "x-parser-schema-id": "<anonymous-schema-99>"
-                        },
-                        "words": {
-                          "type": "array",
-                          "description": "라운드에서 그릴 단어 목록",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "wordIndex": {
-                                "type": "integer",
-                                "description": "단어 인덱스",
-                                "example": 0,
-                                "x-parser-schema-id": "<anonymous-schema-101>"
-                              },
-                              "word": {
-                                "type": "string",
-                                "description": "제시어",
-                                "example": "bush",
-                                "x-parser-schema-id": "<anonymous-schema-102>"
-                              },
-                              "drawerUuid": {
-                                "type": "string",
-                                "description": "그림을 그린 플레이어의 UUID",
-                                "example": "l3lwXGrb",
-                                "x-parser-schema-id": "<anonymous-schema-103>"
-                              },
-                              "guesses": {
-                                "type": "array",
-                                "description": "플레이어의 추측 목록",
-                                "items": {
-                                  "type": "object",
-                                  "properties": {
-                                    "guesserUuid": {
-                                      "type": "string",
-                                      "description": "추측을 시도한 플레이어의 UUID",
-                                      "example": "z2E63KqK",
-                                      "x-parser-schema-id": "<anonymous-schema-105>"
-                                    },
-                                    "guessWord": {
-                                      "type": "string",
-                                      "description": "플레이어의 추측 단어",
-                                      "example": "tree",
-                                      "x-parser-schema-id": "<anonymous-schema-106>"
-                                    },
-                                    "attempts": {
-                                      "type": "integer",
-                                      "description": "플레이어의 추측 시도 수",
-                                      "example": 1,
-                                      "x-parser-schema-id": "<anonymous-schema-107>"
-                                    },
-                                    "correct": {
-                                      "type": "boolean",
-                                      "description": "플레이어의 추측 정답 여부",
-                                      "example": true,
-                                      "x-parser-schema-id": "<anonymous-schema-108>"
-                                    }
+                      "eventAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-parser-schema-id": "<anonymous-schema-69>"
+                      },
+                      "data": {
+                        "type": "object",
+                        "description": "GPT API 메시지를 포함한 게임 데이터를 응답하는 메시지 구조입니다.",
+                        "properties": {
+                          "gameData": {
+                            "description": "게임 진행 중 발생하는 데이터가 전송됩니다(Game, Round, Word, Guess, GamePlayer).",
+                            "oneOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "roomId": {
+                                    "type": "string",
+                                    "description": "게임 방의 고유 식별자",
+                                    "example": "9827",
+                                    "x-parser-schema-id": "<anonymous-schema-71>"
                                   },
-                                  "x-parser-schema-id": "Guess"
-                                },
-                                "x-parser-schema-id": "<anonymous-schema-104>"
-                              },
-                              "aiPredictions": {
-                                "type": "array",
-                                "description": "AI의 추측 목록",
-                                "items": {
-                                  "type": "object",
-                                  "properties": {
-                                    "predicted": {
-                                      "type": "string",
-                                      "description": "AI의 추측 단어",
-                                      "example": "apple",
-                                      "x-parser-schema-id": "<anonymous-schema-110>"
-                                    },
-                                    "confidence": {
-                                      "type": "number",
-                                      "format": "float",
-                                      "description": "AI 추측의 신뢰도 (0~1)",
-                                      "example": 0.85,
-                                      "x-parser-schema-id": "<anonymous-schema-111>"
-                                    }
+                                  "gameType": {
+                                    "type": "string",
+                                    "description": "게임의 타입",
+                                    "enum": [
+                                      "TRICK_MYOMYO",
+                                      "LULU_ART_EXAM"
+                                    ],
+                                    "example": "TRICK_MYOMYO",
+                                    "x-parser-schema-id": "<anonymous-schema-72>"
                                   },
-                                  "x-parser-schema-id": "AIPrediction"
+                                  "difficulty": {
+                                    "type": "string",
+                                    "description": "게임 난이도",
+                                    "enum": [
+                                      "BASIC",
+                                      "ADVANCED"
+                                    ],
+                                    "example": "BASIC",
+                                    "x-parser-schema-id": "<anonymous-schema-73>"
+                                  },
+                                  "currentRound": {
+                                    "type": "integer",
+                                    "description": "현재 라운드 번호 (0이면 아직 아무 라운드 시작하지 않음, 1부터 시작)",
+                                    "example": 0,
+                                    "x-parser-schema-id": "<anonymous-schema-74>"
+                                  },
+                                  "totalRounds": {
+                                    "type": "integer",
+                                    "description": "전체 라운드 수",
+                                    "example": 3,
+                                    "x-parser-schema-id": "<anonymous-schema-75>"
+                                  },
+                                  "aiScore": {
+                                    "type": "integer",
+                                    "description": "AI의 현재 점수",
+                                    "example": 0,
+                                    "x-parser-schema-id": "<anonymous-schema-76>"
+                                  },
+                                  "gamePlayers": {
+                                    "type": "array",
+                                    "description": "게임에 참여 중인 플레이어 목록",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "playerUuid": {
+                                          "type": "string",
+                                          "description": "플레이어의 UUID",
+                                          "example": "l3lwXGrb",
+                                          "x-parser-schema-id": "<anonymous-schema-78>"
+                                        },
+                                        "nickname": {
+                                          "type": "string",
+                                          "description": "플레이어의 닉네임",
+                                          "example": "test1",
+                                          "x-parser-schema-id": "<anonymous-schema-79>"
+                                        },
+                                        "score": {
+                                          "type": "integer",
+                                          "description": "플레이어의 점수",
+                                          "example": 0,
+                                          "x-parser-schema-id": "<anonymous-schema-80>"
+                                        }
+                                      },
+                                      "x-parser-schema-id": "GamePlayer"
+                                    },
+                                    "x-parser-schema-id": "<anonymous-schema-77>"
+                                  },
+                                  "rounds": {
+                                    "type": "array",
+                                    "description": "게임의 라운드 정보 목록",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "roundIndex": {
+                                          "type": "integer",
+                                          "description": "라운드 번호 (0부터 시작)",
+                                          "example": 0,
+                                          "x-parser-schema-id": "<anonymous-schema-82>"
+                                        },
+                                        "drawingEndTime": {
+                                          "type": "string",
+                                          "format": "date-time",
+                                          "nullable": true,
+                                          "description": "그리기 종료 시간 (ISO 8601)",
+                                          "example": null,
+                                          "x-parser-schema-id": "<anonymous-schema-83>"
+                                        },
+                                        "roundWinner": {
+                                          "type": "string",
+                                          "nullable": true,
+                                          "description": "라운드 승리자 (playerUuid 또는 'AI' 또는 'players')",
+                                          "example": null,
+                                          "x-parser-schema-id": "<anonymous-schema-84>"
+                                        },
+                                        "words": {
+                                          "type": "array",
+                                          "description": "라운드에서 그릴 단어 목록",
+                                          "items": {
+                                            "type": "object",
+                                            "properties": {
+                                              "wordIndex": {
+                                                "type": "integer",
+                                                "description": "단어 인덱스",
+                                                "example": 0,
+                                                "x-parser-schema-id": "<anonymous-schema-86>"
+                                              },
+                                              "word": {
+                                                "type": "string",
+                                                "description": "제시어",
+                                                "example": "bush",
+                                                "x-parser-schema-id": "<anonymous-schema-87>"
+                                              },
+                                              "drawerUuid": {
+                                                "type": "string",
+                                                "description": "그림을 그린 플레이어의 UUID",
+                                                "example": "l3lwXGrb",
+                                                "x-parser-schema-id": "<anonymous-schema-88>"
+                                              },
+                                              "guesses": {
+                                                "type": "array",
+                                                "description": "플레이어의 추측 목록",
+                                                "items": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "guesserUuid": {
+                                                      "type": "string",
+                                                      "description": "추측을 시도한 플레이어의 UUID",
+                                                      "example": "z2E63KqK",
+                                                      "x-parser-schema-id": "<anonymous-schema-90>"
+                                                    },
+                                                    "guessWord": {
+                                                      "type": "string",
+                                                      "description": "플레이어의 추측 단어",
+                                                      "example": "tree",
+                                                      "x-parser-schema-id": "<anonymous-schema-91>"
+                                                    },
+                                                    "attempts": {
+                                                      "type": "integer",
+                                                      "description": "플레이어의 추측 시도 수",
+                                                      "example": 1,
+                                                      "x-parser-schema-id": "<anonymous-schema-92>"
+                                                    },
+                                                    "correct": {
+                                                      "type": "boolean",
+                                                      "description": "플레이어의 추측 정답 여부",
+                                                      "example": true,
+                                                      "x-parser-schema-id": "<anonymous-schema-93>"
+                                                    }
+                                                  },
+                                                  "x-parser-schema-id": "Guess"
+                                                },
+                                                "x-parser-schema-id": "<anonymous-schema-89>"
+                                              },
+                                              "aiPredictions": {
+                                                "type": "array",
+                                                "description": "AI의 추측 목록",
+                                                "items": {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "predicted": {
+                                                      "type": "string",
+                                                      "description": "AI의 추측 단어",
+                                                      "example": "apple",
+                                                      "x-parser-schema-id": "<anonymous-schema-95>"
+                                                    },
+                                                    "confidence": {
+                                                      "type": "number",
+                                                      "format": "float",
+                                                      "description": "AI 추측의 신뢰도 (0~1)",
+                                                      "example": 0.85,
+                                                      "x-parser-schema-id": "<anonymous-schema-96>"
+                                                    }
+                                                  },
+                                                  "x-parser-schema-id": "AIPrediction"
+                                                },
+                                                "x-parser-schema-id": "<anonymous-schema-94>"
+                                              }
+                                            },
+                                            "x-parser-schema-id": "Word"
+                                          },
+                                          "x-parser-schema-id": "<anonymous-schema-85>"
+                                        }
+                                      },
+                                      "x-parser-schema-id": "Round"
+                                    },
+                                    "x-parser-schema-id": "<anonymous-schema-81>"
+                                  },
+                                  "winner": {
+                                    "type": "string",
+                                    "description": "게임 최종 우승자 (playerUuid 또는 'AI' 또는 'players')",
+                                    "nullable": true,
+                                    "example": "AI",
+                                    "x-parser-schema-id": "<anonymous-schema-97>"
+                                  }
                                 },
-                                "x-parser-schema-id": "<anonymous-schema-109>"
-                              }
-                            },
-                            "x-parser-schema-id": "Word"
+                                "x-parser-schema-id": "Game"
+                              },
+                              "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload.properties.payload.properties.data.properties.gameData.oneOf[0].properties.rounds.items",
+                              "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload.properties.payload.properties.data.properties.gameData.oneOf[0].properties.rounds.items.properties.words.items",
+                              "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload.properties.payload.properties.data.properties.gameData.oneOf[0].properties.rounds.items.properties.words.items.properties.guesses.items",
+                              "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload.properties.payload.properties.data.properties.gameData.oneOf[0].properties.gamePlayers.items"
+                            ],
+                            "x-parser-schema-id": "<anonymous-schema-70>"
                           },
-                          "x-parser-schema-id": "<anonymous-schema-100>"
-                        }
-                      },
-                      "x-parser-schema-id": "Round"
+                          "aiSays": {
+                            "type": "string",
+                            "description": "GPT API를 통한 메시지",
+                            "x-parser-schema-id": "<anonymous-schema-98>"
+                          }
+                        },
+                        "x-parser-schema-id": "AISaysRes"
+                      }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-96>"
-                  },
-                  "winner": {
-                    "type": "string",
-                    "description": "게임 최종 우승자 (playerUuid 또는 'AI' 또는 'players')",
-                    "nullable": true,
-                    "example": "AI",
-                    "x-parser-schema-id": "<anonymous-schema-112>"
+                    "x-parser-schema-id": "<anonymous-schema-67>"
                   }
                 },
-                "x-parser-schema-id": "Game"
+                "x-parser-schema-id": "RedisResponse_GameStart"
               }
             }
           ]
@@ -1103,6 +1157,84 @@
           }
         }
       }
+    },
+    "/sub/game/{roomId}": {
+      "description": "게임 흐름 관련 메시지를 수신하는 구독 채널입니다.",
+      "parameters": {
+        "roomId": {
+          "description": "현재 게임이 진행 중인 방의 ID",
+          "schema": {
+            "type": "string",
+            "x-parser-schema-id": "roomId"
+          }
+        }
+      },
+      "subscribe": {
+        "message": {
+          "oneOf": [
+            {
+              "name": "ROUND_START",
+              "summary": "라운드의 시작을 알립니다. Payload의 data.gameData에는 Round 타입이 전송됩니다.",
+              "payload": {
+                "type": "object",
+                "description": "게임 이벤트 발행 시 해당 방에 있는 유저들에게 전송 될 메시지 구조입니다.",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "x-parser-schema-id": "<anonymous-schema-116>"
+                  },
+                  "topic": {
+                    "type": "string",
+                    "x-parser-schema-id": "<anonymous-schema-117>"
+                  },
+                  "payload": {
+                    "type": "object",
+                    "properties": {
+                      "eventType": {
+                        "type": "string",
+                        "enum": [
+                          "ROUND_START",
+                          "GUESS_START",
+                          "GUESS_REQUEST",
+                          "GUESS_SUBMIT",
+                          "GUESS_RESULT",
+                          "SCORE_UPDATE",
+                          "ROUND_END",
+                          "GAME_END"
+                        ],
+                        "x-parser-schema-id": "<anonymous-schema-119>"
+                      },
+                      "data": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload.properties.payload.properties.data",
+                      "eventAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-parser-schema-id": "<anonymous-schema-120>"
+                      }
+                    },
+                    "x-parser-schema-id": "<anonymous-schema-118>"
+                  }
+                },
+                "x-parser-schema-id": "RedisResponse_GameEvent"
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ExceptionRes": "$ref:$.channels./user/queue/errors.subscribe.message.payload",
+      "CreateRoomRequest": "$ref:$.channels./pub/room/create.publish.message.payload",
+      "RoomReq": "$ref:$.channels./pub/room/{roomId}.publish.message.payload",
+      "RedisResponse_RoomMetadata": "$ref:$.channels./sub/room/create/info.subscribe.message.payload",
+      "RoomMetadata": "$ref:$.channels./sub/room/create/info.subscribe.message.payload.properties.payload",
+      "RedisResponse_RoomChat": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[0].payload",
+      "RedisResponse_RoomJoin": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[1].payload",
+      "RedisResponse_RoomReady": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[2].payload",
+      "RedisResponse_RoomUnReady": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[3].payload",
+      "RedisResponse_RoomExit": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[4].payload",
+      "RedisResponse_GameStart": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload",
     }
   },
   "components": {
@@ -1162,12 +1294,14 @@
       "RedisReq_AllChat": "$ref:$.channels./pub/chat/all.publish.message.payload",
       "RedisRes_AllChat": "$ref:$.channels./sub/chat/all.subscribe.message.payload",
       "RedisRes_PrivateChat": "$ref:$.channels./sub/chat/private/{receiverId}.subscribe.message.payload",
-      "Game": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload",
-      "GamePlayer": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload.properties.gamePlayers.items",
-      "Round": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload.properties.rounds.items",
-      "Word": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload.properties.rounds.items.properties.words.items",
-      "Guess": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload.properties.rounds.items.properties.words.items.properties.guesses.items",
-      "AIPrediction": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload.properties.rounds.items.properties.words.items.properties.aiPredictions.items"
+      "RedisResponse_GameEvent": "$ref:$.channels./sub/game/{roomId}.subscribe.message.oneOf[0].payload",
+      "AISaysRes": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload.properties.payload.properties.data",
+      "Game": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload.properties.payload.properties.data.properties.gameData.oneOf[0]",
+      "GamePlayer": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload.properties.payload.properties.data.properties.gameData.oneOf[0].properties.gamePlayers.items",
+      "Round": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload.properties.payload.properties.data.properties.gameData.oneOf[0].properties.rounds.items",
+      "Word": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload.properties.payload.properties.data.properties.gameData.oneOf[0].properties.rounds.items.properties.words.items",
+      "Guess": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload.properties.payload.properties.data.properties.gameData.oneOf[0].properties.rounds.items.properties.words.items.properties.guesses.items",
+      "AIPrediction": "$ref:$.channels./sub/room/event/{roomId}.subscribe.message.oneOf[5].payload.properties.payload.properties.data.properties.gameData.oneOf[0].properties.rounds.items.properties.words.items.properties.aiPredictions.items"
     }
   },
   "x-parser-spec-parsed": true,
