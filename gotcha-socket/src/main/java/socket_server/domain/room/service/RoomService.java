@@ -15,6 +15,7 @@ import socket_server.domain.room.RoomField.RoomField;
 import socket_server.domain.room.dto.CreateRoomRequest;
 import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.dto.EventType;
+import socket_server.domain.room.dto.RoomFieldUpdateReq;
 import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomRepository;
