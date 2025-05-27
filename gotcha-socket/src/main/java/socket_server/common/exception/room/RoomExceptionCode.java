@@ -15,7 +15,8 @@ public enum RoomExceptionCode implements ExceptionCode {
     INVALID_EVENT_TYPE(HttpStatus.BAD_REQUEST, "ROOM_400_005", "유효하지 않은 이벤트 타입입니다."),
     PASSWORD_REQUIRED_BUT_MISSING(HttpStatus.BAD_REQUEST, "ROOM_400_006", "비밀번호 값이 없습니다."),
     INCORRECT_PASSWORD(HttpStatus.BAD_REQUEST, "ROOM_400_007", "비밀번호가 잘못 되었습니다."),
-    NOT_ALL_PLAYER_READY(HttpStatus.BAD_REQUEST, "ROOM_400_008", "모든 유저가 준비되지 않았습니다.");
+    NOT_ALL_PLAYER_READY(HttpStatus.BAD_REQUEST, "ROOM_400_008", "모든 유저가 준비되지 않았습니다."),
+    INVALID_GAME_PLAYERS(HttpStatus.BAD_REQUEST, "ROOM_400_009", "게임 시작에 필요한 유저 수가 올바르지 않습니다.");
 
     private final HttpStatus status;
     private final String code;

@@ -11,6 +11,7 @@ import socket_server.common.exception.room.RoomExceptionCode;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.chat.dto.ChatMessage;
 import socket_server.domain.chat.dto.ChatType;
+import socket_server.domain.game.enumType.GameType;
 import socket_server.domain.room.RoomField.RoomField;
 import socket_server.domain.room.dto.*;
 import socket_server.domain.room.model.RoomMetadata;
@@ -151,13 +152,5 @@ public class RoomService {
     }
 
 
-    public void checkAllPlayerReady(String roomId) {
-        List<RoomUserInfo> users = roomUserRepository.findUsersByRoomId(roomId);
 
-        for(RoomUserInfo user : users) {
-            if(!user.isReady()) {
-                throw new CustomException(RoomExceptionCode.NOT_ALL_PLAYER_READY);
-            }
-        }
-    }
 }

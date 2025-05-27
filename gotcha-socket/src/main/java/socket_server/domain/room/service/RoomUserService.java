@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
 import socket_server.common.exception.room.RoomExceptionCode;
 import socket_server.common.util.JsonSerializer;
+import socket_server.domain.game.enumType.GameType;
 import socket_server.domain.room.RoomField.RoomField;
 import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.dto.EventType;
@@ -103,11 +104,22 @@ public class RoomUserService {
         return roomUserRepository.findRoomIdByUserUuid(userUuid);
     }
 
-    public void checkAllPlayersReady(String roomId) {
+    public void checkGameStart(String roomId, GameType gameType) {
         List<RoomUserInfo> users = roomUserRepository.findUsersByRoomId(roomId);
         for(RoomUserInfo user : users) {
             if(!user.isReady()) {
                 throw new CustomException(RoomExceptionCode.NOT_ALL_PLAYER_READY);
+            }
+        }
+
+        if(gameType.equals(GameType.TRICK_MYOMYO)) {
+            if(users.size() != 2) {
+                throw new CustomException(RoomExceptionCode.INVALID_GAME_PLAYERS);
+            }
+        }
+        else {
+            if(users.size() != 1) {
+                throw new CustomException(RoomExceptionCode.INVALID_GAME_PLAYERS);
             }
         }
     }

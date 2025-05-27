@@ -3,6 +3,7 @@ package socket_server.domain.game.model;
 import lombok.*;
 import socket_server.domain.game.meta.RoundMeta;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -12,7 +13,7 @@ import java.util.List;
 @Builder
 public class Round {
     private int roundIndex;
-    private Long drawingEndTime;
+    private LocalDateTime drawingEndTime;
     private String roundWinner; // 'AI' or 'Players'
     private List<Word> words;
 

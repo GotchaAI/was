@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
 import socket_server.common.listener.PubSubHandler;
 import socket_server.common.util.JsonSerializer;
-import socket_server.domain.game.dto.GameReadyStatus;
+import socket_server.domain.game.dto.GameRes;
 import socket_server.domain.room.dto.EventRes;
 
 import static socket_server.common.constants.WebSocketConstants.*;
@@ -26,8 +26,8 @@ public class GamePubSubHandler extends PubSubHandler {
 
     private void gameEvent(String channel, Object object) {
         RedisMessage redisMessage = (RedisMessage) object;
-        EventRes eventRes = jsonSerializer.deserialize(redisMessage.payload(), EventRes.class);
-        messagingTemplate.convertAndSend(channel, eventRes);
+        GameRes gameRes = jsonSerializer.deserialize(redisMessage.payload(), GameRes.class);
+        messagingTemplate.convertAndSend(channel, gameRes);
     }
 
 }
