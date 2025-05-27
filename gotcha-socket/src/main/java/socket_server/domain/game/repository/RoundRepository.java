@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.meta.RoundMeta;
 import socket_server.domain.game.meta.WordMeta;
+import socket_server.domain.game.model.AiPrediction;
 import socket_server.domain.game.model.Guess;
 
 import java.util.List;
@@ -85,6 +86,28 @@ public class RoundRepository {
         return jsonSerializer.deserializeList(wordsJson, WordMeta.class);
     }
 
+    private String getAIPredicionsKey(String roomId, int roundIndex, int wordIndex) {
+        return getRoundWordsKey(roomId, roundIndex) + wordIndex + ":ai_predictions";
+    }
+
+    /**
+     * AI Prediction 정보 저장(top3 class, confidence)
+     */
+    public void saveAIPredictions(String roomId, int roundIndex, int wordIndex, List<AiPrediction> predictions){
+        String key = getAIPredicionsKey(roomId, roundIndex, wordIndex);
+        String predictionsJson = jsonSerializer.serialize(predictions);
+        redisTemplate.opsForValue().set(key, predictionsJson);
+        log.info("AI Predictions {} saved", predictionsJson);
+    }
+
+    /**
+     * AI Prediction 정보 조회(top3 class, confidence)
+     */
+    public List<AiPrediction> findAIPredictions(String roomId, int roundIndex, int wordIndex) {
+        return jsonSerializer.deserializeList(redisTemplate.opsForValue().get(getAIPredicionsKey(roomId, roundIndex, wordIndex)), AiPrediction.class);
+    }
+
+
 
     private String getAIGuessKey(String roomId, int roundIndex, int wordIndex){
         return getRoundWordsKey(roomId, roundIndex) + wordIndex + ":ai_guesses";
@@ -150,9 +173,4 @@ public class RoundRepository {
         redisTemplate.opsForValue().set(key, guessesJson);
         log.info("Player Guesses {} saved", guessesJson);
     }
-
-
-
-
-
 }

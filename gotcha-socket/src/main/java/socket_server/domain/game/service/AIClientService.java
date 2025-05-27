@@ -1,12 +1,13 @@
 package socket_server.domain.game.service;
 
+import gotcha_common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import socket_server.domain.game.dto.AIGameStartReq;
-import socket_server.domain.game.dto.AIGuessStartReq;
-import socket_server.domain.game.dto.AIRoundStartReq;
+import reactor.core.publisher.Mono;
+import socket_server.domain.game.dto.*;
+import socket_server.common.exception.game.GameExceptionCode;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +43,19 @@ public class AIClientService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
+    }
+
+    public AIGuessImageRes getGuessImage(AIGuessImageReq request){
+        return webClient.post()
+                .uri(AI_SERVER_BASE_URL + "image/classify")
+                .bodyValue(request)
+                .retrieve()
+                .onStatus(httpStatusCode -> httpStatusCode.is4xxClientError() || httpStatusCode.is5xxServerError()
+                , clientResponse -> clientResponse.bodyToMono(AIErrorRes.class).flatMap(error -> Mono.error(
+                        new CustomException(GameExceptionCode.AI_SERVER_ERROR))))
+                .bodyToMono(AIGuessImageRes.class)
+                .block();
+
     }
 
 }
