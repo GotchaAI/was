@@ -1,13 +1,17 @@
 package socket_server.domain.game.service;
 
 
+import gotcha_common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import socket_server.domain.game.meta.RoundMeta;
+import socket_server.common.exception.game.GameExceptionCode;
+import socket_server.domain.game.meta.GameMeta;
+import socket_server.domain.game.meta.WordMeta;
 import socket_server.domain.game.model.GamePlayer;
 import socket_server.domain.game.model.Round;
 import socket_server.domain.game.model.Word;
 import socket_server.domain.game.repository.GameRepository;
+import socket_server.domain.game.repository.RoundRepository;
 import socket_server.domain.game.util.WordUtils;
 
 import java.util.ArrayList;
@@ -19,7 +23,9 @@ public class RoundService {
     /**
      * 도메인 데이터 Round 처리 담당.
      */
+    private final RoundRepository roundRepository;
     private final GameRepository gameRepository;
+
 
     public List<Round> initRounds(int totalRounds, List<GamePlayer> gamePlayers) {
         List<Round> rounds = new ArrayList<>();
@@ -37,7 +43,7 @@ public class RoundService {
             }
 
             Round round = Round.builder().
-                    roundIndex(i).
+                    roundIndex(i + 1).
                     words(words).
                     build();
             rounds.add(round);
@@ -45,10 +51,45 @@ public class RoundService {
         return rounds;
     }
 
-    public void submitDrawing(String roomId, String userUuid, String drawing) {
+    private int getCurrentRoundIndex(String roomId){
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        return gameMeta.getCurrentRound();
+    }
 
-//     todo: Is "roundIndex" needed? After current round check, find word by drawer UUID and submit drawing. so roundIndex is not needed
-  
+    public boolean checkAllDrawingSubmitted(String roomId){
+        int currentRound = getCurrentRoundIndex(roomId);
+        List<WordMeta> wordMetas = roundRepository.findWordMetas(roomId, currentRound);
+        return wordMetas.stream().allMatch(WordMeta::isSubmitted);
+    }
+
+
+    public void submitDrawing(String roomId, String drawerUuid, String imageURL) {
+        // 1. current round 가져오기
+        int currentRound = getCurrentRoundIndex(roomId);
+
+        // 2. word 찾고 업데이트
+        List<WordMeta> wordMetas = findAndUpdateWordMeta(roomId, currentRound, drawerUuid, imageURL);
+
+        // 3. 저장
+        roundRepository.saveWordMetas(roomId, currentRound, wordMetas);
+    }
+
+    private List<WordMeta> findAndUpdateWordMeta(String roomId, int roundIndex, String drawerUuid, String imageURL) {
+        List<WordMeta> wordMetas = roundRepository.findWordMetas(roomId, roundIndex);
+
+        WordMeta targetWord = wordMetas.stream()
+                .filter(word -> word.getDrawerUuid().equals(drawerUuid))
+                .findFirst()
+                .orElseThrow(() -> new CustomException(GameExceptionCode.INVALID_DRAWER_ID));
+
+        if (targetWord.isSubmitted()) {
+            throw new CustomException(GameExceptionCode.DRAWING_ALREADY_SUBMITTED);
+        }
+
+        targetWord.setImageURL(imageURL);
+        targetWord.setSubmitted(true);
+
+        return wordMetas;
     }
 
 }

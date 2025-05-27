@@ -3,8 +3,6 @@ package socket_server.domain.game.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import socket_server.domain.game.repository.GameRepository;
-import socket_server.domain.room.service.RoomService;
 
 @RequiredArgsConstructor
 @Service
@@ -21,8 +19,11 @@ public class GameService {
         gameFlowService.startGame(roomId, userUuid);
     }
 
-    public void submitDrawing(String roomId, String userUuid, String drawing) {
-        roundService.submitDrawing(roomId, userUuid, drawing);
+    public void submitDrawing(String roomId, String userUuid, String imageURL) {
+        roundService.submitDrawing(roomId, userUuid, imageURL);
+        if(roundService.checkAllDrawingSubmitted(roomId)){
+            //todo: start guessing
+        }
     }
 
 }

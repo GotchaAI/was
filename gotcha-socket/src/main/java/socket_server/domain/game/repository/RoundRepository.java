@@ -69,18 +69,17 @@ public class RoundRepository {
     /**
      * Word 메타정보 List 저장(wordIndex, word, drawerUuid)
      */
-    public void saveWords(String roomId, int roundIndex, List<Word> words) {
+    public void saveWordMetas(String roomId, int roundIndex, List<WordMeta> wordMetas) {
         String key = getRoundWordsKey(roomId, roundIndex);
-        List<WordMeta> wordMetas = words.stream().map(Word::toWordMeta).toList();
         String wordsJson = jsonSerializer.serialize(wordMetas);
         redisTemplate.opsForValue().set(key, wordsJson);
         log.info("Words {} saved", wordsJson);
     }
 
     /**
-     * Word 메타정보 List 조회(wordIndex, word, drawerUuid)
+     * Word 메타정보 List 조회(wordIndex, word, drawerUuid, imageURL)
      */
-    public List<WordMeta> findWords(String roomId, int roundIndex) {
+    public List<WordMeta> findWordMetas(String roomId, int roundIndex) {
         String key = getRoundWordsKey(roomId, roundIndex);
         String wordsJson = redisTemplate.opsForValue().get(key);
         if (wordsJson == null) {
