@@ -16,7 +16,8 @@ public class Word {
     private String drawerUuid;
     private boolean submitted;
     private String imageURL;
-    private List<Guess> guesses;
+    private List<Guess> aiGuesses;
+    private List<Guess> playerGuesses;
     private List<AiPrediction> aiPredictions;
 
     public static WordMeta toWordMeta(Word word) {
