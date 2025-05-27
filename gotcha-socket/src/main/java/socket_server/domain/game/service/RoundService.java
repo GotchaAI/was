@@ -5,6 +5,7 @@ import gotcha_common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.game.GameExceptionCode;
+import socket_server.domain.game.enumType.GameEventType;
 import socket_server.domain.game.meta.GameMeta;
 import socket_server.domain.game.meta.WordMeta;
 import socket_server.domain.game.model.GamePlayer;
@@ -69,6 +70,12 @@ public class RoundService {
 
 
     public void submitDrawing(String roomId, String drawerUuid, String imageURL) {
+        // 0. 게임 메타정보 조회
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.DRAWING_SUBMIT)){
+            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+        }
+
         // 1. current round 가져오기
         int currentRound = getCurrentRoundIndex(roomId);
 

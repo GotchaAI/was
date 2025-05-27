@@ -9,6 +9,7 @@ import socket_server.common.exception.game.GameExceptionCode;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.dto.*;
 import socket_server.domain.game.enumType.GameEventType;
+import socket_server.domain.game.enumType.GameStatus;
 import socket_server.domain.game.meta.GameMeta;
 import socket_server.domain.game.meta.RoundMeta;
 import socket_server.domain.game.meta.WordMeta;
@@ -55,9 +56,12 @@ public class GameFlowService {
         RoomMetadata roomMetadata = roomUserService.validateRoomHost(roomId, userUuid);
         roomUserService.checkGameStart(roomId, roomMetadata.getGameType());
 
+        //todo: 이미 진행중인 게임이 있다면?
+
         // 2. 게임 메타데이터 생성
         Game game = Game.builder().
                 roomId(roomId).
+                gameStatus(GameStatus.GAME_STARTED).
                 gameType(roomMetadata.getGameType()).
                 difficulty(roomMetadata.getDifficulty()).
                 currentRound(0).
@@ -82,8 +86,9 @@ public class GameFlowService {
 
         // 8. 5초 후 게임 시작(EntryPoint)
         try{
-            Thread.sleep(5000); // 5000ms = 5초
+            Thread.sleep(10000); // 5000ms = 5초
         } catch (InterruptedException e){  }
+
         startNextRound(userUuid, roomId);
 
     }
@@ -95,39 +100,61 @@ public class GameFlowService {
      * 4. drawingEndTime 설정 후 데이터 broadcast
      * 5. 라운드 메타 정보 저장
      */
-    public void startNextRound(String userUuid, String roomId){
+    public void startNextRound(String userUuid, String roomId) {
         GameMeta gameMeta = gameRepository.findGameMeta(roomId);
 
-        if(!canStartNextRound(gameMeta))
+        if (!isGameEnded(gameMeta)) {
             throw new CustomException(GameExceptionCode.ALREADY_FINISHED_GAME);
+        }
+
+        if (!gameMeta.getGameStatus().canHandleEvent(GameEventType.ROUND_START)) {
+            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+        }
 
         int currentRound = gameMeta.getCurrentRound() + 1;
+        List<RoundMeta> roundMetaList = roundRepository.findRoundMetas(roomId);
+
         gameMeta.setCurrentRound(currentRound);
+        gameMeta.setGameStatus(GameStatus.DRAWING_PHASE); // ROUND_STARTED 생략 가능
         gameRepository.saveGameMeta(gameMeta);
 
-        List<RoundMeta> roundMetaList = roundRepository.findRoundMetas(roomId);
-        RoundMeta currentRoundMeta = roundMetaList.get(currentRound);
-
-        String aiSays = aIClientService.getRoundStartMessage(roomId, new AIRoundStartReq(currentRound, gameMeta.getTotalRounds()));
+        RoundMeta currentRoundMeta = roundMetaList.get(currentRound - 1);
         currentRoundMeta.setDrawingEndTime(LocalDateTime.now().plusSeconds(30));
-        broadcastRoundMeta(userUuid, roomId,  currentRoundMeta, aiSays);
+        roundRepository.saveRoundMetas(roomId, roundMetaList);
+
+        String aiSays = aIClientService.getRoundStartMessage(
+                roomId,
+                new AIRoundStartReq(currentRound, gameMeta.getTotalRounds())
+        );
+
+        broadcastRoundMeta(roomId, currentRoundMeta, aiSays);
     }
 
     // 게임 종료 check시 반드시 필요
-    public boolean canStartNextRound(GameMeta gameMeta){
+    public boolean isGameEnded(GameMeta gameMeta){
         return gameMeta.getCurrentRound() <= gameMeta.getTotalRounds();
     }
 
     public void startGuessing(String roomId) {
+        // 0. 게임 메타정보 조회 -> GameStatus 업데이트
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GUESS_START)){
+            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+        }
+        gameMeta.setGameStatus(GameStatus.GUESSING_PHASE);
+        gameRepository.saveGameMeta(gameMeta);
+
         // 1. List<WordMeta> 조회
         List<WordMeta> wordMetas = roundService.getWordMetas(roomId);
 
-        // todo: AI SAYS?
-
         //2. broadcast
-        broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_START, wordMetas);
+        broadcastGuessStart(roomId, wordMetas);
+
+
+        // todo: GUESS_REQUEST:  AI
 
     }
+
 
 
 
@@ -154,14 +181,23 @@ public class GameFlowService {
 
 
 
-    private void broadcastRoundMeta(String userUuid, String roomId, RoundMeta roundMeta, String aiSays) {
-        broadcastGameEvent(userUuid, roomId, GameEventType.ROUND_START, new AISaysRes(roundMeta, aiSays));
+    private void broadcastRoundMeta(String roomId, RoundMeta roundMeta, String aiSays) {
+        broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_START, new AISaysRes(roundMeta, aiSays));
+    }
+
+    private void broadcastGuessStart(String roomId, List<WordMeta> wordMetas) {
+        broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_START, wordMetas);
     }
 
     private void saveGame(Game game) {
         gameRepository.saveGameMeta(GameMeta.fromGame(game));
         gamePlayerRepository.savePlayers(game.getRoomId(), game.getGamePlayers());
-        roundRepository.saveRoundMetas(game.getRoomId(), game.getRounds());
+        roundRepository.saveRoundMetas(game.getRoomId(), game.getRounds().stream().map(Round::toRoundMeta).toList());
+
+        for (Round round : game.getRounds()) {
+            roundRepository.saveWordMetas(game.getRoomId(), round.getRoundIndex(), round.getWords().stream().map(Word::toWordMeta).toList());
+            // todo: guess?
+        }
     }
 
     private void broadcastStartEvent(String userUuid, String roomId, AISaysRes aiSaysRes) {
