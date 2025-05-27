@@ -11,10 +11,7 @@ import socket_server.domain.game.enumType.GameStatus;
 import socket_server.domain.game.meta.GameMeta;
 import socket_server.domain.game.meta.RoundMeta;
 import socket_server.domain.game.meta.WordMeta;
-import socket_server.domain.game.model.AiPrediction;
-import socket_server.domain.game.model.Round;
-import socket_server.domain.game.model.Word;
-import socket_server.domain.game.model.Guess;
+import socket_server.domain.game.model.*;
 import socket_server.domain.game.repository.GamePlayerRepository;
 import socket_server.domain.game.repository.GameRepository;
 import socket_server.domain.game.repository.RoundRepository;
@@ -182,38 +179,86 @@ public class GuessFlowService {
             throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
         }
 
-        if(gameMeta.getCurrentRound() <= gameMeta.getTotalRounds()){
-            // 상태 업데이트
-            gameMeta.setGameStatus(GameStatus.ROUND_ENDED);
-            gameRepository.saveGameMeta(gameMeta);
+        // 상태 업데이트
+        gameMeta.setGameStatus(GameStatus.ROUND_ENDED);
+        gameRepository.saveGameMeta(gameMeta);
 
-            // 현재 ROUND 정보 모으기
-            Round currentRound = getCurrentRound(roomId);
-            List<Word> words = roundRepository.findWordMetas(roomId, currentRound.getRoundIndex()).stream().map(WordMeta::toWord).toList();
+        // 현재 ROUND 정보 모으기
+        Round currentRound = getCurrentRound(roomId);
+        List<Word> words = roundRepository.findWordMetas(roomId, currentRound.getRoundIndex()).stream().map(WordMeta::toWord).toList();
+
+        for(Word word : words){
+            List<Guess> aiGuesses = roundRepository.findAIGuesses(roomId, currentRound.getRoundIndex(), word.getWordIndex());
+            List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, currentRound.getRoundIndex(), word.getWordIndex());
+            List<AiPrediction> aiPredictions = roundRepository.findAIPredictions(roomId, currentRound.getRoundIndex(), word.getWordIndex());
+
+            word.setAiGuesses(aiGuesses);
+            word.setPlayerGuesses(playerGuesses);
+            word.setAiPredictions(aiPredictions);
+        }
+        currentRound.setWords(words);
+
+        //todo: RoundWinner 확인, 정보 업데이트
+
+        //todo: RoundWinner에 따른 AI 반응 메시지 추가(aiSays)
+
+        // ROUND_END 이벤트 발행, 현재 라운드 정보 broadcast
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_END, currentRound, null, null);
+
+        if(gameMeta.getCurrentRound() <= gameMeta.getTotalRounds()){
+            // next round 시작
+            // todo: 일정 시간 기다렸다가?
+            roundStartService.startNextRound(roomId);
+        } else {
+            endGame(roomId);
+        }
+    }
+
+    /**
+     * 게임 종료 처리 (GUESSING_PHASE> GAME_ENDED)
+     * Game 데이터 전부 모아서 반환
+     */
+    private void endGame(String roomId){
+        // 상태 검증
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GAME_END)){
+            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+        }
+        gameMeta.setGameStatus(GameStatus.GAME_ENDED);
+
+        //1. 모든 라운드 메타정보 조회
+        List<Round> rounds = roundRepository.findRoundMetas(roomId)
+                .stream().map(RoundMeta::toRound).toList();
+
+        for(Round round : rounds){
+            //2. 모든 단어 메타정보 조회
+            List<Word> words = roundRepository.findWordMetas(roomId, round.getRoundIndex())
+                    .stream().map(WordMeta::toWord).toList();
 
             for(Word word : words){
-                List<Guess> aiGuesses = roundRepository.findAIGuesses(roomId, currentRound.getRoundIndex(), word.getWordIndex());
-                List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, currentRound.getRoundIndex(), word.getWordIndex());
-                List<AiPrediction> aiPredictions = roundRepository.findAIPredictions(roomId, currentRound.getRoundIndex(), word.getWordIndex());
+                //3. 모든 정보 조회 및 연결
+                List<Guess> aiGuesses = roundRepository.findAIGuesses(roomId, round.getRoundIndex(), word.getWordIndex());
+                List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, round.getRoundIndex(), word.getWordIndex());
+                List<AiPrediction> aiPredictions = roundRepository.findAIPredictions(roomId, round.getRoundIndex(), word.getWordIndex());
 
                 word.setAiGuesses(aiGuesses);
                 word.setPlayerGuesses(playerGuesses);
                 word.setAiPredictions(aiPredictions);
             }
-            currentRound.setWords(words);
-
-            // ROUND_END 이벤트 발행, 현재 라운드 정보 broadcast
-            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_END, currentRound, null, null);
-
-            // next round 시작
-            // todo: 일정 시간 기다렸다가?
-            roundStartService.startNextRound(roomId);
-
-        } else {
-            //todo: 게임 종료
-            //endGame(roomId);
+            round.setWords(words);
         }
+
+        // 4. Game 데이터 만들기
+        Game game = Game.fromGameMeta(gameMeta);
+        game.setRounds(rounds);
+
+
+
+        //todo: 5. Score 추가
+
+
     }
+
 
 
     /**
