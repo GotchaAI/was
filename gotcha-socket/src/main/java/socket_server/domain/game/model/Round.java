@@ -15,12 +15,14 @@ public class Round {
     private int roundIndex;
     private LocalDateTime drawingEndTime;
     private String roundWinner; // 'AI' or 'Players'
+    private int currentWordIndex;
     private List<Word> words;
 
     public static RoundMeta toRoundMeta(Round round) {
         return RoundMeta.builder().
                 roundIndex(round.getRoundIndex()).
                 drawingEndTime(round.getDrawingEndTime()).
+                currentWordIndex(round.getCurrentWordIndex()).
                 roundWinner(round.getRoundWinner()).
                 build();
     }
