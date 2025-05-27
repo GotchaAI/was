@@ -7,13 +7,13 @@ import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.dto.DrawingSubmitReq;
 import socket_server.domain.game.enumType.GameEventType;
 import socket_server.domain.game.dto.GameReq;
-import socket_server.domain.game.service.GameService;
+import socket_server.domain.game.service.DrawingSubmitService;
 
 @Component
 @RequiredArgsConstructor
 public class DrawingSubmitHandler implements GameEventHandler {
 
-    private final GameService gameService;
+    private final DrawingSubmitService drawingSubmitService;
     private final JsonSerializer jsonSerializer;
 
     @Override
@@ -24,7 +24,7 @@ public class DrawingSubmitHandler implements GameEventHandler {
     @Override
     public void handle(String roomId, SecurityUserDetails userDetails, GameReq request) {
         DrawingSubmitReq drawingSubmit = jsonSerializer.deserialize(request.data(), DrawingSubmitReq.class);
-        gameService.submitDrawing(roomId, userDetails.getUuid(), drawingSubmit.imageURL());
+        drawingSubmitService.submitDrawing(roomId, userDetails.getUuid(), drawingSubmit.imageURL());
     }
 
 }
