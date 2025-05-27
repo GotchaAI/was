@@ -1,9 +1,7 @@
 package socket_server.domain.game.service;
 
-import gotcha_common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import socket_server.common.exception.game.GameExceptionCode;
 import socket_server.domain.game.dto.AIGuessStartReq;
 import socket_server.domain.game.dto.AISaysRes;
 import socket_server.domain.game.enumType.GameEventType;
@@ -25,17 +23,20 @@ public class GuessRequestService {
     private final GameBroadCaster gameBroadCaster;
     private final GuessSubmitService guessSubmitService;
 
-    public void requestGuessAI(String roomId, Round currentRound, Word guessTargetWord) {
+    public Guess requestGuessAI(String roomId, GameMeta gameMeta,  Word guessTargetWord) {
+
         // 1. AI 서버에 Guess Request 메시지 받아옴
         String drawerUuid = guessTargetWord.getDrawerUuid();
         GamePlayer gamePlayer = gamePlayerRepository.findPlayerByUuid(roomId, drawerUuid);
         String drawerName = gamePlayer.getNickname();
         String aiSays = aIClientService.getGuessStartMessage(roomId, new AIGuessStartReq(gameMeta.getCurrentRound(), gameMeta.getTotalRounds(), drawerName));
 
-        // 2. 해당 정보 브로드캐스트
+        // 2. BUILD NEW GUESS DATA
+        Guess guess = Guess.builder().guesserUuid("AI").attempts(1).build();
+
+        // 3. 해당 정보 브로드캐스트
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_REQUEST, new AISaysRes(guess, aiSays));
-
-
+        return guess;
 
     }
 

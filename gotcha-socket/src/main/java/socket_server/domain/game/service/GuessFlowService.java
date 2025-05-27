@@ -4,14 +4,19 @@ import gotcha_common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.game.GameExceptionCode;
+import socket_server.domain.game.dto.AIGuessMessageReq;
+import socket_server.domain.game.dto.AIGuessReactReq;
+import socket_server.domain.game.dto.AISaysRes;
 import socket_server.domain.game.enumType.GameEventType;
 import socket_server.domain.game.enumType.GameStatus;
 import socket_server.domain.game.meta.GameMeta;
 import socket_server.domain.game.meta.RoundMeta;
 import socket_server.domain.game.meta.WordMeta;
+import socket_server.domain.game.model.AiPrediction;
 import socket_server.domain.game.model.Round;
 import socket_server.domain.game.model.Word;
 import socket_server.domain.game.model.Guess;
+import socket_server.domain.game.repository.GamePlayerRepository;
 import socket_server.domain.game.repository.GameRepository;
 import socket_server.domain.game.repository.RoundRepository;
 
@@ -25,6 +30,9 @@ public class GuessFlowService {
     private final GameBroadCaster gameBroadCaster;
     private final GuessRequestService guessRequestService;
     private final GuessSubmitService guessSubmitService;
+    private final AIClientService aiClientService;
+    private final GamePlayerRepository gamePlayerRepository;
+
     /**
      * GUESS_START (ENTRY_POINT)
      * DRAWING_PHASE -> GUESSING_PHASE
@@ -52,7 +60,6 @@ public class GuessFlowService {
 
     /**
      * GUESS_REQUEST 이벤트 발행.
-     * GUESSING_PHASE -> GUESSING_PHASE
      * 현재 GUESS 상태 확인.
      * 1. Round 종료 여부 확인
      * 2. Guess 완료 여부 확인
@@ -80,8 +87,8 @@ public class GuessFlowService {
         boolean isAITurn = determineNextGuesser(currentWord);
 
         if(isAITurn){
-            guessRequestService.requestGuessAI(roomId, currentRound, currentWord);
-            handleAIGuessSubmit(roomId, currentRound, currentWord);
+            Guess newGuess = guessRequestService.requestGuessAI(roomId, gameMeta, currentWord);
+            handleAIGuessSubmit(roomId, currentRound, currentWord, newGuess);
         } else {
             // todo: request Guess to Player
         }
@@ -90,23 +97,83 @@ public class GuessFlowService {
 
 
     /**
-     * AI 추측 제출 처리(GUESS_SUBMIT) 이벤트
+     * AI 추측 제출 처리(GUESS_SUBMIT) 이벤트 발행, BROADCAST
+     * "data": {
+     *     "gameData": {
+     * 	    "guesserUuid": "AI",
+     * 	    "attempts" : 1,
+     *       "guessWord": "사과",
+     * 	    "correct": null // 아직 정답여부 나오지 않음
+     *     },
+     *     "aiSays" : "우웅, 감이 와! '사과' 맞지? 내 추측이 맞다면 너에게 천재적 감각을 인정해줄게! 😉🌻✨"
      */
-    public void handleAIGuessSubmit(String roomId, Round currentRound, Word currentWord) {
+    public void handleAIGuessSubmit(String roomId, Round currentRound, Word currentWord, Guess guess) {
         // 0. 상태 검증
         GameMeta gameMeta = gameRepository.findGameMeta(roomId);
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GUESS_SUBMIT)){
             throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
         }
-        // 1. 실제 AI 추측 시작
-        Guess guess = Guess.builder()
-                .guesserUuid("AI")
-                .attempts(currentWord.getAiGuesses().size() + 1)
-                .build();
-        String guessedWord = guessSubmitService.submitGuessAI(roomId, currentRound, currentWord, guess);
 
-        guess.setCorrect(guessedWord.equalsIgnoreCase(currentWord.getWord()));
+        // 1. 실제 AI 추측 데이터 가져옴
+        List<AiPrediction> predictions = roundRepository.findAIPredictions(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
+        String aiPredicted = predictions.get(guess.getAttempts()-1).getPredicted();
 
+        // 2. attempts에 따라 GUESS 데이터 저장
+        guess.setGuessWord(aiPredicted);
+
+        // 3. get AI says
+        String aiSays = aiClientService.getGuessMessage(roomId, new AIGuessMessageReq(predictions.get(guess.getAttempts()-1).getPredicted()));
+
+        // 4. AI GUESS Broadcast
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_SUBMIT, new AISaysRes(guess, aiSays));
+
+        // 5. 정답 확인
+        guess.setCorrect(aiPredicted.equalsIgnoreCase(currentWord.getWord()));
+
+        // 6. 현재 Word에 guess 추가
+        currentWord.getAiGuesses().add(guess);
+        roundRepository.addAIGuess(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), guess);
+
+        // 7. Handle Guess Result
+        handleGuessResult(roomId, currentWord.getWord(), guess);
+    }
+
+    /**
+     * 추측 결과 처리(CurrentWord와 Guess 비교)
+     * GUESS_RESULT 발행, BROADCAST
+     *  "data": {
+     *     "gameData": {
+     * 	    "guesserUuid": "playerB",
+     * 	    "attempts": 1,
+     * 	    "guessWord": "바나나",
+     *       "correct": true,
+     *     }
+     *     "aiSays" : "이걸 맞추네 ㄷㄷㄷ 이게 어케 바나나임?"
+     *   }
+     */
+    private void handleGuessResult(String roomId, String currentWord, Guess guess){
+        // 상태 검증
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GUESS_RESULT)){
+            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+        }
+        String guesserUuid = guess.getGuesserUuid();
+
+        String guesser = guesserUuid.equals("AI") ? "묘묘" : gamePlayerRepository.findPlayerByUuid(roomId, guesserUuid).getNickname();
+        
+        // GUESS _ RESULT 만들어야
+        String aiSays = aiClientService.getGuessReactMessage(roomId, new AIGuessReactReq(guess.getCorrect(), currentWord, guesser));
+
+        // GUESS RESULT Broadcast
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_RESULT, new AISaysRes(guess, aiSays));
+
+        if(guess.getCorrect()){
+            // GUESS 성공
+            //todo: update score
+        } else {
+            // 다음 턴 (GUESS 실패)
+            processNextGuessRequest(roomId);
+        }
 
     }
 

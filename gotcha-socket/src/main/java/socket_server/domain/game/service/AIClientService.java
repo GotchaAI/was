@@ -67,4 +67,13 @@ public class AIClientService {
                 .block();
     }
 
+    public String getGuessReactMessage(String roomId, AIGuessReactReq request){
+        return webClient.post()
+                .uri(AI_SERVER_BASE_URL + "chat/" + roomId + "/guess/react")
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+    }
+
 }
