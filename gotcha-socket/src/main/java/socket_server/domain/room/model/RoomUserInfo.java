@@ -19,7 +19,7 @@ public class RoomUserInfo {
     private boolean ready;
 
     public static GamePlayer toGamePlayer(RoomUserInfo roomUserInfo) {
-        return new GamePlayer(roomUserInfo.getUserUuid(), roomUserInfo.getNickname(), 0);
+        return new GamePlayer(roomUserInfo.getUserUuid(), roomUserInfo.getNickname());
     }
 
 }
