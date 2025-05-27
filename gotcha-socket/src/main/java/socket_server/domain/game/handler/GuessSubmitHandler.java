@@ -1,0 +1,20 @@
+package socket_server.domain.game.handler;
+
+import gotcha_domain.auth.SecurityUserDetails;
+import org.springframework.stereotype.Component;
+import socket_server.domain.game.dto.GameReq;
+import socket_server.domain.game.enumType.GameEventType;
+
+@Component
+public class GuessSubmitHandler implements GameEventHandler {
+
+    @Override
+    public GameEventType getEventType() {
+        return GameEventType.GUESS_SUBMIT;
+    }
+
+    @Override
+    public void handle(String roomId, SecurityUserDetails userDetails, GameReq request) {
+
+    }
+}
