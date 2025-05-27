@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @AllArgsConstructor
 public enum ImageExceptionCode implements ExceptionCode {
-    INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "IMAGE-400-001", "이미지 타입이 유효하지 않습니다.");
+    INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "IMAGE-400-001", "이미지 타입이 유효하지 않습니다.(png, jpg, jpeg만 허용)");
 
     private final HttpStatus status;
     private final String code;
