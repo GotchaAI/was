@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import socket_server.common.exception.game.GameExceptionCode;
 import socket_server.domain.game.dto.AIGuessMessageReq;
 import socket_server.domain.game.dto.AIGuessReactReq;
-import socket_server.domain.game.dto.AISaysRes;
 import socket_server.domain.game.enumType.GameEventType;
 import socket_server.domain.game.enumType.GameStatus;
 import socket_server.domain.game.meta.GameMeta;
@@ -20,7 +19,9 @@ import socket_server.domain.game.repository.GamePlayerRepository;
 import socket_server.domain.game.repository.GameRepository;
 import socket_server.domain.game.repository.RoundRepository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -227,8 +228,20 @@ public class GuessFlowService {
             throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
         }
 
-        // todo: update score
+        String guesserUuid = guess.getGuesserUuid();
 
+        // 점수 업데이트
+        int currentScore = gamePlayerRepository.findScoreByUuid(roomId, guesserUuid);
+        int newScore = currentScore + guess.getAttempts() * (3 - guess.getAttempts() + 1);
+
+        gamePlayerRepository.saveScoreByUuid(roomId, guesserUuid, newScore);
+
+        // SCORE_UPDATE Broadcast
+        Map<String, Integer> scores = new HashMap<>();
+        scores.put("AI", gamePlayerRepository.findScoreByUuid(roomId, "AI"));
+        scores.put("playerA", gamePlayerRepository.findScoreByUuid(roomId, "playerA"));
+        scores.put("playerB", gamePlayerRepository.findScoreByUuid(roomId, "playerB"));
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.SCORE_UPDATE, scores, null, null);
     }
 
 
