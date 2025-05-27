@@ -1,5 +1,7 @@
 package socket_server.domain.game.dto;
 
+import socket_server.domain.game.enumType.GameEventType;
+
 import java.time.LocalDateTime;
 
 /**

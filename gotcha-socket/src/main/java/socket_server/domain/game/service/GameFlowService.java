@@ -8,6 +8,7 @@ import socket_server.common.config.RedisMessage;
 import socket_server.common.exception.game.GameExceptionCode;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.dto.*;
+import socket_server.domain.game.enumType.GameEventType;
 import socket_server.domain.game.meta.GameMeta;
 import socket_server.domain.game.meta.RoundMeta;
 import socket_server.domain.game.meta.WordMeta;

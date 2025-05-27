@@ -4,7 +4,7 @@ import gotcha_common.exception.CustomException;
 import gotcha_domain.auth.SecurityUserDetails;
 import org.springframework.stereotype.Component;
 import socket_server.common.exception.game.GameExceptionCode;
-import socket_server.domain.game.dto.GameEventType;
+import socket_server.domain.game.enumType.GameEventType;
 import socket_server.domain.game.dto.GameReq;
 
 import java.util.List;

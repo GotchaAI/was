@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.dto.DrawingSubmitReq;
-import socket_server.domain.game.dto.GameEventType;
+import socket_server.domain.game.enumType.GameEventType;
 import socket_server.domain.game.dto.GameReq;
 import socket_server.domain.game.service.GameService;
 
