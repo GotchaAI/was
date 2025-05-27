@@ -58,13 +58,14 @@ public interface AuthApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                     {
-                                         "status": "BAD_REQUEST",
-                                         "message": "필드 검증 오류입니다.",
-                                         "fields": {
-                                             "password": "비밀번호가 일치하지 않습니다.",
-                                             "nickname": "닉네임 중복 확인이 완료되지 않았습니다.",
-                                             "email": "이메일 인증이 완료되지 않았습니다."
-                                         }
+                                        "code": "GLOBAL-400-001",
+                                        "status": "BAD_REQUEST",
+                                        "message": "요청한 필드 값이 유효하지 않습니다.",
+                                        "fields": {
+                                            "password": "비밀번호가 일치하지 않습니다.",
+                                            "nickname": "닉네임 중복 확인이 완료되지 않았습니다.",
+                                            "email": "이메일 인증이 완료되지 않았습니다."
+                                        }
                                     }
                                     """)
                     })),
@@ -105,17 +106,19 @@ public interface AuthApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name = "필드 검증 실패", value = """
                                     {
-                                         "status": "BAD_REQUEST",
-                                         "message": "필드 검증 오류입니다.",
-                                         "fields": {
-                                             "password": "비밀번호가 일치하지 않습니다.",
-                                             "nickname": "닉네임 중복 확인이 완료되지 않았습니다.",
-                                             "email": "이메일 인증이 완료되지 않았습니다."
-                                         }
+                                        "code": "GLOBAL-400-001",
+                                        "status": "BAD_REQUEST",
+                                        "message": "요청한 필드 값이 유효하지 않습니다.",
+                                        "fields": {
+                                            "password": "비밀번호가 일치하지 않습니다.",
+                                            "nickname": "닉네임 중복 확인이 완료되지 않았습니다.",
+                                            "email": "이메일 인증이 완료되지 않았습니다."
+                                        }
                                     }
                                     """),
                             @ExampleObject(name = "게스트 아님", value = """
                                     {
+                                        "code": "AUTH-400-001",
                                         "status": "BAD_REQUEST",
                                         "message": "게스트가 아닙니다."
                                     }
@@ -154,8 +157,9 @@ public interface AuthApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                     {
-                                         "status": "NOT_FOUND",
-                                         "message": "아이디 또는 비밀번호가 유효하지 않습니다."
+                                        "code": "AUTH-404-001",
+                                        "status": "NOT_FOUND",
+                                        "message": "아이디 또는 비밀번호가 유효하지 않습니다."
                                     }
                                     """)
                     })
@@ -178,8 +182,9 @@ public interface AuthApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                         {
-                                             "status": "UNAUTHORIZED",
-                                             "message": "Refresh Token을 찾을 수 없습니다."
+                                            "code": "JWT-401-005",
+                                            "status": "UNAUTHORIZED",
+                                            "message": "Refresh Token을 찾을 수 없습니다."
                                         }
                                     """)
                     })),
@@ -187,6 +192,7 @@ public interface AuthApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                         {
+                                            "code": "JWT-401-002"
                                              "status": "UNAUTHORIZED",
                                              "message": "Refresh Token이 만료되었습니다."
                                         }
@@ -219,18 +225,20 @@ public interface AuthApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                         {
-                                            "status": "CONFLICT",
-                                            "message": "이미 가입된 이메일입니다."
-                                        }
+                                             "code": "USER-409-002",
+                                             "status": "CONFLICT",
+                                             "message": "이미 가입된 이메일입니다."
+                                         }
                                     """)
                     })),
             @ApiResponse(responseCode = "429", description = "이메일 인증번호는 1분 이후 다시 전송할 수 있음",
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                         {
+                                             "code": "MAIL-429-001",
                                              "status": "TOO_MANY_REQUESTS",
                                              "message": "이미 메일을 요청하셨습니다."
-                                        }
+                                         }
                                     """)
                     }))
     })
@@ -265,12 +273,14 @@ public interface AuthApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name = "codeIncorrect", value = """
                                         {
+                                             "code": "MAIL-400-002",
                                              "status": "BAD_REQUEST",
                                              "message": "인증번호가 일치하지 않습니다."
                                         }
                                     """),
                             @ExampleObject(name = "codeExpired", value = """
                                         {
+                                             "code": "MAIL-400-001",
                                              "status": "BAD_REQUEST",
                                              "message": "인증번호가 만료되었습니다."
                                         }
