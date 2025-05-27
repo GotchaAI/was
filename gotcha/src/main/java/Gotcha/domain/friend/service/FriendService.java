@@ -77,7 +77,7 @@ public class FriendService {
         User fromUser = friendRequest.getFromUser();
 
         if (!friendRequest.getToUser().equals(toUser)) {
-            throw new CustomException(FriendExceptionCode.FRIEND_REQUEST_NOT_FOUND);
+            throw new CustomException(FriendExceptionCode.INVALID_REQUEST_ACCESS);
         }
 
         if (friendRepository.existsFriendRelationBetween(toUser.getId(), fromUser.getId())) {

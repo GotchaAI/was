@@ -46,6 +46,7 @@ public interface AdminInquiryApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                     {
+                        "code": "QNA-403-001",
                         "status": "FORBIDDEN",
                         "message": "권한이 없습니다."
                     }

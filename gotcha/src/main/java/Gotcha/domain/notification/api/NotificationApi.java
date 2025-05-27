@@ -102,6 +102,7 @@ public interface NotificationApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                     {
+                                        "code": "NOTI-404-001",
                                         "status": "NOT_FOUND",
                                         "message": "존재하지 않는 공지사항입니다."
                                     }

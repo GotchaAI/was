@@ -1,5 +1,6 @@
 package Gotcha.domain.friend.controller;
 
+import Gotcha.domain.friend.api.FriendApi;
 import Gotcha.domain.friend.dto.FriendReq;
 import Gotcha.domain.friend.service.FriendService;
 import gotcha_common.dto.SuccessRes;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/friends")
-public class FriendController {
+public class FriendController implements FriendApi{
     private final FriendService friendService;
 
     @GetMapping()

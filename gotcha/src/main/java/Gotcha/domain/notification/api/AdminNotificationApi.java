@@ -47,6 +47,7 @@ public interface AdminNotificationApi {
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(value = """
                     {
+                        "code": "NOTI-403-001"
                         "status": "FORBIDDEN",
                         "message": "권한이 없습니다."
                     }
@@ -88,6 +89,7 @@ public interface AdminNotificationApi {
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(value = """
                     {
+                        "code": "NOTI-403-001",
                         "status": "FORBIDDEN",
                         "message": "권한이 없습니다."
                     }
@@ -98,6 +100,7 @@ public interface AdminNotificationApi {
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(value = """                
                     {
+                        "code": "NOTI-404-001",
                         "status": "NOT_FOUND",
                         "message": "존재하지 않는 공지사항입니다."
                     }
@@ -117,6 +120,7 @@ public interface AdminNotificationApi {
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(value = """
                     {
+                        "code": "NOTI-403-001",
                         "status": "FORBIDDEN",
                         "message": "권한이 없습니다."
                     }
@@ -127,6 +131,7 @@ public interface AdminNotificationApi {
             content = @Content(mediaType = "application/json", examples = {
                 @ExampleObject(value = """                
                     {
+                        "code": "NOTI-404-001",
                         "status": "NOT_FOUND",
                         "message": "존재하지 않는 공지사항입니다."
                     }
