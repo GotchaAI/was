@@ -85,4 +85,25 @@ public class GamePlayerRepository {
     }
 
 
+    /**
+     * score:{roomId}:{uuid}
+     */
+    public static String getScoreKey(String roomId, String uuid) {
+        return GameRepository.getGameKey(roomId) + ":" + uuid + ":score";
+    }
+
+    public void saveScore(String roomId, String uuid, int score) {
+        String key = getScoreKey(roomId, uuid);
+        redisTemplate.opsForValue().set(key, String.valueOf(score));
+    }
+
+    public int findScore(String roomId, String uuid) {
+        String key = getScoreKey(roomId, uuid);
+        String score = redisTemplate.opsForValue().get(key);
+        if (score == null) {
+            return 0;
+        }
+        return Integer.parseInt(score);
+    }
+
 }
