@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import socket_server.common.exception.game.GameExceptionCode;
 import socket_server.domain.game.enumType.GameEventType;
 import socket_server.domain.game.meta.GameMeta;
+import socket_server.domain.game.meta.RoundMeta;
 import socket_server.domain.game.meta.WordMeta;
 import socket_server.domain.game.model.GamePlayer;
 import socket_server.domain.game.model.Round;
@@ -45,6 +46,7 @@ public class RoundService {
 
             Round round = Round.builder().
                     roundIndex(i + 1).
+                    currentWordIndex(0).
                     words(words).
                     build();
             rounds.add(round);
@@ -104,4 +106,21 @@ public class RoundService {
         return wordMetas;
     }
 
+    public Round getCurrentRound(String roomId) {
+        // 1. gameMeta 조회 후 현재 라운드 index 받기
+        int roundIndex = getCurrentRoundIndex(roomId);
+
+        // 2. Round 메타정보 조회
+        RoundMeta roundMeta = roundRepository.findRoundMetas(roomId).get(roundIndex - 1);
+
+        // 3. Words 메타정보 조회
+        List<WordMeta> wordMetas = roundRepository.findWordMetas(roomId, roundIndex);
+
+        // 4. 데이터 파싱 후 결합
+        List<Word> words = wordMetas.stream().map(WordMeta::toWord).toList();
+        Round round = RoundMeta.toRound(roundMeta);
+        round.setWords(words);
+
+        return round;
+    }
 }
