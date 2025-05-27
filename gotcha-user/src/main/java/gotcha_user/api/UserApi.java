@@ -31,6 +31,7 @@ public interface UserApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                     {
+                                         "code": "USER-409-001",
                                          "status": "CONFLICT",
                                          "message": "이미 존재하는 닉네임입니다."
                                      }
@@ -82,6 +83,7 @@ public interface UserApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                     {
+                                         "code": "USER-404-001"
                                          "status": "NOT_FOUND",
                                          "message": "존재하지 않는 사용자입니다."
                                      }
