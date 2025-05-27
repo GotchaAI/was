@@ -21,7 +21,7 @@ public class GameEventDispatcher {
     }
 
     public void dispatch(GameReq request, String roomId, SecurityUserDetails userDetails) {
-        GameEventHandler handler = handlers.get(request.gameEventType());
+        GameEventHandler handler = handlers.get(request.eventType());
 
         if (handler == null) {
             throw new CustomException(GameExceptionCode.INVALID_EVENT_TYPE);
