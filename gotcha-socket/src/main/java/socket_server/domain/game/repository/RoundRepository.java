@@ -62,7 +62,7 @@ public class RoundRepository {
      * game:{roomId}:round:{roundIndex}:words
      */
     private String getRoundWordsKey(String roomId, int roundIndex) {
-        return getGameRoundsKey(roomId) + roundIndex + ":words";
+        return getGameRoundsKey(roomId) + ":" + roundIndex + ":words";
     }
 
     /**
