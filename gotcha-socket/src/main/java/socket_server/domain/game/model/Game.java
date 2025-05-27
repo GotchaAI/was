@@ -1,6 +1,7 @@
 package socket_server.domain.game.model;
 
 import lombok.*;
+import socket_server.domain.game.enumType.GameStatus;
 import socket_server.domain.game.enumType.GameType;
 import socket_server.domain.game.enumType.Difficulty;
 import socket_server.domain.game.meta.GameMeta;
@@ -18,6 +19,7 @@ public class Game {
     private String roomId;
     private GameType gameType;
     private Difficulty difficulty;
+    private GameStatus gameStatus;
     private int currentRound; // 0, 1, 2, 3, 4, 5
     private int totalRounds;
     private int aiScore;

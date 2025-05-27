@@ -1,15 +1,9 @@
 package socket_server.domain.game.enumType;
 
 public enum GameEventType {
-
-
     ROUND_START,
 
-
     DRAWING_SUBMIT,
-
-
-
 
     GUESS_START,
     GUESS_REQUEST,

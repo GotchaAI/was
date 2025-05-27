@@ -11,7 +11,8 @@ public enum GameExceptionCode implements ExceptionCode {
     INVALID_EVENT_TYPE(HttpStatus.BAD_REQUEST, "GAME-400-002", "유효하지 않은 이벤트 타입입니다."),
     ALREADY_FINISHED_GAME(HttpStatus.BAD_REQUEST, "GAME-400-003", "이미 종료된 게임입니다."),
     INVALID_DRAWER_ID(HttpStatus.BAD_REQUEST, "GAME-400-004", "유효하지 않은 DRAWER-ID 입니다."),
-    DRAWING_ALREADY_SUBMITTED(HttpStatus.BAD_REQUEST, "GAME-400-005", "이미 제출된 그림입니다.");
+    DRAWING_ALREADY_SUBMITTED(HttpStatus.BAD_REQUEST, "GAME-400-005", "이미 제출된 그림입니다."),
+    INVALID_GAME_STATUS(HttpStatus.BAD_REQUEST, "GAME-400-006", "진행할 수 없는 이벤트입니다.");
 
 
     private final HttpStatus status;
