@@ -11,6 +11,5 @@ import lombok.Data;
 public class GamePlayer {
     private String playerUuid;
     private String nickname;
-    private int score;
 }
 

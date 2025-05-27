@@ -9,6 +9,7 @@ import socket_server.domain.game.model.GamePlayer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -22,6 +23,9 @@ public class GamePlayerRepository {
         this.redisTemplate = redisTemplate;
         this.jsonSerializer = jsonSerializer;
     }
+
+    //todo: game:{roomId}:players 는 SET,
+    //todo: player:{roomId}:{uuid} 는 STRING (uuid, USERNAME), 데이터 구조 수정 필요
 
     /**
      * game:{roomId}:players
@@ -88,22 +92,27 @@ public class GamePlayerRepository {
     /**
      * score:{roomId}:{uuid}
      */
-    public static String getScoreKey(String roomId, String uuid) {
-        return GameRepository.getGameKey(roomId) + ":" + uuid + ":score";
+    public static String getScoreKey(String roomId) {
+        return GameRepository.getGameKey(roomId) + ":scores";
     }
 
-    public void saveScore(String roomId, String uuid, int score) {
-        String key = getScoreKey(roomId, uuid);
-        redisTemplate.opsForValue().set(key, String.valueOf(score));
+    public void saveScoreByUuid(String roomId, String uuid, int score) {
+        String key = getScoreKey(roomId);
+        redisTemplate.opsForHash().put(key, uuid, String.valueOf(score));
     }
 
-    public int findScore(String roomId, String uuid) {
-        String key = getScoreKey(roomId, uuid);
-        String score = redisTemplate.opsForValue().get(key);
+    public int findScoreByUuid(String roomId, String uuid) {
+        String key = getScoreKey(roomId);
+        String score = (String) redisTemplate.opsForHash().get(key, uuid);
         if (score == null) {
             return 0;
         }
         return Integer.parseInt(score);
+    }
+
+    public Map findScores(String roomId) {
+        String key = GameRepository.getGameKey(roomId) + ":scores";
+        return redisTemplate.opsForHash().entries(key);
     }
 
 }
