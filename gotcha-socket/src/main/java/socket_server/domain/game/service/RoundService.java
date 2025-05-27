@@ -62,6 +62,11 @@ public class RoundService {
         return wordMetas.stream().allMatch(WordMeta::isSubmitted);
     }
 
+    public List<WordMeta> getWordMetas(String roomId){
+        int currentRound = getCurrentRoundIndex(roomId);
+        return roundRepository.findWordMetas(roomId, currentRound);
+    }
+
 
     public void submitDrawing(String roomId, String drawerUuid, String imageURL) {
         // 1. current round 가져오기

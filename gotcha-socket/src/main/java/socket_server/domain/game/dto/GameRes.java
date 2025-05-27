@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
  */
 public record GameRes(
         GameEventType eventType,
-        AISaysRes data,
+        Object data,
         LocalDateTime eventAt
 ) {
 }

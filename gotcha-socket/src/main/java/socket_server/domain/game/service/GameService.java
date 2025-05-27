@@ -22,8 +22,15 @@ public class GameService {
     public void submitDrawing(String roomId, String userUuid, String imageURL) {
         roundService.submitDrawing(roomId, userUuid, imageURL);
         if(roundService.checkAllDrawingSubmitted(roomId)){
-            //todo: start guessing
+            startGuessing(roomId);
         }
+    }
+
+
+    public void startGuessing(String roomId){
+        gameFlowService.startGuessing(roomId);
+
+
     }
 
 }

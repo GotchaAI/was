@@ -100,7 +100,7 @@ public class GameFlowService {
         if(!canStartNextRound(gameMeta))
             throw new CustomException(GameExceptionCode.ALREADY_FINISHED_GAME);
 
-        int currentRound = getNextRoundIndex(gameMeta);
+        int currentRound = gameMeta.getCurrentRound() + 1;
         gameMeta.setCurrentRound(currentRound);
         gameRepository.saveGameMeta(gameMeta);
 
@@ -117,9 +117,18 @@ public class GameFlowService {
         return gameMeta.getCurrentRound() <= gameMeta.getTotalRounds();
     }
 
-    private int getNextRoundIndex(GameMeta gameMeta) {
-        return gameMeta.getCurrentRound() + 1;
+    public void startGuessing(String roomId) {
+        // 1. List<WordMeta> 조회
+        List<WordMeta> wordMetas = roundService.getWordMetas(roomId);
+
+        // todo: AI SAYS?
+
+        //2. broadcast
+        broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_START, wordMetas);
+
     }
+
+
 
     /**
      * 게임 전체 정보 조회
@@ -170,7 +179,7 @@ public class GameFlowService {
         objectRedisTemplate.convertAndSend(ROOM_EVENT + roomId, jsonSerializer.serialize(redisMessage));
     }
 
-    private void broadcastGameEvent(String senderUuid, String roomId, GameEventType gameEventType, AISaysRes data) {
+    private void broadcastGameEvent(String senderUuid, String roomId, GameEventType gameEventType, Object data) {
         GameRes gameRes = new GameRes(
                 gameEventType,
                 data,
