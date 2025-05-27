@@ -11,7 +11,6 @@ import socket_server.common.exception.room.RoomExceptionCode;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.chat.dto.ChatMessage;
 import socket_server.domain.chat.dto.ChatType;
-import socket_server.domain.game.enumType.GameType;
 import socket_server.domain.room.RoomField.RoomField;
 import socket_server.domain.room.dto.CreateRoomRequest;
 import socket_server.domain.room.dto.EventRes;
@@ -35,7 +34,6 @@ import static socket_server.common.constants.WebSocketConstants.ROOM_OWNER_CREAT
 @Service
 @Slf4j
 public class RoomService {
-
     private final RoomUserService roomUserService;
     private final JsonSerializer jsonSerializer;
     private final RoomRepository roomRepository;
@@ -75,18 +73,6 @@ public class RoomService {
         );
         sendRoomMetadataToOwner(roomMetadata, userDetails.getUuid());
         broadcastCreatedRoomInfo(userDetails.getUuid(), roomMetadata);
-    }
-
-    public void deleteRoom(SecurityUserDetails userDetails, String roomId) {
-        roomUserService.validateRoomHost(roomId, userDetails.getUuid());
-
-        roomRepository.deleteRoom(roomId);
-        roomUserRepository.deleteUserList(roomId);
-
-        roomIdService.releaseRoomId(roomId);
-
-        broadcastRoomDeleted(roomId);
-        log.info("방 {} 삭제 완료. 방장: {}", roomId, userDetails.getUuid());
     }
 
     //todo : lua 스크립트 적용
@@ -147,7 +133,7 @@ public class RoomService {
     }
 
     public void updateRoomField(String roomId, RoomUpdateReq roomUpdateReq, String userUuid) {
-        RoomMetadata roomMetadata = roomUserService.validateRoomHost(roomId, userUuid);
+        RoomMetadata roomMetadata = roomUserService.validateRoomOwnerAndGetRoomMetadata(roomId, userUuid);
 
         if (roomUpdateReq.hasPassword() && (roomUpdateReq.password() == null || roomUpdateReq.password().isBlank())) {
             throw new CustomException(RoomExceptionCode.PASSWORD_REQUIRED_BUT_MISSING);
@@ -189,11 +175,6 @@ public class RoomService {
         RoomSummaryRes summary = RoomSummaryRes.of(metadata, currentUser);
 
         roomBroadcaster.broadcastToRoomList(userUuid, EventType.CREATE, summary);
-    }
-
-    private void broadcastRoomDeleted(String roomId) {
-        roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", EventType.DELETE, "방이 삭제되었습니다");
-        log.info("방 {} 삭제 브로드캐스트 전송 완료", roomId);
     }
 
     private void sendRoomMetadataToOwner(RoomMetadata metadata, String userUuid) {

@@ -5,6 +5,7 @@ import socket_server.domain.room.model.RoomMetadata;
 public record RoomSummaryRes(
         String title,
         String roomId,
+        String owner,
         boolean hasPassword,
         int maxUser,
         int currentUser
@@ -13,6 +14,7 @@ public record RoomSummaryRes(
         return new RoomSummaryRes(
                 metadata.getTitle(),
                 metadata.getId(),
+                metadata.getOwner(),
                 metadata.isHasPassword(),
                 metadata.getMax(),
                 currentUser
