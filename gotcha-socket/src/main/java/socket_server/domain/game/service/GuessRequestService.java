@@ -23,8 +23,9 @@ public class GuessRequestService {
     private final GamePlayerRepository gamePlayerRepository;
     private final AIClientService aIClientService;
     private final GameBroadCaster gameBroadCaster;
+    private final GuessSubmitService guessSubmitService;
 
-    public void requestGuessAI(String roomId, Round round, Word guessTargetWord) {
+    public void requestGuessAI(String roomId, Round currentRound, Word guessTargetWord) {
         // 0. 게임 메타정보 조회 -> GameStatus 확인
         GameMeta gameMeta = gameRepository.findGameMeta(roomId);
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GUESS_REQUEST)){
@@ -44,6 +45,7 @@ public class GuessRequestService {
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_REQUEST, new AISaysRes(guess, aiSays));
 
         // todo: 4. 실제 AI 추측 시작
+        guessSubmitService.submitGuessAI(roomId, currentRound, guessTargetWord, guess);
 
 
     }
