@@ -7,6 +7,7 @@ import socket_server.domain.game.enumType.Difficulty;
 import socket_server.domain.game.meta.GameMeta;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Game 데이터(Redis에 저장)
@@ -23,6 +24,7 @@ public class Game {
     private int currentRound; // 0, 1, 2, 3, 4, 5
     private int totalRounds;
     private int aiScore;
+    private Map<String, Integer> scores; // <playerUuid, score>
     private List<GamePlayer> gamePlayers;
     private List<Round> rounds;
     private String winner; // AI or Player

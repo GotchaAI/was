@@ -76,4 +76,22 @@ public class AIClientService {
                 .block();
     }
 
+    public String getRoundEndMessage(String roomId, AIRoundEndReq request){
+        return webClient.post()
+                .uri(AI_SERVER_BASE_URL + "chat/" + roomId + "/round/end")
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+    }
+
+    public String getGameEndMessage(String roomId, AIGameEndReq request) {
+        return webClient.post()
+                .uri(AI_SERVER_BASE_URL + "chat/" + roomId + "/end")
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+    }
 }

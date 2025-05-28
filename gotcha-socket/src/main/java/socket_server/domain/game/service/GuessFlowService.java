@@ -4,8 +4,10 @@ import gotcha_common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.game.GameExceptionCode;
+import socket_server.domain.game.dto.AIGameEndReq;
 import socket_server.domain.game.dto.AIGuessMessageReq;
 import socket_server.domain.game.dto.AIGuessReactReq;
+import socket_server.domain.game.dto.AIRoundEndReq;
 import socket_server.domain.game.enumType.GameEventType;
 import socket_server.domain.game.enumType.GameStatus;
 import socket_server.domain.game.meta.GameMeta;
@@ -198,15 +200,15 @@ public class GuessFlowService {
         }
         currentRound.setWords(words);
 
-        //todo: RoundWinner 확인, 정보 업데이트
 
+        // 점수 업데이트
+        determineRoundWinner(roomId, currentRound);
 
-
-
-        //todo: RoundWinner에 따른 AI 반응 메시지 추가(aiSays)
+        //RoundWinner에 따른 AI 반응 메시지 추가(aiSays)
+        String aiSays = aiClientService.getRoundEndMessage(roomId, new AIRoundEndReq(currentRound.getRoundIndex(), gameMeta.getTotalRounds(), currentRound.getRoundWinner()));
 
         // ROUND_END 이벤트 발행, 현재 라운드 정보 broadcast
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_END, currentRound, null, null);
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_END, currentRound, aiSays, null);
 
         if(gameMeta.getCurrentRound() <= gameMeta.getTotalRounds()){
             // next round 시작
@@ -255,15 +257,83 @@ public class GuessFlowService {
         }
 
         // 4. Game 데이터 만들기
-        Game game = Game.fromGameMeta(gameMeta);
+        Game game = Game.fromGameMeta(gameMeta); // gamePlayers???????
         game.setRounds(rounds);
 
 
 
-        //todo: 5. Score 추가
+        //5. Score 추가, GameWinner 찾기
+        determineGameWinner(roomId, game);
+
+        //6. GameEnded React 가져오기
+        String aiSays = aiClientService.getGameEndMessage(roomId, new AIGameEndReq(game.getWinner()));
+
+
+
+        //6. GameEnded 이벤트 broadcast
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GAME_END, game, aiSays, null);
+
+        //7. Game 마무리 : DB 저장
+
 
 
     }
+
+
+
+    private void determineGameWinner(String roomId, Game game) {
+        //0. Score Map 초기 설정
+        Map<String, Integer> scores = new HashMap<>();
+        List<GamePlayer> gamePlayers = gamePlayerRepository.findPlayersByRoomId(roomId);
+        for(GamePlayer gamePlayer : gamePlayers){
+            scores.put(gamePlayer.getPlayerUuid(), 0);
+        }
+        scores.put("AI", 0);
+        game.setScores(scores);
+
+
+        //1. 점수 가져오기
+        List<Round> rounds = game.getRounds();
+        for(Round round : rounds){
+            Map<String, Integer> roundScores = gamePlayerRepository.findScores(roomId, round.getRoundIndex());
+            round.setScores(roundScores);
+            scores.put("AI", scores.get("AI") + roundScores.get("AI"));
+            for(String playerUuid : roundScores.keySet()){
+                if(!playerUuid.equals("AI")) scores.put(playerUuid, scores.get(playerUuid) + roundScores.get(playerUuid));
+            }
+        }
+
+        //2. GameWinner 구하기
+        String gameWinner = scores.get("AI") > scores.get("PLAYER") ?
+                "AI" : scores.get("AI") == scores.get("PLAYER") ? "DRAW" : "PLAYER";
+        game.setWinner(gameWinner);
+
+    }
+
+
+
+
+
+    private void determineRoundWinner(String roomId, Round currentRound){
+        // 1. 점수 가져오기
+        Map<String, Integer> scores = gamePlayerRepository.findScores(roomId, currentRound.getRoundIndex());
+        currentRound.setScores(scores);
+
+
+        //2. 점수 비교
+        int aiScore = 0;
+        int playerScore = 0;
+        for(String playerUuid : scores.keySet()){
+            if(playerUuid.equals("AI")) aiScore += scores.get(playerUuid);
+            else playerScore += scores.get(playerUuid);
+        }
+
+        //3. RoundWinner 구하기
+        String roundWinner = aiScore > playerScore ?
+                "AI" : aiScore == playerScore ? "DRAW" : "PLAYER";
+        currentRound.setRoundWinner(roundWinner);
+    }
+
 
 
     /**
@@ -355,7 +425,7 @@ public class GuessFlowService {
         Map<String, Integer> scores = new HashMap<>();
         scores.put("AI", gamePlayerRepository.findScoreByUuid(roomId, "AI", gameMeta.getCurrentRound()));
         scores.put(playerA, gamePlayerRepository.findScoreByUuid(roomId, playerA, gameMeta.getCurrentRound()));
-        scores.put(playerB, gamePlayerRepository.findScoreByUuid(roomId, "playerB", gameMeta.getCurrentRound()));
+        scores.put(playerB, gamePlayerRepository.findScoreByUuid(roomId, playerB, gameMeta.getCurrentRound()));
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.SCORE_UPDATE, scores, null, null);
     }
 

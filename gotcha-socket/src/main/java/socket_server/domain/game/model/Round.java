@@ -5,6 +5,7 @@ import socket_server.domain.game.meta.RoundMeta;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 게임 Round 데이터(Redis에 저장)
@@ -17,6 +18,7 @@ public class Round {
     private String roundWinner; // 'AI' or 'Players'
     private int currentWordIndex;
     private List<Word> words;
+    private Map<String, Integer> scores;
 
     public static RoundMeta toRoundMeta(Round round) {
         return RoundMeta.builder().

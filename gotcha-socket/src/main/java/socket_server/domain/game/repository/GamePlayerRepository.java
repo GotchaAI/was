@@ -111,8 +111,8 @@ public class GamePlayerRepository {
         return Integer.parseInt(score);
     }
 
-    public Map findScores(String roomId) {
-        String key = GameRepository.getGameKey(roomId) + ":scores";
+    public Map findScores(String roomId, int roundIndex) {
+        String key = getScoreKey(roomId, roundIndex);
         return redisTemplate.opsForHash().entries(key);
     }
 
