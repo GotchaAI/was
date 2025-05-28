@@ -23,7 +23,6 @@ public class DrawingSubmitService {
     private final GuessFlowService guessFlowService;
     private final AIClientService aiClientService;
 
-
     public void submitDrawing(String roomId, String drawerUuid, String imageURL) {
         // 0. 게임 메타정보 조회
         GameMeta gameMeta = gameRepository.findGameMeta(roomId);
@@ -39,8 +38,6 @@ public class DrawingSubmitService {
 
         // 3. 저장
         roundRepository.saveWordMetas(roomId, currentRound, wordMetas);
-
-
 
         // 4. AI PREDICTION 받아서 SAVE !!!!
         List<AiPrediction> predictions = aiClientService.getGuessImage(new AIGuessImageReq(imageURL)).result();

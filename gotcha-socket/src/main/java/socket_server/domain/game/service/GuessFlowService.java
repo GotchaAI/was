@@ -74,12 +74,12 @@ public class GuessFlowService {
         Word currentWord = getCurrentWord(currentRound);
 
         if(currentWord == null){
-            // todo: next round
+            handleRoundEnd(roomId);
             return;
         }
 
         if(isWordGuessCompleted(currentWord)){
-            // todo: next word
+            moveToNextWord(roomId, currentRound);
             return;
         }
 
@@ -199,6 +199,9 @@ public class GuessFlowService {
         currentRound.setWords(words);
 
         //todo: RoundWinner 확인, 정보 업데이트
+        
+
+
 
         //todo: RoundWinner에 따른 AI 반응 메시지 추가(aiSays)
 
@@ -259,6 +262,19 @@ public class GuessFlowService {
 
     }
 
+
+    /**
+     * 다음 단어로 이동(word index + 1)
+     */
+    private void moveToNextWord(String roomId, Round currentRound){
+        currentRound.setCurrentWordIndex(currentRound.getCurrentWordIndex() + 1);
+        List<RoundMeta> roundMetas = roundRepository.findRoundMetas(roomId);
+        // currentRound의 currentWordIndex 값을 바꿔서 저장
+        roundMetas.get(currentRound.getRoundIndex() - 1).setCurrentWordIndex(currentRound.getCurrentWordIndex());
+        roundRepository.saveRoundMetas(roomId, roundMetas);
+
+        processNextGuessRequest(roomId);
+    }
 
 
     /**
