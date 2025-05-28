@@ -19,7 +19,6 @@ import socket_server.domain.game.repository.RoundRepository;
 import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.dto.EventType;
 import socket_server.domain.room.model.RoomMetadata;
-import socket_server.domain.room.service.RoomService;
 import socket_server.domain.room.service.RoomUserService;
 
 import java.time.LocalDateTime;
@@ -48,7 +47,7 @@ public class GameFlowService {
 
     public void startGame(String roomId, String userUuid)  {
         // 1. 게임 시작 가능한지(레디 상태, 플레이어 수) check 후 방 메타정보 조회
-        RoomMetadata roomMetadata = roomUserService.validateRoomHost(roomId, userUuid);
+        RoomMetadata roomMetadata = roomUserService.validateRoomOwnerAndGetRoomMetadata(roomId, userUuid);
         roomUserService.checkGameStart(roomId, roomMetadata.getGameType());
 
         // 2. 게임 메타데이터 생성

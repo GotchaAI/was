@@ -80,8 +80,33 @@ channels:
         payload:
           $ref: '#/components/schemas/CreateRoomRequest'
 
-  /sub/room/create/info:
-    description: 클라이언트가 방 생성 응답을 받는 용도
+  /sub/room/list/event:
+    description: 클라이언트가 대기방의 목록을 업데이트 하기 위해 이벤트 정보와 대기방의 요약 정보를 받아오는 채널
+    subscribe:
+      message:
+        oneOf:
+          - name: Room Create
+            summary: 새로운 방 생성됨
+            payload:
+              $ref: '#/components/schemas/RedisResponse_RoomList_Create'
+
+          - name: Room Update
+            summary: 방 정보 수정됨
+            payload:
+              $ref: '#/components/schemas/RedisResponse_RoomList_Update'
+
+          - name: Room Delete
+            summary: 방 삭제됨
+            payload:
+              $ref: '#/components/schemas/RedisResponse_RoomList_Delete'
+
+  /sub/room/create/{userUuid}:
+    description: 클라이언트가 방을 생성하고 방의 전체 정보를 받아오는 채널
+    parameters:
+      userUuid:
+        description: 방 전체 정보를 수신받을 방장의 UUID
+        schema:
+          type: string
     subscribe:
       message:
         headers:
@@ -100,6 +125,8 @@ channels:
       - UNREADY: 준비 해제
       - JOIN: 방 참가
       - EXIT: 방 퇴장
+      - UPDATE: 방 정보 수정
+      - DELETE: 방 삭제
       - START: 게임 시작
 
       `eventType` 값에 따라 content의 의미는 다르게 해석됩니다.
@@ -302,6 +329,7 @@ components:
             이벤트에 따라 의미가 달라지는 콘텐츠입니다.
             - CHAT: 채팅 메시지
             - JOIN: 비밀번호가 있는 대기방의 경우 비밀번호, 비밀번호가 없다면 안보내도 됩니다.
+            - UPDATE: 방의 정보(title, hasPassword, password, difficulty, roundCount)를 json문자열 형태로 보냅니다. 
             - 나머지는 content를 사용하지 않습니다.
 
     RedisResponse_RoomMetadata:
@@ -316,6 +344,28 @@ components:
           description: Redis로 발행된 채널명
         payload:
           $ref: '#/components/schemas/RoomMetadata'
+
+    RoomSummaryRes:
+      type: object
+      properties:
+        roomId:
+          type: string
+          description: 방 ID
+        title:
+          type: string
+          description: 방 제목
+        owner:
+          type: string
+          description: 방장 닉네임
+        hasPassword:
+          type: boolean
+          description: 비밀번호 사용 여부
+        maxUser:
+          type: integer
+          description: 최대 인원 수
+        currentUser:
+          type: integer
+          description: 현재 인원 수
 
     RoomMetadata:
       type: object
@@ -354,6 +404,63 @@ components:
           description: |
             이 방을 생성한 사용자의 UUID입니다.  
             클라이언트는 해당 값을 통해 수신된 방 정보가 본인이 생성한 것인지 식별할 수 있습니다.
+
+    RedisResponse_RoomList_Create:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [CREATE]
+            eventAt:
+              type: string
+              format: date-time
+            data:
+              $ref: '#/components/schemas/RoomSummaryRes'
+
+    RedisResponse_RoomList_Update:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [ UPDATE ]
+            eventAt:
+              type: string
+              format: date-time
+            data:
+              $ref: '#/components/schemas/RoomSummaryRes'
+
+    RedisResponse_RoomList_Delete:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [ DELETE ]
+            eventAt:
+              type: string
+              format: date-time
+            data:
+              $ref: '#/components/schemas/RoomSummaryRes'
 
     RedisResponse_RoomChat:
       type: object

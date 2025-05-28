@@ -31,4 +31,8 @@ public class RoomRepository {
         redisTemplate.opsForHash().putAll(getRoomKey(roomId), updates);
     }
 
+    public void deleteRoom(String roomId) {
+        redisTemplate.delete(getRoomKey(roomId));
+    }
+
 }

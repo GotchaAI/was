@@ -4,23 +4,20 @@ import gotcha_common.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import socket_server.common.config.RedisMessage;
 import socket_server.common.exception.room.RoomExceptionCode;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.enumType.GameType;
 import socket_server.domain.room.RoomField.RoomField;
-import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.dto.EventType;
+import socket_server.domain.room.dto.RoomJoinRes;
+import socket_server.domain.room.dto.RoomSummaryRes;
 import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomRepository;
 import socket_server.domain.room.repository.RoomUserRepository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-
-import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
 
 @Service
 @Slf4j
@@ -30,20 +27,23 @@ public class RoomUserService {
     private final JsonSerializer jsonSerializer;
     private final RoomUserRepository roomUserRepository;
     private final RoomRepository roomRepository;
+    private final RoomBroadcaster roomBroadcaster;
 
     public RoomUserService(RedisTemplate<String, Object> objectRedisTemplate,
                            RoomUserRepository roomUserRepository,
                            JsonSerializer jsonSerializer,
-                           RoomRepository roomRepository) {
+                           RoomRepository roomRepository,
+                           RoomBroadcaster roomBroadcaster) {
         this.jsonSerializer = jsonSerializer;
         this.roomUserRepository = roomUserRepository;
         this.objectRedisTemplate = objectRedisTemplate;
         this.roomRepository = roomRepository;
+        this.roomBroadcaster = roomBroadcaster;
     }
 
     public void joinAndBroadcast(String roomId, String userUuid, String nickname, String password) {
         joinRoom(roomId, userUuid, nickname, password);
-        broadcastUserList(roomId, userUuid);
+        broadcastRoomInfo(roomId, userUuid);
     }
 
     public void updatePlayerReady(String roomId, String userUuid, boolean isReady) {
@@ -59,8 +59,24 @@ public class RoomUserService {
     }
 
     public void exitRoom(String roomId, String userUuid) {
+        boolean isOwner = validateRoomOwner(roomId, userUuid);
+
         roomUserRepository.removeUserFromRoom(roomId, userUuid);
         broadcastExit(roomId, userUuid);
+
+        if (isOwner) {
+            List<RoomUserInfo> remainingUsers = roomUserRepository.findUsersByRoomId(roomId);
+
+            if (!remainingUsers.isEmpty()) {
+                RoomUserInfo newOwner = remainingUsers.get(0);
+                passRoomOwner(roomId, newOwner);
+            } else {
+                log.info("방 {}에 유저가 없어 방을 삭제합니다.", roomId);
+                roomRepository.deleteRoom(roomId);
+                roomUserRepository.deleteUserList(roomId);
+                roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", EventType.DELETE, "방이 삭제되었습니다");
+            }
+        }
     }
 
     public void joinRoom(String roomId, String userUuid, String nickname, String password) {
@@ -125,7 +141,16 @@ public class RoomUserService {
     }
 
 
-    public RoomMetadata validateRoomHost(String roomId, String userUuid) {
+    public RoomMetadata validateRoomOwnerAndGetRoomMetadata(String roomId, String userUuid) {
+        if(!validateRoomOwner(roomId, userUuid)){
+            throw new CustomException(RoomExceptionCode.NOT_ROOM_OWNER);
+        }
+
+        Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
+        return RoomMetadata.fromRedisMap(roomId, roomData);
+    }
+
+    public boolean validateRoomOwner(String roomId, String userUuid) {
         //방이 실존하는지 확인
         Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
         if (roomData == null || roomData.isEmpty()) {
@@ -141,43 +166,46 @@ public class RoomUserService {
         // 방장이 맞는지 확인
         String ownerUuid = (String) roomData.get(RoomField.OWNER_UUID.getRedisField());
         if (!userUuid.equals(ownerUuid)) {
-            throw new CustomException(RoomExceptionCode.NOT_ROOM_OWNER);
+            return false;
         }
 
-        return RoomMetadata.fromRedisMap(roomId, roomData);
+        return true;
     }
 
-    private void broadcastUserList(String roomId, String userId){
+    private void broadcastRoomInfo(String roomId, String userId){
         List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId);
-        broadcastToRoom(roomId, userId, EventType.JOIN, userList);
+        RoomMetadata roomMetadata = RoomMetadata.fromRedisMap(roomId, roomRepository.getRoomData(roomId));
+
+        RoomJoinRes roomJoinRes = new RoomJoinRes(roomMetadata, userList);
+        roomBroadcaster.broadcastToRoom(roomId, userId, EventType.JOIN, roomJoinRes);
+
+        RoomSummaryRes roomSummaryRes = RoomSummaryRes.of(roomMetadata, userList.size());
+        roomBroadcaster.broadcastToRoomList("SYSTEM", EventType.UPDATE, roomSummaryRes);
     }
 
     private void broadcastReadyStatus(String roomId, String userUuid, boolean isReady) {
-        broadcastToRoom(roomId, userUuid, isReady ? EventType.READY : EventType.UNREADY, userUuid);
+        roomBroadcaster.broadcastToRoom(roomId, userUuid, isReady ? EventType.READY : EventType.UNREADY, userUuid);
     }
 
 
     private void broadcastExit(String roomId, String userUuid) {
-        broadcastToRoom(roomId, userUuid, EventType.EXIT, userUuid);
+        roomBroadcaster.broadcastToRoom(roomId, userUuid, EventType.EXIT, userUuid);
     }
 
-    private void broadcastToRoom(String roomId, String senderId, EventType type, Object data) {
-        EventRes eventRes = new EventRes(
-                type,
-                data,
-                LocalDateTime.now()
-        );
+    public void passRoomOwner(String roomId, RoomUserInfo newOwner) {
+        roomRepository.updateAllFields(roomId, Map.of(
+                RoomField.OWNER_UUID.getRedisField(), newOwner.getUserUuid(),
+                RoomField.OWNER.getRedisField(), newOwner.getNickname()
+        ));
 
-        objectRedisTemplate.convertAndSend(
-                ROOM_EVENT + roomId,
-                new RedisMessage(
-                        senderId,
-                        ROOM_EVENT + roomId,
-                        jsonSerializer.serialize(eventRes)
-                )
-        );
+        RoomMetadata updatedMetadata = RoomMetadata.fromRedisMap(roomId, roomRepository.getRoomData(roomId));
+        roomBroadcaster.broadcastToRoom(roomId, newOwner.getUserUuid(), EventType.UPDATE, updatedMetadata);
 
-        log.debug("Broadcasted {} event in room {} from user {}", type, roomId, senderId);
+        int currentUserCount = roomUserRepository.findUsersByRoomId(roomId).size();
+        RoomSummaryRes summary = RoomSummaryRes.of(updatedMetadata, currentUserCount);
+        roomBroadcaster.broadcastToRoomList(newOwner.getUserUuid(), EventType.UPDATE, summary);
+
+        log.info("방장 권한이 {}에게 위임되었습니다. (roomId: {})", newOwner.getUserUuid(), roomId);
     }
 }
 
