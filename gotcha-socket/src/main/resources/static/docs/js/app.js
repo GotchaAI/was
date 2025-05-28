@@ -412,7 +412,7 @@
       }
     },
     "/pub/room/{roomId}": {
-      "description": "클라이언트가 대기방 내에서 발생 가능한 로직 요청을 전송하는 채널입니다.\n\n[사용 가능한 이벤트 타입]\n- CHAT: 대기방 채팅\n- READY: 준비\n- UNREADY: 준비 해제\n- JOIN: 방 참가\n- EXIT: 방 퇴장\n- UPDATE: 방 정보 수정\n- DELETE: 방 삭제\n- START: 게임 시작\n\n`eventType` 값에 따라 content의 의미는 다르게 해석됩니다.\n",
+      "description": "클라이언트가 대기방 내에서 발생 가능한 로직 요청을 전송하는 채널입니다.\n\n[사용 가능한 이벤트 타입]\n- CHAT: 대기방 채팅\n- READY: 준비\n- UNREADY: 준비 해제\n- JOIN: 방 참가\n- EXIT: 방 퇴장\n- UPDATE: 방 정보 수정\n- START: 게임 시작\n- OWNER_CHANGE: 방장 권한 위임\n\n`eventType` 값에 따라 content의 의미는 다르게 해석됩니다.\n",
       "parameters": {
         "roomId": {
           "description": "대상 대기방의 고유 ID",
@@ -441,14 +441,15 @@
                   "JOIN",
                   "EXIT",
                   "UNREADY",
-                  "START"
+                  "START",
+                  "OWNER_CHANGE"
                 ],
                 "description": "클라이언트가 수행하고자 하는 이벤트의 종류입니다.\n",
                 "x-parser-schema-id": "<anonymous-schema-48>"
               },
               "content": {
                 "type": "string",
-                "description": "이벤트에 따라 의미가 달라지는 콘텐츠입니다.\n- CHAT: 채팅 메시지\n- JOIN: 비밀번호가 있는 대기방의 경우 비밀번호, 비밀번호가 없다면 안보내도 됩니다.\n- UPDATE: 방의 정보(title, hasPassword, password, difficulty, roundCount)를 json문자열 형태로 보냅니다. \n- 나머지는 content를 사용하지 않습니다.\n",
+                "description": "이벤트에 따라 의미가 달라지는 콘텐츠입니다.\n- CHAT: 채팅 메시지\n- JOIN: 비밀번호가 있는 대기방의 경우 비밀번호, 비밀번호가 없다면 안보내도 됩니다.\n- UPDATE: 방의 정보(title, hasPassword, password, difficulty, roundCount)를 json문자열 형태로 보냅니다.\n- OWNER_CHANGE: 방장 권한을 위임하고자 하는 사용자의 UUID\n- 나머지는 content를 사용하지 않습니다.\n",
                 "x-parser-schema-id": "<anonymous-schema-49>"
               }
             },
