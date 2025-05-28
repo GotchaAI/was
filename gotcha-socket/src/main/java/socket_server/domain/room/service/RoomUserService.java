@@ -85,6 +85,14 @@ public class RoomUserService {
         processUserExit(roomId, kickPlayerUuid, true);
     }
 
+    public void passRoomOwner(String roomId, String oldOwnerId, String newOwnerId) {
+        validateRoomOwner(roomId, oldOwnerId);
+
+        RoomUserInfo newOwner = roomUserRepository.findUserInfoInRoom(roomId, newOwnerId);
+
+        changeRoomOwner(roomId, newOwner);
+    }
+
     private void processUserExit(String roomId, String userUuid, boolean isKicked) {
         boolean isOwner = validateRoomOwner(roomId, userUuid);
 
@@ -99,7 +107,7 @@ public class RoomUserService {
 
             if (!remainingUsers.isEmpty()) {
                 RoomUserInfo newOwner = remainingUsers.get(0);
-                passRoomOwner(roomId, newOwner);
+                changeRoomOwner(roomId, newOwner);
             } else {
                 log.info("방 {}에 유저가 없어 방을 삭제합니다.", roomId);
                 roomRepository.deleteRoom(roomId);
@@ -197,7 +205,7 @@ public class RoomUserService {
         roomBroadcaster.broadcastToRoom(roomId, userUuid, EventType.EXIT, userUuid);
     }
 
-    public void passRoomOwner(String roomId, RoomUserInfo newOwner) {
+    public void changeRoomOwner(String roomId, RoomUserInfo newOwner) {
         roomRepository.updateAllFields(roomId, Map.of(
                 RoomField.OWNER_UUID.getRedisField(), newOwner.getUserUuid(),
                 RoomField.OWNER.getRedisField(), newOwner.getNickname()
