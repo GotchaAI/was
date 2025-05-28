@@ -199,7 +199,7 @@ public class GuessFlowService {
         currentRound.setWords(words);
 
         //todo: RoundWinner 확인, 정보 업데이트
-        
+
 
 
 
@@ -216,6 +216,9 @@ public class GuessFlowService {
             endGame(roomId);
         }
     }
+
+
+
 
     /**
      * 게임 종료 처리 (GUESSING_PHASE> GAME_ENDED)
@@ -334,19 +337,25 @@ public class GuessFlowService {
             throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
         }
 
+
+        // gamemeta. currentRound 번호 가져와서 해당 Round의 Score Update
+
         String guesserUuid = guess.getGuesserUuid();
 
         // 점수 업데이트
-        int currentScore = gamePlayerRepository.findScoreByUuid(roomId, guesserUuid);
+        int currentScore = gamePlayerRepository.findScoreByUuid(roomId, guesserUuid, gameMeta.getCurrentRound());
         int newScore = currentScore + guess.getAttempts() * (3 - guess.getAttempts() + 1);
 
-        gamePlayerRepository.saveScoreByUuid(roomId, guesserUuid, newScore);
+        gamePlayerRepository.saveScoreByUuid(roomId, guesserUuid, gameMeta.getCurrentRound(), newScore);
 
         // SCORE_UPDATE Broadcast
+        List<GamePlayer> gamePlayers = gamePlayerRepository.findPlayersByRoomId(roomId);
+        String playerA = gamePlayers.get(0).getPlayerUuid();
+        String playerB = gamePlayers.get(1).getPlayerUuid();
         Map<String, Integer> scores = new HashMap<>();
-        scores.put("AI", gamePlayerRepository.findScoreByUuid(roomId, "AI"));
-        scores.put("playerA", gamePlayerRepository.findScoreByUuid(roomId, "playerA"));
-        scores.put("playerB", gamePlayerRepository.findScoreByUuid(roomId, "playerB"));
+        scores.put("AI", gamePlayerRepository.findScoreByUuid(roomId, "AI", gameMeta.getCurrentRound()));
+        scores.put(playerA, gamePlayerRepository.findScoreByUuid(roomId, playerA, gameMeta.getCurrentRound()));
+        scores.put(playerB, gamePlayerRepository.findScoreByUuid(roomId, "playerB", gameMeta.getCurrentRound()));
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.SCORE_UPDATE, scores, null, null);
     }
 

@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.model.GamePlayer;
+import socket_server.domain.game.model.Round;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,19 +91,19 @@ public class GamePlayerRepository {
 
 
     /**
-     * score:{roomId}:{uuid}
+     * game:{roomId}:round:{roundIndex}:scores
      */
-    public static String getScoreKey(String roomId) {
-        return GameRepository.getGameKey(roomId) + ":scores";
+    public static String getScoreKey(String roomId, int roundIndex) {
+        return RoundRepository.getGameRoundsKey(roomId) + ":" + roundIndex + ":scores";
     }
 
-    public void saveScoreByUuid(String roomId, String uuid, int score) {
-        String key = getScoreKey(roomId);
+    public void saveScoreByUuid(String roomId, String uuid, int roundIndex,  int score) {
+        String key = getScoreKey(roomId, roundIndex);
         redisTemplate.opsForHash().put(key, uuid, String.valueOf(score));
     }
 
-    public int findScoreByUuid(String roomId, String uuid) {
-        String key = getScoreKey(roomId);
+    public int findScoreByUuid(String roomId, String uuid, int roundIndex) {
+        String key = getScoreKey(roomId, roundIndex);
         String score = (String) redisTemplate.opsForHash().get(key, uuid);
         if (score == null) {
             return 0;
