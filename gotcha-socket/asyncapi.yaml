@@ -126,8 +126,8 @@ channels:
       - JOIN: 방 참가
       - EXIT: 방 퇴장
       - UPDATE: 방 정보 수정
-      - DELETE: 방 삭제
       - START: 게임 시작
+      - OWNER_CHANGE: 방장 권한 위임
 
       `eventType` 값에 따라 content의 의미는 다르게 해석됩니다.
     parameters:
@@ -320,7 +320,7 @@ components:
       properties:
         eventType:
           type: string
-          enum: [CHAT, READY, JOIN, EXIT, UNREADY, START]
+          enum: [CHAT, READY, JOIN, EXIT, UNREADY, START, OWNER_CHANGE]
           description: |
             클라이언트가 수행하고자 하는 이벤트의 종류입니다.
         content:
@@ -329,7 +329,8 @@ components:
             이벤트에 따라 의미가 달라지는 콘텐츠입니다.
             - CHAT: 채팅 메시지
             - JOIN: 비밀번호가 있는 대기방의 경우 비밀번호, 비밀번호가 없다면 안보내도 됩니다.
-            - UPDATE: 방의 정보(title, hasPassword, password, difficulty, roundCount)를 json문자열 형태로 보냅니다. 
+            - UPDATE: 방의 정보(title, hasPassword, password, difficulty, roundCount)를 json문자열 형태로 보냅니다.
+            - OWNER_CHANGE: 방장 권한을 위임하고자 하는 사용자의 UUID
             - 나머지는 content를 사용하지 않습니다.
 
     RedisResponse_RoomMetadata:
