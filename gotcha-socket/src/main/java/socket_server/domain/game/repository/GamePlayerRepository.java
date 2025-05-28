@@ -8,10 +8,7 @@ import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.model.GamePlayer;
 import socket_server.domain.game.model.Round;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Repository
@@ -53,7 +50,7 @@ public class GamePlayerRepository {
         String key = getGamePlayersKey(roomId);
         Set<String> uuids = redisTemplate.opsForSet().members(key);
         if (uuids == null || uuids.isEmpty()) {
-            return List.of();
+            return new ArrayList<>();
         }
 
         List<GamePlayer> players = new ArrayList<>();
@@ -111,9 +108,20 @@ public class GamePlayerRepository {
         return Integer.parseInt(score);
     }
 
-    public Map findScores(String roomId, int roundIndex) {
+    public Map<String, Integer> findScores(String roomId, int roundIndex) {
         String key = getScoreKey(roomId, roundIndex);
-        return redisTemplate.opsForHash().entries(key);
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
+
+        Map<String, Integer> result = new HashMap<>();
+        for (Map.Entry<Object, Object> entry : entries.entrySet()) {
+            String playerUuid = (String) entry.getKey();
+            String scoreStr = (String) entry.getValue();
+            Integer score = Integer.valueOf(scoreStr);  // String → Integer 변환
+            result.put(playerUuid, score);
+        }
+
+        return result;
     }
+
 
 }

@@ -15,6 +15,8 @@ import socket_server.domain.game.repository.GameRepository;
 import socket_server.domain.game.repository.RoundRepository;
 import socket_server.domain.game.util.WordUtils;
 import socket_server.domain.room.model.RoomMetadata;
+import socket_server.domain.room.model.RoomUserInfo;
+import socket_server.domain.room.repository.RoomUserRepository;
 import socket_server.domain.room.service.RoomUserService;
 
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ public class GameStartService {
     private final RoundRepository roundRepository;
     private final GameBroadCaster gameBroadCaster;
     private final RoundStartService roundStartService;
+    private final RoomUserRepository roomUserRepository;
 
 
     public void startGame(String roomId, String userUuid)  {
@@ -50,7 +53,8 @@ public class GameStartService {
                 totalRounds(roomMetadata.getRoundCount()).build();
 
         // 3. 게임 플레이어 정보 조회 후 연결
-        List<GamePlayer> gamePlayers = gamePlayerRepository.findPlayersByRoomId(roomId);
+        List<GamePlayer> gamePlayers = roomUserRepository.findUsersByRoomId(roomId)
+                .stream().map(RoomUserInfo::toGamePlayer).toList();
         game.setGamePlayers(gamePlayers);
 
         // 4. 라운드 정보 초기화 후 연결

@@ -2,6 +2,7 @@ package socket_server.domain.game.service;
 
 import gotcha_common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.game.GameExceptionCode;
 import socket_server.domain.game.dto.AIGameEndReq;
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GuessFlowService {
@@ -79,6 +81,12 @@ public class GuessFlowService {
             handleRoundEnd(roomId);
             return;
         }
+        // Guess 데이터 찾아서 넣어주고
+        List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
+        currentWord.setPlayerGuesses(playerGuesses);
+
+        List<Guess> aiGuesses = roundRepository.findAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
+        currentWord.setAiGuesses(aiGuesses);
 
         if(isWordGuessCompleted(currentWord)){
             moveToNextWord(roomId, currentRound);
@@ -133,7 +141,9 @@ public class GuessFlowService {
 
         // 6. 현재 Word에 guess 추가
         currentWord.getAiGuesses().add(guess);
-        roundRepository.addAIGuess(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), guess);
+        List<Guess> aiGuesses = roundRepository.findAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
+        aiGuesses.add(guess);
+        roundRepository.saveAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), aiGuesses);
 
         // 7. Handle Guess Result
         handleGuessResult(roomId, currentWord.getWord(), guess);
@@ -150,19 +160,20 @@ public class GuessFlowService {
         //1. GUESS 정보 Broadcast
         gameBroadCaster.broadcastGameEvent(guesserUuid, roomId, GameEventType.GUESS_SUBMIT, guess, null, null);
 
-        //2. Handle Guess Result
-        handleGuessResult(roomId, guess.getGuessWord(), guess);
-
+        //2. 현재 Round, Word 가져오기
         Round currentRound = getCurrentRound(roomId);
         Word currentWord = getCurrentWord(getCurrentRound(roomId));
 
 
-        //3. 정답 확인
+        List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
+        currentWord.setPlayerGuesses(playerGuesses);
+
+
         guess.setCorrect(guess.getGuessWord().equalsIgnoreCase(currentWord.getWord()));
 
         //4. 현재 Word에 guess 추가
         currentWord.getPlayerGuesses().add(guess);
-        roundRepository.addPlayerGuess(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), guess);
+        roundRepository.savePlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), playerGuesses);
 
         //5. handle guess result
         //todo: handlerguessresult() 호출 시에 정답 확인, word에 guess를 추가하는건 어떨까? handlerAIGuessSubmit()과 코드가 중복된 내용이 있음.
@@ -210,9 +221,8 @@ public class GuessFlowService {
         // ROUND_END 이벤트 발행, 현재 라운드 정보 broadcast
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_END, currentRound, aiSays, null);
 
-        if(gameMeta.getCurrentRound() <= gameMeta.getTotalRounds()){
+        if(gameMeta.getCurrentRound() < gameMeta.getTotalRounds()){
             // next round 시작
-            // todo: 일정 시간 기다렸다가?
             roundStartService.startNextRound(roomId);
         } else {
             endGame(roomId);
@@ -297,15 +307,22 @@ public class GuessFlowService {
         for(Round round : rounds){
             Map<String, Integer> roundScores = gamePlayerRepository.findScores(roomId, round.getRoundIndex());
             round.setScores(roundScores);
-            scores.put("AI", scores.get("AI") + roundScores.get("AI"));
+            int aiRoundScore = roundScores.getOrDefault("AI", 0); // AI Score of this round
+            int aiGameScore = scores.getOrDefault("AI", 0); // AI Score of whole game
+            scores.put("AI", aiGameScore + aiRoundScore);
             for(String playerUuid : roundScores.keySet()){
-                if(!playerUuid.equals("AI")) scores.put(playerUuid, scores.get(playerUuid) + roundScores.get(playerUuid));
+                if(!playerUuid.equals("AI")) {
+                    int playerRoundScore = roundScores.getOrDefault(playerUuid, 0);
+                    int playerGameScore = scores.getOrDefault(playerUuid, 0);
+                    scores.put(playerUuid, playerGameScore + playerRoundScore);
+                }
             }
         }
 
         //2. GameWinner 구하기
-        String gameWinner = scores.get("AI") > scores.get("PLAYER") ?
-                "AI" : scores.get("AI") == scores.get("PLAYER") ? "DRAW" : "PLAYER";
+        int aiScore = scores.getOrDefault("AI", 0);
+        int playerScore = scores.getOrDefault("PLAYER", 0);
+        String gameWinner = aiScore > playerScore ? "AI" : aiScore == playerScore ? "DRAW" : "PLAYER";
         game.setWinner(gameWinner);
 
     }
@@ -383,10 +400,10 @@ public class GuessFlowService {
         if(guess.getCorrect()){
             // GUESS 성공. attempts와 함께 점수 업데이트
             updateScore(roomId, guess);
-        } else {
+        }
             // 다음 턴 (GUESS 실패)
             processNextGuessRequest(roomId);
-        }
+
 
     }
 
@@ -444,6 +461,9 @@ public class GuessFlowService {
      */
     private boolean isWordGuessCompleted(Word word) {
         // 1. 누군가 맞췄는지 확인
+        /**
+         * Word.aiguess() NULLPOINTER!!
+         */
         boolean hasCorrectGuess = word.getAiGuesses().stream().anyMatch(Guess::getCorrect) ||
                 word.getPlayerGuesses().stream().anyMatch(Guess::getCorrect);
         if (hasCorrectGuess) return true;
@@ -484,6 +504,8 @@ public class GuessFlowService {
 
         // 4. 데이터 파싱 후 결합
         List<Word> words = wordMetas.stream().map(WordMeta::toWord).toList();
+
+
         Round round = RoundMeta.toRound(roundMeta);
         round.setWords(words);
 
