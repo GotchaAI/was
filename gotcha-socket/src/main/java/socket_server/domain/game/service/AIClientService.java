@@ -15,8 +15,8 @@ public class AIClientService {
 
     private final WebClient webClient;
 
-//    @Value("${ai-server.url}")
-    private String AI_SERVER_BASE_URL = "http://localhost:8000/api/v1/";
+    @Value("${ai-server.url}")
+    private String AI_SERVER_BASE_URL;
 
     public String getGameStartMessage(String roomId, AIGameStartReq request){
         return webClient.post()
