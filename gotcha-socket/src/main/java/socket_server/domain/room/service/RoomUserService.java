@@ -2,10 +2,8 @@ package socket_server.domain.room.service;
 
 import gotcha_common.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.room.RoomExceptionCode;
-import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.enumType.GameType;
 import socket_server.domain.room.RoomField.RoomField;
 import socket_server.domain.room.dto.EventType;
@@ -22,28 +20,26 @@ import java.util.Map;
 @Service
 @Slf4j
 public class RoomUserService {
-
-    private final RedisTemplate<String, Object> objectRedisTemplate;
-    private final JsonSerializer jsonSerializer;
     private final RoomUserRepository roomUserRepository;
     private final RoomRepository roomRepository;
     private final RoomBroadcaster roomBroadcaster;
 
-    public RoomUserService(RedisTemplate<String, Object> objectRedisTemplate,
-                           RoomUserRepository roomUserRepository,
-                           JsonSerializer jsonSerializer,
+    public RoomUserService(RoomUserRepository roomUserRepository,
                            RoomRepository roomRepository,
                            RoomBroadcaster roomBroadcaster) {
-        this.jsonSerializer = jsonSerializer;
         this.roomUserRepository = roomUserRepository;
-        this.objectRedisTemplate = objectRedisTemplate;
         this.roomRepository = roomRepository;
         this.roomBroadcaster = roomBroadcaster;
     }
 
     public void joinAndBroadcast(String roomId, String userUuid, String nickname, String password) {
         joinRoom(roomId, userUuid, nickname, password);
-        broadcastRoomInfo(roomId, userUuid);
+
+        List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId);
+        RoomMetadata roomMetadata = RoomMetadata.fromRedisMap(roomId, roomRepository.getRoomData(roomId));
+
+        broadcastJoinInfo(roomId, userUuid, roomMetadata, userList);
+        broadcastRoomInfo(roomId, roomMetadata, userList);
     }
 
     public void updatePlayerReady(String roomId, String userUuid, boolean isReady) {
@@ -59,24 +55,7 @@ public class RoomUserService {
     }
 
     public void exitRoom(String roomId, String userUuid) {
-        boolean isOwner = validateRoomOwner(roomId, userUuid);
-
-        roomUserRepository.removeUserFromRoom(roomId, userUuid);
-        broadcastExit(roomId, userUuid);
-
-        if (isOwner) {
-            List<RoomUserInfo> remainingUsers = roomUserRepository.findUsersByRoomId(roomId);
-
-            if (!remainingUsers.isEmpty()) {
-                RoomUserInfo newOwner = remainingUsers.get(0);
-                passRoomOwner(roomId, newOwner);
-            } else {
-                log.info("방 {}에 유저가 없어 방을 삭제합니다.", roomId);
-                roomRepository.deleteRoom(roomId);
-                roomUserRepository.deleteUserList(roomId);
-                roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", EventType.DELETE, "방이 삭제되었습니다");
-            }
-        }
+        processUserExit(roomId, userUuid, false);
     }
 
     public void joinRoom(String roomId, String userUuid, String nickname, String password) {
@@ -101,6 +80,34 @@ public class RoomUserService {
         }
     }
 
+    public void kickPlayer(String roomId, String userUuid, String kickPlayerUuid) {
+        validateRoomOwner(roomId, userUuid);
+        processUserExit(roomId, kickPlayerUuid, true);
+    }
+
+    private void processUserExit(String roomId, String userUuid, boolean isKicked) {
+        boolean isOwner = validateRoomOwner(roomId, userUuid);
+
+        roomUserRepository.removeUserFromRoom(roomId, userUuid);
+        List<RoomUserInfo> remainingUsers = roomUserRepository.findUsersByRoomId(roomId);
+        RoomMetadata roomMetadata = RoomMetadata.fromRedisMap(roomId, roomRepository.getRoomData(roomId));
+
+        roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", isKicked ? EventType.KICK : EventType.EXIT, userUuid);
+        broadcastRoomInfo(roomId, roomMetadata, remainingUsers);
+
+        if (isOwner) {
+
+            if (!remainingUsers.isEmpty()) {
+                RoomUserInfo newOwner = remainingUsers.get(0);
+                passRoomOwner(roomId, newOwner);
+            } else {
+                log.info("방 {}에 유저가 없어 방을 삭제합니다.", roomId);
+                roomRepository.deleteRoom(roomId);
+                roomUserRepository.deleteUserList(roomId);
+                roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", EventType.DELETE, "방이 삭제되었습니다");
+            }
+        }
+    }
 
     private void validatePasswordIfRequired(String roomId, String password) {
         Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
@@ -122,19 +129,18 @@ public class RoomUserService {
 
     public void checkGameStart(String roomId, GameType gameType) {
         List<RoomUserInfo> users = roomUserRepository.findUsersByRoomId(roomId);
-        for(RoomUserInfo user : users) {
-            if(!user.isReady()) {
+        for (RoomUserInfo user : users) {
+            if (!user.isReady()) {
                 throw new CustomException(RoomExceptionCode.NOT_ALL_PLAYER_READY);
             }
         }
 
-        if(gameType.equals(GameType.TRICK_MYOMYO)) {
-            if(users.size() != 2) {
+        if (gameType.equals(GameType.TRICK_MYOMYO)) {
+            if (users.size() != 2) {
                 throw new CustomException(RoomExceptionCode.INVALID_GAME_PLAYERS);
             }
-        }
-        else {
-            if(users.size() != 1) {
+        } else {
+            if (users.size() != 1) {
                 throw new CustomException(RoomExceptionCode.INVALID_GAME_PLAYERS);
             }
         }
@@ -142,7 +148,7 @@ public class RoomUserService {
 
 
     public RoomMetadata validateRoomOwnerAndGetRoomMetadata(String roomId, String userUuid) {
-        if(!validateRoomOwner(roomId, userUuid)){
+        if (!validateRoomOwner(roomId, userUuid)) {
             throw new CustomException(RoomExceptionCode.NOT_ROOM_OWNER);
         }
 
@@ -172,13 +178,12 @@ public class RoomUserService {
         return true;
     }
 
-    private void broadcastRoomInfo(String roomId, String userId){
-        List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId);
-        RoomMetadata roomMetadata = RoomMetadata.fromRedisMap(roomId, roomRepository.getRoomData(roomId));
-
+    private void broadcastJoinInfo(String roomId, String userId, RoomMetadata roomMetadata, List<RoomUserInfo> userList) {
         RoomJoinRes roomJoinRes = new RoomJoinRes(roomMetadata, userList);
         roomBroadcaster.broadcastToRoom(roomId, userId, EventType.JOIN, roomJoinRes);
+    }
 
+    private void broadcastRoomInfo(String roomId, RoomMetadata roomMetadata, List<RoomUserInfo> userList) {
         RoomSummaryRes roomSummaryRes = RoomSummaryRes.of(roomMetadata, userList.size());
         roomBroadcaster.broadcastToRoomList("SYSTEM", EventType.UPDATE, roomSummaryRes);
     }
