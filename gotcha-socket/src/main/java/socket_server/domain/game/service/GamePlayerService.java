@@ -2,6 +2,7 @@ package socket_server.domain.game.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import socket_server.common.exception.ErrorType;
 import socket_server.domain.game.model.GamePlayer;
 import socket_server.domain.game.repository.GameRepository;
 import socket_server.domain.room.model.RoomUserInfo;
@@ -17,9 +18,8 @@ public class GamePlayerService {
      */
     private final RoomUserRepository roomUserRepository;
 
-    public List<GamePlayer> getGamePlayersFromRoom(String roomId) {
-        return roomUserRepository.findUsersByRoomId(roomId).stream().map(RoomUserInfo::toGamePlayer).toList();
+    public List<GamePlayer> getGamePlayersFromRoom(String roomId, ErrorType errorType) {
+        return roomUserRepository.findUsersByRoomId(roomId, errorType).stream().map(RoomUserInfo::toGamePlayer).toList();
     }
-
 
 }

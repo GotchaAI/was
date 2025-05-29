@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
+import socket_server.common.exception.ErrorType;
 import socket_server.common.listener.PubSubHandler;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.dto.GameRes;
@@ -26,7 +27,7 @@ public class GamePubSubHandler extends PubSubHandler {
 
     private void gameEvent(String channel, Object object) {
         RedisMessage redisMessage = (RedisMessage) object;
-        GameRes gameRes = jsonSerializer.deserialize(redisMessage.payload(), GameRes.class);
+        GameRes gameRes = jsonSerializer.deserialize(redisMessage.payload(), GameRes.class, ErrorType.GAME);
         messagingTemplate.convertAndSend(channel, gameRes);
     }
 

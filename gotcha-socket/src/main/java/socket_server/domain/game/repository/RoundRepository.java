@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
+import socket_server.common.exception.ErrorType;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.meta.RoundMeta;
 import socket_server.domain.game.meta.WordMeta;
@@ -42,7 +43,7 @@ public class RoundRepository {
     public void saveRoundMetas(String roomId, List<Round> rounds) {
         String key = getGameRoundsKey(roomId);
         List<RoundMeta> roundMetas = rounds.stream().map(Round::toRoundMeta).toList();
-        String roundsJson = jsonSerializer.serialize(roundMetas);
+        String roundsJson = jsonSerializer.serialize(roundMetas, ErrorType.GAME);
         redisTemplate.opsForValue().set(key, roundsJson);
         log.info("RoundMetas {} saved", roundsJson);
     }
@@ -50,13 +51,13 @@ public class RoundRepository {
     /**
      * Round 메타정보 List 조회 (roundIndex, drawingEndTime, roundWinner)
      */
-    public List<RoundMeta> findRoundMetas(String roomId) {
+    public List<RoundMeta> findRoundMetas(String roomId, ErrorType errorType) {
         String key = getGameRoundsKey(roomId);
         String roundsJson = redisTemplate.opsForValue().get(key);
         if (roundsJson == null) {
             return List.of();
         }
-        return jsonSerializer.deserializeList(roundsJson, RoundMeta.class);
+        return jsonSerializer.deserializeList(roundsJson, RoundMeta.class, errorType);
     }
 
     /**
@@ -72,7 +73,7 @@ public class RoundRepository {
     public void saveWords(String roomId, int roundIndex, List<Word> words) {
         String key = getRoundWordsKey(roomId, roundIndex);
         List<WordMeta> wordMetas = words.stream().map(Word::toWordMeta).toList();
-        String wordsJson = jsonSerializer.serialize(wordMetas);
+        String wordsJson = jsonSerializer.serialize(wordMetas, ErrorType.GAME);
         redisTemplate.opsForValue().set(key, wordsJson);
         log.info("Words {} saved", wordsJson);
     }
@@ -86,7 +87,7 @@ public class RoundRepository {
         if (wordsJson == null) {
             return List.of();
         }
-        return jsonSerializer.deserializeList(wordsJson, WordMeta.class);
+        return jsonSerializer.deserializeList(wordsJson, WordMeta.class, ErrorType.GAME);
     }
 
 
@@ -99,7 +100,7 @@ public class RoundRepository {
      */
     public void addGuess(String roomId, int roundIndex, int wordIndex, Guess guess){
         String key = getGuessKey(roomId, roundIndex, wordIndex);
-        String guessJson = jsonSerializer.serialize(guess);
+        String guessJson = jsonSerializer.serialize(guess, ErrorType.GAME);
         redisTemplate.opsForList().rightPush(key, guessJson);
         log.info("Guess {} saved", guessJson);
     }
@@ -113,7 +114,7 @@ public class RoundRepository {
         if (guessesJsonList == null || guessesJsonList.isEmpty()) {
             return List.of();
         }
-        return jsonSerializer.deserializeList(guessesJsonList, Guess.class);
+        return jsonSerializer.deserializeList(guessesJsonList, Guess.class, ErrorType.GAME);
     }
 
 }

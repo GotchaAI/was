@@ -4,6 +4,7 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.beans.factory.annotation.Qualifier;
+import socket_server.common.exception.ErrorType;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.room.model.RoomUserInfo;
 
@@ -14,7 +15,6 @@ import java.util.Map;
 public class RoomUserRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
-
     private final JsonSerializer jsonSerializer;
 
     public RoomUserRepository(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate, JsonSerializer jsonSerializer) {
@@ -30,9 +30,8 @@ public class RoomUserRepository {
         return "user:" + userUuid + ":room";
     }
 
-    public void saveUserToRoom(RoomUserInfo roomUserInfo, String roomId) {
-
-        String parsedJson = jsonSerializer.serialize(roomUserInfo);
+    public void saveUserToRoom(RoomUserInfo roomUserInfo, String roomId, ErrorType errorType) {
+        String parsedJson = jsonSerializer.serialize(roomUserInfo, errorType);
         /**
          * key : room:roomId:users
          * field: userId
@@ -52,9 +51,9 @@ public class RoomUserRepository {
         });
     }
 
-    public List<RoomUserInfo> findUsersByRoomId(String roomId) {
+    public List<RoomUserInfo> findUsersByRoomId(String roomId, ErrorType errorType) {
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(roomUserKey(roomId));
-        return entries.values().stream().map(raw -> jsonSerializer.deserialize(raw, RoomUserInfo.class)).toList();
+        return entries.values().stream().map(raw -> jsonSerializer.deserialize(raw, RoomUserInfo.class, errorType)).toList();
     }
 
     public void removeUserFromRoom(String roomId, String userUuid) {
@@ -70,10 +69,10 @@ public class RoomUserRepository {
         return redisTemplate.opsForValue().get(userRoomKey(userUuid));
     }
 
-    public RoomUserInfo findUserInfoInRoom(String roomId, String userUuid) {
+    public RoomUserInfo findUserInfoInRoom(String roomId, String userUuid, ErrorType errorType) {
         Object raw = redisTemplate.opsForHash().get(roomUserKey(roomId), userUuid);
         if (raw == null) return null;
-        return jsonSerializer.deserialize(raw, RoomUserInfo.class);
+        return jsonSerializer.deserialize(raw, RoomUserInfo.class, errorType);
     }
 
     public void deleteUserList(String roomId) {

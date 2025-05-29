@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
+import socket_server.common.exception.ErrorType;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.model.GamePlayer;
 
@@ -33,7 +34,7 @@ public class GamePlayerRepository {
      */
     public void savePlayers(String roomId, List<GamePlayer> players) {
         String key = getGamePlayersKey(roomId);
-        String playersJson = jsonSerializer.serialize(players);
+        String playersJson = jsonSerializer.serialize(players, ErrorType.GAME);
         redisTemplate.opsForValue().set(key, playersJson);
         log.info("Players {} saved", playersJson);
     }
@@ -47,7 +48,7 @@ public class GamePlayerRepository {
         if (playersJson == null) {
             return List.of();
         }
-        return jsonSerializer.deserializeList(playersJson, GamePlayer.class);
+        return jsonSerializer.deserializeList(playersJson, GamePlayer.class, ErrorType.GAME);
     }
 
 
