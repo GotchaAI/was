@@ -1,4 +1,4 @@
-package socket_server.domain.room.dto;
+package socket_server.domain.lobby.dto;
 
 
 import jakarta.validation.constraints.*;
@@ -9,7 +9,7 @@ import socket_server.domain.game.enumType.GameType;
 
 @ValidMaxUser
 @ValidPassword
-public record CreateRoomRequest(
+public record CreateRoomReq(
         @NotBlank(message = "제목은 필수 입력입니다.")
         String title,
 
@@ -26,7 +26,6 @@ public record CreateRoomRequest(
 
         @NotNull(message = "게임 유형은 필수 입력입니다.")
         GameType gameType,
-
 
         @Min(1) @Max(5)
         int roundCount
