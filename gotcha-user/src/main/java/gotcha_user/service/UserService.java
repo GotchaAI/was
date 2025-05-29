@@ -55,6 +55,24 @@ public class UserService {
         return UserInfoRes.fromEntity(user);
     }
 
+    @Transactional
+    public void changeNickname(Long userId, String nickname) {
+        if (!"true".equals(redisUtil.getData(NICKNAME_VERIFY_KEY_PREFIX + nickname))) {
+            throw new CustomException(UserExceptionCode.NICKNAME_NOT_VERIFIED);
+        }
+
+        if (userRepository.existsByNickname(nickname)) {
+            throw new CustomException(UserExceptionCode.NICKNAME_EXIST);
+        }
+
+        User user = findUserByUserId(userId);
+        if (user.getNickname().equals(nickname)) {
+            throw new CustomException(UserExceptionCode.SAME_NICKNAME);
+        }
+
+        user.changeNickname(nickname);
+    }
+
     @Transactional(readOnly = true)
     public User findUserByUserId(Long userId){
         return userRepository.findById(userId)
