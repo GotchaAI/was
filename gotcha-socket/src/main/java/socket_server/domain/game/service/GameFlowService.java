@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
+import socket_server.common.exception.ErrorType;
+import socket_server.common.exception.SocketCustomException;
 import socket_server.common.exception.game.GameExceptionCode;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.dto.*;
@@ -17,7 +19,7 @@ import socket_server.domain.game.repository.GamePlayerRepository;
 import socket_server.domain.game.repository.GameRepository;
 import socket_server.domain.game.repository.RoundRepository;
 import socket_server.domain.room.dto.EventRes;
-import socket_server.domain.room.dto.EventType;
+import socket_server.domain.room.model.RoomEventType;
 import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.service.RoomUserService;
 
@@ -45,10 +47,10 @@ public class GameFlowService {
     private final GamePlayerRepository gamePlayerRepository;
     private final AIClientService aIClientService;
 
-    public void startGame(String roomId, String userUuid)  {
+    public void startGame(String roomId, String userUuid, ErrorType errorType)  {
         // 1. 게임 시작 가능한지(레디 상태, 플레이어 수) check 후 방 메타정보 조회
-        RoomMetadata roomMetadata = roomUserService.validateRoomOwnerAndGetRoomMetadata(roomId, userUuid);
-        roomUserService.checkGameStart(roomId, roomMetadata.getGameType());
+        RoomMetadata roomMetadata = roomUserService.validateRoomOwnerAndGetRoomMetadata(roomId, userUuid, errorType);
+        roomUserService.checkGameStart(roomId, roomMetadata.getGameType(), errorType);
 
         // 2. 게임 메타데이터 생성
         Game game = Game.builder().
@@ -59,7 +61,7 @@ public class GameFlowService {
                 totalRounds(roomMetadata.getRoundCount()).build();
 
         // 3. 게임 플레이어 정보 조회 후 연결
-        List<GamePlayer> gamePlayers = gamePlayerService.getGamePlayersFromRoom(roomId);
+        List<GamePlayer> gamePlayers = gamePlayerService.getGamePlayersFromRoom(roomId, errorType);
         game.setGamePlayers(gamePlayers);
 
         // 4. 라운드 정보 초기화 후 연결
@@ -79,7 +81,7 @@ public class GameFlowService {
         try{
             Thread.sleep(5000); // 5000ms = 5초
         } catch (InterruptedException e){  }
-        startNextRound(userUuid, roomId);
+        startNextRound(userUuid, roomId, errorType);
 
     }
 
@@ -90,17 +92,17 @@ public class GameFlowService {
      * 4. drawingEndTime 설정 후 데이터 broadcast
      * 5. 라운드 메타 정보 저장
      */
-    public void startNextRound(String userUuid, String roomId){
+    public void startNextRound(String userUuid, String roomId, ErrorType errorType){
         GameMeta gameMeta = gameRepository.findGameMeta(roomId);
 
         if(!canStartNextRound(gameMeta))
-            throw new CustomException(GameExceptionCode.ALREADY_FINISHED_GAME);
+            throw new SocketCustomException(errorType, GameExceptionCode.ALREADY_FINISHED_GAME);
 
         int currentRound = getNextRoundIndex(gameMeta);
         gameMeta.setCurrentRound(currentRound);
         gameRepository.saveGameMeta(gameMeta);
 
-        List<RoundMeta> roundMetaList = roundRepository.findRoundMetas(roomId);
+        List<RoundMeta> roundMetaList = roundRepository.findRoundMetas(roomId, errorType);
         RoundMeta currentRoundMeta = roundMetaList.get(currentRound);
 
         String aiSays = aIClientService.getRoundStartMessage(roomId, new AIRoundStartReq(currentRound, gameMeta.getTotalRounds()));
@@ -120,11 +122,11 @@ public class GameFlowService {
     /**
      * 게임 전체 정보 조회
      */
-    public Game getGame(String roomId) {
+    public Game getGame(String roomId, ErrorType errorType) {
         Game game = Game.fromGameMeta(gameRepository.findGameMeta(roomId));
 
         // Round 가져와서 roundIndex로 WordMeta 조회
-        List<Round> rounds = roundRepository.findRoundMetas(roomId).stream().map(RoundMeta::toRound).toList();
+        List<Round> rounds = roundRepository.findRoundMetas(roomId, errorType).stream().map(RoundMeta::toRound).toList();
         for(Round round: rounds) {
             // Word 가져와서 wordIndex로 Guess 조회
             List<Word> words = roundRepository.findWords(roomId, round.getRoundIndex()).stream().map(WordMeta::toWord).toList();
@@ -152,7 +154,7 @@ public class GameFlowService {
 
     private void broadcastStartEvent(String userUuid, String roomId, AISaysRes aiSaysRes) {
         EventRes eventRes = new EventRes(
-                EventType.START,
+                RoomEventType.START,
                 aiSaysRes,
                 LocalDateTime.now()
         );
@@ -160,10 +162,10 @@ public class GameFlowService {
         RedisMessage redisMessage = new RedisMessage(
                 userUuid,
                 ROOM_EVENT + roomId,
-                jsonSerializer.serialize(eventRes)
+                jsonSerializer.serialize(eventRes, ErrorType.ROOM)
         );
 
-        objectRedisTemplate.convertAndSend(ROOM_EVENT + roomId, jsonSerializer.serialize(redisMessage));
+        objectRedisTemplate.convertAndSend(ROOM_EVENT + roomId, jsonSerializer.serialize(redisMessage, ErrorType.GAME));
     }
 
     private void broadcastGameEvent(String senderUuid, String roomId, GameEventType gameEventType, AISaysRes data) {
@@ -177,7 +179,7 @@ public class GameFlowService {
                 new RedisMessage(
                         senderUuid,
                         GAME_PREFIX + roomId,
-                        jsonSerializer.serialize(gameRes)
+                        jsonSerializer.serialize(gameRes, ErrorType.GAME)
                 )
         );
 
