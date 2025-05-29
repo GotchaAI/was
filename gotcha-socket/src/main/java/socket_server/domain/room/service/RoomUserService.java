@@ -96,6 +96,7 @@ public class RoomUserService {
 
     public void checkUserNotInAnyRoom(String userUuid) {
         String value = roomUserRepository.findRoomIdByUserUuid(userUuid);
+        log.info("⭐⭐⭐ 당신이 현재 속한 방 코드 : "+value);
         if (value != null) {
             throw new CustomException(RoomExceptionCode.USER_ALREADY_IN_ANOTHER_ROOM);
         }
