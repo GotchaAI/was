@@ -10,22 +10,24 @@ public interface WebSocketConstants {
     //대기방 관련 채널
     String ROOM_PREFIX = "/sub/room/";
     String ROOM_EVENT = ROOM_PREFIX + "event/";
-    String ROOM_LIST_INFO = ROOM_PREFIX + "list/info";
-    String ROOM_LIST_EVENT = ROOM_PREFIX + "list/event";
-    String ROOM_OWNER_CREATE_INFO = ROOM_PREFIX + "create/"; // + uuid
 
     // 게임 관련 채널
     String GAME_PREFIX = "/sub/game/";
     String GAME_READY_CHANNEL = GAME_PREFIX + "ready/"; // + roomId
     String GAME_END_CHANNEL = GAME_PREFIX + "end/"; // + roomId
     String GAME_INFO_CHANNEL = GAME_PREFIX + "info/"; // + roomId
-    String GAME_START_CHANNEL = GAME_PREFIX     + "start/"; // + roomId
+    String GAME_START_CHANNEL = GAME_PREFIX + "start/"; // + roomId
 
-    // 개인 유저 관련 채널
-    String PERSONAL_PREFIX = "/sub/personal/";
-    String PERSONAL_ROOM_CREATE_RESPONSE =  PERSONAL_PREFIX +"room/create/"; //+userId
+    String LOBBY_PREFIX = "/sub/lobby/";
+    String LOBBY_JOIN_CHANNEL = LOBBY_PREFIX+"join/"; // + roomId
+    String LOBBY_ROOM_CREATE_CHANNEL = LOBBY_PREFIX+"create/"; // + uuid
+    String LOBBY_ROOM_LIST_EVENT = LOBBY_PREFIX + "list/event";
 
     // 에러 처리 채널
     String ERROR_CHANNEL_PREFIX = "/user/";
-    String ERROR_CHANEL = "/queue/errors";
+    String ERROR_DEFAULT_CHANEL = "/queue/errors";
+    String ERROR_ROOM_CHANNEL = "/room/errors";
+    String ERROR_LOBBY_CHANNEL = "/lobby/errors";
+    String ERROR_CHAT_CHANNEL = "/chat/errors";
+    String ERROR_GAME_CHANNEL = "/game/errors";
 }
