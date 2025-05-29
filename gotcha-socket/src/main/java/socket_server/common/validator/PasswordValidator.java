@@ -2,14 +2,14 @@ package socket_server.common.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import socket_server.domain.room.dto.CreateRoomRequest;
+import socket_server.domain.lobby.dto.CreateRoomReq;
 import socket_server.domain.room.dto.RoomUpdateReq;
 
 public class PasswordValidator implements ConstraintValidator<ValidPassword, Object> {
 
     @Override
     public boolean isValid(Object obj, ConstraintValidatorContext context) {
-        if (obj instanceof CreateRoomRequest request) {
+        if (obj instanceof CreateRoomReq request) {
             return validatePassword(request.hasPassword(), request.password(), context);
         }
         if (obj instanceof RoomUpdateReq request) {

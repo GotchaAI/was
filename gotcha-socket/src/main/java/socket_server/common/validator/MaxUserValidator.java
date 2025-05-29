@@ -3,12 +3,12 @@ package socket_server.common.validator;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import socket_server.domain.game.enumType.GameType;
-import socket_server.domain.room.dto.CreateRoomRequest;
+import socket_server.domain.lobby.dto.CreateRoomReq;
 
-public class MaxUserValidator implements ConstraintValidator<ValidMaxUser, CreateRoomRequest> {
+public class MaxUserValidator implements ConstraintValidator<ValidMaxUser, CreateRoomReq> {
 
     @Override
-    public boolean isValid(CreateRoomRequest req, ConstraintValidatorContext context) {
+    public boolean isValid(CreateRoomReq req, ConstraintValidatorContext context) {
         if (req == null || req.gameType() == null || req.maxUser() == null) {
             return true;
         }
