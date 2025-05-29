@@ -1,9 +1,11 @@
 package socket_server.domain.room.dto;
 
+import socket_server.domain.room.model.RoomEventType;
+
 import java.time.LocalDateTime;
 
 public record EventRes(
-        EventType eventType,
+        RoomEventType type,
         Object data,
         LocalDateTime eventAt
 ) {
