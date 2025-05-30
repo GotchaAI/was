@@ -81,12 +81,19 @@ public class RoomUserService {
     }
 
     public void kickPlayer(String roomId, String userUuid, String kickPlayerUuid) {
-        validateRoomOwner(roomId, userUuid);
+        if (!validateRoomOwner(roomId, userUuid)) {
+            throw new CustomException(RoomExceptionCode.NOT_ROOM_OWNER);
+        }
+        if (userUuid.equals(kickPlayerUuid)) {
+            throw new CustomException(RoomExceptionCode.CANNOT_KICK_SELF);
+        }
         processUserExit(roomId, kickPlayerUuid, true);
     }
 
     public void passRoomOwner(String roomId, String oldOwnerId, String newOwnerId) {
-        validateRoomOwner(roomId, oldOwnerId);
+        if (!validateRoomOwner(roomId, oldOwnerId)) {
+            throw new CustomException(RoomExceptionCode.NOT_ROOM_OWNER);
+        }
 
         RoomUserInfo newOwner = roomUserRepository.findUserInfoInRoom(roomId, newOwnerId);
 
@@ -104,7 +111,6 @@ public class RoomUserService {
         broadcastRoomInfo(roomId, roomMetadata, remainingUsers);
 
         if (isOwner) {
-
             if (!remainingUsers.isEmpty()) {
                 RoomUserInfo newOwner = remainingUsers.get(0);
                 changeRoomOwner(roomId, newOwner);
@@ -113,6 +119,7 @@ public class RoomUserService {
                 roomRepository.deleteRoom(roomId);
                 roomUserRepository.deleteUserList(roomId);
                 roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", EventType.DELETE, "방이 삭제되었습니다");
+                roomBroadcaster.broadcastToRoomList("SYSTEM", EventType.DELETE, roomId);
             }
         }
     }
