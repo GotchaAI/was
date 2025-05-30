@@ -23,13 +23,16 @@ public class RoomUserService {
     private final RoomUserRepository roomUserRepository;
     private final RoomRepository roomRepository;
     private final RoomBroadcaster roomBroadcaster;
+    private final RoomIdService roomIdService;
 
     public RoomUserService(RoomUserRepository roomUserRepository,
                            RoomRepository roomRepository,
-                           RoomBroadcaster roomBroadcaster) {
+                           RoomBroadcaster roomBroadcaster,
+                           RoomIdService roomIdService) {
         this.roomUserRepository = roomUserRepository;
         this.roomRepository = roomRepository;
         this.roomBroadcaster = roomBroadcaster;
+        this.roomIdService = roomIdService;
     }
 
     public void joinAndBroadcast(String roomId, String userUuid, String nickname, String password) {
@@ -120,6 +123,7 @@ public class RoomUserService {
                 roomUserRepository.deleteUserList(roomId);
                 roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", EventType.DELETE, "방이 삭제되었습니다");
                 roomBroadcaster.broadcastToRoomList("SYSTEM", EventType.DELETE, roomId);
+                roomIdService.releaseRoomId(roomId);
             }
         }
     }
