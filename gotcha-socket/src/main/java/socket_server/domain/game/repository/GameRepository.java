@@ -62,6 +62,7 @@ public class GameRepository {
                 "gameType", gameMeta.getGameType().name(),
                 "difficulty", gameMeta.getDifficulty().name(),
                 "currentRound", String.valueOf(gameMeta.getCurrentRound()),
+                "gameStatus", String.valueOf(gameMeta.getGameStatus()),
                 "totalRounds", String.valueOf(gameMeta.getTotalRounds()),
                 "aiScore", String.valueOf(gameMeta.getAiScore())
         );

@@ -19,8 +19,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME:gotcha.ai.official@gmail.com}
-    password: ${MAIL_PASSWORD:gvwlyhzwroxuacqq}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -71,5 +71,5 @@ server:
   address: 0.0.0.0
 
 ai-server:
-  url: http://54.180.151.51:8000/api/v1
+  url: http://54.180.151.51:8000/api/v1/
 

@@ -10,11 +10,16 @@ public class WordMeta {
     private int wordIndex;
     private String word;
     private String drawerUuid;
+    private String imageURL;
+    private boolean submitted;
+
     public static Word toWord(WordMeta wordMeta){
        return Word.builder()
                .wordIndex(wordMeta.getWordIndex())
                .word(wordMeta.getWord())
-               .drawerUuid(wordMeta.getDrawerUuid()).build();
+               .drawerUuid(wordMeta.getDrawerUuid())
+               .submitted(wordMeta.isSubmitted())
+               .imageURL(wordMeta.getImageURL()).build();
     }
 
 }

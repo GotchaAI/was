@@ -7,10 +7,10 @@ import org.springframework.stereotype.Repository;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.meta.RoundMeta;
 import socket_server.domain.game.meta.WordMeta;
+import socket_server.domain.game.model.AiPrediction;
 import socket_server.domain.game.model.Guess;
-import socket_server.domain.game.model.Round;
-import socket_server.domain.game.model.Word;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -39,9 +39,8 @@ public class RoundRepository {
     /**
      * Round 메타정보 List 저장 (roundIndex, drawingEndTime, roundWinner)
      */
-    public void saveRoundMetas(String roomId, List<Round> rounds) {
+    public void saveRoundMetas(String roomId, List<RoundMeta> roundMetas) {
         String key = getGameRoundsKey(roomId);
-        List<RoundMeta> roundMetas = rounds.stream().map(Round::toRoundMeta).toList();
         String roundsJson = jsonSerializer.serialize(roundMetas);
         redisTemplate.opsForValue().set(key, roundsJson);
         log.info("RoundMetas {} saved", roundsJson);
@@ -54,7 +53,7 @@ public class RoundRepository {
         String key = getGameRoundsKey(roomId);
         String roundsJson = redisTemplate.opsForValue().get(key);
         if (roundsJson == null) {
-            return List.of();
+            return new ArrayList<>();
         }
         return jsonSerializer.deserializeList(roundsJson, RoundMeta.class);
     }
@@ -63,57 +62,109 @@ public class RoundRepository {
      * game:{roomId}:round:{roundIndex}:words
      */
     private String getRoundWordsKey(String roomId, int roundIndex) {
-        return getGameRoundsKey(roomId) + roundIndex + ":words";
+        return getGameRoundsKey(roomId) + ":" + roundIndex + ":words";
     }
 
     /**
      * Word 메타정보 List 저장(wordIndex, word, drawerUuid)
      */
-    public void saveWords(String roomId, int roundIndex, List<Word> words) {
+    public void saveWordMetas(String roomId, int roundIndex, List<WordMeta> wordMetas) {
         String key = getRoundWordsKey(roomId, roundIndex);
-        List<WordMeta> wordMetas = words.stream().map(Word::toWordMeta).toList();
         String wordsJson = jsonSerializer.serialize(wordMetas);
         redisTemplate.opsForValue().set(key, wordsJson);
         log.info("Words {} saved", wordsJson);
     }
 
     /**
-     * Word 메타정보 List 조회(wordIndex, word, drawerUuid)
+     * Word 메타정보 List 조회(wordIndex, word, drawerUuid, imageURL)
      */
-    public List<WordMeta> findWords(String roomId, int roundIndex) {
+    public List<WordMeta> findWordMetas(String roomId, int roundIndex) {
         String key = getRoundWordsKey(roomId, roundIndex);
         String wordsJson = redisTemplate.opsForValue().get(key);
         if (wordsJson == null) {
-            return List.of();
+            return new ArrayList<>();
         }
         return jsonSerializer.deserializeList(wordsJson, WordMeta.class);
     }
 
 
-    private String getGuessKey(String roomId, int roundIndex, int wordIndex){
-        return getRoundWordsKey(roomId, roundIndex) + wordIndex + ":guesses";
+
+    private String getAIPredicionsKey(String roomId, int roundIndex, int wordIndex) {
+        return getRoundWordsKey(roomId, roundIndex) + wordIndex + ":ai_predictions";
     }
 
     /**
-     * GUESS 정보 추가
+     * AI Prediction 정보 저장(top3 class, confidence)
      */
-    public void addGuess(String roomId, int roundIndex, int wordIndex, Guess guess){
-        String key = getGuessKey(roomId, roundIndex, wordIndex);
-        String guessJson = jsonSerializer.serialize(guess);
-        redisTemplate.opsForList().rightPush(key, guessJson);
-        log.info("Guess {} saved", guessJson);
+    public void saveAIPredictions(String roomId, int roundIndex, int wordIndex, List<AiPrediction> predictions){
+        String key = getAIPredicionsKey(roomId, roundIndex, wordIndex);
+        String predictionsJson = jsonSerializer.serialize(predictions);
+        redisTemplate.opsForValue().set(key, predictionsJson);
+        log.info("AI Predictions {} saved", predictionsJson);
     }
 
     /**
-     * List Guess 조회
+     * AI Prediction 정보 조회(top3 class, confidence)
      */
-    public List<Guess> findGuesses(String roomId, int roundIndex, int wordIndex){
-        String key = getGuessKey(roomId, roundIndex, wordIndex);
-        List<String> guessesJsonList = redisTemplate.opsForList().range(key, 0, -1);
+    public List<AiPrediction> findAIPredictions(String roomId, int roundIndex, int wordIndex) {
+        return jsonSerializer.deserializeList(redisTemplate.opsForValue().get(getAIPredicionsKey(roomId, roundIndex, wordIndex)), AiPrediction.class);
+    }
+
+
+
+    private String getAIGuessKey(String roomId, int roundIndex, int wordIndex){
+        return getRoundWordsKey(roomId, roundIndex) + wordIndex + ":ai_guesses";
+    }
+
+
+    private String getPlayerGuessKey(String roomId, int roundIndex, int wordIndex){
+        return getRoundWordsKey(roomId, roundIndex) + wordIndex + ":player_guesses";
+    }
+
+
+
+    /**
+     * AI Guess 정보 저장
+     */
+    public void saveAIGuesses(String roomId, int roundIndex, int wordIndex, List<Guess> guesses){
+        String key = getAIGuessKey(roomId, roundIndex, wordIndex);
+        String guessesJson = jsonSerializer.serialize(guesses);
+        redisTemplate.opsForValue().set(key, guessesJson);
+        log.info("AI Guesses {} saved", guessesJson);
+    }
+
+    /**
+     * AI List Guess 조회
+     */
+    public List<Guess> findAIGuesses(String roomId, int roundIndex, int wordIndex){
+        String key = getAIGuessKey(roomId, roundIndex, wordIndex);
+        String guessesJsonList = redisTemplate.opsForValue().get(key);
         if (guessesJsonList == null || guessesJsonList.isEmpty()) {
-            return List.of();
+            return new ArrayList<>();
         }
         return jsonSerializer.deserializeList(guessesJsonList, Guess.class);
     }
 
+
+    /**
+     * Player List Guess 조회
+     */
+    public List<Guess> findPlayerGuesses(String roomId, int roundIndex, int wordIndex) {
+        String key = getPlayerGuessKey(roomId, roundIndex, wordIndex);
+        String guessesJsonList = redisTemplate.opsForValue().get(key);
+        if (guessesJsonList == null || guessesJsonList.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return jsonSerializer.deserializeList(guessesJsonList, Guess.class);
+    }
+
+    /**
+     * Player Guess 정보 저장
+     */
+    public void savePlayerGuesses(String roomId, int roundIndex, int wordIndex, List<Guess> guesses){
+        String key = getPlayerGuessKey(roomId, roundIndex, wordIndex);
+        String guessesJson = jsonSerializer.serialize(guesses);
+        redisTemplate.opsForValue().set(key, guessesJson);
+        log.info("Player Guesses {} saved", guessesJson);
+    }
 }
