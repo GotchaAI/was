@@ -75,4 +75,17 @@ public class RoomUserRepository {
         if (raw == null) return null;
         return jsonSerializer.deserialize(raw, RoomUserInfo.class);
     }
+
+    public void deleteUserList(String roomId) {
+        Map<Object, Object> entries = redisTemplate.opsForHash().entries(roomUserKey(roomId));
+        redisTemplate.execute((RedisCallback<Object>) connection -> {
+            connection.multi();
+            for (Object key : entries.keySet()) {
+                String userUuid = key.toString();
+                connection.keyCommands().del(userRoomKey(userUuid).getBytes());
+            }
+            connection.keyCommands().del(roomUserKey(roomId).getBytes());
+            return connection.exec();
+        });
+    }
 }
