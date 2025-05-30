@@ -31,7 +31,7 @@ servers:
     protocol: ws
     description: >
       SockJS 기반 STOMP WebSocket 연결을 지원합니다.
-      기본적으로 WebSocket(ws) 사용, 실패 시 HTTP long-polling 등으로 fallback 됩니다.
+      기본적으로 WebSocket(ws) 사용, 실패 시 HTTP long-polling 등 으로 fallback 됩니다.
 
 
 
