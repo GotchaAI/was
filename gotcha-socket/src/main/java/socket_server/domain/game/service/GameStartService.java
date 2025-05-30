@@ -38,7 +38,7 @@ public class GameStartService {
 
     public void startGame(String roomId, String userUuid)  {
         // 1. 게임 시작 가능한지(레디 상태, 플레이어 수) check 후 방 메타정보 조회
-        RoomMetadata roomMetadata = roomUserService.validateRoomHost(roomId, userUuid);
+        RoomMetadata roomMetadata = roomUserService.validateRoomOwnerAndGetRoomMetadata(roomId, userUuid);
         roomUserService.checkGameStart(roomId, roomMetadata.getGameType());
 
         //todo: 이미 진행중인 게임이 있다면?
