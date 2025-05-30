@@ -12,7 +12,7 @@
     "production": {
       "url": "http://43.203.244.35:8080/ws-connect",
       "protocol": "ws",
-      "description": "SockJS 기반 STOMP WebSocket 연결을 지원합니다. 기본적으로 WebSocket(ws) 사용, 실패 시 HTTP long-polling 등으로 fallback 됩니다.\n\n\n핸드쉐이크 시, 반드시 HTTP 헤더에 Authorization: Bearer {JWT 토큰} 를 포함해야 합니다.\n"
+      "description": "SockJS 기반 STOMP WebSocket 연결을 지원합니다. 기본적으로 WebSocket(ws) 사용, 실패 시 HTTP long-polling 등 으로 fallback 됩니다.\n\n\n핸드쉐이크 시, 반드시 HTTP 헤더에 Authorization: Bearer {JWT 토큰} 를 포함해야 합니다.\n"
     }
   },
   "channels": {
