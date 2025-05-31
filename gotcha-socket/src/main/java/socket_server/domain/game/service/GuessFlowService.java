@@ -86,7 +86,7 @@ public class GuessFlowService {
             return;
         }
         // Guess 데이터 찾아서 넣어주고
-        List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(),  GAME_ERROR);
+        List<Guess> playerGuesses = getPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
         currentWord.setPlayerGuesses(playerGuesses);
 
         List<Guess> aiGuesses = getAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
@@ -115,6 +115,10 @@ public class GuessFlowService {
         return jsonSerializer.deserializeList(aiGuessString, Guess.class, GAME_ERROR);
     }
 
+    private List<Guess> getPlayerGuesses(String roomId, int roundIndex, int wordIndex){
+        String playerGuessString = roundRepository.findPlayerGuessesString(roomId, roundIndex, wordIndex);
+        return jsonSerializer.deserializeList(playerGuessString, Guess.class, GAME_ERROR);
+    }
 
 
     /**
@@ -167,7 +171,7 @@ public class GuessFlowService {
         Word currentWord = getCurrentWord(getCurrentRound(roomId));
 
 
-        List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), GAME_ERROR);
+        List<Guess> playerGuesses = getPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
         currentWord.setPlayerGuesses(playerGuesses);
 
 
@@ -175,7 +179,8 @@ public class GuessFlowService {
 
         //4. 현재 Word에 guess 추가
         currentWord.getPlayerGuesses().add(guess);
-        roundRepository.savePlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), playerGuesses, GAME_ERROR);
+        String playerGuessesJson = jsonSerializer.serialize(playerGuesses, GAME_ERROR);
+        roundRepository.savePlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), playerGuessesJson);
 
         //5. handle guess result
         //todo: handlerguessresult() 호출 시에 정답 확인, word에 guess를 추가하는건 어떨까? handlerAIGuessSubmit()과 코드가 중복된 내용이 있음.
@@ -202,7 +207,7 @@ public class GuessFlowService {
 
         for(Word word : words){
             List<Guess> aiGuesses = getAIGuesses(roomId, currentRound.getRoundIndex(), word.getWordIndex());
-            List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, currentRound.getRoundIndex(), word.getWordIndex(), GAME_ERROR);
+            List<Guess> playerGuesses = getPlayerGuesses(roomId, currentRound.getRoundIndex(), word.getWordIndex());
             List<AiPrediction> aiPredictions = roundRepository.findAIPredictions(roomId, currentRound.getRoundIndex(), word.getWordIndex(), GAME_ERROR);
 
             word.setAiGuesses(aiGuesses);
@@ -256,7 +261,7 @@ public class GuessFlowService {
             for(Word word : words){
                 //3. 모든 정보 조회 및 연결
                 List<Guess> aiGuesses = getAIGuesses(roomId, round.getRoundIndex(), word.getWordIndex());
-                List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, round.getRoundIndex(), word.getWordIndex(), GAME_ERROR);
+                List<Guess> playerGuesses = getPlayerGuesses(roomId, round.getRoundIndex(), word.getWordIndex());
                 List<AiPrediction> aiPredictions = roundRepository.findAIPredictions(roomId, round.getRoundIndex(), word.getWordIndex(), GAME_ERROR);
 
                 word.setAiGuesses(aiGuesses);

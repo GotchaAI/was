@@ -141,22 +141,19 @@ public class RoundRepository {
     /**
      * Player List Guess 조회
      */
-    public List<Guess> findPlayerGuesses(String roomId, int roundIndex, int wordIndex, ErrorType errorType) {
+    public String findPlayerGuessesString(String roomId, int roundIndex, int wordIndex) {
         String key = getPlayerGuessKey(roomId, roundIndex, wordIndex);
-        String guessesJsonList = redisTemplate.opsForValue().get(key);
-        if (guessesJsonList == null || guessesJsonList.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return jsonSerializer.deserializeList(guessesJsonList, Guess.class, errorType);
+        return redisTemplate.opsForValue().get(key);
     }
 
     /**
      * Player Guess 정보 저장
      */
-    public void savePlayerGuesses(String roomId, int roundIndex, int wordIndex, List<Guess> guesses, ErrorType errorType){
+    public void savePlayerGuesses(String roomId, int roundIndex, int wordIndex, String guessesJson){
         String key = getPlayerGuessKey(roomId, roundIndex, wordIndex);
-        String guessesJson = jsonSerializer.serialize(guesses, errorType);
         redisTemplate.opsForValue().set(key, guessesJson);
         log.info("Player Guesses {} saved", guessesJson);
     }
+
+
 }

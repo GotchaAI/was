@@ -70,7 +70,7 @@ public class GuessRequestService {
         }
 
         // 2. 현재 guess 개수 가져오기
-        List<Guess> guesses = roundRepository.findPlayerGuesses(roomId, gameMeta.getCurrentRound(), word.getWordIndex(),  GAME_ERROR );
+        List<Guess> guesses = getPlayerGuesses(roomId, gameMeta.getCurrentRound(), word.getWordIndex());
 
 
         //3. AI 서버에 Guess Request 메시지 받아옴
@@ -87,6 +87,11 @@ public class GuessRequestService {
     private List<Guess> getAIGuesses(String roomId, int roundIndex, int wordIndex){
         String aiGuessString = roundRepository.findAIGuessesString(roomId, roundIndex, wordIndex);
         return jsonSerializer.deserializeList(aiGuessString, Guess.class, GAME_ERROR);
+    }
+
+    private List<Guess> getPlayerGuesses(String roomId, int roundIndex, int wordIndex){
+        String playerGuessString = roundRepository.findPlayerGuessesString(roomId, roundIndex, wordIndex);
+        return jsonSerializer.deserializeList(playerGuessString, Guess.class, GAME_ERROR);
     }
 
 }
