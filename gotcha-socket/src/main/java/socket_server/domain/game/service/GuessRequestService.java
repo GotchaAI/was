@@ -29,7 +29,7 @@ public class GuessRequestService {
 
     public Guess requestGuessAI(String roomId, GameMeta gameMeta,  Word guessTargetWord) {
         // 0. 현재 guess 개수 가져오기
-        List<Guess> guesses = getAIGuesses(roomId, gameMeta.getCurrentRound(), guessTargetWord.getWordIndex());
+        List<Guess> guesses = getAIGuesses(roomId, gameMeta.getCurrentRound(), guessTargetWord.getWordIndex()); // null!
 
         // 1. AI 서버에 Guess Request 메시지 받아옴
         String drawerUuid = guessTargetWord.getDrawerUuid();
@@ -96,11 +96,13 @@ public class GuessRequestService {
 
     private List<Guess> getAIGuesses(String roomId, int roundIndex, int wordIndex){
         String aiGuessString = roundRepository.findAIGuessesString(roomId, roundIndex, wordIndex);
+        if(aiGuessString == null) return List.of();
         return jsonSerializer.deserializeList(aiGuessString, Guess.class, GAME_ERROR);
     }
 
     private List<Guess> getPlayerGuesses(String roomId, int roundIndex, int wordIndex){
         String playerGuessString = roundRepository.findPlayerGuessesString(roomId, roundIndex, wordIndex);
+        if(playerGuessString == null) return List.of();
         return jsonSerializer.deserializeList(playerGuessString, Guess.class, GAME_ERROR);
     }
 
