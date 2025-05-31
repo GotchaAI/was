@@ -4,6 +4,7 @@ import gotcha_common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.ErrorType;
+import socket_server.common.exception.SocketCustomException;
 import socket_server.common.exception.game.GameExceptionCode;
 import socket_server.domain.game.dto.AIRoundStartReq;
 import socket_server.domain.game.dto.AISaysRes;
@@ -30,11 +31,11 @@ public class RoundStartService {
         GameMeta gameMeta = gameRepository.findGameMeta(roomId, GAME_ERROR);
 
         if (!isGameEnded(gameMeta)) {
-            throw new CustomException(GameExceptionCode.ALREADY_FINISHED_GAME);
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.ALREADY_FINISHED_GAME);
         }
 
         if (!gameMeta.getGameStatus().canHandleEvent(GameEventType.ROUND_START)) {
-            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
         }
 
         int currentRound = gameMeta.getCurrentRound() + 1;
