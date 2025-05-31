@@ -18,7 +18,6 @@ public class GameMeta {
     private GameStatus gameStatus;
     private int currentRound; // 1, 2, 3, 4, 5
     private int totalRounds;
-    private int aiScore;
     private String winner; // AI or Player
 
     public static GameMeta fromRedisMap(String roomId, Map<Object, Object> map) {
@@ -29,7 +28,6 @@ public class GameMeta {
                 difficulty(Difficulty.valueOf((String) map.get("difficulty"))).
                 currentRound(Integer.parseInt((String) map.get("currentRound"))).
                 totalRounds(Integer.parseInt((String) map.get("totalRounds"))).
-                aiScore(Integer.parseInt((String) map.get("aiScore"))).
                 build();
     }
 
@@ -41,7 +39,6 @@ public class GameMeta {
                 gameStatus(game.getGameStatus()).
                 currentRound(game.getCurrentRound()).
                 totalRounds(game.getTotalRounds()).
-                aiScore(game.getAiScore()).
                 build();
     }
 

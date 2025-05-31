@@ -23,7 +23,6 @@ public class Game {
     private GameStatus gameStatus;
     private int currentRound; // 0, 1, 2, 3, 4, 5
     private int totalRounds;
-    private int aiScore;
     private Map<String, Integer> scores; // <playerUuid, score>
     private List<GamePlayer> gamePlayers;
     private List<Round> rounds;
@@ -36,7 +35,6 @@ public class Game {
                 difficulty(gameMeta.getDifficulty()).
                 currentRound(gameMeta.getCurrentRound()).
                 totalRounds(gameMeta.getTotalRounds()).
-                aiScore(gameMeta.getAiScore()).
                 build();
     }
 
