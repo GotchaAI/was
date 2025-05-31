@@ -14,16 +14,26 @@ info:
     | 클라이언트 → 서버 | 메시지 보냄 | `stompClient.send()`      | `/pub/**`      |
     | 서버 → 클라이언트 | 메시지 보냄 | `stompClient.subscribe()` | `/sub/**`         |
 
-    ⭐본 서비스에서 사용하는 메시지 전송 경로는 총 5개로 구성됩니다. 로직에 따른 구독 경로를 달리하지 않고, dto로 로직을 구분합니다.
+    ⭐[도메인 채널 prefix]
+    -
+    
+    본 서비스는 총 5개의 메시지 전송 경로(prefix)를 사용하며, 구체적인 로직 분기는 경로가 아닌 DTO 필드로 구분됩니다. 
 
-    [prefix 있는 채널들]
     - /pub/room/{roomId} : 대기방 관련 로직들 (대기방 내 채팅 포함)
     - /pub/chat/** : 채팅 관련 로직들 (전체 채팅 및 개인 채팅)
-    - /pub/game/** : 게임 관련 로직들 
-    - /user/{userUuid}/queue/errors : 레디스 내 에러 처리 채널 
-    
-    [절대 경로 채널]
-    - user/queue/errors : stomp 내 에러 처리 채널
+    - /pub/game/{roomId} : 게임 관련 로직들 
+    - /pub/lobby/** : 로비 관련 로직들 
+
+    ⭐[에러 채널]
+    -
+
+    - 대기방 에러 채널 : /user/{userUuid}/room/errors
+    - 로비 에러 채널 : /user/{userUuid}/lobby/errors
+    - 채팅 에러 채널 : /user/{userUuid}/chat/errors
+    - 게임 에러 채널 : /user/{userUuid}/game/errors
+    - 기본 에러 채널 : /user/{usreUuid}/queue/errors
+
+
 
 servers:
   production:
@@ -33,19 +43,20 @@ servers:
       SockJS 기반 STOMP WebSocket 연결을 지원합니다.
       기본적으로 WebSocket(ws) 사용, 실패 시 HTTP long-polling 등 으로 fallback 됩니다.
 
-
-
       핸드쉐이크 시, 반드시 HTTP 헤더에
       Authorization: Bearer {JWT 토큰}
       를 포함해야 합니다.
 
 
 channels:
-
-  /user/queue/errors:
+  /user/{userUuid}/queue/errors:
     description: |
-      사용자별 에러 메시지를 수신하는 WebSocket 구독 채널입니다.
-      서버에서 발생한 예외 정보를 이 채널로 전달합니다.
+      도메인 에러 외 서버에서 발생된 에러 메시지를 수신하는 WebSocket 구독 채널입니다.
+    parameters:
+      userUuid:
+        description: 에러 메시지를 수신할 사용자의 UUID
+        schema:
+          type: string
     subscribe:
       message:
         name: ExceptionResponse
@@ -53,10 +64,54 @@ channels:
         payload:
           $ref: '#/components/schemas/ExceptionRes'
 
-  /user/{userUuid}/queue/errors:
+  /user/{userUuid}/room/errors:
     description: |
-      사용자별 에러 메시지를 수신하는 WebSocket 구독 채널입니다.
-      서버에서 발생한 예외 정보를 이 채널로 전달합니다.
+      대기방에서 발생한 에러 메시지를 수신하는 WebSocket 구독 채널입니다. (대기방 채팅에서 발생된 에러도 포함됩니다.)
+    parameters:
+      userUuid:
+        description: 에러 메시지를 수신할 사용자의 UUID
+        schema:
+          type: string
+    subscribe:
+      message:
+        name: ExceptionResponse
+        summary: 에러 응답 메시지
+        payload:
+          $ref: '#/components/schemas/ExceptionRes'
+
+  /user/{userUuid}/game/errors:
+    description: |
+      게임에서 발생한 에러 메시지를 수신하는 WebSocket 구독 채널입니다.
+    parameters:
+      userUuid:
+        description: 에러 메시지를 수신할 사용자의 UUID
+        schema:
+          type: string
+    subscribe:
+      message:
+        name: ExceptionResponse
+        summary: 에러 응답 메시지
+        payload:
+          $ref: '#/components/schemas/ExceptionRes'
+
+  /user/{userUuid}/lobby/errors:
+    description: |
+      로비에서 발생한 에러 메시지를 수신하는 WebSocket 구독 채널입니다.
+    parameters:
+      userUuid:
+        description: 에러 메시지를 수신할 사용자의 UUID
+        schema:
+          type: string
+    subscribe:
+      message:
+        name: ExceptionResponse
+        summary: 에러 응답 메시지
+        payload:
+          $ref: '#/components/schemas/ExceptionRes'
+
+  /user/{userUuid}/chat/errors:
+    description: |
+      채팅(전체체팅 및 개인 채팅)에서 발생한 에러 메시지를 수신하는 WebSocket 구독 채널입니다.
     parameters:
       userUuid:
         description: 에러 메시지를 수신할 사용자의 UUID
@@ -70,17 +125,35 @@ channels:
           $ref: '#/components/schemas/ExceptionRes'
 
 
-  /pub/room/create:
+  /pub/lobby/create:
     description: 클라이언트가 새 방을 생성 요청하는 채널
     publish:
       message:
-        headers:
-          type: object
-          properties: {}
         payload:
           $ref: '#/components/schemas/CreateRoomRequest'
 
-  /sub/room/list/event:
+  /sub/lobby/create/{userUuid}:
+    description: 클라이언트가 새 방을 생성 응답하는 채널
+    subscribe:
+      message:
+        payload:
+          $ref: '#/components/schemas/RoomIdRes'
+
+  /pub/lobby/join/{roomId}:
+    description: 클라이언트가 방에 참가 요청하는 채널
+    publish:
+      message:
+        payload:
+          $ref: '#/components/schemas/CreateRoomRequest'
+
+  /sub/lobby/join/{userUuid}:
+    description: 클라이언트가 방에 참가 응답 채널
+    subscribe:
+      message:
+        payload:
+          $ref: '#/components/schemas/RoomIdRes'
+
+  /sub/lobby/list/event:
     description: 클라이언트가 대기방의 목록을 업데이트 하기 위해 이벤트 정보와 대기방의 요약 정보를 받아오는 채널
     subscribe:
       message:
@@ -100,21 +173,6 @@ channels:
             payload:
               $ref: '#/components/schemas/RedisResponse_RoomList_Delete'
 
-  /sub/room/create/{userUuid}:
-    description: 클라이언트가 방을 생성하고 방의 전체 정보를 받아오는 채널
-    parameters:
-      userUuid:
-        description: 방 전체 정보를 수신받을 방장의 UUID
-        schema:
-          type: string
-    subscribe:
-      message:
-        headers:
-          type: object
-          properties: {}
-        payload:
-          $ref: '#/components/schemas/RedisResponse_RoomMetadata'
-
   /pub/room/{roomId}:
     description: |
       클라이언트가 대기방 내에서 발생 가능한 로직 요청을 전송하는 채널입니다.
@@ -123,7 +181,6 @@ channels:
       - CHAT: 대기방 채팅
       - READY: 준비
       - UNREADY: 준비 해제
-      - JOIN: 방 참가
       - EXIT: 방 퇴장
       - UPDATE: 방 정보 수정
       - START: 게임 시작
@@ -144,7 +201,7 @@ channels:
         payload:
           $ref: '#/components/schemas/RoomReq'
 
-  /sub/room/event/{roomId}:
+  /sub/room/{roomId}:
     description: |
       클라이언트가 대기방 내에서 발생 가능한 로직 처리 결과를 응답 받는 채널입니다.
     parameters:
@@ -159,11 +216,6 @@ channels:
             summary: CHAT 이벤트 - 채팅 메시지 수신
             payload:
               $ref: '#/components/schemas/RedisResponse_RoomChat'
-
-          - name: JoinEvent
-            summary: JOIN 이벤트 - 대기방 내 기존 유저 목록 수신
-            payload:
-              $ref: '#/components/schemas/RedisResponse_RoomJoin'
 
           - name: ReadyEvent
             summary: READY 이벤트 - 준비
@@ -189,9 +241,6 @@ channels:
     description: 클라이언트가 전체 채팅 메시지를 전송하는 채널
     publish:
       message:
-        headers:
-          type: object
-          properties: {}
         payload:
           $ref: '#/components/schemas/RedisReq_AllChat'
 
@@ -208,9 +257,6 @@ channels:
     description: 클라이언트가 특정 사용자에게 개인 채팅(귓속말) 메시지를 전송하는 채널입니다. `receiverUuid`에 수신 대상 사용자의 UUID를 지정하여 메시지를 전송합니다
     publish:
       message:
-        headers:
-          type: object
-          properties: {}
         payload:
           $ref: '#/components/schemas/RedisReq_PrivateChat'
 
@@ -227,6 +273,28 @@ channels:
         summary: 개인 채팅 메시지 수신
         payload:
           $ref: '#/components/schemas/RedisRes_PrivateChat'
+
+  /pub/game/{roomId}:
+    description: 클라이언트가 게임 내 이벤트를 전송하는 채널입니다. `eventType` 필드에 따라 서버가 게임 로직을 분기 처리합니다.
+    parameters:
+      roomId:
+        description: 게임이 진행 중인 방의 고유 식별자
+        schema:
+          type: string
+    publish:
+      message:
+        oneOf:
+          - name: DrawingSubmitEvent
+            summary: DRAWING_SUBMIT - 그림 URL 전송
+            payload:
+              $ref: '#/components/schemas/DrawingSubmitReq'
+
+          - name: GuessSubmitEvent
+            summary: GUESS_SUBMIT - 플레이어의 정답 시도 제출
+            payload:
+              $ref: '#/components/schemas/Guess'
+
+
 
   /sub/game/{roomId}:
     description: |
@@ -294,9 +362,8 @@ channels:
 
 
 
-
-
 components:
+
   schemas:
     ExceptionRes:
       type: object
@@ -1495,3 +1562,24 @@ components:
         AI: 0
         z2E63KqK: 3
         l3lwXGrb: 6
+
+    RoomIdRes:
+      type: object
+      description: 방 ID를 반환하는 응답 객체
+      properties:
+        roomId:
+          type: string
+          description: 생성된 방의 고유 ID
+      required:
+        - roomId
+
+    DrawingSubmitReq:
+      type: object
+      description: 그림 제출 요청
+      properties:
+        imageURL:
+          type: string
+          format: uri
+          description: 업로드된 그림의 URL
+      required:
+        - imageURL

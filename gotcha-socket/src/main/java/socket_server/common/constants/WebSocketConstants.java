@@ -18,7 +18,7 @@ public interface WebSocketConstants {
     String GAME_START_CHANNEL = GAME_PREFIX + "start/"; // + roomId
 
     String LOBBY_PREFIX = "/sub/lobby/";
-    String LOBBY_JOIN_CHANNEL = LOBBY_PREFIX+"join/"; // + roomId
+    String LOBBY_JOIN_CHANNEL = LOBBY_PREFIX+"join/"; // + uuid
     String LOBBY_ROOM_CREATE_CHANNEL = LOBBY_PREFIX+"create/"; // + uuid
     String LOBBY_ROOM_LIST_EVENT = LOBBY_PREFIX + "list/event";
 

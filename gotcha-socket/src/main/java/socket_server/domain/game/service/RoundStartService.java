@@ -17,9 +17,6 @@ import socket_server.domain.game.repository.RoundRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -49,18 +46,15 @@ public class RoundStartService {
         gameRepository.saveGameMeta(gameMeta);
 
         RoundMeta currentRoundMeta = roundMetaList.get(currentRound - 1);
+        currentRoundMeta.setDrawingEndTime(LocalDateTime.now().plusSeconds(30));
         roundRepository.saveRoundMetas(roomId, roundMetaList, GAME_ERROR);
 
         String aiSays = aIClientService.getRoundStartMessage(
                 roomId,
                 new AIRoundStartReq(currentRound, gameMeta.getTotalRounds())
         );
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.schedule(() -> {
-            currentRoundMeta.setDrawingEndTime(LocalDateTime.now().plusSeconds(30));
-            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_START, currentRoundMeta, aiSays, null);
-        }, 5, TimeUnit.SECONDS);
 
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_START, currentRoundMeta, aiSays, null);
     }
 
     // 게임 종료 check시 반드시 필요

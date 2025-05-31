@@ -76,8 +76,10 @@ public class GameStartService {
 
 
         // 8. 5초 후 게임 시작(EntryPoint)
-        roundStartService.startNextRound(roomId);
-        
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.schedule(() -> {
+            roundStartService.startNextRound(roomId);
+        }, 5, TimeUnit.SECONDS);
     }
 
     private void saveGame(Game game, ErrorType errorType) {
