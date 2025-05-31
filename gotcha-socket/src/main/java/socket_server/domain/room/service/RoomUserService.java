@@ -1,14 +1,11 @@
 package socket_server.domain.room.service;
 
-import gotcha_common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.exception.SocketCustomException;
 import socket_server.common.exception.room.RoomExceptionCode;
-import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.enumType.GameType;
 import socket_server.domain.lobby.dto.RoomIdRes;
 import socket_server.domain.lobby.service.LobbyBroadCaster;
@@ -22,7 +19,6 @@ import socket_server.domain.room.repository.RoomUserRepository;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static socket_server.common.exception.room.RoomExceptionCode.CANNOT_KICK_SELF;
 
@@ -177,7 +173,7 @@ public class RoomUserService {
         return userUuid.equals(ownerUuid);
     }
 
-    public void broadcastUserInRoomInfo(String roomId, String userId, ErrorType errorType){
+    public void broadcastUserListToRoom(String roomId, String userId, ErrorType errorType){
         List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId, errorType);
         roomBroadcaster.broadcastToRoom(roomId, userId, RoomEventType.JOIN, userList);
     }
