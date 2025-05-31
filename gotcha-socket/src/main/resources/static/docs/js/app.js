@@ -983,6 +983,11 @@
                 },
                 "x-parser-schema-id": "RedisResponse_GameStart"
               }
+            },
+            {
+              "name": "Room Update",
+              "summary": "UPDATE 이벤트 - 방정보 및 유저 리스트 반환",
+              "payload": "$ref:$.channels./sub/lobby/list/event.subscribe.message.oneOf[1].payload"
             }
           ]
         }
