@@ -239,7 +239,7 @@ public class RedisIntegrationConfig {
                                     ? ExceptionRes.from(ce.getExceptionCode())
                                     : ExceptionRes.from(GlobalExceptionCode.INTERNAL_SERVER_ERROR);
 
-                            template.convertAndSend(ERROR_CHANNEL_PREFIX+userId+ERROR_DEFAULT_CHANEL, dto);
+                            template.convertAndSend(ERROR_CHANNEL_PREFIX+ERROR_DEFAULT_CHANEL+userId, dto);
                             log.debug("🚨 에러 메시지 전송 완료 → /user/{}/queue/errors", userId);
                         } else {
                             log.warn("❌ [redisErrorFlow] userId 추출 실패. 메시지 내용: {}", t.getMessage());
