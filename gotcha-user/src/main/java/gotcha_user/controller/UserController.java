@@ -27,7 +27,6 @@ public class UserController implements UserApi {
     @PostMapping("/nickname-check")
     public ResponseEntity<?> checkNickname(@Valid @RequestBody NicknameReq nicknameReq) {
         userService.checkNickname(nicknameReq.nickname());
-
         return ResponseEntity.ok(SuccessRes.from("사용 가능한 닉네임입니다."));
     }
 

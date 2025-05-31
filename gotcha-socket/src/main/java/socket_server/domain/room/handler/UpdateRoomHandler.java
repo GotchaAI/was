@@ -17,10 +17,8 @@ import socket_server.domain.room.service.RoomUserService;
 @Component
 @RequiredArgsConstructor
 public class UpdateRoomHandler implements RoomEventHandler{
-    private final RoomUserService roomUserService;
     private final RoomService roomService;
     private final JsonSerializer jsonSerializer;
-    private final Validator validator;
     private final SocketFieldValidator socketFieldValidator;
 
     @Override
@@ -32,7 +30,7 @@ public class UpdateRoomHandler implements RoomEventHandler{
     public void handle(String roomId, SecurityUserDetails userDetails, RoomReq roomReq) {
         RoomUpdateReq updateRequest = jsonSerializer.deserialize(roomReq.content(), RoomUpdateReq.class, getErrorType());
         socketFieldValidator.validateOrThrow(updateRequest, getErrorType());
-        roomService.updateRoomField(roomId, updateRequest, userDetails.getUuid(), getErrorType());
+        roomService.updateRoomField(roomId, updateRequest, userDetails.getUuid());
     }
 
 }

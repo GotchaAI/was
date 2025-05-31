@@ -14,13 +14,19 @@ public class Word {
     private int wordIndex;
     private String word;
     private String drawerUuid;
-    private List<Guess> guesses;
+    private boolean submitted;
+    private String imageURL;
+    private List<Guess> aiGuesses;
+    private List<Guess> playerGuesses;
     private List<AiPrediction> aiPredictions;
+
     public static WordMeta toWordMeta(Word word) {
         return WordMeta.builder().
                 wordIndex(word.getWordIndex()).
                 word(word.getWord()).
                 drawerUuid(word.getDrawerUuid()).
+                imageURL(word.getImageURL()).
+                submitted(word.isSubmitted()).
                 build();
     }
 }

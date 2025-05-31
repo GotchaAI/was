@@ -11,12 +11,14 @@ import java.time.LocalDateTime;
 public class RoundMeta {
     private int roundIndex;
     private LocalDateTime drawingEndTime;
+    private int currentWordIndex;
     private String roundWinner;
 
     public static Round toRound(RoundMeta roundMeta) {
         return Round.builder().
                 roundIndex(roundMeta.getRoundIndex()).
                 drawingEndTime(roundMeta.getDrawingEndTime()).
+                currentWordIndex(roundMeta.getCurrentWordIndex()).
                 roundWinner(roundMeta.getRoundWinner()).
                 build();
     }

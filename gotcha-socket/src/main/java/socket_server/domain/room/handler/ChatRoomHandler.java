@@ -22,6 +22,6 @@ public class ChatRoomHandler implements RoomEventHandler {
 
     @Override
     public void handle(String roomId, SecurityUserDetails userDetails, RoomReq request) {
-        roomService.sendRoomChat(roomId, userDetails, request.content(), getErrorType());
+        roomService.sendRoomChat(roomId, userDetails, request.content());
     }
 }
