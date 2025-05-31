@@ -24,28 +24,13 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.support.ErrorMessage;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import socket_server.common.exception.ErrorType;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.handler.GamePubSubHandler;
-import socket_server.domain.personal.handler.PersonalPubSubHandler;
+import socket_server.domain.lobby.handler.LobbyPubSubHandler;
 import socket_server.domain.room.handler.RoomPubSubHandler;
 
-import static socket_server.common.constants.WebSocketConstants.CHAT_ALL_CHANNEL;
-import static socket_server.common.constants.WebSocketConstants.CHAT_PREFIX;
-import static socket_server.common.constants.WebSocketConstants.CHAT_PRIVATE_CHANNEL;
-import static socket_server.common.constants.WebSocketConstants.CHAT_ROOM_CHANNEL;
-import static socket_server.common.constants.WebSocketConstants.ERROR_CHANEL;
-import static socket_server.common.constants.WebSocketConstants.ERROR_CHANNEL_PREFIX;
-import static socket_server.common.constants.WebSocketConstants.GAME_END_CHANNEL;
-import static socket_server.common.constants.WebSocketConstants.GAME_INFO_CHANNEL;
-import static socket_server.common.constants.WebSocketConstants.GAME_PREFIX;
-import static socket_server.common.constants.WebSocketConstants.GAME_READY_CHANNEL;
-import static socket_server.common.constants.WebSocketConstants.GAME_START_CHANNEL;
-import static socket_server.common.constants.WebSocketConstants.PERSONAL_PREFIX;
-import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
-import static socket_server.common.constants.WebSocketConstants.ROOM_LIST_EVENT;
-import static socket_server.common.constants.WebSocketConstants.ROOM_LIST_INFO;
-import static socket_server.common.constants.WebSocketConstants.ROOM_OWNER_CREATE_INFO;
-import static socket_server.common.constants.WebSocketConstants.ROOM_PREFIX;
+import static socket_server.common.constants.WebSocketConstants.*;
 
 @Slf4j
 @Configuration
@@ -54,13 +39,13 @@ public class RedisIntegrationConfig {
     private final String REDIS_MESSAGE_SOURCE = "redis_messageSource";
     ObjectMapper objectMapper = new ObjectMapper();
     private final RoomPubSubHandler roomHandler;
-    private final PersonalPubSubHandler personalPubSubHandler;
     private final GamePubSubHandler gamePubSubHandler;
+    private final LobbyPubSubHandler lobbyPubSubHandler;
 
-    public RedisIntegrationConfig(RoomPubSubHandler roomHandler, PersonalPubSubHandler personalPubSubHandler, GamePubSubHandler gamePubSubHandler) {
+    public RedisIntegrationConfig(RoomPubSubHandler roomHandler, GamePubSubHandler gamePubSubHandler, LobbyPubSubHandler lobbyPubSubHandler) {
         this.roomHandler = roomHandler;
-        this.personalPubSubHandler=personalPubSubHandler;
         this.gamePubSubHandler = gamePubSubHandler;
+        this.lobbyPubSubHandler = lobbyPubSubHandler;
     }
 
     @Bean("redisExecutor")
@@ -92,11 +77,6 @@ public class RedisIntegrationConfig {
     }
 
     @Bean
-    public MessageChannel personalMessageChannel (@Qualifier("redisExecutor") TaskExecutor exec) {
-        return new ExecutorChannel(exec);
-    }
-
-    @Bean
     public MessageChannel roomMessageChannel(@Qualifier("redisExecutor") TaskExecutor exec) {
         return new ExecutorChannel(exec);
     }
@@ -122,29 +102,33 @@ public class RedisIntegrationConfig {
     }
 
     @Bean
+    public MessageChannel lobbyMessageChannel(@Qualifier("redisExecutor") TaskExecutor exec) {
+        return new ExecutorChannel(exec);
+    }
+
+    @Bean
     public MessageProducer redisInboundAdapter(RedisConnectionFactory cf) {
         RedisInboundChannelAdapter adapter = new RedisInboundChannelAdapter(cf);
         adapter.setTopicPatterns(
-                // 개인 유저 메시지
-                PERSONAL_PREFIX + "*",
                 // 채팅
                 CHAT_ALL_CHANNEL,                     // /sub/chat/all
                 CHAT_PRIVATE_CHANNEL + "*",          // /sub/chat/private/*
                 CHAT_ROOM_CHANNEL + "*",             // /sub/chat/room/*
 
                 // 대기방
-                ROOM_LIST_INFO,                      // /sub/room/list/info
-                ROOM_LIST_EVENT,                    // /sub/room/list/event
-                ROOM_EVENT + "*",
-                ROOM_OWNER_CREATE_INFO + "*",
-
+                ROOM_PREFIX + "*",
 
                 // 게임
                 GAME_PREFIX + "*",                   // /sub/game/*
                 GAME_READY_CHANNEL + "*",            // /sub/game/ready/*
                 GAME_END_CHANNEL + "*",              // /sub/game/end/*
                 GAME_INFO_CHANNEL + "*",             // /sub/game/info/*
-                GAME_START_CHANNEL + "*"           // /sub/game/start/*
+                GAME_START_CHANNEL + "*",          // /sub/game/start/*
+
+                //로비
+                LOBBY_JOIN_CHANNEL + "*",         //sub/lobby/join/ + roomId
+                LOBBY_ROOM_CREATE_CHANNEL + "*",  //sub/lobby/create/ + uuid
+                LOBBY_ROOM_LIST_EVENT + "*"       //sub/lobby/list/event
         );
         adapter.setSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
         adapter.setOutputChannel(redisInputChannel(redisExecutor()));
@@ -157,10 +141,10 @@ public class RedisIntegrationConfig {
         return IntegrationFlow.from("redisInputChannel")
                 .route(Message.class, msg -> {
                     String topic = (String) msg.getHeaders().get(REDIS_MESSAGE_SOURCE);
-                    if (topic.startsWith(PERSONAL_PREFIX)) return "personalMessageChannel";
                     if (topic.startsWith(GAME_PREFIX)) return "gameMessageChannel";
                     if (topic.startsWith(CHAT_PREFIX)) return "chatMessageChannel";
                     if (topic.startsWith(ROOM_PREFIX)) return "roomMessageChannel";
+                    if (topic.startsWith(LOBBY_PREFIX)) return "lobbyMessageChannel";
                     return "unknownMessageChannel";
                 })
                 .get();
@@ -186,22 +170,10 @@ public class RedisIntegrationConfig {
     }
 
     @Bean
-    public IntegrationFlow personalMessageFlow() {
-        return IntegrationFlow.from("personalMessageChannel")
-                .handle((msg, headers) -> {
-                    RedisMessage redisMessage = objectMapper.convertValue(msg, RedisMessage.class);
-                    log.info("👤 [개인 메시지] user={}, topic={}, payload={}",
-                            redisMessage.userId(), redisMessage.topic(), redisMessage.payload());
-                    personalPubSubHandler.onMessage(redisMessage.topic()+redisMessage.userId(), redisMessage);
-                    return null;
-                }).get();
-    }
-
-    @Bean
     public IntegrationFlow roomMessageFlow(JsonSerializer jsonSerializer) {
         return IntegrationFlow.from("roomMessageChannel")
                 .handle((msg, headers) -> {
-                    RedisMessage redisMessage = jsonSerializer.deserialize(msg, RedisMessage.class);
+                    RedisMessage redisMessage = jsonSerializer.deserialize(msg, RedisMessage.class, ErrorType.ROOM);
                     log.info("📦 [방 메시지] topic={}, user={}, payload={}",
                             redisMessage.topic(), redisMessage.userId(), redisMessage.payload());
                     roomHandler.onMessage(redisMessage.topic(), redisMessage);
@@ -213,10 +185,22 @@ public class RedisIntegrationConfig {
     public IntegrationFlow gameMessageFlow(JsonSerializer jsonSerializer) {
         return IntegrationFlow.from("gameMessageChannel")
                 .handle((msg, headers) -> {
-                    RedisMessage redisMessage = jsonSerializer.deserialize(msg, RedisMessage.class);
+                    RedisMessage redisMessage = jsonSerializer.deserialize(msg, RedisMessage.class, ErrorType.GAME);
                     log.info("🎮 [게임 메시지] topic={}, user={}, payload={}",
                             redisMessage.topic(), redisMessage.userId(), redisMessage.payload());
                     gamePubSubHandler.onMessage(redisMessage.topic(), redisMessage);
+                    return null;
+                }).get();
+    }
+
+    @Bean
+    public IntegrationFlow lobbyMessageFlow(JsonSerializer jsonSerializer) {
+        return IntegrationFlow.from("lobbyMessageChannel")
+                .handle((msg, headers) -> {
+                    RedisMessage redisMessage = jsonSerializer.deserialize(msg, RedisMessage.class, ErrorType.LOBBY);
+                    log.info("📚 [로비 메시지] topic={}, user={}, payload={}",
+                            redisMessage.topic(), redisMessage.userId(), redisMessage.payload());
+                    lobbyPubSubHandler.onMessage(redisMessage.topic(), redisMessage);
                     return null;
                 }).get();
     }
@@ -255,7 +239,7 @@ public class RedisIntegrationConfig {
                                     ? ExceptionRes.from(ce.getExceptionCode())
                                     : ExceptionRes.from(GlobalExceptionCode.INTERNAL_SERVER_ERROR);
 
-                            template.convertAndSend(ERROR_CHANNEL_PREFIX+userId+ERROR_CHANEL, dto);
+                            template.convertAndSend(ERROR_CHANNEL_PREFIX+userId+ERROR_DEFAULT_CHANEL, dto);
                             log.debug("🚨 에러 메시지 전송 완료 → /user/{}/queue/errors", userId);
                         } else {
                             log.warn("❌ [redisErrorFlow] userId 추출 실패. 메시지 내용: {}", t.getMessage());

@@ -15,7 +15,6 @@ import socket_server.domain.game.handler.GameEventDispatcher;
 @MessageMapping("/game")
 @RequiredArgsConstructor
 public class GameController {
-
     private final GameEventDispatcher dispatcher;
 
     @MessageMapping("/{roomId}")

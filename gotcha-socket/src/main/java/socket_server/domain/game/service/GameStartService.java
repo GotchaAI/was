@@ -2,6 +2,7 @@ package socket_server.domain.game.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import socket_server.common.exception.ErrorType;
 import socket_server.domain.game.dto.AIGameStartReq;
 import socket_server.domain.game.dto.AISaysRes;
 import socket_server.domain.game.enumType.GameStatus;
@@ -21,6 +22,9 @@ import socket_server.domain.room.service.RoomUserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -34,9 +38,9 @@ public class GameStartService {
     private final GameBroadCaster gameBroadCaster;
     private final RoundStartService roundStartService;
     private final RoomUserRepository roomUserRepository;
+    private final ErrorType GAME_ERROR = ErrorType.GAME;
 
-
-    public void startGame(String roomId, String userUuid)  {
+    public void startGame(String roomId, String userUuid, ErrorType errorType)  {
         // 1. 게임 시작 가능한지(레디 상태, 플레이어 수) check 후 방 메타정보 조회
         RoomMetadata roomMetadata = roomUserService.validateRoomOwnerAndGetRoomMetadata(roomId, userUuid);
         roomUserService.checkGameStart(roomId, roomMetadata.getGameType());
@@ -53,7 +57,7 @@ public class GameStartService {
                 totalRounds(roomMetadata.getRoundCount()).build();
 
         // 3. 게임 플레이어 정보 조회 후 연결
-        List<GamePlayer> gamePlayers = roomUserRepository.findUsersByRoomId(roomId)
+        List<GamePlayer> gamePlayers = roomUserRepository.findUsersByRoomId(roomId,errorType)
                 .stream().map(RoomUserInfo::toGamePlayer).toList();
         game.setGamePlayers(gamePlayers);
 
@@ -62,7 +66,7 @@ public class GameStartService {
         game.setRounds(rounds);
 
         // 5. Redis에 저장 : GameMeta, GamePlayers, Rounds
-        saveGame(game);
+        saveGame(game, errorType);
 
         // 6. AI 서버 메시지 받아오기
         String aiSays = aiClientService.getGameStartMessage(roomId, new AIGameStartReq(gamePlayers.stream().map(GamePlayer::getNickname).toList()));
@@ -70,21 +74,19 @@ public class GameStartService {
         // 7. 시작 이벤트 브로드캐스트
         gameBroadCaster.broadcastStartEvent(userUuid, roomId, new AISaysRes(game, aiSays));
 
-        // 8. 5초 후 게임 시작(EntryPoint)
-        try{
-            Thread.sleep(10000); // 5000ms = 5초
-        } catch (InterruptedException e){  }
 
+        // 8. 5초 후 게임 시작(EntryPoint)
         roundStartService.startNextRound(roomId);
+        
     }
 
-    private void saveGame(Game game) {
+    private void saveGame(Game game, ErrorType errorType) {
         gameRepository.saveGameMeta(GameMeta.fromGame(game));
-        gamePlayerRepository.savePlayers(game.getRoomId(), game.getGamePlayers());
-        roundRepository.saveRoundMetas(game.getRoomId(), game.getRounds().stream().map(Round::toRoundMeta).toList());
+        gamePlayerRepository.savePlayers(game.getRoomId(), game.getGamePlayers(), errorType);
+        roundRepository.saveRoundMetas(game.getRoomId(), game.getRounds().stream().map(Round::toRoundMeta).toList(), errorType);
 
         for (Round round : game.getRounds()) {
-            roundRepository.saveWordMetas(game.getRoomId(), round.getRoundIndex(), round.getWords().stream().map(Word::toWordMeta).toList());
+            roundRepository.saveWordMetas(game.getRoomId(), round.getRoundIndex(), round.getWords().stream().map(Word::toWordMeta).toList(), errorType);
             // todo: guess?
         }
     }

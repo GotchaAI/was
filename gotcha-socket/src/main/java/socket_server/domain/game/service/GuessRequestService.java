@@ -2,6 +2,7 @@ package socket_server.domain.game.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import socket_server.common.exception.ErrorType;
 import socket_server.domain.game.dto.AIGuessStartReq;
 import socket_server.domain.game.enumType.GameEventType;
 import socket_server.domain.game.meta.GameMeta;
@@ -18,19 +19,19 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class GuessRequestService {
-
     private final GamePlayerRepository gamePlayerRepository;
     private final AIClientService aIClientService;
     private final GameBroadCaster gameBroadCaster;
     private final RoundRepository roundRepository;
+    private final ErrorType GAME_ERROR = ErrorType.GAME;
 
     public Guess requestGuessAI(String roomId, GameMeta gameMeta,  Word guessTargetWord) {
         // 0. 현재 guess 개수 가져오기
-        List<Guess> guesses = roundRepository.findAIGuesses(roomId, gameMeta.getCurrentRound(), guessTargetWord.getWordIndex());
+        List<Guess> guesses = roundRepository.findAIGuesses(roomId, gameMeta.getCurrentRound(), guessTargetWord.getWordIndex(),  GAME_ERROR);
 
         // 1. AI 서버에 Guess Request 메시지 받아옴
         String drawerUuid = guessTargetWord.getDrawerUuid();
-        GamePlayer gamePlayer = gamePlayerRepository.findPlayerByUuid(roomId, drawerUuid);
+        GamePlayer gamePlayer = gamePlayerRepository.findPlayerByUuid(roomId, drawerUuid, GAME_ERROR);
         String drawerName = gamePlayer.getNickname();
         String aiSays = aIClientService.getGuessStartMessage(roomId, new AIGuessStartReq(gameMeta.getCurrentRound(), gameMeta.getTotalRounds(), drawerName, "AI"));
 
@@ -57,7 +58,7 @@ public class GuessRequestService {
      */
     public void requestGuessPlayer(String roomId, GameMeta gameMeta,  Word word) {
         // 1. Drawer, Guesser 가져옴
-        List<GamePlayer> players = gamePlayerRepository.findPlayersByRoomId(roomId);
+        List<GamePlayer> players = gamePlayerRepository.findPlayersByRoomId(roomId, GAME_ERROR);
         GamePlayer gusser, drawer;
         if(word.getDrawerUuid().equals(players.get(0).getPlayerUuid())) {
             gusser = players.get(1);
@@ -68,7 +69,7 @@ public class GuessRequestService {
         }
 
         // 2. 현재 guess 개수 가져오기
-        List<Guess> guesses = roundRepository.findPlayerGuesses(roomId, gameMeta.getCurrentRound(), word.getWordIndex());
+        List<Guess> guesses = roundRepository.findPlayerGuesses(roomId, gameMeta.getCurrentRound(), word.getWordIndex(),  GAME_ERROR );
 
 
         //3. AI 서버에 Guess Request 메시지 받아옴

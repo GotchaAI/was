@@ -11,6 +11,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import socket_server.common.config.RedisMessage;
+import socket_server.common.exception.ErrorType;
 import socket_server.common.exception.chat.ChatExceptionCode;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.chat.dto.ChatMessage;
@@ -50,10 +51,10 @@ public class ChattingController {
         RedisMessage redisMessage = new RedisMessage(
                 null,
                 CHAT_ALL_CHANNEL,
-                jsonSerializer.serialize(message)
+                jsonSerializer.serialize(message, ErrorType.CHAT)
         );
 
-        redisTemplate.convertAndSend(CHAT_ALL_CHANNEL, jsonSerializer.serialize(redisMessage));
+        redisTemplate.convertAndSend(CHAT_ALL_CHANNEL, jsonSerializer.serialize(redisMessage, ErrorType.CHAT));
     }
 
     // 2. 귓속말 전송
@@ -71,10 +72,10 @@ public class ChattingController {
         RedisMessage redisMessage = new RedisMessage(
                 messageReq.receiverUuid(),
                 CHAT_PRIVATE_CHANNEL + messageReq.receiverUuid(),
-                jsonSerializer.serialize(message)
+                jsonSerializer.serialize(message, ErrorType.CHAT)
         );
 
-        redisTemplate.convertAndSend(CHAT_PRIVATE_CHANNEL + messageReq.receiverUuid(), jsonSerializer.serialize(redisMessage));
+        redisTemplate.convertAndSend(CHAT_PRIVATE_CHANNEL + messageReq.receiverUuid(), jsonSerializer.serialize(redisMessage, ErrorType.CHAT));
     }
 
 //    // 3. 대기방 내 채팅

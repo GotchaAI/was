@@ -23,7 +23,7 @@ public class GuessSubmitHandler implements GameEventHandler {
 
     @Override
     public void handle(String roomId, SecurityUserDetails userDetails, GameReq request) {
-        Guess guess =  jsonSerializer.deserialize(request.data(), Guess.class);
+        Guess guess =  jsonSerializer.deserialize(request.data(), Guess.class, getErrorType());
         guessFlowService.handlePlayerGuessSubmit(roomId, guess, userDetails.getUuid());
     }
 }

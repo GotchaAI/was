@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
+import socket_server.common.exception.ErrorType;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.model.GamePlayer;
 import socket_server.domain.game.model.Round;
@@ -35,18 +36,18 @@ public class GamePlayerRepository {
     /**
      * GamePlayers 저장
      */
-    public void savePlayers(String roomId, List<GamePlayer> gamePlayers) {
+    public void savePlayers(String roomId, List<GamePlayer> gamePlayers, ErrorType errorType) {
         String key = getGamePlayersKey(roomId);
         redisTemplate.opsForSet().add(key, gamePlayers.stream().map(GamePlayer::getPlayerUuid).toList().toArray(new String[0]));
         for(GamePlayer gamePlayer : gamePlayers) {
-            savePlayer(roomId, gamePlayer);
+            savePlayer(roomId, gamePlayer, errorType );
         }
     };
 
     /**
      * GamePlayers 조회
      */
-    public List<GamePlayer> findPlayersByRoomId(String roomId) {
+    public List<GamePlayer> findPlayersByRoomId(String roomId, ErrorType errorType) {
         String key = getGamePlayersKey(roomId);
         Set<String> uuids = redisTemplate.opsForSet().members(key);
         if (uuids == null || uuids.isEmpty()) {
@@ -55,7 +56,7 @@ public class GamePlayerRepository {
 
         List<GamePlayer> players = new ArrayList<>();
         for (String uuid : uuids) {
-            GamePlayer player = findPlayerByUuid(roomId, uuid);
+            GamePlayer player = findPlayerByUuid(roomId, uuid, errorType);
             if (player != null) {
                 players.add(player);
             }
@@ -70,18 +71,18 @@ public class GamePlayerRepository {
         return GameRepository.getGameKey(roomId) + ":" + uuid;
     }
 
-    public GamePlayer findPlayerByUuid(String roomId, String uuid) {
+    public GamePlayer findPlayerByUuid(String roomId, String uuid, ErrorType errorType) {
         String key = getPlayerKey(roomId, uuid);
         String playerJson = redisTemplate.opsForValue().get(key);
         if (playerJson == null) {
             return null;
         }
-        return jsonSerializer.deserialize(playerJson, GamePlayer.class);
+        return jsonSerializer.deserialize(playerJson, GamePlayer.class, errorType);
     }
 
-    public void savePlayer(String roomId, GamePlayer player) {
+    public void savePlayer(String roomId, GamePlayer player, ErrorType errorType) {
         String key = getPlayerKey(roomId, player.getPlayerUuid());
-        String playerJson = jsonSerializer.serialize(player);
+        String playerJson = jsonSerializer.serialize(player, errorType);
         redisTemplate.opsForValue().set(key, playerJson);
         log.info("Player {} saved", playerJson);
     }

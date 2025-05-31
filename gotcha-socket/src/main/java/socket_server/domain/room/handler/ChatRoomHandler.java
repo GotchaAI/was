@@ -2,7 +2,7 @@ package socket_server.domain.room.handler;
 
 import gotcha_domain.auth.SecurityUserDetails;
 import org.springframework.stereotype.Component;
-import socket_server.domain.room.dto.EventType;
+import socket_server.domain.room.model.RoomEventType;
 import socket_server.domain.room.dto.RoomReq;
 import socket_server.domain.room.service.RoomService;
 
@@ -16,8 +16,8 @@ public class ChatRoomHandler implements RoomEventHandler {
     }
 
     @Override
-    public EventType getEventType() {
-        return EventType.CHAT;
+    public RoomEventType getEventType() {
+        return RoomEventType.CHAT;
     }
 
     @Override

@@ -5,11 +5,15 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import socket_server.common.exception.ErrorType;
+import socket_server.common.exception.SocketCustomException;
 import socket_server.common.exception.game.GameExceptionCode;
 import socket_server.common.exception.room.RoomExceptionCode;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import static socket_server.common.exception.room.RoomExceptionCode.ROOM_ID_EXHAUSTED;
 
 
 @Service
@@ -27,7 +31,7 @@ public class RoomIdService {
     @PostConstruct
     private void initRoomPoolIfNeeded() {
         Boolean exists = redisTemplate.hasKey(ROOM_POOL_KEY);
-        if (Boolean.FALSE.equals(exists) || redisTemplate.opsForSet().size(ROOM_POOL_KEY) == 0) {
+        if (!exists || redisTemplate.opsForSet().size(ROOM_POOL_KEY) == 0) {
             Set<String> allIds = new HashSet<>(10000);
             for (int i = 0; i < 10000; i++) {
                 allIds.add(String.format("%04d", i));
@@ -36,17 +40,17 @@ public class RoomIdService {
         }
     }
 
-    public String allocateRoomId() {
+    public String allocateRoomId(ErrorType errorType) {
         String id = redisTemplate.opsForSet().pop(ROOM_POOL_KEY);
         if (id == null) {
-            throw new CustomException(RoomExceptionCode.ROOM_ID_EXHAUSTED);
+            throw new SocketCustomException(errorType, ROOM_ID_EXHAUSTED);
         }
         return id;
     }
 
-    public void releaseRoomId(String id) {
+    public void releaseRoomId(String id, ErrorType errorType) {
         if (id == null || (!id.matches("\\d{4}"))) {
-            throw new CustomException(RoomExceptionCode.INVALID_ROOM_ID);
+            throw new SocketCustomException(errorType,RoomExceptionCode.INVALID_ROOM_ID);
         }
         redisTemplate.opsForSet().add(ROOM_POOL_KEY, id);
     }

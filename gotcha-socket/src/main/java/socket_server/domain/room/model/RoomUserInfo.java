@@ -12,7 +12,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 public class RoomUserInfo {
-
     private String userUuid;
     private String nickname;
     @Setter

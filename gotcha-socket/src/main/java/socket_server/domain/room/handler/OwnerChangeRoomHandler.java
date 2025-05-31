@@ -2,8 +2,8 @@ package socket_server.domain.room.handler;
 
 import gotcha_domain.auth.SecurityUserDetails;
 import org.springframework.stereotype.Component;
-import socket_server.domain.room.dto.EventType;
 import socket_server.domain.room.dto.RoomReq;
+import socket_server.domain.room.model.RoomEventType;
 import socket_server.domain.room.service.RoomUserService;
 
 @Component
@@ -14,8 +14,8 @@ public class OwnerChangeRoomHandler implements RoomEventHandler{
         this.roomUserService = roomUserService;
     }
     @Override
-    public EventType getEventType() {
-        return EventType.OWNER_CHANGE;
+    public RoomEventType getEventType() {
+        return RoomEventType.OWNER_CHANGE;
     }
 
     @Override

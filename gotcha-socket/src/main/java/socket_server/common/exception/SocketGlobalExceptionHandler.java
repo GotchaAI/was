@@ -1,69 +1,70 @@
 package socket_server.common.exception;
 
-import gotcha_common.exception.CustomException;
 import gotcha_common.exception.ExceptionRes;
-import gotcha_common.exception.FieldValidationException;
-import gotcha_common.exception.exceptionCode.ExceptionCode;
 import gotcha_common.exception.exceptionCode.GlobalExceptionCode;
+import gotcha_domain.auth.SecurityUserDetails;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
-import org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.validation.FieldError;
 
-import java.util.Map;
-import java.util.stream.Collectors;
+import static gotcha_common.exception.exceptionCode.GlobalExceptionCode.USER_NOT_FOUND;
+import static socket_server.common.constants.WebSocketConstants.*;
 
 @Slf4j
 @ControllerAdvice
+@RequiredArgsConstructor
 public class SocketGlobalExceptionHandler {
+    private final SimpMessagingTemplate messagingTemplate;
 
-    @MessageExceptionHandler(CustomException.class)
-    @SendToUser("/queue/errors")
-    public ExceptionRes handleCustomException(final CustomException ex) {
-        ExceptionCode error = ex.getExceptionCode();
-        return ExceptionRes.from(error);
+    @MessageExceptionHandler(SocketFieldValidationException.class)
+    public void handleSocketFieldValidationException(
+            SocketFieldValidationException e,
+            SimpMessageHeaderAccessor accessor
+    ) {
+        log.warn("[WebSocket FieldValidationException] {} - {}", e.getSource(), e.getFieldErrors());
+        sendErrorToUser(e.getSource(), accessor, ExceptionRes.from(GlobalExceptionCode.FIELD_VALIDATION_ERROR, e.getFieldErrors()));
     }
 
-    @MessageExceptionHandler(FieldValidationException.class)
-    @SendToUser("/queue/errors")
-    public ExceptionRes handleInvalidField(final FieldValidationException e) {
-        ExceptionCode error = GlobalExceptionCode.FIELD_VALIDATION_ERROR;
-        return ExceptionRes.from(error, e.getFieldErrors());
-    }
-
-    @MessageExceptionHandler(MethodArgumentNotValidException.class)
-    @SendToUser("/queue/errors")
-    public ExceptionRes handleValidationException(final MethodArgumentNotValidException e) {
-        Map<String, String> fieldErrors = e.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .collect(Collectors.toMap (
-                        FieldError::getField,
-                        FieldError::getDefaultMessage,
-                        (existing, replacement) -> existing
-                ));
-        return ExceptionRes.from(GlobalExceptionCode.FIELD_VALIDATION_ERROR, fieldErrors);
+    @MessageExceptionHandler(SocketCustomException.class)
+    public void handleSocketCustomException(
+            SocketCustomException e,
+            SimpMessageHeaderAccessor accessor
+    ) {
+        log.warn("[WebSocket CustomException] {} - {}", e.getErrorType(), e.getExceptionCode());
+        sendErrorToUser(e.getErrorType(), accessor, ExceptionRes.from(e.getExceptionCode()));
     }
 
     @MessageExceptionHandler(Exception.class)
     @SendToUser("/queue/errors")
     public ExceptionRes handleUnexpectedException(Exception e) {
-        log.error("[WebSocket Unexpected Exception] {} - {}", e.getClass().getName(), e.getMessage(), e);
-
-        if (e instanceof MethodArgumentNotValidException manve) {
-            Map<String, String> fieldErrors = manve.getBindingResult().getFieldErrors().stream()
-                    .collect(Collectors.toMap(
-                            FieldError::getField,
-                            FieldError::getDefaultMessage,
-                            (existing, replacement) -> existing
-                    ));
-            return ExceptionRes.from(GlobalExceptionCode.FIELD_VALIDATION_ERROR, fieldErrors);
-        }
-        ExceptionCode error = GlobalExceptionCode.INTERNAL_SERVER_ERROR;
-        return ExceptionRes.from(error);
+        log.error("[WebSocket Unexpected Exception] {} - {}", e.getClass().getSimpleName(), e.getMessage(), e);
+        return ExceptionRes.from(GlobalExceptionCode.INTERNAL_SERVER_ERROR);
     }
 
+    private void sendErrorToUser(ErrorType errorType, SimpMessageHeaderAccessor accessor, ExceptionRes response) {
+        String uuid = findNowUuid(accessor, errorType);
+        String destination = switch (errorType) {
+            case ROOM -> ERROR_CHANNEL_PREFIX + uuid + ERROR_ROOM_CHANNEL;
+            case CHAT -> ERROR_CHANNEL_PREFIX + uuid + ERROR_CHAT_CHANNEL;
+            case GAME -> ERROR_CHANNEL_PREFIX + uuid + ERROR_GAME_CHANNEL;
+            case LOBBY -> ERROR_CHANNEL_PREFIX + uuid + ERROR_LOBBY_CHANNEL;
+            default -> ERROR_CHANNEL_PREFIX + uuid + ERROR_DEFAULT_CHANEL ;
+        };
+        messagingTemplate.convertAndSend(destination, response);
+    }
+
+    private static String findNowUuid(SimpMessageHeaderAccessor accessor, ErrorType errorType) {
+        Authentication auth = (Authentication) accessor.getUser();
+        if (auth == null) {
+            throw new SocketCustomException(errorType, USER_NOT_FOUND);
+        }
+        return ((SecurityUserDetails) auth.getPrincipal()).getUuid();
+    }
 }
+
 

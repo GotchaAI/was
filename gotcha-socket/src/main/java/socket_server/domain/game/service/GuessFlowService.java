@@ -4,6 +4,8 @@ import gotcha_common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import socket_server.common.exception.ErrorType;
+import socket_server.common.exception.SocketCustomException;
 import socket_server.common.exception.game.GameExceptionCode;
 import socket_server.domain.game.dto.AIGameEndReq;
 import socket_server.domain.game.dto.AIGuessMessageReq;
@@ -34,6 +36,7 @@ public class GuessFlowService {
     private final AIClientService aiClientService;
     private final GamePlayerRepository gamePlayerRepository;
     private final RoundStartService roundStartService;
+    private final ErrorType GAME_ERROR = ErrorType.GAME;
 
     /**
      * GUESS_START (ENTRY_POINT)
@@ -41,9 +44,9 @@ public class GuessFlowService {
      */
     public void startGuessingPhase(String roomId) {
         // 0. 게임 메타정보 조회 -> GameStatus 업데이트
-        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId,  GAME_ERROR);
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GUESS_START)){
-            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
         }
         gameMeta.setGameStatus(GameStatus.GUESSING_PHASE);
         gameRepository.saveGameMeta(gameMeta);
@@ -70,9 +73,9 @@ public class GuessFlowService {
      */
     public void processNextGuessRequest(String roomId){
         // 상태 검증
-        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId, GAME_ERROR);
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GUESS_REQUEST)){
-            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
         }
         Round currentRound = getCurrentRound(roomId);
         Word currentWord = getCurrentWord(currentRound);
@@ -82,10 +85,10 @@ public class GuessFlowService {
             return;
         }
         // Guess 데이터 찾아서 넣어주고
-        List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
+        List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(),  GAME_ERROR);
         currentWord.setPlayerGuesses(playerGuesses);
 
-        List<Guess> aiGuesses = roundRepository.findAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
+        List<Guess> aiGuesses = roundRepository.findAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(),  GAME_ERROR);
         currentWord.setAiGuesses(aiGuesses);
 
         if(isWordGuessCompleted(currentWord)){
@@ -107,24 +110,16 @@ public class GuessFlowService {
 
     /**
      * AI 추측 제출 처리(GUESS_SUBMIT) 이벤트 발행, BROADCAST
-     * "data": {
-     *     "gameData": {
-     * 	    "guesserUuid": "AI",
-     * 	    "attempts" : 1,
-     *       "guessWord": "사과",
-     * 	    "correct": null // 아직 정답여부 나오지 않음
-     *     },
-     *     "aiSays" : "우웅, 감이 와! '사과' 맞지? 내 추측이 맞다면 너에게 천재적 감각을 인정해줄게! 😉🌻✨"
      */
     public void handleAIGuessSubmit(String roomId, Round currentRound, Word currentWord, Guess guess) {
         // 0. 상태 검증
-        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId, GAME_ERROR);
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GUESS_SUBMIT)){
-            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
         }
 
         // 1. 실제 AI 추측 데이터 가져옴
-        List<AiPrediction> predictions = roundRepository.findAIPredictions(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
+        List<AiPrediction> predictions = roundRepository.findAIPredictions(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), GAME_ERROR);
         String aiPredicted = predictions.get(guess.getAttempts()-1).getPredicted();
 
         // 2. attempts에 따라 GUESS 데이터 저장
@@ -141,9 +136,9 @@ public class GuessFlowService {
 
         // 6. 현재 Word에 guess 추가
         currentWord.getAiGuesses().add(guess);
-        List<Guess> aiGuesses = roundRepository.findAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
+        List<Guess> aiGuesses = roundRepository.findAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), GAME_ERROR);
         aiGuesses.add(guess);
-        roundRepository.saveAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), aiGuesses);
+        roundRepository.saveAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), aiGuesses, GAME_ERROR);
 
         // 7. Handle Guess Result
         handleGuessResult(roomId, currentWord.getWord(), guess);
@@ -152,9 +147,9 @@ public class GuessFlowService {
 
     public void handlePlayerGuessSubmit(String roomId, Guess guess, String guesserUuid){
         //0. 상태 검증
-        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId, GAME_ERROR);
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GUESS_SUBMIT)){
-            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
         }
 
         //1. GUESS 정보 Broadcast
@@ -165,7 +160,7 @@ public class GuessFlowService {
         Word currentWord = getCurrentWord(getCurrentRound(roomId));
 
 
-        List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
+        List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), GAME_ERROR);
         currentWord.setPlayerGuesses(playerGuesses);
 
 
@@ -173,7 +168,7 @@ public class GuessFlowService {
 
         //4. 현재 Word에 guess 추가
         currentWord.getPlayerGuesses().add(guess);
-        roundRepository.savePlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), playerGuesses);
+        roundRepository.savePlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), playerGuesses, GAME_ERROR);
 
         //5. handle guess result
         //todo: handlerguessresult() 호출 시에 정답 확인, word에 guess를 추가하는건 어떨까? handlerAIGuessSubmit()과 코드가 중복된 내용이 있음.
@@ -187,9 +182,9 @@ public class GuessFlowService {
      */
     private void handleRoundEnd(String roomId){
         // 상태 검증
-        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId, GAME_ERROR);
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.ROUND_END)){
-            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
         }
 
         // 상태 업데이트
@@ -198,12 +193,12 @@ public class GuessFlowService {
 
         // 현재 ROUND 정보 모으기
         Round currentRound = getCurrentRound(roomId);
-        List<Word> words = roundRepository.findWordMetas(roomId, currentRound.getRoundIndex()).stream().map(WordMeta::toWord).toList();
+        List<Word> words = roundRepository.findWordMetas(roomId, currentRound.getRoundIndex(), GAME_ERROR).stream().map(WordMeta::toWord).toList();
 
         for(Word word : words){
-            List<Guess> aiGuesses = roundRepository.findAIGuesses(roomId, currentRound.getRoundIndex(), word.getWordIndex());
-            List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, currentRound.getRoundIndex(), word.getWordIndex());
-            List<AiPrediction> aiPredictions = roundRepository.findAIPredictions(roomId, currentRound.getRoundIndex(), word.getWordIndex());
+            List<Guess> aiGuesses = roundRepository.findAIGuesses(roomId, currentRound.getRoundIndex(), word.getWordIndex(), GAME_ERROR);
+            List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, currentRound.getRoundIndex(), word.getWordIndex(), GAME_ERROR);
+            List<AiPrediction> aiPredictions = roundRepository.findAIPredictions(roomId, currentRound.getRoundIndex(), word.getWordIndex(), GAME_ERROR);
 
             word.setAiGuesses(aiGuesses);
             word.setPlayerGuesses(playerGuesses);
@@ -238,26 +233,26 @@ public class GuessFlowService {
      */
     private void endGame(String roomId){
         // 상태 검증
-        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId, GAME_ERROR);
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GAME_END)){
-            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
         }
         gameMeta.setGameStatus(GameStatus.GAME_ENDED);
 
         //1. 모든 라운드 메타정보 조회
-        List<Round> rounds = roundRepository.findRoundMetas(roomId)
+        List<Round> rounds = roundRepository.findRoundMetas(roomId, GAME_ERROR)
                 .stream().map(RoundMeta::toRound).toList();
 
         for(Round round : rounds){
             //2. 모든 단어 메타정보 조회
-            List<Word> words = roundRepository.findWordMetas(roomId, round.getRoundIndex())
+            List<Word> words = roundRepository.findWordMetas(roomId, round.getRoundIndex(), GAME_ERROR)
                     .stream().map(WordMeta::toWord).toList();
 
             for(Word word : words){
                 //3. 모든 정보 조회 및 연결
-                List<Guess> aiGuesses = roundRepository.findAIGuesses(roomId, round.getRoundIndex(), word.getWordIndex());
-                List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, round.getRoundIndex(), word.getWordIndex());
-                List<AiPrediction> aiPredictions = roundRepository.findAIPredictions(roomId, round.getRoundIndex(), word.getWordIndex());
+                List<Guess> aiGuesses = roundRepository.findAIGuesses(roomId, round.getRoundIndex(), word.getWordIndex(), GAME_ERROR);
+                List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, round.getRoundIndex(), word.getWordIndex(), GAME_ERROR);
+                List<AiPrediction> aiPredictions = roundRepository.findAIPredictions(roomId, round.getRoundIndex(), word.getWordIndex(), GAME_ERROR);
 
                 word.setAiGuesses(aiGuesses);
                 word.setPlayerGuesses(playerGuesses);
@@ -294,7 +289,7 @@ public class GuessFlowService {
     private void determineGameWinner(String roomId, Game game) {
         //0. Score Map 초기 설정
         Map<String, Integer> scores = new HashMap<>();
-        List<GamePlayer> gamePlayers = gamePlayerRepository.findPlayersByRoomId(roomId);
+        List<GamePlayer> gamePlayers = gamePlayerRepository.findPlayersByRoomId(roomId, GAME_ERROR);
         for(GamePlayer gamePlayer : gamePlayers){
             scores.put(gamePlayer.getPlayerUuid(), 0);
         }
@@ -358,10 +353,10 @@ public class GuessFlowService {
      */
     private void moveToNextWord(String roomId, Round currentRound){
         currentRound.setCurrentWordIndex(currentRound.getCurrentWordIndex() + 1);
-        List<RoundMeta> roundMetas = roundRepository.findRoundMetas(roomId);
+        List<RoundMeta> roundMetas = roundRepository.findRoundMetas(roomId, GAME_ERROR);
         // currentRound의 currentWordIndex 값을 바꿔서 저장
         roundMetas.get(currentRound.getRoundIndex() - 1).setCurrentWordIndex(currentRound.getCurrentWordIndex());
-        roundRepository.saveRoundMetas(roomId, roundMetas);
+        roundRepository.saveRoundMetas(roomId, roundMetas, GAME_ERROR);
 
         processNextGuessRequest(roomId);
     }
@@ -382,14 +377,14 @@ public class GuessFlowService {
      */
     private void handleGuessResult(String roomId, String currentWord, Guess guess){
         // 상태 검증
-        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId, GAME_ERROR);
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GUESS_RESULT)){
-            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
         }
 
         // guesser 이름 받음
         String guesserUuid = guess.getGuesserUuid();
-        String guesser = guesserUuid.equals("AI") ? "묘묘" : gamePlayerRepository.findPlayerByUuid(roomId, guesserUuid).getNickname();
+        String guesser = guesserUuid.equals("AI") ? "묘묘" : gamePlayerRepository.findPlayerByUuid(roomId, guesserUuid, GAME_ERROR).getNickname();
         
         // AI 반응 받음
         String aiSays = aiClientService.getGuessReactMessage(roomId, new AIGuessReactReq(guess.getCorrect(), currentWord, guesser));
@@ -403,8 +398,6 @@ public class GuessFlowService {
         }
             // 다음 턴 (GUESS 실패)
             processNextGuessRequest(roomId);
-
-
     }
 
 
@@ -419,9 +412,9 @@ public class GuessFlowService {
      */
     private void updateScore(String roomId, Guess guess){
         // 상태 검증
-        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId, GAME_ERROR);
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.SCORE_UPDATE)){
-            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+            throw new SocketCustomException(GAME_ERROR,GameExceptionCode.INVALID_GAME_STATUS);
         }
 
 
@@ -436,7 +429,7 @@ public class GuessFlowService {
         gamePlayerRepository.saveScoreByUuid(roomId, guesserUuid, gameMeta.getCurrentRound(), newScore);
 
         // SCORE_UPDATE Broadcast
-        List<GamePlayer> gamePlayers = gamePlayerRepository.findPlayersByRoomId(roomId);
+        List<GamePlayer> gamePlayers = gamePlayerRepository.findPlayersByRoomId(roomId, GAME_ERROR);
         String playerA = gamePlayers.get(0).getPlayerUuid();
         String playerB = gamePlayers.get(1).getPlayerUuid();
         Map<String, Integer> scores = new HashMap<>();
@@ -488,7 +481,7 @@ public class GuessFlowService {
     }
 
     private int getCurrentRoundIndex(String roomId){
-        GameMeta gameMeta = gameRepository.findGameMeta(roomId);
+        GameMeta gameMeta = gameRepository.findGameMeta(roomId, GAME_ERROR);
         return gameMeta.getCurrentRound();
     }
 
@@ -497,10 +490,10 @@ public class GuessFlowService {
         int roundIndex = getCurrentRoundIndex(roomId);
 
         // 2. Round 메타정보 조회
-        RoundMeta roundMeta = roundRepository.findRoundMetas(roomId).get(roundIndex - 1);
+        RoundMeta roundMeta = roundRepository.findRoundMetas(roomId, GAME_ERROR).get(roundIndex - 1);
 
         // 3. Words 메타정보 조회
-        List<WordMeta> wordMetas = roundRepository.findWordMetas(roomId, roundIndex);
+        List<WordMeta> wordMetas = roundRepository.findWordMetas(roomId, roundIndex, GAME_ERROR);
 
         // 4. 데이터 파싱 후 결합
         List<Word> words = wordMetas.stream().map(WordMeta::toWord).toList();

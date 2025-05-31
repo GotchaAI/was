@@ -4,31 +4,24 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import socket_server.common.config.RedisMessage;
+import socket_server.common.exception.ErrorType;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.room.dto.EventRes;
-import socket_server.domain.room.dto.EventType;
+import socket_server.domain.room.model.RoomEventType;
 
 import java.time.LocalDateTime;
 
-import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
-import static socket_server.common.constants.WebSocketConstants.ROOM_LIST_EVENT;
+import static socket_server.common.constants.WebSocketConstants.ROOM_PREFIX;
 
 @Component
 @RequiredArgsConstructor
 public class RoomBroadcaster {
-
     private final RedisTemplate<String, Object> redisTemplate;
     private final JsonSerializer jsonSerializer;
 
-    public void broadcastToRoom(String roomId, String senderId, EventType type, Object data) {
+    public void broadcastToRoom(String roomId, String senderId, RoomEventType type, Object data) {
         EventRes event = new EventRes(type, data, LocalDateTime.now());
-        RedisMessage message = new RedisMessage(senderId, ROOM_EVENT + roomId, jsonSerializer.serialize(event));
-        redisTemplate.convertAndSend(ROOM_EVENT + roomId, jsonSerializer.serialize(message));
-    }
-
-    public void broadcastToRoomList(String senderId, EventType type, Object data) {
-        EventRes event = new EventRes(type, data, LocalDateTime.now());
-        RedisMessage message = new RedisMessage(senderId, ROOM_LIST_EVENT, jsonSerializer.serialize(event));
-        redisTemplate.convertAndSend(ROOM_LIST_EVENT, jsonSerializer.serialize(message));
+        RedisMessage message = new RedisMessage(senderId, ROOM_PREFIX + roomId, jsonSerializer.serialize(event, ErrorType.ROOM));
+        redisTemplate.convertAndSend(ROOM_PREFIX + roomId, jsonSerializer.serialize(message, ErrorType.ROOM));
     }
 }
