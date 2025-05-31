@@ -11,7 +11,7 @@ import socket_server.domain.room.model.RoomEventType;
 
 import java.time.LocalDateTime;
 
-import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
+import static socket_server.common.constants.WebSocketConstants.ROOM_PREFIX;
 
 @Component
 @RequiredArgsConstructor
@@ -21,7 +21,7 @@ public class RoomBroadcaster {
 
     public void broadcastToRoom(String roomId, String senderId, RoomEventType type, Object data) {
         EventRes event = new EventRes(type, data, LocalDateTime.now());
-        RedisMessage message = new RedisMessage(senderId, ROOM_EVENT + roomId, jsonSerializer.serialize(event, ErrorType.ROOM));
-        redisTemplate.convertAndSend(ROOM_EVENT + roomId, jsonSerializer.serialize(message, ErrorType.ROOM));
+        RedisMessage message = new RedisMessage(senderId, ROOM_PREFIX + roomId, jsonSerializer.serialize(event, ErrorType.ROOM));
+        redisTemplate.convertAndSend(ROOM_PREFIX + roomId, jsonSerializer.serialize(message, ErrorType.ROOM));
     }
 }

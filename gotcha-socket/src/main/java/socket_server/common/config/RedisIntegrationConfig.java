@@ -116,7 +116,7 @@ public class RedisIntegrationConfig {
                 CHAT_ROOM_CHANNEL + "*",             // /sub/chat/room/*
 
                 // 대기방
-                ROOM_EVENT + "*",
+                ROOM_PREFIX + "*",
 
                 // 게임
                 GAME_PREFIX + "*",                   // /sub/game/*

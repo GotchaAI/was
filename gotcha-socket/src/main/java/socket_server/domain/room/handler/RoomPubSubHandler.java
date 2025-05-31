@@ -10,7 +10,7 @@ import socket_server.common.listener.PubSubHandler;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.room.dto.EventRes;
 
-import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
+import static socket_server.common.constants.WebSocketConstants.ROOM_PREFIX;
 
 @Slf4j
 @Service
@@ -23,7 +23,7 @@ public class RoomPubSubHandler extends PubSubHandler {
 
     @Override
     protected void initHandlers() {
-        handlers.put(ROOM_EVENT, this::handleEventResMessage);
+        handlers.put(ROOM_PREFIX, this::handleEventResMessage);
     }
 
     private void handleEventResMessage(String channel, Object object) {

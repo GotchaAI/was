@@ -1,6 +1,5 @@
 package socket_server.domain.room.service;
 
-import gotcha_common.exception.CustomException;
 import gotcha_domain.auth.SecurityUserDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
+import static socket_server.common.constants.WebSocketConstants.ROOM_PREFIX;
 
 @Service
 @Slf4j
@@ -107,11 +106,11 @@ public class RoomService {
 
         RedisMessage redisMessage = new RedisMessage(
                 userDetails.getUuid(),
-                ROOM_EVENT + roomId,
+                ROOM_PREFIX + roomId,
                 jsonSerializer.serialize(eventRes, ROOM_ERROR)
         );
 
-        redisTemplate.convertAndSend(ROOM_EVENT + roomId, jsonSerializer.serialize(redisMessage, ROOM_ERROR));
+        redisTemplate.convertAndSend(ROOM_PREFIX + roomId, jsonSerializer.serialize(redisMessage, ROOM_ERROR));
 
         log.info("chat - roomId: {}, user: {}, content: {}", roomId, userDetails.getUuid(), content);
     }
