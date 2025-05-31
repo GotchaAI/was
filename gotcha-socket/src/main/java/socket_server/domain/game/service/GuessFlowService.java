@@ -286,13 +286,13 @@ public class GuessFlowService {
         }
 
         // 4. Game 데이터 만들기
-        Game game = Game.fromGameMeta(gameMeta); // gamePlayers???????
+        Game game = Game.fromGameMeta(gameMeta);
         game.setRounds(rounds);
 
 
 
         //5. Score 추가, GameWinner 찾기
-        determineGameWinner(roomId, game);
+        determineGameWinnerAndCalculateScores(roomId, game);
 
         //6. GameEnded React 가져오기
         String aiSays = aiClientService.getGameEndMessage(roomId, new AIGameEndReq(game.getWinner()));
@@ -302,8 +302,7 @@ public class GuessFlowService {
         //6. GameEnded 이벤트 broadcast
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GAME_END, game, aiSays, null);
 
-        //7. Game 마무리 : DB 저장
-
+        //todo: 7. Game 마무리 : DB 저장
 
 
     }
@@ -316,7 +315,7 @@ public class GuessFlowService {
 
 
 
-    private void determineGameWinner(String roomId, Game game) {
+    private void determineGameWinnerAndCalculateScores(String roomId, Game game) {
         //0. Score Map 초기 설정
         Map<String, Integer> scores = new HashMap<>();
         List<String> playerUuids = gamePlayerRepository.findPlayerUuidsByRoomId(roomId);
@@ -330,8 +329,7 @@ public class GuessFlowService {
         //1. 점수 가져오기
         List<Round> rounds = game.getRounds();
         for(Round round : rounds){
-            Map<String, Integer> roundScores = gamePlayerRepository.findRoundScores(roomId, round.getRoundIndex());
-            round.setRoundScores(roundScores);
+            Map<String, Integer> roundScores = round.getRoundScores();
             int aiRoundScore = roundScores.getOrDefault("AI", 0); // AI Score of this round
             int aiGameScore = scores.getOrDefault("AI", 0); // AI Score of whole game
             scores.put("AI", aiGameScore + aiRoundScore);
@@ -349,6 +347,11 @@ public class GuessFlowService {
         int playerScore = scores.getOrDefault("PLAYER", 0);
         String gameWinner = aiScore > playerScore ? "AI" : aiScore == playerScore ? "DRAW" : "PLAYER";
         game.setWinner(gameWinner);
+
+
+        //3. 최종점수 저장
+        game.setScores(scores);
+
 
     }
 
