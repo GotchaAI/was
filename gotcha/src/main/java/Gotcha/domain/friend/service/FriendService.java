@@ -14,6 +14,8 @@ import gotcha_user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import socket_server.domain.friend.dto.FriendSummaryRes;
+import socket_server.domain.friend.service.FriendSocketService;
 
 import java.util.List;
 
@@ -23,6 +25,7 @@ public class FriendService {
     private final FriendRepository friendRepository;
     private final FriendRequestRepository friendRequestRepository;
     private final UserService userService;
+    private final FriendSocketService friendSocketService;
 
     @Transactional(readOnly = true)
     public List<FriendRes> getFriends(Long userId) {
@@ -66,6 +69,8 @@ public class FriendService {
                 .build();
 
         friendRequestRepository.save(request);
+
+        friendSocketService.sendFriendRequest(fromUser.getUuid(), toUser.getUuid(), FriendSummaryRes.from(request));
     }
 
     @Transactional
