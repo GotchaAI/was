@@ -77,13 +77,9 @@ public class GameRepository {
     /**
      * Game 메타데이터만 조회(List GamePlayers, List Rounds 제외)
      */
-    public GameMeta findGameMeta(String roomId, ErrorType errorType) {
+    public Map<Object, Object> findGameMeta(String roomId) {
         String key = getGameKey(roomId);
-        Map<Object, Object> gameDataMap = redisTemplate.opsForHash().entries(key);
-        if (gameDataMap.isEmpty()) {
-            throw new SocketCustomException(errorType, GameExceptionCode.INVALID_GAME_ID);
-        }
-        return GameMeta.fromRedisMap(roomId, gameDataMap);
+        return redisTemplate.opsForHash().entries(key);
     }
 
 
