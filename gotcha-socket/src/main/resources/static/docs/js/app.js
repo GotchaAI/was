@@ -6,7 +6,7 @@
   "info": {
     "title": "Gotcha WebSocket API",
     "version": "1.0.0",
-    "description": "이 문서는 Gotcha 게임 플랫폼의 실시간 WebSocket(STOMP) 통신 명세서입니다.\nSockJS를 통해 WebSocket 연결을 시도합니다.\n\n| 주체             | 동작       | 사용하는 STOMP 함수       | 경로 예시              |\n|------------------|------------|---------------------------|-------------------------|\n| 클라이언트 → 서버 | 메시지 보냄 | `stompClient.send()`      | `/pub/**`      |\n| 서버 → 클라이언트 | 메시지 보냄 | `stompClient.subscribe()` | `/sub/**`         |\n\n⭐[도메인 채널 prefix]\n-\n\n본 서비스는 총 5개의 메시지 전송 경로(prefix)를 사용하며, 구체적인 로직 분기는 경로가 아닌 DTO 필드로 구분됩니다. \n\n- /pub/room/{roomId} : 대기방 관련 로직들 (대기방 내 채팅 포함)\n- /pub/chat/** : 채팅 관련 로직들 (전체 채팅 및 개인 채팅)\n- /pub/game/{roomId} : 게임 관련 로직들 \n- /pub/lobby/** : 로비 관련 로직들 \n\n⭐[에러 채널]\n-\n\n- 대기방 에러 채널 : /user/{userUuid}/room/errors\n- 로비 에러 채널 : /user/{userUuid}/lobby/errors\n- 채팅 에러 채널 : /user/{userUuid}/chat/errors\n- 게임 에러 채널 : /user/{userUuid}/game/errors\n- 기본 에러 채널 : /user/{userUuid}/queue/errors\n"
+    "description": "이 문서는 Gotcha 게임 플랫폼의 실시간 WebSocket(STOMP) 통신 명세서입니다.\nSockJS를 통해 WebSocket 연결을 시도합니다.\n\n| 주체             | 동작       | 사용하는 STOMP 함수       | 경로 예시              |\n|------------------|------------|---------------------------|-------------------------|\n| 클라이언트 → 서버 | 메시지 보냄 | `stompClient.send()`      | `/pub/**`      |\n| 서버 → 클라이언트 | 메시지 보냄 | `stompClient.subscribe()` | `/sub/**`         |\n\n⭐[도메인 채널 prefix]\n-\n\n본 서비스는 총 4개의 메시지 전송 경로(prefix)를 사용하며, 구체적인 로직 분기는 경로가 아닌 DTO 필드로 구분됩니다. \n\n- /pub/room/{roomId} : 대기방 관련 로직들 (대기방 내 채팅 포함)\n- /pub/chat/** : 채팅 관련 로직들 (전체 채팅 및 개인 채팅)\n- /pub/game/{roomId} : 게임 관련 로직들 \n- /pub/lobby/** : 로비 관련 로직들 \n\n⭐[에러 채널]\n-\n\n- 대기방 에러 채널 : /user/room/errors/{userUuid}\n- 로비 에러 채널 : /user/lobby/errors/{userUuid}\n- 채팅 에러 채널 : /user/chat/errors/{userUuid}\n- 게임 에러 채널 : /user/game/errors/{userUuid}\n- 기본 에러 채널 : /user/queue/errors/{userUuid}\n"
   },
   "servers": {
     "production": {
@@ -16,7 +16,7 @@
     }
   },
   "channels": {
-    "/user/{userUuid}/queue/errors": {
+    "/user/queue/errors/{userUuid}": {
       "description": "도메인 에러 외 서버에서 발생된 에러 메시지를 수신하는 WebSocket 구독 채널입니다.\n",
       "parameters": {
         "userUuid": {
@@ -71,7 +71,7 @@
         }
       }
     },
-    "/user/{userUuid}/room/errors": {
+    "/user/room/errors/{userUuid}": {
       "description": "대기방에서 발생한 에러 메시지를 수신하는 WebSocket 구독 채널입니다. (대기방 채팅에서 발생된 에러도 포함됩니다.)\n",
       "parameters": {
         "userUuid": {
@@ -86,11 +86,11 @@
         "message": {
           "name": "ExceptionResponse",
           "summary": "에러 응답 메시지",
-          "payload": "$ref:$.channels./user/{userUuid}/queue/errors.subscribe.message.payload"
+          "payload": "$ref:$.channels./user/queue/errors/{userUuid}.subscribe.message.payload"
         }
       }
     },
-    "/user/{userUuid}/game/errors": {
+    "/user/game/errors/{userUuid}": {
       "description": "게임에서 발생한 에러 메시지를 수신하는 WebSocket 구독 채널입니다.\n",
       "parameters": {
         "userUuid": {
@@ -105,11 +105,11 @@
         "message": {
           "name": "ExceptionResponse",
           "summary": "에러 응답 메시지",
-          "payload": "$ref:$.channels./user/{userUuid}/queue/errors.subscribe.message.payload"
+          "payload": "$ref:$.channels./user/queue/errors/{userUuid}.subscribe.message.payload"
         }
       }
     },
-    "/user/{userUuid}/lobby/errors": {
+    "/user/lobby/errors/{userUuid}": {
       "description": "로비에서 발생한 에러 메시지를 수신하는 WebSocket 구독 채널입니다.\n",
       "parameters": {
         "userUuid": {
@@ -124,11 +124,11 @@
         "message": {
           "name": "ExceptionResponse",
           "summary": "에러 응답 메시지",
-          "payload": "$ref:$.channels./user/{userUuid}/queue/errors.subscribe.message.payload"
+          "payload": "$ref:$.channels./user/queue/errors/{userUuid}.subscribe.message.payload"
         }
       }
     },
-    "/user/{userUuid}/chat/errors": {
+    "/user/chat/errors/{userUuid}": {
       "description": "채팅(전체체팅 및 개인 채팅)에서 발생한 에러 메시지를 수신하는 WebSocket 구독 채널입니다.\n",
       "parameters": {
         "userUuid": {
@@ -143,7 +143,7 @@
         "message": {
           "name": "ExceptionResponse",
           "summary": "에러 응답 메시지",
-          "payload": "$ref:$.channels./user/{userUuid}/queue/errors.subscribe.message.payload"
+          "payload": "$ref:$.channels./user/queue/errors/{userUuid}.subscribe.message.payload"
         }
       }
     },
@@ -2229,7 +2229,7 @@
   },
   "components": {
     "schemas": {
-      "ExceptionRes": "$ref:$.channels./user/{userUuid}/queue/errors.subscribe.message.payload",
+      "ExceptionRes": "$ref:$.channels./user/queue/errors/{userUuid}.subscribe.message.payload",
       "CreateRoomRequest": "$ref:$.channels./pub/lobby/create.publish.message.payload",
       "RoomReq": "$ref:$.channels./pub/room/{roomId}.publish.message.payload",
       "RedisResponse_RoomMetadata": {
