@@ -4,6 +4,7 @@ import Gotcha.domain.image.exception.ImageExceptionCode;
 import gotcha_common.exception.CustomException;
 import gotcha_common.s3.S3ClientService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,10 +16,15 @@ public class ImageService {
 
     private final S3ClientService s3ClientService;
 
+    @Value("${spring.cloud.aws.region.static}")
+    private String region;
+    @Value("${spring.cloud.aws.s3.bucket-name}")
+    private String bucketName;
+
     public String uploadImage(String userUuid, MultipartFile file) {
         String filename = generateUserFileName(userUuid, file);
         s3ClientService.uploadFile(filename, file);
-        return filename;
+        return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, filename);
     }
 
     private String generateUserFileName(String userUuid, MultipartFile file) {

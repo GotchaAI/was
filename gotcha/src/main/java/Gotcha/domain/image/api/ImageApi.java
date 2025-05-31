@@ -23,7 +23,7 @@ public interface ImageApi {
                             @ExampleObject(value = """
                                     {
                                         "status": "OK",
-                                        "message": "https://my-bucket-name.s3.ap-northeast-2.amazonaws.com/1234/6a0f9e3d-1b2c-4d5e-8f2a-8b02f60d92e4.jpg
+                                        "message": "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/useruuid/6a0f9e3d-1b2c-4d5e-8f2a-8b02f60d92e4.jpg
                                                     "
                                     }
                                     """)
