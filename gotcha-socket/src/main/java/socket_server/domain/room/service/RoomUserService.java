@@ -37,11 +37,11 @@ public class RoomUserService {
     private final RoomIdService roomIdService;
     private final ErrorType ROOM_ERROR = ErrorType.ROOM;
 
-    public void joinRoom(String roomId, String userUuid, String nickname, ErrorType errorType) {
+    public void joinRoom(String roomId, String userUuid, String nickname, boolean isOwner, ErrorType errorType) {
         RoomUserInfo roomUserInfo = RoomUserInfo.builder().
                 userUuid(userUuid).
                 nickname(nickname).
-                ready(false).
+                ready(isOwner).
                 build();
 
         roomUserRepository.saveUserToRoom(roomUserInfo, roomId, errorType);

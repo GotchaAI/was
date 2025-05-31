@@ -30,7 +30,7 @@ public class LobbyService {
         roomUserService.checkUserNotInAnyRoom(uuid, LOBBY_ERROR);
         RoomMetadata roomMetadata = roomService.createRoom(request, userDetails);
 
-        roomUserService.joinRoom(roomMetadata.getId(), uuid, userDetails.getNickname(), LOBBY_ERROR);
+        roomUserService.joinRoom(roomMetadata.getId(), uuid, userDetails.getNickname(), true, LOBBY_ERROR);
         //브로드캐스팅 -> 로비 소켓에 새로운 방 생성 전파
         RoomSummaryRes summary = RoomSummaryRes.of(roomMetadata, 1);
         lobbyBroadCaster.broadcastToRoomList("SYSTEM", RoomEventType.CREATE, summary);
@@ -43,6 +43,7 @@ public class LobbyService {
         roomUserService.checkUserNotInAnyRoom(uuid, LOBBY_ERROR);
         roomService.validateRoomExistsAndPassword(roomId, password, LOBBY_ERROR);
 
+        roomUserService.joinRoom(roomId, uuid, userDetails.getNickname(), false, LOBBY_ERROR);
         //브로드캐스팅 -> 대기방 내 유저들(신규 유저 포함)에게 새로운 참가자 정보 전파
         roomUserService.broadcastUserInRoomInfo(roomId, uuid, LOBBY_ERROR);
         //개인채널 -> 방 참가 잘 됨 전달
