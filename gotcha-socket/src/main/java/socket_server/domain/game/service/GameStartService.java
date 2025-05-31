@@ -3,6 +3,8 @@ package socket_server.domain.game.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.ErrorType;
+import socket_server.common.exception.SocketCustomException;
+import socket_server.common.exception.game.GameExceptionCode;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.dto.AIGameStartReq;
 import socket_server.domain.game.dto.AISaysRes;
@@ -20,9 +22,11 @@ import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomUserRepository;
 import socket_server.domain.room.service.RoomUserService;
+import socket_server.domain.game.enumType.GameEventType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -45,6 +49,17 @@ public class GameStartService {
         roomUserService.checkGameStart(roomId, roomMetadata.getGameType());
 
         //todo: 이미 진행중인 게임이 있다면?
+
+        // 게임 메타정보 조회
+        Map<Object, Object> gameMetaMap = gameRepository.findGameMeta(roomId);
+        // 없으면 시작 가능
+        if(!gameMetaMap.isEmpty()) {
+            if(!GameMeta.fromRedisMap(roomId, gameMetaMap).getGameStatus().canHandleEvent(GameEventType.GAME_START)) {
+                // 있으면 GameStatus 확인, GAME_ENDED 아니면 시작 불가능
+                throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
+            }
+        }
+
 
         // 2. 게임 메타데이터 생성
         Game game = Game.builder().
@@ -76,6 +91,10 @@ public class GameStartService {
 
         // 8. 5초 후 게임 시작(EntryPoint)
         roundStartService.startNextRound(roomId);
+
+    }
+
+    private GameMeta getGameMeta(String roomId) {
 
     }
 
