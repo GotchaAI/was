@@ -25,11 +25,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+/**
+ * todo: 너무 많은 코드 !!! 리팩토링 필요
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class GuessFlowService {
+
     private final GameRepository gameRepository;
     private final RoundRepository roundRepository;
     private final GameBroadCaster gameBroadCaster;
@@ -176,6 +179,11 @@ public class GuessFlowService {
         Round currentRound = getCurrentRound(roomId);
         Word currentWord = getCurrentWord(getCurrentRound(roomId));
 
+        // 3. 현재 Word의 Drawer == guesser 라면 Exception
+        if(currentWord.getDrawerUuid().equals(guesserUuid)) {
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GUESSER);
+        }
+
 
         List<Guess> playerGuesses = getPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
         currentWord.setPlayerGuesses(playerGuesses);
@@ -223,7 +231,7 @@ public class GuessFlowService {
         currentRound.setWords(words);
 
 
-        // 점수 업데이트
+        // 점수 업데이트 된걸로 라운드 winner 찾기
         determineRoundWinner(roomId, currentRound);
 
         //RoundWinner에 따른 AI 반응 메시지 추가(aiSays)
@@ -311,9 +319,9 @@ public class GuessFlowService {
     private void determineGameWinner(String roomId, Game game) {
         //0. Score Map 초기 설정
         Map<String, Integer> scores = new HashMap<>();
-        List<GamePlayer> gamePlayers = getGamePlayersByRoomId(roomId);
-        for(GamePlayer gamePlayer : gamePlayers){
-            scores.put(gamePlayer.getPlayerUuid(), 0);
+        List<String> playerUuids = gamePlayerRepository.findPlayerUuidsByRoomId(roomId);
+        for(String playerUuid : playerUuids){
+            scores.put(playerUuid, 0);
         }
         scores.put("AI", 0);
         game.setScores(scores);
@@ -322,8 +330,8 @@ public class GuessFlowService {
         //1. 점수 가져오기
         List<Round> rounds = game.getRounds();
         for(Round round : rounds){
-            Map<String, Integer> roundScores = gamePlayerRepository.findScores(roomId, round.getRoundIndex());
-            round.setScores(roundScores);
+            Map<String, Integer> roundScores = gamePlayerRepository.findRoundScores(roomId, round.getRoundIndex());
+            round.setRoundScores(roundScores);
             int aiRoundScore = roundScores.getOrDefault("AI", 0); // AI Score of this round
             int aiGameScore = scores.getOrDefault("AI", 0); // AI Score of whole game
             scores.put("AI", aiGameScore + aiRoundScore);
@@ -347,9 +355,7 @@ public class GuessFlowService {
 
     private void determineRoundWinner(String roomId, Round currentRound){
         // 1. 점수 가져오기
-        Map<String, Integer> scores = gamePlayerRepository.findScores(roomId, currentRound.getRoundIndex());
-        currentRound.setScores(scores);
-
+        Map<String, Integer> scores = gamePlayerRepository.findRoundScores(roomId, currentRound.getRoundIndex());
 
         //2. 점수 비교
         int aiScore = 0;
@@ -363,6 +369,8 @@ public class GuessFlowService {
         String roundWinner = aiScore > playerScore ?
                 "AI" : aiScore == playerScore ? "DRAW" : "PLAYER";
         currentRound.setRoundWinner(roundWinner);
+
+
     }
 
 
@@ -415,8 +423,8 @@ public class GuessFlowService {
             // GUESS 성공. attempts와 함께 점수 업데이트
             updateScore(roomId, guess);
         }
-            // 다음 턴 (GUESS 실패)
-            processNextGuessRequest(roomId);
+        // 다음 턴 (GUESS 실패)
+        processNextGuessRequest(roomId);
     }
 
 
@@ -434,23 +442,36 @@ public class GuessFlowService {
         GameMeta gameMeta = getGameMetaByRoomId(roomId);
         validateGameEvent(gameMeta, GameEventType.SCORE_UPDATE);
 
+        //1. current ROund Index
+        List<RoundMeta> roundMetas = getRoundMetas(roomId);
+
+        //2. List<RoundMeta>
+        RoundMeta currentRoundMeta = roundMetas.get(gameMeta.getCurrentRound() - 1);
+
+
+
         String guesserUuid = guess.getGuesserUuid();
 
         // 점수 업데이트
-        int currentScore = gamePlayerRepository.findScoreByUuid(roomId, guesserUuid, gameMeta.getCurrentRound());
+        int currentScore = gamePlayerRepository.findRoundScoreByUuid(roomId, guesserUuid, gameMeta.getCurrentRound());
         int newScore = currentScore + guess.getAttempts() * (3 - guess.getAttempts() + 1);
 
-        gamePlayerRepository.saveScoreByUuid(roomId, guesserUuid, gameMeta.getCurrentRound(), newScore);
+        gamePlayerRepository.saveRoundScoreByUuid(roomId, guesserUuid, gameMeta.getCurrentRound(), newScore);
 
         // SCORE_UPDATE Broadcast
         List<GamePlayer> gamePlayers = getGamePlayersByRoomId(roomId);
         String playerA = gamePlayers.get(0).getPlayerUuid();
         String playerB = gamePlayers.get(1).getPlayerUuid();
         Map<String, Integer> scores = new HashMap<>();
-        scores.put("AI", gamePlayerRepository.findScoreByUuid(roomId, "AI", gameMeta.getCurrentRound()));
-        scores.put(playerA, gamePlayerRepository.findScoreByUuid(roomId, playerA, gameMeta.getCurrentRound()));
-        scores.put(playerB, gamePlayerRepository.findScoreByUuid(roomId, playerB, gameMeta.getCurrentRound()));
+        scores.put("AI", gamePlayerRepository.findRoundScoreByUuid(roomId, "AI", gameMeta.getCurrentRound()));
+        scores.put(playerA, gamePlayerRepository.findRoundScoreByUuid(roomId, playerA, gameMeta.getCurrentRound()));
+        scores.put(playerB, gamePlayerRepository.findRoundScoreByUuid(roomId, playerB, gameMeta.getCurrentRound()));
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.SCORE_UPDATE, scores, null, null);
+
+        currentRoundMeta.setRoundScores(scores);
+        String roundMetasJson = jsonSerializer.serialize(roundMetas, GAME_ERROR);
+        roundRepository.saveRoundMetasString(roomId, roundMetasJson);
+
     }
 
     private GameMeta getGameMetaByRoomId(String roomId) {
@@ -494,9 +515,6 @@ public class GuessFlowService {
      */
     private boolean isWordGuessCompleted(Word word) {
         // 1. 누군가 맞췄는지 확인
-        /**
-         * Word.aiguess() NULLPOINTER!!
-         */
         boolean hasCorrectGuess = word.getAiGuesses().stream().anyMatch(Guess::getCorrect) ||
                 word.getPlayerGuesses().stream().anyMatch(Guess::getCorrect);
         if (hasCorrectGuess) return true;
@@ -520,22 +538,26 @@ public class GuessFlowService {
     }
 
 
-    private Round getCurrentRound(String roomId) {
+    private RoundMeta getCurrentRoundMeta(String roomId) {
         // 0. GameMeta 조회
         GameMeta gameMeta = getGameMetaByRoomId(roomId);
 
         // 1. gameMeta 조회 후 현재 라운드 index 받기
         int roundIndex = gameMeta.getCurrentRound();
 
-        // 2. Round 메타정보 조회
-        RoundMeta roundMeta = getRoundMetas(roomId).get(roundIndex - 1);
+        return getRoundMetas(roomId).get(roundIndex - 1);
+    }
 
-        // 3. Words 메타정보 조회
-        List<WordMeta> wordMetas = getWordMetas(roomId, roundIndex);
 
-        // 4. 데이터 파싱 후 결합
+    private Round getCurrentRound(String roomId) {
+        // 1. Round 메타정보 조회
+        RoundMeta roundMeta = getCurrentRoundMeta(roomId);
+
+        // 2. Words 메타정보 조회
+        List<WordMeta> wordMetas = getWordMetas(roomId, roundMeta.getRoundIndex());
+
+        // 3. 데이터 파싱 후 결합
         List<Word> words = wordMetas.stream().map(WordMeta::toWord).toList();
-
 
         Round round = RoundMeta.toRound(roundMeta);
         round.setWords(words);
