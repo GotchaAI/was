@@ -94,10 +94,6 @@ public class GameStartService {
 
     }
 
-    private GameMeta getGameMeta(String roomId) {
-
-    }
-
     private void saveGame(Game game) {
         gameRepository.saveGameMeta(GameMeta.fromGame(game));
         savePlayers(game.getRoomId(), game.getGamePlayers());
