@@ -1,12 +1,12 @@
 package socket_server.domain.game.service;
 
-import gotcha_common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.exception.SocketCustomException;
 import socket_server.common.exception.game.GameExceptionCode;
+import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.dto.AIGameEndReq;
 import socket_server.domain.game.dto.AIGuessMessageReq;
 import socket_server.domain.game.dto.AIGuessReactReq;
@@ -36,6 +36,8 @@ public class GuessFlowService {
     private final AIClientService aiClientService;
     private final GamePlayerRepository gamePlayerRepository;
     private final RoundStartService roundStartService;
+    private final JsonSerializer jsonSerializer;
+
     private final ErrorType GAME_ERROR = ErrorType.GAME;
 
     /**
@@ -87,7 +89,7 @@ public class GuessFlowService {
         List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(),  GAME_ERROR);
         currentWord.setPlayerGuesses(playerGuesses);
 
-        List<Guess> aiGuesses = roundRepository.findAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(),  GAME_ERROR);
+        List<Guess> aiGuesses = getAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
         currentWord.setAiGuesses(aiGuesses);
 
         if(isWordGuessCompleted(currentWord)){
@@ -105,6 +107,14 @@ public class GuessFlowService {
         }
 
     }
+
+
+
+    private List<Guess> getAIGuesses(String roomId, int roundIndex, int wordIndex){
+        String aiGuessString = roundRepository.findAIGuessesString(roomId, roundIndex, wordIndex);
+        return jsonSerializer.deserializeList(aiGuessString, Guess.class, GAME_ERROR);
+    }
+
 
 
     /**
@@ -133,9 +143,11 @@ public class GuessFlowService {
 
         // 6. 현재 Word에 guess 추가
         currentWord.getAiGuesses().add(guess);
-        List<Guess> aiGuesses = roundRepository.findAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), GAME_ERROR);
+        List<Guess> aiGuesses = getAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
         aiGuesses.add(guess);
-        roundRepository.saveAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), aiGuesses, GAME_ERROR);
+
+        String aiGuessesString = jsonSerializer.serialize(aiGuesses, GAME_ERROR);
+        roundRepository.saveAIGuessesString(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), aiGuessesString);
 
         // 7. Handle Guess Result
         handleGuessResult(roomId, currentWord.getWord(), guess);
@@ -189,7 +201,7 @@ public class GuessFlowService {
         List<Word> words = roundRepository.findWordMetas(roomId, currentRound.getRoundIndex(), GAME_ERROR).stream().map(WordMeta::toWord).toList();
 
         for(Word word : words){
-            List<Guess> aiGuesses = roundRepository.findAIGuesses(roomId, currentRound.getRoundIndex(), word.getWordIndex(), GAME_ERROR);
+            List<Guess> aiGuesses = getAIGuesses(roomId, currentRound.getRoundIndex(), word.getWordIndex());
             List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, currentRound.getRoundIndex(), word.getWordIndex(), GAME_ERROR);
             List<AiPrediction> aiPredictions = roundRepository.findAIPredictions(roomId, currentRound.getRoundIndex(), word.getWordIndex(), GAME_ERROR);
 
@@ -243,7 +255,7 @@ public class GuessFlowService {
 
             for(Word word : words){
                 //3. 모든 정보 조회 및 연결
-                List<Guess> aiGuesses = roundRepository.findAIGuesses(roomId, round.getRoundIndex(), word.getWordIndex(), GAME_ERROR);
+                List<Guess> aiGuesses = getAIGuesses(roomId, round.getRoundIndex(), word.getWordIndex());
                 List<Guess> playerGuesses = roundRepository.findPlayerGuesses(roomId, round.getRoundIndex(), word.getWordIndex(), GAME_ERROR);
                 List<AiPrediction> aiPredictions = roundRepository.findAIPredictions(roomId, round.getRoundIndex(), word.getWordIndex(), GAME_ERROR);
 
@@ -314,9 +326,6 @@ public class GuessFlowService {
         game.setWinner(gameWinner);
 
     }
-
-
-
 
 
     private void determineRoundWinner(String roomId, Round currentRound){

@@ -123,9 +123,8 @@ public class RoundRepository {
     /**
      * AI Guess 정보 저장
      */
-    public void saveAIGuesses(String roomId, int roundIndex, int wordIndex, List<Guess> guesses, ErrorType errorType){
+    public void saveAIGuessesString(String roomId, int roundIndex, int wordIndex, String guessesJson){
         String key = getAIGuessKey(roomId, roundIndex, wordIndex);
-        String guessesJson = jsonSerializer.serialize(guesses, errorType);
         redisTemplate.opsForValue().set(key, guessesJson);
         log.info("AI Guesses {} saved", guessesJson);
     }
@@ -133,13 +132,9 @@ public class RoundRepository {
     /**
      * AI List Guess 조회
      */
-    public List<Guess> findAIGuesses(String roomId, int roundIndex, int wordIndex, ErrorType errorType){
+    public String findAIGuessesString(String roomId, int roundIndex, int wordIndex) {
         String key = getAIGuessKey(roomId, roundIndex, wordIndex);
-        String guessesJsonList = redisTemplate.opsForValue().get(key);
-        if (guessesJsonList == null || guessesJsonList.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return jsonSerializer.deserializeList(guessesJsonList, Guess.class, errorType);
+        return redisTemplate.opsForValue().get(key);
     }
 
 

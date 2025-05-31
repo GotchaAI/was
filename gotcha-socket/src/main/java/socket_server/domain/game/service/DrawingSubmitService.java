@@ -53,7 +53,7 @@ public class DrawingSubmitService {
      * 현재 GameEvent가 실행될 수 있는지를 확인 후 GameMeta 데이터 반환.
      */
     private GameMeta validateDrawingStatusAndGetGameMeta(String roomId){
-        Map<Object, Object> gameDataMap = gameRepository.findGameMeta(roomId, GAME_ERROR);
+        Map<Object, Object> gameDataMap = gameRepository.findGameMeta(roomId);
         if(gameDataMap.isEmpty()) {
             throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_ID);
         }

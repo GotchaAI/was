@@ -3,6 +3,7 @@ package socket_server.domain.game.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.ErrorType;
+import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.dto.AIGuessStartReq;
 import socket_server.domain.game.enumType.GameEventType;
 import socket_server.domain.game.meta.GameMeta;
@@ -10,7 +11,6 @@ import socket_server.domain.game.model.GamePlayer;
 import socket_server.domain.game.model.Guess;
 import socket_server.domain.game.model.Word;
 import socket_server.domain.game.repository.GamePlayerRepository;
-import socket_server.domain.game.repository.GameRepository;
 import socket_server.domain.game.repository.RoundRepository;
 
 import java.time.LocalDateTime;
@@ -23,11 +23,12 @@ public class GuessRequestService {
     private final AIClientService aIClientService;
     private final GameBroadCaster gameBroadCaster;
     private final RoundRepository roundRepository;
+    private final JsonSerializer jsonSerializer;
     private final ErrorType GAME_ERROR = ErrorType.GAME;
 
     public Guess requestGuessAI(String roomId, GameMeta gameMeta,  Word guessTargetWord) {
         // 0. 현재 guess 개수 가져오기
-        List<Guess> guesses = roundRepository.findAIGuesses(roomId, gameMeta.getCurrentRound(), guessTargetWord.getWordIndex(),  GAME_ERROR);
+        List<Guess> guesses = getAIGuesses(roomId, gameMeta.getCurrentRound(), guessTargetWord.getWordIndex());
 
         // 1. AI 서버에 Guess Request 메시지 받아옴
         String drawerUuid = guessTargetWord.getDrawerUuid();
@@ -83,5 +84,9 @@ public class GuessRequestService {
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_REQUEST, guess, aiSays, LocalDateTime.now().plusSeconds(30));
     }
 
+    private List<Guess> getAIGuesses(String roomId, int roundIndex, int wordIndex){
+        String aiGuessString = roundRepository.findAIGuessesString(roomId, roundIndex, wordIndex);
+        return jsonSerializer.deserializeList(aiGuessString, Guess.class, GAME_ERROR);
+    }
 
 }
