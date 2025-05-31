@@ -22,6 +22,9 @@ import socket_server.domain.room.service.RoomUserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -71,12 +74,12 @@ public class GameStartService {
         // 7. 시작 이벤트 브로드캐스트
         gameBroadCaster.broadcastStartEvent(userUuid, roomId, new AISaysRes(game, aiSays));
 
-        // 8. 5초 후 게임 시작(EntryPoint)
-        try{
-            Thread.sleep(10000); // 5000ms = 5초
-        } catch (InterruptedException e){  }
 
-        roundStartService.startNextRound(roomId);
+        // 8. 5초 후 게임 시작(EntryPoint)
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.schedule(() -> {
+            roundStartService.startNextRound(roomId);
+        }, 5, TimeUnit.SECONDS);
     }
 
     private void saveGame(Game game, ErrorType errorType) {
