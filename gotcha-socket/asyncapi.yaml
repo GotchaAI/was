@@ -236,7 +236,7 @@ channels:
       
       - `ROUND_START`: 라운드의 시작을 알립니다. 
         - `payload`의 `data` 필드에는 해당 라운드의 메타정보(사용자 별 그려야 하는 제시어)를 알리기 위해 `Round` 타입이 전송됩니다.
-      - `GUESS_START: 추측 단계의 시작을 알립니다. 
+      - `GUESS_START`: 추측 단계의 시작을 알립니다. 
         - `payload`의 `data` 필드에는 추측을 위한 정보들인 제시어 list가 전송됩니다. 
         - 클라이언트에서는 `drawerUuid` 필드와 `imageURL` 필드를 확인해 그림을 그린 플레이어와 그림을 맞출 플레이어를 구분할 수 있습니다.
       - `GUESS_REQUEST`: 추측 요청 브로드캐스트입니다. 
@@ -269,385 +269,29 @@ channels:
         oneOf:
           - name: ROUND_START
             payload:
-              $ref: '#/components/schemas/RedisResponse_GameEvent'
-            x-examples:
-              ROUND_START:
-                eventType: "ROUND_START"
-                data:
-                  roundIndex: 1
-                  drawingEndTime: "2025-05-28T21:01:24.4270926"
-                  currentWordIndex: 0
-                  roundWinner: "null"
-                aiSays: "\"으.. 잠깐 오류가 났네. 다시 해볼게!\""
-                endTime: "null"
-                eventAt: "2025-05-28T21:00:56.30379"
+              $ref: '#/components/schemas/RedisResponse_RoundStart'
           - name: GUESS_START
             payload:
-              $ref: '#/components/schemas/RedisResponse_GameEvent'
-            x-examples:
-              GUESS_START:
-                eventType: "GUESS_START"
-                data:
-                  - wordIndex: 0
-                    word: "syringe"
-                    drawerUuid: "l3lwXGrb"
-                    imageURL: "l3lwXGrb/9228e506-059c-4a0f-9874-65d68aff372b.png"
-                    submitted: true
-                  - wordIndex: 1
-                    word: "cooler"
-                    drawerUuid: "z2E63KqK"
-                    imageURL: "z2E63KqK/39caa311-8195-4f39-94d1-84ae4710b474.png"
-                    submitted: true
-                aiSays: "null"
-                endTime: "null"
-                eventAt: "2025-05-28T21:02:41.1232855"
+              $ref: '#/components/schemas/RedisResponse_GuessStart'
           - name: GUESS_REQUEST
             payload:
-              $ref: '#/components/schemas/RedisResponse_GameEvent'
-            x-examples:
-              GUESS_REQUEST:
-                eventType: "GUESS_REQUEST"
-                data:
-                  guesserUuid: "AI"
-                  guessWord: "null"
-                  attempts: 1
-                  correct: "null"
-                aiSays: "null"
-                endTime: "null"
-                eventAt: "2025-05-28T21:02:16.3189446"
+              $ref: '#/components/schemas/RedisResponse_GuessRequest'
           - name: GUESS_SUBMIT
             payload:
-              $ref: '#/components/schemas/RedisResponse_GameEvent'
-            x-examples:
-              GUESS_SUBMIT:
-                eventType: "GUESS_SUBMIT"
-                data:
-                  guesserUuid: "AI"
-                  guessWord: "book"
-                  attempts: 1
-                  correct: "null"
-                aiSays: "으.. 잠깐 오류가 났네. 다시 해볼게!"
-                endTime: "null"
-                eventAt: "2025-05-28T21:02:18.3712128"
+              $ref: '#/components/schemas/RedisResponse_GuessSubmit'
           - name: GUESS_RESULT
             payload:
-              $ref: '#/components/schemas/RedisResponse_GameEvent'
-            x-examples:
-              GUESS_RESULT:
-                eventType: "GUESS_RESULT"
-                data:
-                  guesserUuid: "AI"
-                  guessWord: "book"
-                  attempts: 1
-                  correct: false
-                aiSays: "으.. 잠깐 오류가 났네. 다시 해볼게!"
-                endTime: "null"
-                eventAt: "2025-05-28T21:02:20.4475533"
+              $ref: '#/components/schemas/RedisResponse_GuessResult'
           - name: SCORE_UPDATE
             payload:
-              $ref: "#/components/schemas/RedisResponse_GameEvent"
-            x-examples:
-              SCORE_UPDATE:
-                eventType: "SCORE_UPDATE"
-                data:
-                  AI: 0
-                  z2E63KqK: 3
-                  l3lwXGrb: 3
-                aiSays: "null"
-                endTime: "null"
-                eventAt: "2025-05-28T21:02:39.2287028"
+              $ref: "#/components/schemas/RedisResponse_ScoreUpdate"
           - name: ROUND_END
             payload:
-              $ref: "#/components/schemas/RedisResponse_GameEvent"
-            x-examples:
-              ROUND_END:
-                eventType: "ROUND_END"
-                data:
-                  roundIndex: 2
-                  drawingEndTime: "2025-05-28T21:02:38.3805662"
-                  roundWinner: "PLAYER"
-                  currentWordIndex: 2
-                  words:
-                    - wordIndex: 0
-                      word: "drums"
-                      drawerUuid: "l3lwXGrb"
-                      submitted: true
-                      imageURL: "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png"
-                      aiGuesses:
-                        - guesserUuid: "AI"
-                          guessWord: "book"
-                          attempts: 1
-                          correct: false
-                      playerGuesses:
-                        - guesserUuid: "z2E63KqK"
-                          guessWord: "drums"
-                          attempts: 1
-                          correct: true
-                      aiPredictions:
-                        - predicted: "book"
-                          confidence: 75.47914385795593
-                        - predicted: "calendar"
-                          confidence: 11.874808371067047
-                        - predicted: "cat"
-                          confidence: 8.319798856973648
-                    - wordIndex: 1
-                      word: "sword"
-                      drawerUuid: "z2E63KqK"
-                      submitted: true
-                      imageURL: "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png"
-                      aiGuesses:
-                        - guesserUuid: "AI"
-                          guessWord: "cat"
-                          attempts: 1
-                          correct: false
-                      playerGuesses:
-                        - guesserUuid: "l3lwXGrb"
-                          guessWord: "sword"
-                          attempts: 1
-                          correct: true
-                      aiPredictions:
-                        - predicted: "cat"
-                          confidence: 91.84954762458801
-                        - predicted: "calendar"
-                          confidence: 6.590797007083893
-                        - predicted: "book"
-                          confidence: 0.9185523726046085
-                  scores:
-                    z2E63KqK: 3
-                    l3lwXGrb: 3
-                aiSays: "으.. 잠깐 오류가 났네. 다시 해볼게!"
-                endTime: "null"
-                eventAt: "2025-05-28T21:02:41.1232855"
+              $ref: "#/components/schemas/RedisResponse_RoundEnd"
           - name: GAME_END
             payload:
-              $ref: "#/components/schemas/RedisResponse_GameEvent"
-            x-examples:
-              GAME_END:
-                eventType: "GAME_END"
-                data:
-                  roomId: "6483"
-                  gameType: "TRICK_MYOMYO"
-                  difficulty: "BASIC"
-                  gameStatus: "GAME_ENDED"
-                  currentRound: 3
-                  totalRounds: 3
-                  aiScore: 0
-                  scores:
-                    AI: 0
-                    z2E63KqK: 3
-                    l3lwXGrb: 6
-                  gamePlayers:
-                    - playerUuid: "l3lwXGrb"
-                      nickname: "test1"
-                    - playerUuid: "z2E63KqK"
-                      nickname: "test2"
-                  rounds:
-                    - roundIndex: 1
-                      drawingEndTime: "2025-05-28T21:01:24.4270926"
-                      roundWinner: "Player"
-                      currentWordIndex: 2
-                      words:
-                        - wordIndex: 0
-                          word: "sandwich"
-                          drawerUuid: "l3lwXGrb"
-                          submitted: true
-                          imageURL: "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png"
-                          aiGuesses:
-                            - guesserUuid: "AI"
-                              guessWord: "cat"
-                              attempts: 1
-                              correct: false
-                            - guesserUuid: "AI"
-                              guessWord: "book"
-                              attempts: 2
-                              correct: false
-                            - guesserUuid: "AI"
-                              guessWord: "calendar"
-                              attempts: 3
-                              correct: false
-                          playerGuesses:
-                            - guesserUuid: "z2E63KqK"
-                              guessWord: "laptop"
-                              attempts: 3
-                              correct: false
-                            - guesserUuid: "z2E63KqK"
-                              guessWord: "owl"
-                              attempts: 2
-                              correct: false
-                            - guesserUuid: "z2E63KqK"
-                              guessWord: "owl"
-                              attempts: 3
-                              correct: false
-                          aiPredictions:
-                            - predicted: "cat"
-                              confidence: 99.4355320930481
-                            - predicted: "book"
-                              confidence: 0.40926095098257065
-                            - predicted: "calendar"
-                              confidence: 0.06800925475545228
-                        - wordIndex: 1
-                          word: "owl"
-                          drawerUuid: "z2E63KqK"
-                          submitted: true
-                          imageURL: "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png"
-                          aiGuesses:
-                            - guesserUuid: "AI"
-                              guessWord: "cat"
-                              attempts: 1
-                              correct: false
-                          playerGuesses:
-                            - guesserUuid: "l3lwXGrb"
-                              guessWord: "owl"
-                              attempts: 1
-                              correct: true
-                          aiPredictions:
-                            - predicted: "cat"
-                              confidence: 99.29952025413513
-                            - predicted: "map"
-                              confidence: 0.29942491091787815
-                            - predicted: "alarm clock"
-                              confidence: 0.19176786299794912
-                      scores:
-                        l3lwXGrb: 3
-                    - roundIndex: 2
-                      drawingEndTime: "2025-05-28T21:02:38.3805662"
-                      roundWinner: "Player"
-                      currentWordIndex: 2
-                      words:
-                        - wordIndex: 0
-                          word: "drums"
-                          drawerUuid: "l3lwXGrb"
-                          submitted: true
-                          imageURL: "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png"
-                          aiGuesses:
-                            - guesserUuid: "AI"
-                              guessWord: "book"
-                              attempts: 1
-                              correct: false
-                          playerGuesses:
-                            - guesserUuid: "z2E63KqK"
-                              guessWord: "drums"
-                              attempts: 1
-                              correct: true
-                          aiPredictions:
-                            - predicted: "book"
-                              confidence: 75.47914385795593
-                            - predicted: "calendar"
-                              confidence: 11.874808371067047
-                            - predicted: "cat"
-                              confidence: 8.319798856973648
-                        - wordIndex: 1
-                          word: "sword"
-                          drawerUuid: "z2E63KqK"
-                          submitted: true
-                          imageURL: "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png"
-                          aiGuesses:
-                            - guesserUuid: "AI"
-                              guessWord: "cat"
-                              attempts: 1
-                              correct: false
-                          playerGuesses:
-                            - guesserUuid: "l3lwXGrb"
-                              guessWord: "sword"
-                              attempts: 1
-                              correct: true
-                          aiPredictions:
-                            - predicted: "cat"
-                              confidence: 91.84954762458801
-                            - predicted: "calendar"
-                              confidence: 6.590797007083893
-                            - predicted: "book"
-                              confidence: 0.9185523726046085
-                      scores:
-                        z2E63KqK: 3
-                        l3lwXGrb: 3
+              $ref: "#/components/schemas/RedisResponse_GameEnd"
 
-                    - roundIndex: 3
-                      drawingEndTime: "2025-05-28T21:03:11.1296663"
-                      roundWinner: "DRAW"
-                      currentWordIndex: 2
-                      words:
-                        - wordIndex: 0
-                          word: "ladder"
-                          drawerUuid: "l3lwXGrb"
-                          submitted: true
-                          imageURL: "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png"
-                          aiGuesses:
-                            - guesserUuid: "AI"
-                              guessWord: "book"
-                              attempts: 1
-                              correct: false
-                            - guesserUuid: "AI"
-                              guessWord: "calendar"
-                              attempts: 2
-                              correct: false
-                            - guesserUuid: "AI"
-                              guessWord: "cat"
-                              attempts: 3
-                              correct: false
-                          playerGuesses:
-                            - guesserUuid: "z2E63KqK"
-                              guessWord: "drums"
-                              attempts: 1
-                              correct: false
-                            - guesserUuid: "z2E63KqK"
-                              guessWord: "drums"
-                              attempts: 2
-                              correct: false
-                            - guesserUuid: "z2E63KqK"
-                              guessWord: "drums"
-                              attempts: 3
-                              correct: false
-                          aiPredictions:
-                            - predicted: "book"
-                              confidence: 45.255765318870544
-                            - predicted: "calendar"
-                              confidence: 31.029585003852844
-                            - predicted: "cat"
-                              confidence: 20.559750497341156
-                        - wordIndex: 1
-                          word: "elbow"
-                          drawerUuid: "z2E63KqK"
-                          submitted: true
-                          imageURL: "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png"
-                          aiGuesses:
-                            - guesserUuid: "AI"
-                              guessWord: "cat"
-                              attempts: 1
-                              correct: false
-                            - guesserUuid: "AI"
-                              guessWord: "book"
-                              attempts: 2
-                              correct: false
-                            - guesserUuid: "AI"
-                              guessWord: "calendar"
-                              attempts: 3
-                              correct: false
-                          playerGuesses:
-                            - guesserUuid: "l3lwXGrb"
-                              guessWord: "sword"
-                              attempts: 1
-                              correct: false
-                            - guesserUuid: "l3lwXGrb"
-                              guessWord: "sword"
-                              attempts: 2
-                              correct: false
-                            - guesserUuid: "l3lwXGrb"
-                              guessWord: "sword"
-                              attempts: 3
-                              correct: false
-                          aiPredictions:
-                            - predicted: "cat"
-                              confidence: 38.055697083473206
-                            - predicted: "book"
-                              confidence: 33.95976126194
-                            - predicted: "calendar"
-                              confidence: 24.813809990882874
-                      scores: {}
-                  winner: "Player"
-                aiSays: "null"
-                endTime: "null"
-                eventAt: "2025-05-28T21:02:41.1232855"
 
 
 
@@ -991,7 +635,573 @@ components:
               type: object
               $ref: '#/components/schemas/AISaysRes'
 
+    AISaysRes:
+      type: object
+      description: 게임 시작 시 게임 메타 데이터와 게임 시작 시 AI 메시지를 함께 보내주기 위한 구조
+      properties:
+        gameData:
+          type: object
+          description: 게임 진행 중 발생하는 데이터가 전송됩니다(Game, Round, Word, Guess, GamePlayer).
+          $ref: '#/components/schemas/Game'
+        aiSays:
+          type: string
+          description: 게임 시작 시 AI의 메시지
 
+
+    RedisResponse_RoundStart:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [ROUND_START]
+            aiSays:
+              type: string
+              description: 게임 진행 중 AI에게서 오는 메시지입니다. AI에서 메시지가 오지 않는 이벤트 경우 "null" 값으로 오게 됩니다.
+              example: "\"으.. 잠깐 오류가 났네. 다시 해볼게!\""
+            data:
+              type: object
+              properties:
+                roundIndex:
+                  type: integer
+                drawingEndTime:
+                  type: string
+                currentWordIndex:
+                  type: integer
+                roundWinner:
+                  type: string
+                  nullable: true
+                  description: 해당 라운드의 Winner를 나타내는 필드입니다. ROUND_START 이벤트 발생 시에는 null로 반환됩니다.
+              example:
+                roundIndex: 1
+                drawingEndTime: "2025-05-28T21:01:24.4270926"
+                currentWordIndex: 0
+                roundWinner: null
+            endTime:
+              type: string
+              nullable: true
+              example: null
+            eventAt:
+              type: string
+              example: "2025-05-28T21:00:56.30379"
+
+    RedisResponse_GuessStart:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [GUESS_START]
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  wordIndex:
+                    type: integer
+                  word:
+                    type: string
+                  drawerUuid:
+                    type: string
+                  imageURL:
+                    type: string
+                  submitted:
+                    type: boolean
+              example:
+                - wordIndex: 0
+                  word: "syringe"
+                  drawerUuid: "l3lwXGrb"
+                  imageURL: "l3lwXGrb/9228e506-059c-4a0f-9874-65d68aff372b.png"
+                  submitted: true
+                - wordIndex: 1
+                  word: "cooler"
+                  drawerUuid: "z2E63KqK"
+                  imageURL: "z2E63KqK/39caa311-8195-4f39-94d1-84ae4710b474.png"
+                  submitted: true
+            eventAt:
+              type: string
+              example: "2025-05-27T20:28:36.4511966"
+
+    RedisResponse_GuessRequest:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [ GUESS_REQUEST ]
+            data:
+              type: object
+              properties:
+                guesserUuid:
+                  type: string
+                guessWord:
+                  type: string
+                  nullable: true
+                attempts:
+                  type: integer
+                correct:
+                  type: boolean
+                  nullable: true
+              example:
+                guesserUuid: "AI"
+                guessWord: null
+                attempts: 1
+                correct: null
+            aiSays:
+              type: string
+              nullable: true
+              example: null
+            endTime:
+              type: string
+              nullable: true
+              example: null
+            eventAt:
+              type: string
+              example: "2025-05-31T22:17:36.8926635"
+
+
+    RedisResponse_GameEnd:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [ GAME_END ]
+            data:
+              type: object
+              properties:
+                roomId:
+                  type: string
+                gameType:
+                  type: string
+                difficulty:
+                  type: string
+                gameStatus:
+                  type: string
+                  nullable: true
+                currentRound:
+                  type: integer
+                totalRounds:
+                  type: integer
+                aiScore:
+                  type: integer
+                scores:
+                  type: object
+                  additionalProperties:
+                    type: integer
+                gamePlayers:
+                  type: array
+                  nullable: true
+                  items:
+                    type: object
+                rounds:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      roundIndex:
+                        type: integer
+                      drawingEndTime:
+                        type: string
+                      roundWinner:
+                        type: string
+                        nullable: true
+                      currentWordIndex:
+                        type: integer
+                      words:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            wordIndex:
+                              type: integer
+                            word:
+                              type: string
+                            drawerUuid:
+                              type: string
+                            submitted:
+                              type: boolean
+                            imageURL:
+                              type: string
+                            aiGuesses:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  guesserUuid:
+                                    type: string
+                                  guessWord:
+                                    type: string
+                                  attempts:
+                                    type: integer
+                                  correct:
+                                    type: boolean
+                            playerGuesses:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  guesserUuid:
+                                    type: string
+                                  guessWord:
+                                    type: string
+                                  attempts:
+                                    type: integer
+                                  correct:
+                                    type: boolean
+                            aiPredictions:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  predicted:
+                                    type: string
+                                  confidence:
+                                    type: number
+                                    format: float
+                      scores:
+                        type: object
+                        additionalProperties:
+                          type: integer
+                winner:
+                  type: string
+              example:
+                roomId: "6483"
+                gameType: "TRICK_MYOMYO"
+                difficulty: "BASIC"
+                gameStatus: null
+                currentRound: 3
+                totalRounds: 3
+                aiScore: 0
+                scores:
+                  AI: 0
+                  z2E63KqK: 3
+                  l3lwXGrb: 6
+                gamePlayers: null
+                rounds:
+                  - roundIndex: 1
+                    drawingEndTime: "2025-05-28T21:01:24.4270926"
+                    roundWinner: null
+                    currentWordIndex: 2
+                    words:
+                      - wordIndex: 0
+                        word: "sandwich"
+                        drawerUuid: "l3lwXGrb"
+                        submitted: true
+                        imageURL: "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png"
+                        aiGuesses:
+                          - guesserUuid: "AI"
+                            guessWord: "cat"
+                            attempts: 1
+                            correct: false
+                        playerGuesses:
+                          - guesserUuid: "z2E63KqK"
+                            guessWord: "laptop"
+                            attempts: 3
+                            correct: false
+                        aiPredictions:
+                          - predicted: "cat"
+                            confidence: 99.4355320930481
+                          - predicted: "book"
+                            confidence: 0.40926095098257065
+                          - predicted: "calendar"
+                            confidence: 0.06800925475545228
+                    scores:
+                      l3lwXGrb: 3
+                  # ... (roundIndex 2, 3도 동일 구조)
+                winner: "DRAW"
+            aiSays:
+              type: string
+              example: "으.. 잠깐 오류가 났네. 다시 해볼게!"
+            endTime:
+              type: string
+              nullable: true
+              example: null
+            eventAt:
+              type: string
+              example: "2025-05-28T21:02:41.1232855"
+
+    RedisResponse_RoundEnd:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [ ROUND_END ]
+            data:
+              type: object
+              properties:
+                roundIndex:
+                  type: integer
+                drawingEndTime:
+                  type: string
+                roundWinner:
+                  type: string
+                currentWordIndex:
+                  type: integer
+                words:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      wordIndex:
+                        type: integer
+                      word:
+                        type: string
+                      drawerUuid:
+                        type: string
+                      submitted:
+                        type: boolean
+                      imageURL:
+                        type: string
+                      aiGuesses:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            guesserUuid:
+                              type: string
+                            guessWord:
+                              type: string
+                            attempts:
+                              type: integer
+                            correct:
+                              type: boolean
+                      playerGuesses:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            guesserUuid:
+                              type: string
+                            guessWord:
+                              type: string
+                            attempts:
+                              type: integer
+                            correct:
+                              type: boolean
+                      aiPredictions:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            predicted:
+                              type: string
+                            confidence:
+                              type: number
+                              format: float
+                scores:
+                  type: object
+                  additionalProperties:
+                    type: integer
+              example:
+                roundIndex: 2
+                drawingEndTime: "2025-05-28T21:02:38.3805662"
+                roundWinner: "PLAYER"
+                currentWordIndex: 2
+                words:
+                  - wordIndex: 0
+                    word: "drums"
+                    drawerUuid: "l3lwXGrb"
+                    submitted: true
+                    imageURL: "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png"
+                    aiGuesses:
+                      - guesserUuid: "AI"
+                        guessWord: "book"
+                        attempts: 1
+                        correct: false
+                    playerGuesses:
+                      - guesserUuid: "z2E63KqK"
+                        guessWord: "drums"
+                        attempts: 1
+                        correct: true
+                    aiPredictions:
+                      - predicted: "book"
+                        confidence: 75.47914385795593
+                      - predicted: "calendar"
+                        confidence: 11.874808371067047
+                      - predicted: "cat"
+                        confidence: 8.319798856973648
+                  - wordIndex: 1
+                    word: "sword"
+                    drawerUuid: "z2E63KqK"
+                    submitted: true
+                    imageURL: "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png"
+                    aiGuesses:
+                      - guesserUuid: "AI"
+                        guessWord: "cat"
+                        attempts: 1
+                        correct: false
+                    playerGuesses:
+                      - guesserUuid: "l3lwXGrb"
+                        guessWord: "sword"
+                        attempts: 1
+                        correct: true
+                    aiPredictions:
+                      - predicted: "cat"
+                        confidence: 91.84954762458801
+                      - predicted: "calendar"
+                        confidence: 6.590797007083893
+                      - predicted: "book"
+                        confidence: 0.9185523726046085
+                scores:
+                  z2E63KqK: 3
+                  l3lwXGrb: 3
+            aiSays:
+              type: string
+              example: "으.. 잠깐 오류가 났네. 다시 해볼게!"
+            endTime:
+              type: string
+              nullable: true
+              example: null
+            eventAt:
+              type: string
+              example: "2025-05-28T21:02:41.1232855"
+
+    RedisResponse_ScoreUpdate:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [ SCORE_UPDATE ]
+            data:
+              type: object
+              additionalProperties:
+                type: integer
+              example:
+                AI: 0
+                z2E63KqK: 3
+                l3lwXGrb: 3
+            aiSays:
+              type: string
+              nullable: true
+              example: null
+            endTime:
+              type: string
+              nullable: true
+              example: null
+            eventAt:
+              type: string
+              example: "2025-05-28T21:02:39.2287028"
+
+
+    RedisResponse_GuessResult:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [ GUESS_RESULT ]
+            data:
+              type: object
+              properties:
+                guesserUuid:
+                  type: string
+                guessWord:
+                  type: string
+                attempts:
+                  type: integer
+                correct:
+                  type: boolean
+              example:
+                guesserUuid: "AI"
+                guessWord: "book"
+                attempts: 1
+                correct: false
+            aiSays:
+              type: string
+              example: "으.. 잠깐 오류가 났네. 다시 해볼게!"
+            endTime:
+              type: string
+              nullable: true
+              example: null
+            eventAt:
+              type: string
+              example: "2025-05-28T21:02:20.4475533"
+
+    RedisResponse_GuessSubmit:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [GUESS_SUBMIT]
+            data:
+              type: object
+              properties:
+                guesserUuid:
+                  type: string
+                guessWord:
+                  type: string
+                attempts:
+                  type: integer
+                correct:
+                  type: boolean
+                  nullable: true
+              example:
+                guesserUuid: "AI"
+                guessWord: "book"
+                attempts: 1
+                correct: null
+            aiSays:
+              type: string
+              example: "으.. 잠깐 오류가 났네. 다시 해볼게!"
+            endTime:
+              type: string
+              nullable: true
+              example: null
+            eventAt:
+              type: string
+              example: "2025-05-28T21:02:18.3712128"
     AllChatMessage:
       type: object
       properties:
@@ -1101,53 +1311,12 @@ components:
           $ref: '#/components/schemas/PrivateChatMessage'
 
 
-    RedisResponse_GameEvent:
-      type: object
-      description: 게임 이벤트 발행 시 해당 방에 있는 유저들에게 전송 될 메시지 구조입니다.
-      properties:
-        userId:
-          type: string
-        topic:
-          type: string
-        payload:
-          type: object
-          properties:
-            eventType:
-              type: string
-              enum: [ROUND_START, GUESS_START, GUESS_REQUEST, GUESS_SUBMIT, GUESS_RESULT, SCORE_UPDATE, ROUND_END, GAME_END]
-            data:
-              type: object
-              oneOf:
-              - $ref: '#/components/schemas/Game'
-              - $ref: '#/components/schemas/Round'
-              - $ref: '#/components/schemas/Guess'
-              - $ref: '#/components/schemas/Word'
-              - $ref: '#/components/schemas/Score'
-            aiSays:
-              type: string
-              description: 게임 진행 중 AI에게서 오는 메시지입니다. AI에서 메시지가 오지 않는 이벤트 경우 "null" 값으로 오게 됩니다.
-            endTime:
-              type: string
-              format: date-time
-              description : 게임 진행 중 해당 상태의 제출 마감 시간입니다(GUESS_REQUEST 시에 사용).
-            eventAt:
-              type: string
-              format: date-time
-              description: 해당 이벤트가 발행된 시간입니다.
 
 
 
-    AISaysRes:
-      type: object
-      description: 게임 시작 시 GPT a
-      properties:
-        gameData:
-          type: object
-          description: 게임 진행 중 발생하는 데이터가 전송됩니다(Game, Round, Word, Guess, GamePlayer).
-          $ref: '#/components/schemas/Game'
-        aiSays:
-          type: string
-          description: GPT API를 통한 메시지
+
+
+
 
 
     Game:
@@ -1202,6 +1371,8 @@ components:
           description: "게임 최종 우승자 (playerUuid 또는 'AI' 또는 'players')"
           nullable: true
           example: "AI"
+
+
 
     GamePlayer:
       type: object
