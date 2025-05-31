@@ -46,7 +46,7 @@ public class LobbyService {
         //브로드캐스팅 -> 대기방 내 유저들(신규 유저 포함)에게 새로운 참가자 정보 전파
         roomUserService.broadcastUserInRoomInfo(roomId, uuid, LOBBY_ERROR);
         //개인채널 -> 방 참가 잘 됨 전달
-        lobbyBroadCaster.sendToUser(LOBBY_JOIN_CHANNEL+roomId, uuid, new RoomIdRes(roomId));
+        lobbyBroadCaster.sendToUser(LOBBY_JOIN_CHANNEL+uuid, uuid, new RoomIdRes(roomId));
     }
 
 }
