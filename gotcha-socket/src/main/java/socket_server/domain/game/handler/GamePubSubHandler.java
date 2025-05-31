@@ -8,7 +8,6 @@ import socket_server.common.exception.ErrorType;
 import socket_server.common.listener.PubSubHandler;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.dto.GameRes;
-import socket_server.domain.room.dto.EventRes;
 
 import static socket_server.common.constants.WebSocketConstants.*;
 

@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
+import socket_server.common.exception.ErrorType;
+import socket_server.common.exception.SocketCustomException;
 import socket_server.common.exception.game.GameExceptionCode;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.meta.GameMeta;
@@ -62,6 +64,7 @@ public class GameRepository {
                 "gameType", gameMeta.getGameType().name(),
                 "difficulty", gameMeta.getDifficulty().name(),
                 "currentRound", String.valueOf(gameMeta.getCurrentRound()),
+                "gameStatus", String.valueOf(gameMeta.getGameStatus()),
                 "totalRounds", String.valueOf(gameMeta.getTotalRounds()),
                 "aiScore", String.valueOf(gameMeta.getAiScore())
         );
@@ -74,11 +77,11 @@ public class GameRepository {
     /**
      * Game 메타데이터만 조회(List GamePlayers, List Rounds 제외)
      */
-    public GameMeta findGameMeta(String roomId) {
+    public GameMeta findGameMeta(String roomId, ErrorType errorType) {
         String key = getGameKey(roomId);
         Map<Object, Object> gameDataMap = redisTemplate.opsForHash().entries(key);
         if (gameDataMap.isEmpty()) {
-            throw new CustomException(GameExceptionCode.INVALID_GAME_ID);
+            throw new SocketCustomException(errorType, GameExceptionCode.INVALID_GAME_ID);
         }
         return GameMeta.fromRedisMap(roomId, gameDataMap);
     }

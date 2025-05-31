@@ -15,14 +15,13 @@ import socket_server.domain.game.handler.GameEventDispatcher;
 @MessageMapping("/game")
 @RequiredArgsConstructor
 public class GameController {
-
     private final GameEventDispatcher dispatcher;
 
-    @MessageMapping("/{gameId}")
-    public void game(@DestinationVariable String gameId,
+    @MessageMapping("/{roomId}")
+    public void game(@DestinationVariable String roomId,
                      @Payload GameReq request,
                      @AuthenticationPrincipal SecurityUserDetails userDetails){
-        dispatcher.dispatch(request, gameId, userDetails);
+        dispatcher.dispatch(request, roomId, userDetails);
     }
 
 

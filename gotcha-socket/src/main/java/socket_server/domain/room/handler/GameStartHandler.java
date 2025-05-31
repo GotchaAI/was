@@ -5,15 +5,15 @@ package socket_server.domain.room.handler;
 import gotcha_domain.auth.SecurityUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import socket_server.domain.game.service.GameService;
-import socket_server.domain.room.model.RoomEventType;
+import socket_server.domain.game.service.GameStartService;
 import socket_server.domain.room.dto.RoomReq;
+import socket_server.domain.room.model.RoomEventType;
 
 @Component
 @RequiredArgsConstructor
 public class GameStartHandler implements RoomEventHandler {
 
-    private final GameService gameService;
+    private final GameStartService gameStartService;
     @Override
     public RoomEventType getEventType() {
         return RoomEventType.START;
@@ -21,7 +21,7 @@ public class GameStartHandler implements RoomEventHandler {
 
     @Override
     public void handle(String roomId, SecurityUserDetails userDetails, RoomReq request) {
-        gameService.startGame(roomId, userDetails.getUuid(), getErrorType());
+        gameStartService.startGame(roomId, userDetails.getUuid(), getErrorType());
     }
 
 }
