@@ -46,7 +46,7 @@ public class GuessFlowService {
         // 0. 게임 메타정보 조회 -> GameStatus 업데이트
         GameMeta gameMeta = gameRepository.findGameMeta(roomId,  GAME_ERROR);
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GUESS_START)){
-            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
         }
         gameMeta.setGameStatus(GameStatus.GUESSING_PHASE);
         gameRepository.saveGameMeta(gameMeta);
@@ -110,20 +110,12 @@ public class GuessFlowService {
 
     /**
      * AI 추측 제출 처리(GUESS_SUBMIT) 이벤트 발행, BROADCAST
-     * "data": {
-     *     "gameData": {
-     * 	    "guesserUuid": "AI",
-     * 	    "attempts" : 1,
-     *       "guessWord": "사과",
-     * 	    "correct": null // 아직 정답여부 나오지 않음
-     *     },
-     *     "aiSays" : "우웅, 감이 와! '사과' 맞지? 내 추측이 맞다면 너에게 천재적 감각을 인정해줄게! 😉🌻✨"
      */
     public void handleAIGuessSubmit(String roomId, Round currentRound, Word currentWord, Guess guess) {
         // 0. 상태 검증
         GameMeta gameMeta = gameRepository.findGameMeta(roomId, GAME_ERROR);
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GUESS_SUBMIT)){
-            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
         }
 
         // 1. 실제 AI 추측 데이터 가져옴
@@ -157,7 +149,7 @@ public class GuessFlowService {
         //0. 상태 검증
         GameMeta gameMeta = gameRepository.findGameMeta(roomId, GAME_ERROR);
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GUESS_SUBMIT)){
-            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
         }
 
         //1. GUESS 정보 Broadcast
@@ -192,7 +184,7 @@ public class GuessFlowService {
         // 상태 검증
         GameMeta gameMeta = gameRepository.findGameMeta(roomId, GAME_ERROR);
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.ROUND_END)){
-            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
         }
 
         // 상태 업데이트
@@ -243,7 +235,7 @@ public class GuessFlowService {
         // 상태 검증
         GameMeta gameMeta = gameRepository.findGameMeta(roomId, GAME_ERROR);
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GAME_END)){
-            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
         }
         gameMeta.setGameStatus(GameStatus.GAME_ENDED);
 
@@ -387,7 +379,7 @@ public class GuessFlowService {
         // 상태 검증
         GameMeta gameMeta = gameRepository.findGameMeta(roomId, GAME_ERROR);
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.GUESS_RESULT)){
-            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
         }
 
         // guesser 이름 받음
@@ -406,8 +398,6 @@ public class GuessFlowService {
         }
             // 다음 턴 (GUESS 실패)
             processNextGuessRequest(roomId);
-
-
     }
 
 
@@ -424,7 +414,7 @@ public class GuessFlowService {
         // 상태 검증
         GameMeta gameMeta = gameRepository.findGameMeta(roomId, GAME_ERROR);
         if(!gameMeta.getGameStatus().canHandleEvent(GameEventType.SCORE_UPDATE)){
-            throw new CustomException(GameExceptionCode.INVALID_GAME_STATUS);
+            throw new SocketCustomException(GAME_ERROR,GameExceptionCode.INVALID_GAME_STATUS);
         }
 
 
