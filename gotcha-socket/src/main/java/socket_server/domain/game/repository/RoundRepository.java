@@ -4,28 +4,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
-import socket_server.common.exception.ErrorType;
 import socket_server.common.util.JsonSerializer;
-import socket_server.domain.game.meta.RoundMeta;
-import socket_server.domain.game.meta.WordMeta;
-import socket_server.domain.game.model.AiPrediction;
-import socket_server.domain.game.model.Guess;
-
-import java.util.ArrayList;
-import java.util.List;
-
 
 
 @Slf4j
 @Repository
 public class RoundRepository {
     private final RedisTemplate<String, String> redisTemplate;
-    private final JsonSerializer jsonSerializer;
 
-    public RoundRepository(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
-                           JsonSerializer jsonSerializer) {
+    public RoundRepository(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
-        this.jsonSerializer = jsonSerializer;
     }
 
     /**
@@ -38,9 +26,8 @@ public class RoundRepository {
     /**
      * Round 메타정보 List 저장 (roundIndex, drawingEndTime, roundWinner)
      */
-    public void saveRoundMetas(String roomId, List<RoundMeta> roundMetas, ErrorType errorType) {
+    public void saveRoundMetasString(String roomId, String roundsJson) {
         String key = getGameRoundsKey(roomId);
-        String roundsJson = jsonSerializer.serialize(roundMetas, errorType);
         redisTemplate.opsForValue().set(key, roundsJson);
         log.info("RoundMetas {} saved", roundsJson);
     }
@@ -48,13 +35,9 @@ public class RoundRepository {
     /**
      * Round 메타정보 List 조회 (roundIndex, drawingEndTime, roundWinner)
      */
-    public List<RoundMeta> findRoundMetas(String roomId, ErrorType errorType) {
+    public String findRoundMetasString(String roomId) {
         String key = getGameRoundsKey(roomId);
-        String roundsJson = redisTemplate.opsForValue().get(key);
-        if (roundsJson == null) {
-            return new ArrayList<>();
-        }
-        return jsonSerializer.deserializeList(roundsJson, RoundMeta.class, errorType);
+        return redisTemplate.opsForValue().get(key);
     }
 
     /**
@@ -67,9 +50,8 @@ public class RoundRepository {
     /**
      * Word 메타정보 List 저장(wordIndex, word, drawerUuid)
      */
-    public void saveWordMetas(String roomId, int roundIndex, List<WordMeta> wordMetas, ErrorType errorType) {
+    public void saveWordMetasString(String roomId, int roundIndex, String wordsJson) {
         String key = getRoundWordsKey(roomId, roundIndex);
-        String wordsJson = jsonSerializer.serialize(wordMetas, errorType);
         redisTemplate.opsForValue().set(key, wordsJson);
         log.info("Words {} saved", wordsJson);
     }
@@ -77,13 +59,9 @@ public class RoundRepository {
     /**
      * Word 메타정보 List 조회(wordIndex, word, drawerUuid, imageURL)
      */
-    public List<WordMeta> findWordMetas(String roomId, int roundIndex, ErrorType errorType) {
+    public String findWordMetasString(String roomId, int roundIndex) {
         String key = getRoundWordsKey(roomId, roundIndex);
-        String wordsJson = redisTemplate.opsForValue().get(key);
-        if (wordsJson == null) {
-            return new ArrayList<>();
-        }
-        return jsonSerializer.deserializeList(wordsJson, WordMeta.class, errorType);
+        return redisTemplate.opsForValue().get(key);
     }
 
 
@@ -95,18 +73,16 @@ public class RoundRepository {
     /**
      * AI Prediction 정보 저장(top3 class, confidence)
      */
-    public void saveAIPredictions(String roomId, int roundIndex, int wordIndex, List<AiPrediction> predictions, ErrorType errorType){
+    public void saveAIPredictionsString(String roomId, int roundIndex, int wordIndex, String predictionsJson){
         String key = getAIPredicionsKey(roomId, roundIndex, wordIndex);
-        String predictionsJson = jsonSerializer.serialize(predictions, errorType);
         redisTemplate.opsForValue().set(key, predictionsJson);
-        log.info("AI Predictions {} saved", predictionsJson);
     }
 
     /**
      * AI Prediction 정보 조회(top3 class, confidence)
      */
-    public List<AiPrediction> findAIPredictions(String roomId, int roundIndex, int wordIndex, ErrorType errorType) {
-        return jsonSerializer.deserializeList(redisTemplate.opsForValue().get(getAIPredicionsKey(roomId, roundIndex, wordIndex)), AiPrediction.class, errorType);
+    public String findAIPredictionsString(String roomId, int roundIndex, int wordIndex) {
+        return redisTemplate.opsForValue().get(getAIPredicionsKey(roomId, roundIndex, wordIndex));
     }
 
     private String getAIGuessKey(String roomId, int roundIndex, int wordIndex){
@@ -117,8 +93,6 @@ public class RoundRepository {
     private String getPlayerGuessKey(String roomId, int roundIndex, int wordIndex){
         return getRoundWordsKey(roomId, roundIndex) + wordIndex + ":player_guesses";
     }
-
-
 
     /**
      * AI Guess 정보 저장

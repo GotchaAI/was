@@ -24,6 +24,7 @@ import socket_server.domain.game.repository.RoundRepository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -108,6 +109,11 @@ public class GuessFlowService {
 
     }
 
+    private List<AiPrediction> getAIPredictions(String roomId, int roundIndex, int wordIndex){
+        String aiPredictionString = roundRepository.findAIPredictionsString(roomId, roundIndex, wordIndex);
+        return jsonSerializer.deserializeList(aiPredictionString, AiPrediction.class, GAME_ERROR);
+    }
+
 
 
     private List<Guess> getAIGuesses(String roomId, int roundIndex, int wordIndex){
@@ -130,7 +136,7 @@ public class GuessFlowService {
         validateGameEvent(gameMeta, GameEventType.GUESS_SUBMIT);
 
         // 1. 실제 AI 추측 데이터 가져옴
-        List<AiPrediction> predictions = roundRepository.findAIPredictions(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), GAME_ERROR);
+        List<AiPrediction> predictions = getAIPredictions(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
         String aiPredicted = predictions.get(guess.getAttempts()-1).getPredicted();
 
         // 2. attempts에 따라 GUESS 데이터 저장
@@ -203,12 +209,12 @@ public class GuessFlowService {
 
         // 현재 ROUND 정보 모으기
         Round currentRound = getCurrentRound(roomId);
-        List<Word> words = roundRepository.findWordMetas(roomId, currentRound.getRoundIndex(), GAME_ERROR).stream().map(WordMeta::toWord).toList();
+        List<Word> words = getWordMetas(roomId, currentRound.getRoundIndex()).stream().map(WordMeta::toWord).toList();
 
         for(Word word : words){
             List<Guess> aiGuesses = getAIGuesses(roomId, currentRound.getRoundIndex(), word.getWordIndex());
             List<Guess> playerGuesses = getPlayerGuesses(roomId, currentRound.getRoundIndex(), word.getWordIndex());
-            List<AiPrediction> aiPredictions = roundRepository.findAIPredictions(roomId, currentRound.getRoundIndex(), word.getWordIndex(), GAME_ERROR);
+            List<AiPrediction> aiPredictions = getAIPredictions(roomId, currentRound.getRoundIndex(), word.getWordIndex());
 
             word.setAiGuesses(aiGuesses);
             word.setPlayerGuesses(playerGuesses);
@@ -250,19 +256,19 @@ public class GuessFlowService {
         gameMeta.setGameStatus(GameStatus.GAME_ENDED);
 
         //1. 모든 라운드 메타정보 조회
-        List<Round> rounds = roundRepository.findRoundMetas(roomId, GAME_ERROR)
+        List<Round> rounds = getRoundMetas(roomId)
                 .stream().map(RoundMeta::toRound).toList();
 
         for(Round round : rounds){
             //2. 모든 단어 메타정보 조회
-            List<Word> words = roundRepository.findWordMetas(roomId, round.getRoundIndex(), GAME_ERROR)
+            List<Word> words = getWordMetas(roomId, round.getRoundIndex())
                     .stream().map(WordMeta::toWord).toList();
 
             for(Word word : words){
                 //3. 모든 정보 조회 및 연결
                 List<Guess> aiGuesses = getAIGuesses(roomId, round.getRoundIndex(), word.getWordIndex());
                 List<Guess> playerGuesses = getPlayerGuesses(roomId, round.getRoundIndex(), word.getWordIndex());
-                List<AiPrediction> aiPredictions = roundRepository.findAIPredictions(roomId, round.getRoundIndex(), word.getWordIndex(), GAME_ERROR);
+                List<AiPrediction> aiPredictions = getAIPredictions(roomId, round.getRoundIndex(), word.getWordIndex());
 
                 word.setAiGuesses(aiGuesses);
                 word.setPlayerGuesses(playerGuesses);
@@ -295,11 +301,17 @@ public class GuessFlowService {
     }
 
 
+    private List<WordMeta> getWordMetas(String roomId, int roundIndex){
+        String wordMetasJson = roundRepository.findWordMetasString(roomId, roundIndex);
+        return jsonSerializer.deserializeList(wordMetasJson, WordMeta.class, GAME_ERROR);
+    }
+
+
 
     private void determineGameWinner(String roomId, Game game) {
         //0. Score Map 초기 설정
         Map<String, Integer> scores = new HashMap<>();
-        List<GamePlayer> gamePlayers = gamePlayerRepository.findPlayersByRoomId(roomId, GAME_ERROR);
+        List<GamePlayer> gamePlayers = getGamePlayersByRoomId(roomId);
         for(GamePlayer gamePlayer : gamePlayers){
             scores.put(gamePlayer.getPlayerUuid(), 0);
         }
@@ -360,10 +372,10 @@ public class GuessFlowService {
      */
     private void moveToNextWord(String roomId, Round currentRound){
         currentRound.setCurrentWordIndex(currentRound.getCurrentWordIndex() + 1);
-        List<RoundMeta> roundMetas = roundRepository.findRoundMetas(roomId, GAME_ERROR);
+        List<RoundMeta> roundMetas = getRoundMetas(roomId);
         // currentRound의 currentWordIndex 값을 바꿔서 저장
         roundMetas.get(currentRound.getRoundIndex() - 1).setCurrentWordIndex(currentRound.getCurrentWordIndex());
-        roundRepository.saveRoundMetas(roomId, roundMetas, GAME_ERROR);
+        roundRepository.saveRoundMetasString(roomId, jsonSerializer.serialize(roundMetas, GAME_ERROR));
 
         processNextGuessRequest(roomId);
     }
@@ -389,7 +401,9 @@ public class GuessFlowService {
 
         // guesser 이름 받음
         String guesserUuid = guess.getGuesserUuid();
-        String guesser = guesserUuid.equals("AI") ? "묘묘" : gamePlayerRepository.findPlayerByUuid(roomId, guesserUuid, GAME_ERROR).getNickname();
+        String guesserJson = gamePlayerRepository.findGamePlayerStringByUuid(roomId, guesserUuid);
+        GamePlayer gamePlayer = jsonSerializer.deserialize(guesserJson, GamePlayer.class, GAME_ERROR);
+        String guesser = guesserUuid.equals("AI") ? "묘묘" : gamePlayer.getNickname();
         
         // AI 반응 받음
         String aiSays = aiClientService.getGuessReactMessage(roomId, new AIGuessReactReq(guess.getCorrect(), currentWord, guesser));
@@ -429,7 +443,7 @@ public class GuessFlowService {
         gamePlayerRepository.saveScoreByUuid(roomId, guesserUuid, gameMeta.getCurrentRound(), newScore);
 
         // SCORE_UPDATE Broadcast
-        List<GamePlayer> gamePlayers = gamePlayerRepository.findPlayersByRoomId(roomId, GAME_ERROR);
+        List<GamePlayer> gamePlayers = getGamePlayersByRoomId(roomId);
         String playerA = gamePlayers.get(0).getPlayerUuid();
         String playerB = gamePlayers.get(1).getPlayerUuid();
         Map<String, Integer> scores = new HashMap<>();
@@ -453,6 +467,15 @@ public class GuessFlowService {
         }
     }
 
+
+    private List<GamePlayer> getGamePlayersByRoomId(String roomId) {
+        List<String> playerUuids = gamePlayerRepository.findPlayerUuidsByRoomId(roomId);
+        return playerUuids.stream()
+                .map(uuid -> gamePlayerRepository.findGamePlayerStringByUuid(roomId, uuid))
+                .map(gamePlayerJson -> jsonSerializer.deserialize(gamePlayerJson, GamePlayer.class, GAME_ERROR))
+                .collect(Collectors.toList());
+    }
+
     /**
      * 다음 추측자는 누구?
      * attempts 지금까지 몇 번 했는지 확인
@@ -461,6 +484,10 @@ public class GuessFlowService {
         return word.getAiGuesses().size() == word.getPlayerGuesses().size(); // AI가 먼저 시작, 번갈아가며 진행
     }
 
+    private List<RoundMeta> getRoundMetas(String roomId) {
+        String roundsJson = roundRepository.findRoundMetasString(roomId);
+        return jsonSerializer.deserializeList(roundsJson, RoundMeta.class, GAME_ERROR);
+    }
 
     /**
      * 단어 추측 완료 여부 확인
@@ -501,10 +528,10 @@ public class GuessFlowService {
         int roundIndex = gameMeta.getCurrentRound();
 
         // 2. Round 메타정보 조회
-        RoundMeta roundMeta = roundRepository.findRoundMetas(roomId, GAME_ERROR).get(roundIndex - 1);
+        RoundMeta roundMeta = getRoundMetas(roomId).get(roundIndex - 1);
 
         // 3. Words 메타정보 조회
-        List<WordMeta> wordMetas = roundRepository.findWordMetas(roomId, roundIndex, GAME_ERROR);
+        List<WordMeta> wordMetas = getWordMetas(roomId, roundIndex);
 
         // 4. 데이터 파싱 후 결합
         List<Word> words = wordMetas.stream().map(WordMeta::toWord).toList();

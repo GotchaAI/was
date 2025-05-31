@@ -23,7 +23,6 @@ import java.util.Optional;
 public class GameRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
-    private final JsonSerializer jsonSerializer;
     /**
      * <pre>
      * game:{roomId} (HASH) // List Player, List Round 빼고 저장
@@ -42,10 +41,8 @@ public class GameRepository {
      * └──
      * </pre>
      */
-    public GameRepository(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
-                          JsonSerializer jsonSerializer) {
+    public GameRepository(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
-        this.jsonSerializer = jsonSerializer;
     }
 
     /**

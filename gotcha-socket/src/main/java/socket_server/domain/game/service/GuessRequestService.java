@@ -15,6 +15,7 @@ import socket_server.domain.game.repository.RoundRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +33,8 @@ public class GuessRequestService {
 
         // 1. AI 서버에 Guess Request 메시지 받아옴
         String drawerUuid = guessTargetWord.getDrawerUuid();
-        GamePlayer gamePlayer = gamePlayerRepository.findPlayerByUuid(roomId, drawerUuid, GAME_ERROR);
+        String playerJson = gamePlayerRepository.findGamePlayerStringByUuid(roomId, drawerUuid);
+        GamePlayer gamePlayer = jsonSerializer.deserialize(playerJson, GamePlayer.class, GAME_ERROR);
         String drawerName = gamePlayer.getNickname();
         String aiSays = aIClientService.getGuessStartMessage(roomId, new AIGuessStartReq(gameMeta.getCurrentRound(), gameMeta.getTotalRounds(), drawerName, "AI"));
 
@@ -59,7 +61,7 @@ public class GuessRequestService {
      */
     public void requestGuessPlayer(String roomId, GameMeta gameMeta,  Word word) {
         // 1. Drawer, Guesser 가져옴
-        List<GamePlayer> players = gamePlayerRepository.findPlayersByRoomId(roomId, GAME_ERROR);
+        List<GamePlayer> players = getGamePlayersByRoomId(roomId);
         GamePlayer gusser, drawer;
         if(word.getDrawerUuid().equals(players.get(0).getPlayerUuid())) {
             gusser = players.get(1);
@@ -82,6 +84,14 @@ public class GuessRequestService {
 
         // 4. BroadCast
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_REQUEST, guess, aiSays, LocalDateTime.now().plusSeconds(30));
+    }
+
+    private List<GamePlayer> getGamePlayersByRoomId(String roomId) {
+        List<String> playerUuids = gamePlayerRepository.findPlayerUuidsByRoomId(roomId);
+        return playerUuids.stream()
+                .map(uuid -> gamePlayerRepository.findGamePlayerStringByUuid(roomId, uuid))
+                .map(gamePlayerJson -> jsonSerializer.deserialize(gamePlayerJson, GamePlayer.class, GAME_ERROR))
+                .collect(Collectors.toList());
     }
 
     private List<Guess> getAIGuesses(String roomId, int roundIndex, int wordIndex){
