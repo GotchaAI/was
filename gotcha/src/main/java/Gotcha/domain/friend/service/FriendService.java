@@ -112,6 +112,11 @@ public class FriendService {
         }
 
         friendRequestRepository.delete(friendRequest);
+
+
+        FriendSummaryRes friendSummaryRes = FriendSummaryRes.from(friendRequest);
+
+        friendSocketService.sendFriendAlert(toUser.getUuid(), friendRequest.getFromUser().getUuid(), friendSummaryRes, FriendEventType.REJECT);
     }
 
     @Transactional
