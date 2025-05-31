@@ -28,8 +28,8 @@ public class FriendSocketService {
         this.jsonSerializer = jsonSerializer;
     }
 
-    public void sendFriendRequest(String fromUserUuid, String toUserUuid, FriendSummaryRes friendSummaryRes) {
-        FriendEventRes eventRes = new FriendEventRes(FriendEventType.REQUEST, friendSummaryRes, LocalDateTime.now());
+    public void sendFriendAlert(String fromUserUuid, String toUserUuid, FriendSummaryRes friendSummaryRes, FriendEventType eventType) {
+        FriendEventRes eventRes = new FriendEventRes(eventType, friendSummaryRes, LocalDateTime.now());
 
         RedisMessage redisMessage = new RedisMessage(
                 fromUserUuid,

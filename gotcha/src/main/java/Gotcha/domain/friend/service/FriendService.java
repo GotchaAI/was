@@ -14,6 +14,7 @@ import gotcha_user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import socket_server.domain.friend.dto.FriendEventType;
 import socket_server.domain.friend.dto.FriendSummaryRes;
 import socket_server.domain.friend.service.FriendSocketService;
 
@@ -70,7 +71,7 @@ public class FriendService {
 
         friendRequestRepository.save(request);
 
-        friendSocketService.sendFriendRequest(fromUser.getUuid(), toUser.getUuid(), FriendSummaryRes.from(request));
+        friendSocketService.sendFriendAlert(fromUser.getUuid(), toUser.getUuid(), FriendSummaryRes.from(request), FriendEventType.REQUEST);
     }
 
     @Transactional
@@ -93,6 +94,10 @@ public class FriendService {
         friendRepository.save(friend);
 
         friendRequestRepository.delete(friendRequest);
+
+        FriendSummaryRes friendSummaryRes = FriendSummaryRes.from(friendRequest);
+
+        friendSocketService.sendFriendAlert(toUser.getUuid(), fromUser.getUuid(), friendSummaryRes, FriendEventType.ACCEPT);
     }
 
     @Transactional
