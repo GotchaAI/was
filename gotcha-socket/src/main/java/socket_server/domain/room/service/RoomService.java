@@ -29,6 +29,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static socket_server.common.constants.WebSocketConstants.ROOM_EVENT;
 
@@ -132,13 +133,33 @@ public class RoomService {
         broadcastUpdatedRoomInfoToListAndRoom(roomId, roomMetadata);
     }
 
+    public void validateRoomExistsAndPassword(String roomId, String password, ErrorType errorType) {
+        Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
+        if (roomData == null || roomData.isEmpty()) {
+            throw new SocketCustomException(errorType, RoomExceptionCode.INVALID_ROOM_ID);
+        }
+
+        boolean hasPassword = Boolean.parseBoolean(
+                Optional.ofNullable(roomData.get(RoomField.HAS_PASSWORD.getRedisField()))
+                        .map(Object::toString)
+                        .orElse("false")
+        );
+
+        if (hasPassword) {
+            String expectedPassword = (String) roomData.get(RoomField.PASSWORD.getRedisField());
+            if (expectedPassword == null || !expectedPassword.equals(password)) {
+                throw new SocketCustomException(errorType, RoomExceptionCode.INCORRECT_PASSWORD);
+            }
+        }
+
+    }
+
     private void broadcastUpdatedRoomInfoToListAndRoom(String roomId, RoomMetadata metadata) {
         int currentUser = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR).size();
         RoomSummaryRes summary = RoomSummaryRes.of(metadata, currentUser);
         lobbyBroadCaster.broadcastToRoomList("SYSTEM", RoomEventType.UPDATE, summary);
 
         List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR);
-//        RoomJoinRes roomJoinRes = new RoomJoinRes(metadata, userList);
         roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", RoomEventType.UPDATE, userList);
 
         log.info("방 {} 업데이트 정보를 ROOM_LIST_EVENT 및 ROOM_EVENT 로 브로드캐스트 완료", roomId);

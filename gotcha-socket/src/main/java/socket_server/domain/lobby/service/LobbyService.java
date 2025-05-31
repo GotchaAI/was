@@ -40,8 +40,8 @@ public class LobbyService {
 
     public void joinRoom(String roomId, SecurityUserDetails userDetails, String password) {
         String uuid = userDetails.getUuid();
-        roomUserService.validateUserCanJoinRoom(roomId, userDetails.getUuid(), password, LOBBY_ERROR);
-        roomUserService.joinRoom(roomId, uuid, userDetails.getNickname(), LOBBY_ERROR);
+        roomUserService.checkUserNotInAnyRoom(uuid, LOBBY_ERROR);
+        roomService.validateRoomExistsAndPassword(roomId, password, LOBBY_ERROR);
 
         //브로드캐스팅 -> 대기방 내 유저들(신규 유저 포함)에게 새로운 참가자 정보 전파
         roomUserService.broadcastUserInRoomInfo(roomId, uuid, LOBBY_ERROR);

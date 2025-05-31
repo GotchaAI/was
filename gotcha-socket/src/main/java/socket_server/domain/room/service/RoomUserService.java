@@ -190,40 +190,12 @@ public class RoomUserService {
         roomBroadcaster.broadcastToRoom(roomId, userUuid, RoomEventType.EXIT, userUuid);
     }
 
-    public void validateUserCanJoinRoom(String roomId, String userUuid, String password, ErrorType errorType) {
-        // 유저가 다른 방에 이미 속해있는지 확인
-        checkUserNotInAnyRoom(userUuid, errorType);
-        // 방 존재 여부 및 비밀번호 검증
-        validateRoomExistsAndPassword(roomId, password, errorType);
-    }
-
     public void checkUserNotInAnyRoom(String userUuid, ErrorType errorType) {
         String value = roomUserRepository.findRoomIdByUserUuid(userUuid);
         log.info("⭐⭐당신이 속한 대기방은 이겁니다 : "+value);
         if (value != null) {
             throw new SocketCustomException(errorType, RoomExceptionCode.USER_ALREADY_IN_ANOTHER_ROOM);
         }
-    }
-
-    private void validateRoomExistsAndPassword(String roomId, String password, ErrorType errorType) {
-        Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
-        if (roomData == null || roomData.isEmpty()) {
-            throw new SocketCustomException(errorType, RoomExceptionCode.INVALID_ROOM_ID);
-        }
-
-        boolean hasPassword = Boolean.parseBoolean(
-                Optional.ofNullable(roomData.get(RoomField.HAS_PASSWORD.getRedisField()))
-                        .map(Object::toString)
-                        .orElse("false")
-        );
-
-        if (hasPassword) {
-            String expectedPassword = (String) roomData.get(RoomField.PASSWORD.getRedisField());
-            if (expectedPassword == null || !expectedPassword.equals(password)) {
-                throw new SocketCustomException(errorType, RoomExceptionCode.INCORRECT_PASSWORD);
-            }
-        }
-
     }
 
 }
