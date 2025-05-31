@@ -4,8 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
-import socket_server.common.exception.ErrorType;
-import socket_server.common.util.JsonSerializer;
 
 import java.util.*;
 
@@ -70,17 +68,17 @@ public class GamePlayerRepository {
     /**
      * game:{roomId}:round:{roundIndex}:scores
      */
-    public static String getScoreKey(String roomId, int roundIndex) {
+    public static String getRoundScoreKey(String roomId, int roundIndex) {
         return RoundRepository.getGameRoundsKey(roomId) + ":" + roundIndex + ":scores";
     }
 
-    public void saveScoreByUuid(String roomId, String uuid, int roundIndex,  int score) {
-        String key = getScoreKey(roomId, roundIndex);
+    public void saveRoundScoreByUuid(String roomId, String uuid, int roundIndex, int score) {
+        String key = getRoundScoreKey(roomId, roundIndex);
         redisTemplate.opsForHash().put(key, uuid, String.valueOf(score));
     }
 
-    public int findScoreByUuid(String roomId, String uuid, int roundIndex) {
-        String key = getScoreKey(roomId, roundIndex);
+    public int findRoundScoreByUuid(String roomId, String uuid, int roundIndex) {
+        String key = getRoundScoreKey(roomId, roundIndex);
         String score = (String) redisTemplate.opsForHash().get(key, uuid);
         if (score == null) {
             return 0;
@@ -88,8 +86,8 @@ public class GamePlayerRepository {
         return Integer.parseInt(score);
     }
 
-    public Map<String, Integer> findScores(String roomId, int roundIndex) {
-        String key = getScoreKey(roomId, roundIndex);
+    public Map<String, Integer> findRoundScores(String roomId, int roundIndex) {
+        String key = getRoundScoreKey(roomId, roundIndex);
         Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
 
         Map<String, Integer> result = new HashMap<>();
