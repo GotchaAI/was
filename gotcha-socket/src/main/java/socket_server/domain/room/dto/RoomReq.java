@@ -7,7 +7,7 @@ import socket_server.domain.room.model.RoomEventType;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record RoomReq(
     @NotNull
-    RoomEventType roomEventType,
+    RoomEventType eventType,
     String content
 ) {
 }

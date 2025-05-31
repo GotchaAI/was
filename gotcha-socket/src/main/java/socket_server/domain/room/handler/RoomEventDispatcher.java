@@ -1,6 +1,5 @@
 package socket_server.domain.room.handler;
 
-import gotcha_common.exception.CustomException;
 import gotcha_domain.auth.SecurityUserDetails;
 import org.springframework.stereotype.Component;
 import socket_server.common.exception.ErrorType;
@@ -23,7 +22,7 @@ public class RoomEventDispatcher {
     }
 
     public void dispatch(RoomReq request, String roomId, SecurityUserDetails userDetails) {
-        RoomEventHandler handler = handlers.get(request.roomEventType());
+        RoomEventHandler handler = handlers.get(request.eventType());
 
         if (handler == null) {
             throw new SocketCustomException(ErrorType.ROOM, RoomExceptionCode.INVALID_EVENT_TYPE);
