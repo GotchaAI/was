@@ -24,4 +24,10 @@ public class RoomBroadcaster {
         RedisMessage message = new RedisMessage(senderId, ROOM_PREFIX + roomId, jsonSerializer.serialize(event, ErrorType.ROOM));
         redisTemplate.convertAndSend(ROOM_PREFIX + roomId, jsonSerializer.serialize(message, ErrorType.ROOM));
     }
+
+    public void sendToUser(String topic, String userUuid, Object payload) {
+        RedisMessage message = new RedisMessage(userUuid, topic, jsonSerializer.serialize(payload, ErrorType.ROOM));
+        redisTemplate.convertAndSend(topic, jsonSerializer.serialize(message, ErrorType.ROOM));
+    }
+
 }

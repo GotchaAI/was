@@ -117,6 +117,7 @@ public class RedisIntegrationConfig {
 
                 // 대기방
                 ROOM_PREFIX + "*",
+                ROOM_SUMMARY + "*",
 
                 // 게임
                 GAME_PREFIX + "*",                   // /sub/game/*
@@ -128,7 +129,7 @@ public class RedisIntegrationConfig {
                 //로비
                 LOBBY_JOIN_CHANNEL + "*",         //sub/lobby/join/ + roomId
                 LOBBY_ROOM_CREATE_CHANNEL + "*",  //sub/lobby/create/ + uuid
-                LOBBY_ROOM_LIST_EVENT + "*"       //sub/lobby/list/event
+                LOBBY_ROOM_LIST_EVENT + "*"      //sub/lobby/list/event
         );
         adapter.setSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
         adapter.setOutputChannel(redisInputChannel(redisExecutor()));

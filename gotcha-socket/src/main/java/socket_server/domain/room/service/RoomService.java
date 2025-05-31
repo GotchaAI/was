@@ -26,12 +26,10 @@ import socket_server.domain.room.repository.RoomRepository;
 import socket_server.domain.room.repository.RoomUserRepository;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static socket_server.common.constants.WebSocketConstants.ROOM_PREFIX;
+import static socket_server.common.constants.WebSocketConstants.ROOM_SUMMARY;
 
 @Service
 @Slf4j
@@ -154,19 +152,30 @@ public class RoomService {
 
     }
 
+    public void getRoomSummary(String roomId, String userUuid){
+        log.info("방 정보 가져오쟈");
+        RoomMetadata metadata = getRoomInfo(roomId);
+        RoomJoinRes roomJoinRes = toRoomSummaryRes(roomId, metadata);
+        roomBroadcaster.sendToUser(ROOM_SUMMARY+userUuid, userUuid, roomJoinRes);
+    }
+
     private void broadcastUpdatedRoomInfoToListAndRoom(String roomId, RoomMetadata metadata) {
         int currentUser = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR).size();
         RoomSummaryRes summary = RoomSummaryRes.of(metadata, currentUser);
         lobbyBroadCaster.broadcastToRoomList("SYSTEM", RoomEventType.UPDATE, summary);
 
-        List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR);
-        RoomJoinRes roomJoinRes = new RoomJoinRes(metadata, userList);
+        RoomJoinRes roomJoinRes = toRoomSummaryRes(roomId, metadata);
         roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", RoomEventType.UPDATE, roomJoinRes);
 
         log.info("방 {} 업데이트 정보를 ROOM_LIST_EVENT 및 ROOM_EVENT 로 브로드캐스트 완료", roomId);
     }
 
-    public RoomMetadata getRoomInfo(String roomId) {
+    private RoomJoinRes toRoomSummaryRes(String roomId, RoomMetadata metadata){
+        List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR);
+        return new RoomJoinRes(metadata, userList);
+    }
+
+    private RoomMetadata getRoomInfo(String roomId) {
         Map<Object, Object> fields = roomRepository.getRoomData(roomId);
         return RoomMetadata.fromRedisMap(roomId, fields);
     }

@@ -1,15 +1,14 @@
 package socket_server.common.listener;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import gotcha_common.exception.CustomException;
 import gotcha_common.exception.exceptionCode.GlobalExceptionCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import socket_server.common.config.RedisMessage;
+import socket_server.common.exception.ErrorType;
+import socket_server.common.exception.SocketCustomException;
 import socket_server.common.util.JsonSerializer;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -45,13 +44,13 @@ public abstract class PubSubHandler {
     protected abstract void initHandlers();
 
     private void handleUnknownChannel(String topic, Object object ) {
-        throw new CustomException(GlobalExceptionCode.INVALID_CHANNEL);
+        throw new SocketCustomException(ErrorType.DEFAULT, GlobalExceptionCode.INVALID_CHANNEL);
     }
 
     // RedisIntegrationConfig에서 전달된 메시지가 RedisMessage 형식인지 검증
     private void validatePayloadFormat(Object payload){
         if (!(payload instanceof RedisMessage)) {
-            throw new CustomException(GlobalExceptionCode.INVALID_MESSAGE_FORMAT);
+            throw new SocketCustomException(ErrorType.DEFAULT, GlobalExceptionCode.INVALID_MESSAGE_FORMAT);
         }
     }
 
