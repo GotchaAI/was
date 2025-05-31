@@ -120,9 +120,9 @@ public class FriendService {
     }
 
     @Transactional
-    public void deleteFriend(Long userId, String uuid) {
+    public void deleteFriend(Long userId, String friendUuid) {
         User user = userService.findUserByUserId(userId);
-        User friend = userService.findUserByUuid(uuid);
+        User friend = userService.findUserByUuid(friendUuid);
 
         Friend relation = friendRepository
                 .findFriendRelation(user.getId(), friend.getId());
@@ -132,5 +132,7 @@ public class FriendService {
         }
 
         friendRepository.delete(relation);
+
+        friendSocketService.sendFriendAlert(user.getUuid(), friendUuid, user.getUuid(), FriendEventType.DELETE);
     }
 }

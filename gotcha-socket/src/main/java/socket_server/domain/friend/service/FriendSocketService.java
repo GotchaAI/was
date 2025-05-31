@@ -8,7 +8,6 @@ import socket_server.common.exception.ErrorType;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.friend.dto.FriendEventRes;
 import socket_server.domain.friend.dto.FriendEventType;
-import socket_server.domain.friend.dto.FriendSummaryRes;
 
 import java.time.LocalDateTime;
 
@@ -28,8 +27,8 @@ public class FriendSocketService {
         this.jsonSerializer = jsonSerializer;
     }
 
-    public void sendFriendAlert(String fromUserUuid, String toUserUuid, FriendSummaryRes friendSummaryRes, FriendEventType eventType) {
-        FriendEventRes eventRes = new FriendEventRes(eventType, friendSummaryRes, LocalDateTime.now());
+    public void sendFriendAlert(String fromUserUuid, String toUserUuid, Object data, FriendEventType eventType) {
+        FriendEventRes eventRes = new FriendEventRes(eventType, data, LocalDateTime.now());
 
         RedisMessage redisMessage = new RedisMessage(
                 fromUserUuid,
@@ -37,6 +36,9 @@ public class FriendSocketService {
                 jsonSerializer.serialize(eventRes, FRIEND_ERROR)
         );
 
-        redisTemplate.convertAndSend(FRIEND_PREFIX + toUserUuid, jsonSerializer.serialize(redisMessage, FRIEND_ERROR));
+        redisTemplate.convertAndSend(
+                FRIEND_PREFIX + toUserUuid,
+                jsonSerializer.serialize(redisMessage, FRIEND_ERROR)
+        );
     }
 }
