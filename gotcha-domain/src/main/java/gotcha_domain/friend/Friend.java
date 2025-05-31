@@ -38,6 +38,6 @@ public class Friend extends BaseTimeEntity {
     }
 
     public User getOther(User me) {
-        return user1.equals(me) ? user2 : user1;
+        return user1.getId().equals(me.getId()) ? user2 : user1;
     }
 }
