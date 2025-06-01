@@ -12,9 +12,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import java.util.Map;
 
 import java.util.List;
 
@@ -27,21 +29,21 @@ public class RoundHistory extends BaseTimeEntity {
     private Long id;
 
     @NotNull
-    private String topic;
+    private Integer roundIndex;
 
-    private Integer round;
+    @NotNull
+    private String roundWinner;
 
-    private Boolean isSuccess;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "round_scores", columnDefinition = "JSON")
+    private Map<String, Integer> roundScores;
 
-    private Double similarity;
-
-    @Convert(converter = StringListConverter.class)
-    @Column(name = "chat_log", length = 500)
-    private List<String> prediction;
-
-    private String picture;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "words", columnDefinition = "JSON")
+    private List<WordInfo> words;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_history_id")
     private GameHistory gameHistory;
+
 }

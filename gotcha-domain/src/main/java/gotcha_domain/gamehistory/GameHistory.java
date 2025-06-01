@@ -2,21 +2,15 @@ package gotcha_domain.gamehistory;
 
 import gotcha_common.entity.BaseTimeEntity;
 import gotcha_domain.report.BugReport;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Entity
@@ -34,7 +28,20 @@ public class GameHistory extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Difficulty difficulty;
 
-    private int score;
+    @NotNull
+    private Integer totalRounds;
+
+    @NotNull
+    private String winner;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "final_scores", columnDefinition = "JSON")
+    private Map<String, Integer> finalScores;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "game_players", columnDefinition = "JSON")
+    private List<GamePlayerInfo> gamePlayers;
+
 
     @OneToMany(mappedBy = "gameHistory")
     private List<BugReport> bugReports = new ArrayList<>();
@@ -50,6 +57,8 @@ public class GameHistory extends BaseTimeEntity {
         this.gameType = gameType;
         this.difficulty = difficulty;
     }
+
+
 }
 
 
