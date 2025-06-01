@@ -17,6 +17,7 @@ import socket_server.domain.room.RoomField.RoomField;
 import socket_server.domain.lobby.dto.CreateRoomReq;
 import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.model.RoomEventType;
+import socket_server.domain.lobby.dto.RoomJoinRes;
 import socket_server.domain.room.dto.RoomSummaryRes;
 import socket_server.domain.room.dto.RoomUpdateReq;
 import socket_server.domain.room.model.RoomMetadata;
@@ -159,7 +160,8 @@ public class RoomService {
         lobbyBroadCaster.broadcastToRoomList("SYSTEM", RoomEventType.UPDATE, summary);
 
         List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR);
-        roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", RoomEventType.UPDATE, userList);
+        RoomJoinRes roomJoinRes = new RoomJoinRes(metadata, userList);
+        roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", RoomEventType.UPDATE, roomJoinRes);
 
         log.info("방 {} 업데이트 정보를 ROOM_LIST_EVENT 및 ROOM_EVENT 로 브로드캐스트 완료", roomId);
     }

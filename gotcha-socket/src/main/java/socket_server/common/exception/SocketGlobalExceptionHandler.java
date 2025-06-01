@@ -49,11 +49,11 @@ public class SocketGlobalExceptionHandler {
     private void sendErrorToUser(ErrorType errorType, SimpMessageHeaderAccessor accessor, ExceptionRes response) {
         String uuid = findNowUuid(accessor, errorType);
         String destination = switch (errorType) {
-            case ROOM -> ERROR_CHANNEL_PREFIX + uuid + ERROR_ROOM_CHANNEL;
-            case CHAT -> ERROR_CHANNEL_PREFIX + uuid + ERROR_CHAT_CHANNEL;
-            case GAME -> ERROR_CHANNEL_PREFIX + uuid + ERROR_GAME_CHANNEL;
-            case LOBBY -> ERROR_CHANNEL_PREFIX + uuid + ERROR_LOBBY_CHANNEL;
-            default -> ERROR_CHANNEL_PREFIX + uuid + ERROR_DEFAULT_CHANEL ;
+            case ROOM -> ERROR_CHANNEL_PREFIX + ERROR_ROOM_CHANNEL + uuid;
+            case CHAT -> ERROR_CHANNEL_PREFIX + ERROR_CHAT_CHANNEL + uuid;
+            case GAME -> ERROR_CHANNEL_PREFIX + ERROR_GAME_CHANNEL + uuid;
+            case LOBBY -> ERROR_CHANNEL_PREFIX + ERROR_LOBBY_CHANNEL + uuid;
+            default -> ERROR_CHANNEL_PREFIX + ERROR_DEFAULT_CHANEL + uuid ;
         };
         messagingTemplate.convertAndSend(destination, response);
     }

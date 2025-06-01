@@ -26,10 +26,10 @@ public interface WebSocketConstants {
     String FRIEND_PREFIX = "/sub/friend/"; //+uuid
 
     // 에러 처리 채널
-    String ERROR_CHANNEL_PREFIX = "/user/";
-    String ERROR_DEFAULT_CHANEL = "/queue/errors";
-    String ERROR_ROOM_CHANNEL = "/room/errors";
-    String ERROR_LOBBY_CHANNEL = "/lobby/errors";
-    String ERROR_CHAT_CHANNEL = "/chat/errors";
-    String ERROR_GAME_CHANNEL = "/game/errors";
+    String ERROR_CHANNEL_PREFIX = "/user";
+    String ERROR_DEFAULT_CHANEL = "/queue/errors/";
+    String ERROR_ROOM_CHANNEL = "/room/errors/";
+    String ERROR_LOBBY_CHANNEL = "/lobby/errors/";
+    String ERROR_CHAT_CHANNEL = "/chat/errors/";
+    String ERROR_GAME_CHANNEL = "/game/errors/";
 }
