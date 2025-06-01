@@ -1,7 +1,9 @@
 package Gotcha.domain.report.service;
 
 import Gotcha.domain.report.dto.UserReportReq;
+import Gotcha.domain.report.exception.ReportExceptionCode;
 import Gotcha.domain.report.repository.UserReportRepository;
+import gotcha_common.exception.CustomException;
 import gotcha_domain.chat.ChatMessage;
 import gotcha_domain.report.UserReport;
 import gotcha_domain.user.User;
@@ -20,6 +22,10 @@ public class UserReportService {
     private final UserService userService;
 
     public void reportUser(UserReportReq reportReq, String userUuid) {
+        if (reportReq.reportedUuId().equals(userUuid)) {
+            throw new CustomException(ReportExceptionCode.CANNOT_REPORT_SELF);
+        }
+
         List<ChatMessage> chatLog = chatLogService.getSurroundingMessages(reportReq.chatType(), reportReq.identifier(), userUuid, reportReq.chatTime(), 10);
         User reportedUser = userService.findUserByUuid(reportReq.reportedUuId());
 
