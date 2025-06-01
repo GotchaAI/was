@@ -5,6 +5,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 public class RoomRepository {
@@ -35,4 +37,11 @@ public class RoomRepository {
         redisTemplate.delete(getRoomKey(roomId));
     }
 
+    public Set<String> getAllRoomIds() {
+        Set<String> keys = redisTemplate.keys("room:*");
+        if (keys == null) return Set.of();
+        return keys.stream()
+                .map(key -> key.replaceFirst("room:", ""))
+                .collect(Collectors.toSet());
+    }
 }
