@@ -22,7 +22,7 @@ public record UserReportReq (
 
         @Schema(description = "신고 사유", example = "욕설 너무 많이 합니다.")
         @NotNull(message = "신고 사유는 필수 입니다.")
-        String reason,
+        String detail,
 
         @Schema(description = "신고 대상 채팅 시간", example = "2025-06-01T16:23:29.108754")
         @NotNull(message = "신고 대상 채팅 시간은 필수 입니다.")
