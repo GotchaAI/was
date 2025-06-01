@@ -16,9 +16,9 @@ public class GameMeta {
     private GameType gameType;
     private Difficulty difficulty;
     private GameStatus gameStatus;
+    private String winner; // AI or Player
     private int currentRound; // 1, 2, 3, 4, 5
     private int totalRounds;
-    private String winner; // AI or Player
 
     public static GameMeta fromRedisMap(String roomId, Map<Object, Object> map) {
         return GameMeta.builder().

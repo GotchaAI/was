@@ -23,10 +23,10 @@ public class Game {
     private GameStatus gameStatus;
     private int currentRound; // 0, 1, 2, 3, 4, 5
     private int totalRounds;
+    private String winner; // AI or Player
     private Map<String, Integer> scores; // <playerUuid, score>
     private List<GamePlayer> gamePlayers;
     private List<Round> rounds;
-    private String winner; // AI or Player
 
     public static Game fromGameMeta(GameMeta gameMeta) {
         return Game.builder().
