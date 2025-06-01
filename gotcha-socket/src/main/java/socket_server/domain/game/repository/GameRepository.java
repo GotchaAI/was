@@ -62,8 +62,8 @@ public class GameRepository {
                 "difficulty", gameMeta.getDifficulty().name(),
                 "currentRound", String.valueOf(gameMeta.getCurrentRound()),
                 "gameStatus", String.valueOf(gameMeta.getGameStatus()),
-                "totalRounds", String.valueOf(gameMeta.getTotalRounds()),
-                "aiScore", String.valueOf(gameMeta.getAiScore())
+                "totalRounds", String.valueOf(gameMeta.getTotalRounds())
+                //todo: scores
         );
 
         redisTemplate.opsForHash().putAll(getGameKey(gameMeta.getRoomId()), gameData);
