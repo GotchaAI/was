@@ -3,7 +3,7 @@ package socket_server.domain.chat.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import socket_server.domain.chat.dto.ChatType;
+import gotcha_domain.chat.ChatType;
 import socket_server.domain.room.repository.RoomRepository;
 
 import java.util.Set;

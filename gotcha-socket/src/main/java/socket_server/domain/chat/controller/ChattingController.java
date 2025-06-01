@@ -14,9 +14,9 @@ import socket_server.common.config.RedisMessage;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.exception.chat.ChatExceptionCode;
 import socket_server.common.util.JsonSerializer;
-import socket_server.domain.chat.dto.ChatMessage;
+import gotcha_domain.chat.ChatMessage;
 import socket_server.domain.chat.dto.ChatMessageReq;
-import socket_server.domain.chat.dto.ChatType;
+import gotcha_domain.chat.ChatType;
 import socket_server.domain.chat.service.ChatLogService;
 
 import java.time.LocalDateTime;

@@ -1,4 +1,4 @@
-package socket_server.domain.chat.dto;
+package gotcha_domain.chat;
 
 public enum ChatType {
     ALL, ROOM, PRIVATE

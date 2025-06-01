@@ -5,8 +5,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.util.JsonSerializer;
-import socket_server.domain.chat.dto.ChatMessage;
-import socket_server.domain.chat.dto.ChatType;
+import gotcha_domain.chat.ChatMessage;
+import gotcha_domain.chat.ChatType;
 
 import java.time.Duration;
 import java.time.Instant;
