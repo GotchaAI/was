@@ -19,8 +19,8 @@ public class UserReportService {
     private final ChatLogService chatLogService;
     private final UserService userService;
 
-    public void reportUser(UserReportReq reportReq) {
-        List<ChatMessage> chatLog = chatLogService.getSurroundingMessages(reportReq.chatType(), reportReq.identifier(), reportReq.reportedUuId(), reportReq.chatTime(), 10);
+    public void reportUser(UserReportReq reportReq, String userUuid) {
+        List<ChatMessage> chatLog = chatLogService.getSurroundingMessages(reportReq.chatType(), reportReq.identifier(), userUuid, reportReq.chatTime(), 10);
         User reportedUser = userService.findUserByUuid(reportReq.reportedUuId());
 
         UserReport userReport = UserReport.of(
