@@ -7,6 +7,8 @@ import gotcha_domain.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,6 +32,7 @@ public class UserReport extends BaseTimeEntity {
     private Long id;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private UserReportType userReportType;
 
     @NotNull
@@ -40,13 +43,18 @@ public class UserReport extends BaseTimeEntity {
     private User user;
 
     @Convert(converter = ChatMessageListConverter.class)
-    @Column(name = "chat_log", length = 500)
+    @Column(name = "chat_log", columnDefinition = "TEXT")
     private List<ChatMessage> chatLog;
 
     @Builder
-    public UserReport(UserReportType userReportType, String detail, List<ChatMessage> chatLog){
+    public UserReport(UserReportType userReportType, String detail, List<ChatMessage> chatLog, User user){
         this.userReportType = userReportType;
         this.detail = detail;
         this.chatLog = chatLog;
+        this.user = user;
+    }
+
+    public static UserReport of(UserReportType userReportType, String detail, List<ChatMessage> chatLog, User user) {
+        return new UserReport(userReportType, detail, chatLog, user);
     }
 }
