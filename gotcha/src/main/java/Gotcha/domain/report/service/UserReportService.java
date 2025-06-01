@@ -4,6 +4,7 @@ import Gotcha.domain.report.dto.UserReportReq;
 import Gotcha.domain.report.exception.ReportExceptionCode;
 import Gotcha.domain.report.repository.UserReportRepository;
 import gotcha_common.exception.CustomException;
+import gotcha_domain.auth.SecurityUserDetails;
 import gotcha_domain.chat.ChatMessage;
 import gotcha_domain.report.UserReport;
 import gotcha_domain.user.User;
@@ -21,13 +22,13 @@ public class UserReportService {
     private final ChatLogService chatLogService;
     private final UserService userService;
 
-    public void reportUser(UserReportReq reportReq, String userUuid) {
-        if (reportReq.reportedUuId().equals(userUuid)) {
+    public void reportUser(UserReportReq reportReq, SecurityUserDetails userDetails) {
+        if (reportReq.reportedNickname().equals(userDetails.getNickname())) {
             throw new CustomException(ReportExceptionCode.CANNOT_REPORT_SELF);
         }
 
-        List<ChatMessage> chatLog = chatLogService.getSurroundingMessages(reportReq.chatType(), reportReq.identifier(), userUuid, reportReq.chatTime(), 10);
-        User reportedUser = userService.findUserByUuid(reportReq.reportedUuId());
+        List<ChatMessage> chatLog = chatLogService.getSurroundingMessages(reportReq.chatType(), reportReq.identifier(), userDetails.getUuid(), reportReq.chatTime(), 10);
+        User reportedUser = userService.findUserByNickname(reportReq.reportedNickname());
 
         UserReport userReport = UserReport.of(
                 reportReq.reportType(),
