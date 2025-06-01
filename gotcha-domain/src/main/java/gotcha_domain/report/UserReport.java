@@ -1,7 +1,8 @@
 package gotcha_domain.report;
 
-import gotcha_common.converter.StringListConverter;
 import gotcha_common.entity.BaseTimeEntity;
+import gotcha_domain.chat.ChatMessage;
+import gotcha_domain.chat.converter.ChatMessageListConverter;
 import gotcha_domain.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -38,12 +39,12 @@ public class UserReport extends BaseTimeEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Convert(converter = StringListConverter.class)
+    @Convert(converter = ChatMessageListConverter.class)
     @Column(name = "chat_log", length = 500)
-    private List<String> chatLog;
+    private List<ChatMessage> chatLog;
 
     @Builder
-    public UserReport(UserReportType userReportType, String detail, List<String> chatLog){
+    public UserReport(UserReportType userReportType, String detail, List<ChatMessage> chatLog){
         this.userReportType = userReportType;
         this.detail = detail;
         this.chatLog = chatLog;
