@@ -12,6 +12,7 @@ import socket_server.common.exception.room.RoomExceptionCode;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.chat.dto.ChatMessage;
 import socket_server.domain.chat.dto.ChatType;
+import socket_server.domain.chat.service.ChatLogService;
 import socket_server.domain.lobby.service.LobbyBroadCaster;
 import socket_server.domain.room.RoomField.RoomField;
 import socket_server.domain.lobby.dto.CreateRoomReq;
@@ -44,6 +45,7 @@ public class RoomService {
     private final RoomUserRepository roomUserRepository;
     private final RoomBroadcaster roomBroadcaster;
     private final LobbyBroadCaster lobbyBroadCaster;
+    private final ChatLogService chatLogService;
     private final ErrorType ROOM_ERROR = ErrorType.ROOM;
 
     public RoomService(
@@ -53,7 +55,9 @@ public class RoomService {
             @Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
             JsonSerializer jsonSerializer,
             RoomUserRepository roomUserRepository,
-            RoomBroadcaster roomBroadcaster, LobbyBroadCaster lobbyBroadCaster) {
+            RoomBroadcaster roomBroadcaster,
+            LobbyBroadCaster lobbyBroadCaster,
+            ChatLogService chatLogService) {
         this.roomIdService = roomIdService;
         this.roomUserService = roomUserService;
         this.roomRepository = roomRepository;
@@ -62,6 +66,7 @@ public class RoomService {
         this.roomUserRepository = roomUserRepository;
         this.roomBroadcaster = roomBroadcaster;
         this.lobbyBroadCaster = lobbyBroadCaster;
+        this.chatLogService = chatLogService;
     }
 
     //todo : lua 스크립트 적용
@@ -114,6 +119,8 @@ public class RoomService {
         redisTemplate.convertAndSend(ROOM_PREFIX + roomId, jsonSerializer.serialize(redisMessage, ROOM_ERROR));
 
         log.info("chat - roomId: {}, user: {}, content: {}", roomId, userDetails.getUuid(), content);
+
+        chatLogService.saveChatMessage(ChatType.ROOM, roomId, chatMessage, userDetails.getUuid());
     }
 
     public void updateRoomField(String roomId, RoomUpdateReq roomUpdateReq, String userUuid) {
