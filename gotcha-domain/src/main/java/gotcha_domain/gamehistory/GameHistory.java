@@ -38,11 +38,6 @@ public class GameHistory extends BaseTimeEntity {
     @Column(name = "final_scores", columnDefinition = "JSON")
     private Map<String, Integer> finalScores;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "game_players", columnDefinition = "JSON")
-    private List<GamePlayerInfo> gamePlayers;
-
-
     @OneToMany(mappedBy = "gameHistory")
     private List<BugReport> bugReports = new ArrayList<>();
 
