@@ -32,7 +32,7 @@ public class UserReportService {
 
         UserReport userReport = UserReport.of(
                 reportReq.reportType(),
-                reportReq.reason(),
+                reportReq.detail(),
                 chatLog,
                 reportedUser
         );
