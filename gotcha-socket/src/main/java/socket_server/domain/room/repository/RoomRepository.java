@@ -40,8 +40,10 @@ public class RoomRepository {
     public Set<String> getAllRoomIds() {
         Set<String> keys = redisTemplate.keys("room:*");
         if (keys == null) return Set.of();
+
         return keys.stream()
-                .map(key -> key.replaceFirst("room:", ""))
+                .filter(k -> k.matches("room:[^:]+"))
+                .map(k -> k.replaceFirst("room:", ""))
                 .collect(Collectors.toSet());
     }
 }
