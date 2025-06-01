@@ -147,6 +147,90 @@
         }
       }
     },
+    "/sub/friend/{userUuid}": {
+      "description": "클라이언트가 친구 관련 알림을 수신받는 채널",
+      "parameters": {
+        "userUuid": {
+          "description": "사용자의 UUID",
+          "schema": {
+            "type": "string",
+            "x-parser-schema-id": "userUuid"
+          }
+        }
+      },
+      "subscribe": {
+        "message": {
+          "payload": {
+            "type": "object",
+            "description": "친구 관련 이벤트 응답 구조",
+            "properties": {
+              "eventType": {
+                "type": "string",
+                "description": "친구 이벤트 타입",
+                "enum": [
+                  "ONLINE",
+                  "REQUEST",
+                  "REJECT",
+                  "ACCEPT",
+                  "DELETE"
+                ],
+                "x-parser-schema-id": "<anonymous-schema-6>"
+              },
+              "data": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "x-parser-schema-id": "<anonymous-schema-8>"
+                  },
+                  {
+                    "type": "object",
+                    "description": "친구 요약 정보",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "description": "친구 관계 ID",
+                        "x-parser-schema-id": "<anonymous-schema-9>"
+                      },
+                      "nickname": {
+                        "type": "string",
+                        "description": "친구 닉네임",
+                        "x-parser-schema-id": "<anonymous-schema-10>"
+                      },
+                      "uuid": {
+                        "type": "string",
+                        "description": "친구 UUID",
+                        "x-parser-schema-id": "<anonymous-schema-11>"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "nickname",
+                      "uuid"
+                    ],
+                    "x-parser-schema-id": "FriendSummaryRes"
+                  }
+                ],
+                "description": "이벤트 관련 데이터 (DELETE, ONLINE의 경우 - 사용자 UUID, REQUEST, REJECT, ACCEPT의 경우 - 친구 정보 요약)",
+                "x-parser-schema-id": "<anonymous-schema-7>"
+              },
+              "eventAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "이벤트 발생 시각",
+                "x-parser-schema-id": "<anonymous-schema-12>"
+              }
+            },
+            "required": [
+              "eventType",
+              "data",
+              "eventAt"
+            ],
+            "x-parser-schema-id": "FriendEventRes"
+          },
+          "x-parser-message-name": "<anonymous-message-1>"
+        }
+      }
+    },
     "/pub/lobby/create": {
       "description": "클라이언트가 새 방을 생성 요청하는 채널",
       "publish": {
@@ -165,22 +249,22 @@
               "title": {
                 "type": "string",
                 "description": "제목 (필수 입력)",
-                "x-parser-schema-id": "<anonymous-schema-6>"
+                "x-parser-schema-id": "<anonymous-schema-13>"
               },
               "maxUser": {
                 "type": "integer",
                 "description": "최대 인원수 (필수 입력)",
-                "x-parser-schema-id": "<anonymous-schema-7>"
+                "x-parser-schema-id": "<anonymous-schema-14>"
               },
               "hasPassword": {
                 "type": "boolean",
                 "description": "비밀번호 사용 여부",
-                "x-parser-schema-id": "<anonymous-schema-8>"
+                "x-parser-schema-id": "<anonymous-schema-15>"
               },
               "password": {
                 "type": "string",
                 "description": "문자열이 숫자 4자리로만 구성되어 있어야 한다",
-                "x-parser-schema-id": "<anonymous-schema-9>"
+                "x-parser-schema-id": "<anonymous-schema-16>"
               },
               "difficulty": {
                 "type": "string",
@@ -189,7 +273,7 @@
                   "ADVANCED"
                 ],
                 "description": "인공지능 난이도 (필수)",
-                "x-parser-schema-id": "<anonymous-schema-10>"
+                "x-parser-schema-id": "<anonymous-schema-17>"
               },
               "gameType": {
                 "type": "string",
@@ -198,19 +282,19 @@
                   "LULU_ART_EXAM"
                 ],
                 "description": "묘묘 - 2인 / 루루 - 1인 게임 모드",
-                "x-parser-schema-id": "<anonymous-schema-11>"
+                "x-parser-schema-id": "<anonymous-schema-18>"
               },
               "roundCount": {
                 "type": "integer",
                 "minimum": 1,
                 "maximum": 5,
                 "description": "라운드 수 (1~5 사이)",
-                "x-parser-schema-id": "<anonymous-schema-12>"
+                "x-parser-schema-id": "<anonymous-schema-19>"
               }
             },
             "x-parser-schema-id": "CreateRoomRequest"
           },
-          "x-parser-message-name": "<anonymous-message-1>"
+          "x-parser-message-name": "<anonymous-message-2>"
         }
       }
     },
@@ -234,7 +318,7 @@
               "roomId": {
                 "type": "string",
                 "description": "생성된 방의 고유 ID",
-                "x-parser-schema-id": "<anonymous-schema-13>"
+                "x-parser-schema-id": "<anonymous-schema-20>"
               }
             },
             "required": [
@@ -242,7 +326,7 @@
             ],
             "x-parser-schema-id": "RoomIdRes"
           },
-          "x-parser-message-name": "<anonymous-message-2>"
+          "x-parser-message-name": "<anonymous-message-3>"
         }
       }
     },
@@ -260,7 +344,7 @@
       "publish": {
         "message": {
           "payload": "$ref:$.channels./pub/lobby/create.publish.message.payload",
-          "x-parser-message-name": "<anonymous-message-3>"
+          "x-parser-message-name": "<anonymous-message-4>"
         }
       }
     },
@@ -278,7 +362,7 @@
       "subscribe": {
         "message": {
           "payload": "$ref:$.channels./sub/lobby/create/{userUuid}.subscribe.message.payload",
-          "x-parser-message-name": "<anonymous-message-4>"
+          "x-parser-message-name": "<anonymous-message-5>"
         }
       }
     },
@@ -295,11 +379,11 @@
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-14>"
+                    "x-parser-schema-id": "<anonymous-schema-21>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-15>"
+                    "x-parser-schema-id": "<anonymous-schema-22>"
                   },
                   "payload": {
                     "type": "object",
@@ -309,12 +393,12 @@
                         "enum": [
                           "CREATE"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-17>"
+                        "x-parser-schema-id": "<anonymous-schema-24>"
                       },
                       "eventAt": {
                         "type": "string",
                         "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-18>"
+                        "x-parser-schema-id": "<anonymous-schema-25>"
                       },
                       "data": {
                         "type": "object",
@@ -322,38 +406,38 @@
                           "roomId": {
                             "type": "string",
                             "description": "방 ID",
-                            "x-parser-schema-id": "<anonymous-schema-19>"
+                            "x-parser-schema-id": "<anonymous-schema-26>"
                           },
                           "title": {
                             "type": "string",
                             "description": "방 제목",
-                            "x-parser-schema-id": "<anonymous-schema-20>"
+                            "x-parser-schema-id": "<anonymous-schema-27>"
                           },
                           "owner": {
                             "type": "string",
                             "description": "방장 닉네임",
-                            "x-parser-schema-id": "<anonymous-schema-21>"
+                            "x-parser-schema-id": "<anonymous-schema-28>"
                           },
                           "hasPassword": {
                             "type": "boolean",
                             "description": "비밀번호 사용 여부",
-                            "x-parser-schema-id": "<anonymous-schema-22>"
+                            "x-parser-schema-id": "<anonymous-schema-29>"
                           },
                           "maxUser": {
                             "type": "integer",
                             "description": "최대 인원 수",
-                            "x-parser-schema-id": "<anonymous-schema-23>"
+                            "x-parser-schema-id": "<anonymous-schema-30>"
                           },
                           "currentUser": {
                             "type": "integer",
                             "description": "현재 인원 수",
-                            "x-parser-schema-id": "<anonymous-schema-24>"
+                            "x-parser-schema-id": "<anonymous-schema-31>"
                           }
                         },
                         "x-parser-schema-id": "RoomSummaryRes"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-16>"
+                    "x-parser-schema-id": "<anonymous-schema-23>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_RoomList_Create"
@@ -367,11 +451,11 @@
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-25>"
+                    "x-parser-schema-id": "<anonymous-schema-32>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-26>"
+                    "x-parser-schema-id": "<anonymous-schema-33>"
                   },
                   "payload": {
                     "type": "object",
@@ -381,16 +465,16 @@
                         "enum": [
                           "UPDATE"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-28>"
+                        "x-parser-schema-id": "<anonymous-schema-35>"
                       },
                       "eventAt": {
                         "type": "string",
                         "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-29>"
+                        "x-parser-schema-id": "<anonymous-schema-36>"
                       },
                       "data": "$ref:$.channels./sub/lobby/list/event.subscribe.message.oneOf[0].payload.properties.payload.properties.data"
                     },
-                    "x-parser-schema-id": "<anonymous-schema-27>"
+                    "x-parser-schema-id": "<anonymous-schema-34>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_RoomList_Update"
@@ -404,11 +488,11 @@
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-30>"
+                    "x-parser-schema-id": "<anonymous-schema-37>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-31>"
+                    "x-parser-schema-id": "<anonymous-schema-38>"
                   },
                   "payload": {
                     "type": "object",
@@ -418,16 +502,16 @@
                         "enum": [
                           "DELETE"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-33>"
+                        "x-parser-schema-id": "<anonymous-schema-40>"
                       },
                       "eventAt": {
                         "type": "string",
                         "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-34>"
+                        "x-parser-schema-id": "<anonymous-schema-41>"
                       },
                       "data": "$ref:$.channels./sub/lobby/list/event.subscribe.message.oneOf[0].payload.properties.payload.properties.data"
                     },
-                    "x-parser-schema-id": "<anonymous-schema-32>"
+                    "x-parser-schema-id": "<anonymous-schema-39>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_RoomList_Delete"
@@ -472,12 +556,12 @@
                   "KICK"
                 ],
                 "description": "클라이언트가 수행하고자 하는 이벤트의 종류입니다.\n",
-                "x-parser-schema-id": "<anonymous-schema-35>"
+                "x-parser-schema-id": "<anonymous-schema-42>"
               },
               "content": {
                 "type": "string",
                 "description": "이벤트에 따라 의미가 달라지는 콘텐츠입니다.\n- CHAT: 채팅 메시지\n- JOIN: 비밀번호가 있는 대기방의 경우 비밀번호, 비밀번호가 없다면 안보내도 됩니다.\n- KICK: 강퇴하고자 하는 사용자의 UUID\n- UPDATE: 방의 정보(title, hasPassword, password, difficulty, roundCount)를 json문자열 형태로 보냅니다.\n- OWNER_CHANGE: 방장 권한을 위임하고자 하는 사용자의 UUID\n- 나머지는 content를 사용하지 않습니다.\n",
-                "x-parser-schema-id": "<anonymous-schema-36>"
+                "x-parser-schema-id": "<anonymous-schema-43>"
               }
             },
             "x-parser-schema-id": "RoomReq"
@@ -507,11 +591,11 @@
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-37>"
+                    "x-parser-schema-id": "<anonymous-schema-44>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-38>"
+                    "x-parser-schema-id": "<anonymous-schema-45>"
                   },
                   "payload": {
                     "type": "object",
@@ -521,41 +605,41 @@
                         "enum": [
                           "CHAT"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-40>"
+                        "x-parser-schema-id": "<anonymous-schema-47>"
                       },
                       "eventAt": {
                         "type": "string",
                         "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-41>"
+                        "x-parser-schema-id": "<anonymous-schema-48>"
                       },
                       "data": {
                         "type": "object",
                         "properties": {
                           "nickname": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-42>"
+                            "x-parser-schema-id": "<anonymous-schema-49>"
                           },
                           "content": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-43>"
+                            "x-parser-schema-id": "<anonymous-schema-50>"
                           },
                           "chatType": {
                             "type": "string",
                             "enum": [
                               "ROOM"
                             ],
-                            "x-parser-schema-id": "<anonymous-schema-44>"
+                            "x-parser-schema-id": "<anonymous-schema-51>"
                           },
                           "sentAt": {
                             "type": "string",
                             "format": "date-time",
-                            "x-parser-schema-id": "<anonymous-schema-45>"
+                            "x-parser-schema-id": "<anonymous-schema-52>"
                           }
                         },
                         "x-parser-schema-id": "RoomChatMessage"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-39>"
+                    "x-parser-schema-id": "<anonymous-schema-46>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_RoomChat"
@@ -569,11 +653,11 @@
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-46>"
+                    "x-parser-schema-id": "<anonymous-schema-53>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-47>"
+                    "x-parser-schema-id": "<anonymous-schema-54>"
                   },
                   "payload": {
                     "type": "object",
@@ -583,20 +667,20 @@
                         "enum": [
                           "READY"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-49>"
+                        "x-parser-schema-id": "<anonymous-schema-56>"
                       },
                       "eventAt": {
                         "type": "string",
                         "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-50>"
+                        "x-parser-schema-id": "<anonymous-schema-57>"
                       },
                       "data": {
                         "type": "string",
                         "description": "레디를 한 사용자의 UUID",
-                        "x-parser-schema-id": "<anonymous-schema-51>"
+                        "x-parser-schema-id": "<anonymous-schema-58>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-48>"
+                    "x-parser-schema-id": "<anonymous-schema-55>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_RoomReady"
@@ -610,11 +694,11 @@
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-52>"
+                    "x-parser-schema-id": "<anonymous-schema-59>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-53>"
+                    "x-parser-schema-id": "<anonymous-schema-60>"
                   },
                   "payload": {
                     "type": "object",
@@ -624,20 +708,20 @@
                         "enum": [
                           "UNREADY"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-55>"
+                        "x-parser-schema-id": "<anonymous-schema-62>"
                       },
                       "eventAt": {
                         "type": "string",
                         "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-56>"
+                        "x-parser-schema-id": "<anonymous-schema-63>"
                       },
                       "data": {
                         "type": "string",
                         "description": "레디 취소를 한 사용자의 UUID",
-                        "x-parser-schema-id": "<anonymous-schema-57>"
+                        "x-parser-schema-id": "<anonymous-schema-64>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-54>"
+                    "x-parser-schema-id": "<anonymous-schema-61>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_RoomUnReady"
@@ -651,11 +735,11 @@
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-58>"
+                    "x-parser-schema-id": "<anonymous-schema-65>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-59>"
+                    "x-parser-schema-id": "<anonymous-schema-66>"
                   },
                   "payload": {
                     "type": "object",
@@ -665,20 +749,20 @@
                         "enum": [
                           "EXIT"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-61>"
+                        "x-parser-schema-id": "<anonymous-schema-68>"
                       },
                       "eventAt": {
                         "type": "string",
                         "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-62>"
+                        "x-parser-schema-id": "<anonymous-schema-69>"
                       },
                       "data": {
                         "type": "string",
                         "description": "퇴장한 사용자의 UUID",
-                        "x-parser-schema-id": "<anonymous-schema-63>"
+                        "x-parser-schema-id": "<anonymous-schema-70>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-60>"
+                    "x-parser-schema-id": "<anonymous-schema-67>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_RoomExit"
@@ -692,11 +776,11 @@
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-64>"
+                    "x-parser-schema-id": "<anonymous-schema-71>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-65>"
+                    "x-parser-schema-id": "<anonymous-schema-72>"
                   },
                   "payload": {
                     "type": "object",
@@ -706,12 +790,12 @@
                         "enum": [
                           "START"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-67>"
+                        "x-parser-schema-id": "<anonymous-schema-74>"
                       },
                       "eventAt": {
                         "type": "string",
                         "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-68>"
+                        "x-parser-schema-id": "<anonymous-schema-75>"
                       },
                       "data": {
                         "type": "object",
@@ -724,7 +808,7 @@
                                 "type": "string",
                                 "description": "게임 방의 고유 식별자",
                                 "example": "9827",
-                                "x-parser-schema-id": "<anonymous-schema-69>"
+                                "x-parser-schema-id": "<anonymous-schema-76>"
                               },
                               "gameType": {
                                 "type": "string",
@@ -734,7 +818,7 @@
                                   "LULU_ART_EXAM"
                                 ],
                                 "example": "TRICK_MYOMYO",
-                                "x-parser-schema-id": "<anonymous-schema-70>"
+                                "x-parser-schema-id": "<anonymous-schema-77>"
                               },
                               "difficulty": {
                                 "type": "string",
@@ -744,7 +828,7 @@
                                   "ADVANCED"
                                 ],
                                 "example": "BASIC",
-                                "x-parser-schema-id": "<anonymous-schema-71>"
+                                "x-parser-schema-id": "<anonymous-schema-78>"
                               },
                               "gameStatus": {
                                 "type": "string",
@@ -757,25 +841,25 @@
                                   "ROUND_ENDED",
                                   "GAME_ENDED"
                                 ],
-                                "x-parser-schema-id": "<anonymous-schema-72>"
+                                "x-parser-schema-id": "<anonymous-schema-79>"
                               },
                               "currentRound": {
                                 "type": "integer",
                                 "description": "현재 라운드 번호 (0이면 아직 아무 라운드 시작하지 않음, 1부터 시작)",
                                 "example": 0,
-                                "x-parser-schema-id": "<anonymous-schema-73>"
+                                "x-parser-schema-id": "<anonymous-schema-80>"
                               },
                               "totalRounds": {
                                 "type": "integer",
                                 "description": "전체 라운드 수",
                                 "example": 3,
-                                "x-parser-schema-id": "<anonymous-schema-74>"
+                                "x-parser-schema-id": "<anonymous-schema-81>"
                               },
                               "aiScore": {
                                 "type": "integer",
                                 "description": "AI의 현재 점수",
                                 "example": 0,
-                                "x-parser-schema-id": "<anonymous-schema-75>"
+                                "x-parser-schema-id": "<anonymous-schema-82>"
                               },
                               "scores": {
                                 "type": "object",
@@ -783,7 +867,7 @@
                                 "additionalProperties": {
                                   "type": "integer",
                                   "description": "획득한 점수",
-                                  "x-parser-schema-id": "<anonymous-schema-76>"
+                                  "x-parser-schema-id": "<anonymous-schema-83>"
                                 },
                                 "example": {
                                   "AI": 0,
@@ -802,18 +886,18 @@
                                       "type": "string",
                                       "description": "플레이어의 UUID",
                                       "example": "l3lwXGrb",
-                                      "x-parser-schema-id": "<anonymous-schema-78>"
+                                      "x-parser-schema-id": "<anonymous-schema-85>"
                                     },
                                     "nickname": {
                                       "type": "string",
                                       "description": "플레이어의 닉네임",
                                       "example": "test1",
-                                      "x-parser-schema-id": "<anonymous-schema-79>"
+                                      "x-parser-schema-id": "<anonymous-schema-86>"
                                     }
                                   },
                                   "x-parser-schema-id": "GamePlayer"
                                 },
-                                "x-parser-schema-id": "<anonymous-schema-77>"
+                                "x-parser-schema-id": "<anonymous-schema-84>"
                               },
                               "rounds": {
                                 "type": "array",
@@ -825,7 +909,7 @@
                                       "type": "integer",
                                       "description": "라운드 번호 (0부터 시작)",
                                       "example": 0,
-                                      "x-parser-schema-id": "<anonymous-schema-81>"
+                                      "x-parser-schema-id": "<anonymous-schema-88>"
                                     },
                                     "drawingEndTime": {
                                       "type": "string",
@@ -833,20 +917,20 @@
                                       "nullable": true,
                                       "description": "그리기 종료 시간 (ISO 8601)",
                                       "example": "null",
-                                      "x-parser-schema-id": "<anonymous-schema-82>"
+                                      "x-parser-schema-id": "<anonymous-schema-89>"
                                     },
                                     "roundWinner": {
                                       "type": "string",
                                       "nullable": true,
                                       "description": "라운드 승리자 (playerUuid 또는 'AI' 또는 'players')",
                                       "example": "null",
-                                      "x-parser-schema-id": "<anonymous-schema-83>"
+                                      "x-parser-schema-id": "<anonymous-schema-90>"
                                     },
                                     "currentWordIndex": {
                                       "type": "integer",
                                       "description": "현재 추측중인 Word 인덱스",
                                       "example": 0,
-                                      "x-parser-schema-id": "<anonymous-schema-84>"
+                                      "x-parser-schema-id": "<anonymous-schema-91>"
                                     },
                                     "words": {
                                       "type": "array",
@@ -858,31 +942,31 @@
                                             "type": "integer",
                                             "description": "단어 인덱스",
                                             "example": 0,
-                                            "x-parser-schema-id": "<anonymous-schema-86>"
+                                            "x-parser-schema-id": "<anonymous-schema-93>"
                                           },
                                           "word": {
                                             "type": "string",
                                             "description": "제시어",
                                             "example": "bush",
-                                            "x-parser-schema-id": "<anonymous-schema-87>"
+                                            "x-parser-schema-id": "<anonymous-schema-94>"
                                           },
                                           "drawerUuid": {
                                             "type": "string",
                                             "description": "그림을 그린 플레이어의 UUID",
                                             "example": "l3lwXGrb",
-                                            "x-parser-schema-id": "<anonymous-schema-88>"
+                                            "x-parser-schema-id": "<anonymous-schema-95>"
                                           },
                                           "submitted": {
                                             "type": "boolean",
                                             "description": "해당 그림이 제출되었는지 여부",
                                             "example": false,
-                                            "x-parser-schema-id": "<anonymous-schema-89>"
+                                            "x-parser-schema-id": "<anonymous-schema-96>"
                                           },
                                           "imageURL": {
                                             "type": "string",
                                             "description": "해당 그림의 URL",
                                             "example": "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png",
-                                            "x-parser-schema-id": "<anonymous-schema-90>"
+                                            "x-parser-schema-id": "<anonymous-schema-97>"
                                           },
                                           "aiGuesses": {
                                             "type": "array",
@@ -894,36 +978,36 @@
                                                   "type": "string",
                                                   "description": "추측을 시도한 플레이어의 UUID(AI일 경우 'AI')",
                                                   "example": "z2E63KqK",
-                                                  "x-parser-schema-id": "<anonymous-schema-92>"
+                                                  "x-parser-schema-id": "<anonymous-schema-99>"
                                                 },
                                                 "guessWord": {
                                                   "type": "string",
                                                   "description": "플레이어의 추측 단어",
                                                   "example": "tree",
-                                                  "x-parser-schema-id": "<anonymous-schema-93>"
+                                                  "x-parser-schema-id": "<anonymous-schema-100>"
                                                 },
                                                 "attempts": {
                                                   "type": "integer",
                                                   "description": "플레이어의 추측 시도 수",
                                                   "example": 1,
-                                                  "x-parser-schema-id": "<anonymous-schema-94>"
+                                                  "x-parser-schema-id": "<anonymous-schema-101>"
                                                 },
                                                 "correct": {
                                                   "type": "boolean",
                                                   "description": "플레이어의 추측 정답 여부",
                                                   "example": true,
-                                                  "x-parser-schema-id": "<anonymous-schema-95>"
+                                                  "x-parser-schema-id": "<anonymous-schema-102>"
                                                 }
                                               },
                                               "x-parser-schema-id": "Guess"
                                             },
-                                            "x-parser-schema-id": "<anonymous-schema-91>"
+                                            "x-parser-schema-id": "<anonymous-schema-98>"
                                           },
                                           "playerGuesses": {
                                             "type": "array",
                                             "description": "사용자의 추측 목록",
                                             "items": "$ref:$.channels./sub/room/{roomId}.subscribe.message.oneOf[4].payload.properties.payload.properties.data.properties.gameData.properties.rounds.items.properties.words.items.properties.aiGuesses.items",
-                                            "x-parser-schema-id": "<anonymous-schema-96>"
+                                            "x-parser-schema-id": "<anonymous-schema-103>"
                                           },
                                           "aiPredictions": {
                                             "type": "array",
@@ -935,36 +1019,36 @@
                                                   "type": "string",
                                                   "description": "AI의 추측 단어",
                                                   "example": "apple",
-                                                  "x-parser-schema-id": "<anonymous-schema-98>"
+                                                  "x-parser-schema-id": "<anonymous-schema-105>"
                                                 },
                                                 "confidence": {
                                                   "type": "number",
                                                   "format": "float",
                                                   "description": "AI 추측의 신뢰도 (0~1)",
                                                   "example": 0.85,
-                                                  "x-parser-schema-id": "<anonymous-schema-99>"
+                                                  "x-parser-schema-id": "<anonymous-schema-106>"
                                                 }
                                               },
                                               "x-parser-schema-id": "AIPrediction"
                                             },
-                                            "x-parser-schema-id": "<anonymous-schema-97>"
+                                            "x-parser-schema-id": "<anonymous-schema-104>"
                                           }
                                         },
                                         "x-parser-schema-id": "Word"
                                       },
-                                      "x-parser-schema-id": "<anonymous-schema-85>"
+                                      "x-parser-schema-id": "<anonymous-schema-92>"
                                     }
                                   },
                                   "x-parser-schema-id": "Round"
                                 },
-                                "x-parser-schema-id": "<anonymous-schema-80>"
+                                "x-parser-schema-id": "<anonymous-schema-87>"
                               },
                               "winner": {
                                 "type": "string",
                                 "description": "게임 최종 우승자 (playerUuid 또는 'AI' 또는 'players')",
                                 "nullable": true,
                                 "example": "AI",
-                                "x-parser-schema-id": "<anonymous-schema-100>"
+                                "x-parser-schema-id": "<anonymous-schema-107>"
                               }
                             },
                             "x-parser-schema-id": "Game"
@@ -972,13 +1056,13 @@
                           "aiSays": {
                             "type": "string",
                             "description": "게임 시작 시 AI의 메시지",
-                            "x-parser-schema-id": "<anonymous-schema-101>"
+                            "x-parser-schema-id": "<anonymous-schema-108>"
                           }
                         },
                         "x-parser-schema-id": "AISaysRes"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-66>"
+                    "x-parser-schema-id": "<anonymous-schema-73>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_GameStart"
@@ -1004,7 +1088,7 @@
               "content": {
                 "type": "string",
                 "description": "메시지 내용",
-                "x-parser-schema-id": "<anonymous-schema-102>"
+                "x-parser-schema-id": "<anonymous-schema-109>"
               }
             },
             "required": [
@@ -1012,7 +1096,7 @@
             ],
             "x-parser-schema-id": "RedisReq_AllChat"
           },
-          "x-parser-message-name": "<anonymous-message-5>"
+          "x-parser-message-name": "<anonymous-message-6>"
         }
       }
     },
@@ -1030,35 +1114,35 @@
                 "type": "string",
                 "nullable": true,
                 "description": "null (전체 채팅이므로 사용자 구분 없음)",
-                "x-parser-schema-id": "<anonymous-schema-103>"
+                "x-parser-schema-id": "<anonymous-schema-110>"
               },
               "topic": {
                 "type": "string",
                 "description": "Redis로 발행된 전체 채팅 채널명",
-                "x-parser-schema-id": "<anonymous-schema-104>"
+                "x-parser-schema-id": "<anonymous-schema-111>"
               },
               "payload": {
                 "type": "object",
                 "properties": {
                   "nickname": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-105>"
+                    "x-parser-schema-id": "<anonymous-schema-112>"
                   },
                   "content": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-106>"
+                    "x-parser-schema-id": "<anonymous-schema-113>"
                   },
                   "chatType": {
                     "type": "string",
                     "enum": [
                       "ALL"
                     ],
-                    "x-parser-schema-id": "<anonymous-schema-107>"
+                    "x-parser-schema-id": "<anonymous-schema-114>"
                   },
                   "sentAt": {
                     "type": "string",
                     "format": "date-time",
-                    "x-parser-schema-id": "<anonymous-schema-108>"
+                    "x-parser-schema-id": "<anonymous-schema-115>"
                   }
                 },
                 "x-parser-schema-id": "AllChatMessage"
@@ -1081,12 +1165,12 @@
                 "type": "string",
                 "nullable": true,
                 "description": "- 개인 채팅 시, `receiverUuid'는 필수입니다.\n",
-                "x-parser-schema-id": "<anonymous-schema-109>"
+                "x-parser-schema-id": "<anonymous-schema-116>"
               },
               "content": {
                 "type": "string",
                 "description": "메시지 내용",
-                "x-parser-schema-id": "<anonymous-schema-110>"
+                "x-parser-schema-id": "<anonymous-schema-117>"
               }
             },
             "required": [
@@ -1094,7 +1178,7 @@
             ],
             "x-parser-schema-id": "RedisReq_PrivateChat"
           },
-          "x-parser-message-name": "<anonymous-message-6>"
+          "x-parser-message-name": "<anonymous-message-7>"
         }
       }
     },
@@ -1120,35 +1204,35 @@
               "userId": {
                 "type": "string",
                 "description": "수신 대상 사용자의 UUID입니다.",
-                "x-parser-schema-id": "<anonymous-schema-111>"
+                "x-parser-schema-id": "<anonymous-schema-118>"
               },
               "topic": {
                 "type": "string",
                 "description": "Redis로 발행된 개인 채팅 채널명 (`/sub/chat/private/{receiverUuid}`)",
-                "x-parser-schema-id": "<anonymous-schema-112>"
+                "x-parser-schema-id": "<anonymous-schema-119>"
               },
               "payload": {
                 "type": "object",
                 "properties": {
                   "nickname": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-113>"
+                    "x-parser-schema-id": "<anonymous-schema-120>"
                   },
                   "content": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-114>"
+                    "x-parser-schema-id": "<anonymous-schema-121>"
                   },
                   "chatType": {
                     "type": "string",
                     "enum": [
                       "PRIVATE"
                     ],
-                    "x-parser-schema-id": "<anonymous-schema-115>"
+                    "x-parser-schema-id": "<anonymous-schema-122>"
                   },
                   "sentAt": {
                     "type": "string",
                     "format": "date-time",
-                    "x-parser-schema-id": "<anonymous-schema-116>"
+                    "x-parser-schema-id": "<anonymous-schema-123>"
                   }
                 },
                 "x-parser-schema-id": "PrivateChatMessage"
@@ -1184,7 +1268,7 @@
                     "type": "string",
                     "format": "uri",
                     "description": "업로드된 그림의 URL",
-                    "x-parser-schema-id": "<anonymous-schema-117>"
+                    "x-parser-schema-id": "<anonymous-schema-124>"
                   }
                 },
                 "required": [
@@ -1223,11 +1307,11 @@
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-118>"
+                    "x-parser-schema-id": "<anonymous-schema-125>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-119>"
+                    "x-parser-schema-id": "<anonymous-schema-126>"
                   },
                   "payload": {
                     "type": "object",
@@ -1237,34 +1321,34 @@
                         "enum": [
                           "ROUND_START"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-121>"
+                        "x-parser-schema-id": "<anonymous-schema-128>"
                       },
                       "aiSays": {
                         "type": "string",
                         "description": "게임 진행 중 AI에게서 오는 메시지입니다. AI에서 메시지가 오지 않는 이벤트 경우 \"null\" 값으로 오게 됩니다.",
                         "example": "\"으.. 잠깐 오류가 났네. 다시 해볼게!\"",
-                        "x-parser-schema-id": "<anonymous-schema-122>"
+                        "x-parser-schema-id": "<anonymous-schema-129>"
                       },
                       "data": {
                         "type": "object",
                         "properties": {
                           "roundIndex": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-124>"
+                            "x-parser-schema-id": "<anonymous-schema-131>"
                           },
                           "drawingEndTime": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-125>"
+                            "x-parser-schema-id": "<anonymous-schema-132>"
                           },
                           "currentWordIndex": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-126>"
+                            "x-parser-schema-id": "<anonymous-schema-133>"
                           },
                           "roundWinner": {
                             "type": "string",
                             "nullable": true,
                             "description": "해당 라운드의 Winner를 나타내는 필드입니다. ROUND_START 이벤트 발생 시에는 null로 반환됩니다.",
-                            "x-parser-schema-id": "<anonymous-schema-127>"
+                            "x-parser-schema-id": "<anonymous-schema-134>"
                           }
                         },
                         "example": {
@@ -1273,21 +1357,21 @@
                           "currentWordIndex": 0,
                           "roundWinner": null
                         },
-                        "x-parser-schema-id": "<anonymous-schema-123>"
+                        "x-parser-schema-id": "<anonymous-schema-130>"
                       },
                       "endTime": {
                         "type": "string",
                         "nullable": true,
                         "example": null,
-                        "x-parser-schema-id": "<anonymous-schema-128>"
+                        "x-parser-schema-id": "<anonymous-schema-135>"
                       },
                       "eventAt": {
                         "type": "string",
                         "example": "2025-05-28T21:00:56.30379",
-                        "x-parser-schema-id": "<anonymous-schema-129>"
+                        "x-parser-schema-id": "<anonymous-schema-136>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-120>"
+                    "x-parser-schema-id": "<anonymous-schema-127>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_RoundStart"
@@ -1300,11 +1384,11 @@
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-130>"
+                    "x-parser-schema-id": "<anonymous-schema-137>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-131>"
+                    "x-parser-schema-id": "<anonymous-schema-138>"
                   },
                   "payload": {
                     "type": "object",
@@ -1314,7 +1398,7 @@
                         "enum": [
                           "GUESS_START"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-133>"
+                        "x-parser-schema-id": "<anonymous-schema-140>"
                       },
                       "data": {
                         "type": "array",
@@ -1323,26 +1407,26 @@
                           "properties": {
                             "wordIndex": {
                               "type": "integer",
-                              "x-parser-schema-id": "<anonymous-schema-136>"
+                              "x-parser-schema-id": "<anonymous-schema-143>"
                             },
                             "word": {
                               "type": "string",
-                              "x-parser-schema-id": "<anonymous-schema-137>"
+                              "x-parser-schema-id": "<anonymous-schema-144>"
                             },
                             "drawerUuid": {
                               "type": "string",
-                              "x-parser-schema-id": "<anonymous-schema-138>"
+                              "x-parser-schema-id": "<anonymous-schema-145>"
                             },
                             "imageURL": {
                               "type": "string",
-                              "x-parser-schema-id": "<anonymous-schema-139>"
+                              "x-parser-schema-id": "<anonymous-schema-146>"
                             },
                             "submitted": {
                               "type": "boolean",
-                              "x-parser-schema-id": "<anonymous-schema-140>"
+                              "x-parser-schema-id": "<anonymous-schema-147>"
                             }
                           },
-                          "x-parser-schema-id": "<anonymous-schema-135>"
+                          "x-parser-schema-id": "<anonymous-schema-142>"
                         },
                         "example": [
                           {
@@ -1360,15 +1444,15 @@
                             "submitted": true
                           }
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-134>"
+                        "x-parser-schema-id": "<anonymous-schema-141>"
                       },
                       "eventAt": {
                         "type": "string",
                         "example": "2025-05-27T20:28:36.4511966",
-                        "x-parser-schema-id": "<anonymous-schema-141>"
+                        "x-parser-schema-id": "<anonymous-schema-148>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-132>"
+                    "x-parser-schema-id": "<anonymous-schema-139>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_GuessStart"
@@ -1381,11 +1465,11 @@
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-142>"
+                    "x-parser-schema-id": "<anonymous-schema-149>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-143>"
+                    "x-parser-schema-id": "<anonymous-schema-150>"
                   },
                   "payload": {
                     "type": "object",
@@ -1395,28 +1479,28 @@
                         "enum": [
                           "GUESS_REQUEST"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-145>"
+                        "x-parser-schema-id": "<anonymous-schema-152>"
                       },
                       "data": {
                         "type": "object",
                         "properties": {
                           "guesserUuid": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-147>"
+                            "x-parser-schema-id": "<anonymous-schema-154>"
                           },
                           "guessWord": {
                             "type": "string",
                             "nullable": true,
-                            "x-parser-schema-id": "<anonymous-schema-148>"
+                            "x-parser-schema-id": "<anonymous-schema-155>"
                           },
                           "attempts": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-149>"
+                            "x-parser-schema-id": "<anonymous-schema-156>"
                           },
                           "correct": {
                             "type": "boolean",
                             "nullable": true,
-                            "x-parser-schema-id": "<anonymous-schema-150>"
+                            "x-parser-schema-id": "<anonymous-schema-157>"
                           }
                         },
                         "example": {
@@ -1425,27 +1509,27 @@
                           "attempts": 1,
                           "correct": null
                         },
-                        "x-parser-schema-id": "<anonymous-schema-146>"
+                        "x-parser-schema-id": "<anonymous-schema-153>"
                       },
                       "aiSays": {
                         "type": "string",
                         "nullable": true,
                         "example": null,
-                        "x-parser-schema-id": "<anonymous-schema-151>"
+                        "x-parser-schema-id": "<anonymous-schema-158>"
                       },
                       "endTime": {
                         "type": "string",
                         "nullable": true,
                         "example": null,
-                        "x-parser-schema-id": "<anonymous-schema-152>"
+                        "x-parser-schema-id": "<anonymous-schema-159>"
                       },
                       "eventAt": {
                         "type": "string",
                         "example": "2025-05-31T22:17:36.8926635",
-                        "x-parser-schema-id": "<anonymous-schema-153>"
+                        "x-parser-schema-id": "<anonymous-schema-160>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-144>"
+                    "x-parser-schema-id": "<anonymous-schema-151>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_GuessRequest"
@@ -1458,11 +1542,11 @@
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-154>"
+                    "x-parser-schema-id": "<anonymous-schema-161>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-155>"
+                    "x-parser-schema-id": "<anonymous-schema-162>"
                   },
                   "payload": {
                     "type": "object",
@@ -1472,27 +1556,27 @@
                         "enum": [
                           "GUESS_SUBMIT"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-157>"
+                        "x-parser-schema-id": "<anonymous-schema-164>"
                       },
                       "data": {
                         "type": "object",
                         "properties": {
                           "guesserUuid": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-159>"
+                            "x-parser-schema-id": "<anonymous-schema-166>"
                           },
                           "guessWord": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-160>"
+                            "x-parser-schema-id": "<anonymous-schema-167>"
                           },
                           "attempts": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-161>"
+                            "x-parser-schema-id": "<anonymous-schema-168>"
                           },
                           "correct": {
                             "type": "boolean",
                             "nullable": true,
-                            "x-parser-schema-id": "<anonymous-schema-162>"
+                            "x-parser-schema-id": "<anonymous-schema-169>"
                           }
                         },
                         "example": {
@@ -1501,26 +1585,26 @@
                           "attempts": 1,
                           "correct": null
                         },
-                        "x-parser-schema-id": "<anonymous-schema-158>"
+                        "x-parser-schema-id": "<anonymous-schema-165>"
                       },
                       "aiSays": {
                         "type": "string",
                         "example": "으.. 잠깐 오류가 났네. 다시 해볼게!",
-                        "x-parser-schema-id": "<anonymous-schema-163>"
+                        "x-parser-schema-id": "<anonymous-schema-170>"
                       },
                       "endTime": {
                         "type": "string",
                         "nullable": true,
                         "example": null,
-                        "x-parser-schema-id": "<anonymous-schema-164>"
+                        "x-parser-schema-id": "<anonymous-schema-171>"
                       },
                       "eventAt": {
                         "type": "string",
                         "example": "2025-05-28T21:02:18.3712128",
-                        "x-parser-schema-id": "<anonymous-schema-165>"
+                        "x-parser-schema-id": "<anonymous-schema-172>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-156>"
+                    "x-parser-schema-id": "<anonymous-schema-163>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_GuessSubmit"
@@ -1533,11 +1617,11 @@
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-166>"
+                    "x-parser-schema-id": "<anonymous-schema-173>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-167>"
+                    "x-parser-schema-id": "<anonymous-schema-174>"
                   },
                   "payload": {
                     "type": "object",
@@ -1547,26 +1631,26 @@
                         "enum": [
                           "GUESS_RESULT"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-169>"
+                        "x-parser-schema-id": "<anonymous-schema-176>"
                       },
                       "data": {
                         "type": "object",
                         "properties": {
                           "guesserUuid": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-171>"
+                            "x-parser-schema-id": "<anonymous-schema-178>"
                           },
                           "guessWord": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-172>"
+                            "x-parser-schema-id": "<anonymous-schema-179>"
                           },
                           "attempts": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-173>"
+                            "x-parser-schema-id": "<anonymous-schema-180>"
                           },
                           "correct": {
                             "type": "boolean",
-                            "x-parser-schema-id": "<anonymous-schema-174>"
+                            "x-parser-schema-id": "<anonymous-schema-181>"
                           }
                         },
                         "example": {
@@ -1575,26 +1659,26 @@
                           "attempts": 1,
                           "correct": false
                         },
-                        "x-parser-schema-id": "<anonymous-schema-170>"
+                        "x-parser-schema-id": "<anonymous-schema-177>"
                       },
                       "aiSays": {
                         "type": "string",
                         "example": "으.. 잠깐 오류가 났네. 다시 해볼게!",
-                        "x-parser-schema-id": "<anonymous-schema-175>"
+                        "x-parser-schema-id": "<anonymous-schema-182>"
                       },
                       "endTime": {
                         "type": "string",
                         "nullable": true,
                         "example": null,
-                        "x-parser-schema-id": "<anonymous-schema-176>"
+                        "x-parser-schema-id": "<anonymous-schema-183>"
                       },
                       "eventAt": {
                         "type": "string",
                         "example": "2025-05-28T21:02:20.4475533",
-                        "x-parser-schema-id": "<anonymous-schema-177>"
+                        "x-parser-schema-id": "<anonymous-schema-184>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-168>"
+                    "x-parser-schema-id": "<anonymous-schema-175>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_GuessResult"
@@ -1607,11 +1691,11 @@
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-178>"
+                    "x-parser-schema-id": "<anonymous-schema-185>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-179>"
+                    "x-parser-schema-id": "<anonymous-schema-186>"
                   },
                   "payload": {
                     "type": "object",
@@ -1621,40 +1705,40 @@
                         "enum": [
                           "SCORE_UPDATE"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-181>"
+                        "x-parser-schema-id": "<anonymous-schema-188>"
                       },
                       "data": {
                         "type": "object",
                         "additionalProperties": {
                           "type": "integer",
-                          "x-parser-schema-id": "<anonymous-schema-183>"
+                          "x-parser-schema-id": "<anonymous-schema-190>"
                         },
                         "example": {
                           "AI": 0,
                           "z2E63KqK": 3,
                           "l3lwXGrb": 3
                         },
-                        "x-parser-schema-id": "<anonymous-schema-182>"
+                        "x-parser-schema-id": "<anonymous-schema-189>"
                       },
                       "aiSays": {
                         "type": "string",
                         "nullable": true,
                         "example": null,
-                        "x-parser-schema-id": "<anonymous-schema-184>"
+                        "x-parser-schema-id": "<anonymous-schema-191>"
                       },
                       "endTime": {
                         "type": "string",
                         "nullable": true,
                         "example": null,
-                        "x-parser-schema-id": "<anonymous-schema-185>"
+                        "x-parser-schema-id": "<anonymous-schema-192>"
                       },
                       "eventAt": {
                         "type": "string",
                         "example": "2025-05-28T21:02:39.2287028",
-                        "x-parser-schema-id": "<anonymous-schema-186>"
+                        "x-parser-schema-id": "<anonymous-schema-193>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-180>"
+                    "x-parser-schema-id": "<anonymous-schema-187>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_ScoreUpdate"
@@ -1667,11 +1751,11 @@
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-187>"
+                    "x-parser-schema-id": "<anonymous-schema-194>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-188>"
+                    "x-parser-schema-id": "<anonymous-schema-195>"
                   },
                   "payload": {
                     "type": "object",
@@ -1681,26 +1765,26 @@
                         "enum": [
                           "ROUND_END"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-190>"
+                        "x-parser-schema-id": "<anonymous-schema-197>"
                       },
                       "data": {
                         "type": "object",
                         "properties": {
                           "roundIndex": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-192>"
+                            "x-parser-schema-id": "<anonymous-schema-199>"
                           },
                           "drawingEndTime": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-193>"
+                            "x-parser-schema-id": "<anonymous-schema-200>"
                           },
                           "roundWinner": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-194>"
+                            "x-parser-schema-id": "<anonymous-schema-201>"
                           },
                           "currentWordIndex": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-195>"
+                            "x-parser-schema-id": "<anonymous-schema-202>"
                           },
                           "words": {
                             "type": "array",
@@ -1709,23 +1793,23 @@
                               "properties": {
                                 "wordIndex": {
                                   "type": "integer",
-                                  "x-parser-schema-id": "<anonymous-schema-198>"
+                                  "x-parser-schema-id": "<anonymous-schema-205>"
                                 },
                                 "word": {
                                   "type": "string",
-                                  "x-parser-schema-id": "<anonymous-schema-199>"
+                                  "x-parser-schema-id": "<anonymous-schema-206>"
                                 },
                                 "drawerUuid": {
                                   "type": "string",
-                                  "x-parser-schema-id": "<anonymous-schema-200>"
+                                  "x-parser-schema-id": "<anonymous-schema-207>"
                                 },
                                 "submitted": {
                                   "type": "boolean",
-                                  "x-parser-schema-id": "<anonymous-schema-201>"
+                                  "x-parser-schema-id": "<anonymous-schema-208>"
                                 },
                                 "imageURL": {
                                   "type": "string",
-                                  "x-parser-schema-id": "<anonymous-schema-202>"
+                                  "x-parser-schema-id": "<anonymous-schema-209>"
                                 },
                                 "aiGuesses": {
                                   "type": "array",
@@ -1734,24 +1818,24 @@
                                     "properties": {
                                       "guesserUuid": {
                                         "type": "string",
-                                        "x-parser-schema-id": "<anonymous-schema-205>"
+                                        "x-parser-schema-id": "<anonymous-schema-212>"
                                       },
                                       "guessWord": {
                                         "type": "string",
-                                        "x-parser-schema-id": "<anonymous-schema-206>"
+                                        "x-parser-schema-id": "<anonymous-schema-213>"
                                       },
                                       "attempts": {
                                         "type": "integer",
-                                        "x-parser-schema-id": "<anonymous-schema-207>"
+                                        "x-parser-schema-id": "<anonymous-schema-214>"
                                       },
                                       "correct": {
                                         "type": "boolean",
-                                        "x-parser-schema-id": "<anonymous-schema-208>"
+                                        "x-parser-schema-id": "<anonymous-schema-215>"
                                       }
                                     },
-                                    "x-parser-schema-id": "<anonymous-schema-204>"
+                                    "x-parser-schema-id": "<anonymous-schema-211>"
                                   },
-                                  "x-parser-schema-id": "<anonymous-schema-203>"
+                                  "x-parser-schema-id": "<anonymous-schema-210>"
                                 },
                                 "playerGuesses": {
                                   "type": "array",
@@ -1760,24 +1844,24 @@
                                     "properties": {
                                       "guesserUuid": {
                                         "type": "string",
-                                        "x-parser-schema-id": "<anonymous-schema-211>"
+                                        "x-parser-schema-id": "<anonymous-schema-218>"
                                       },
                                       "guessWord": {
                                         "type": "string",
-                                        "x-parser-schema-id": "<anonymous-schema-212>"
+                                        "x-parser-schema-id": "<anonymous-schema-219>"
                                       },
                                       "attempts": {
                                         "type": "integer",
-                                        "x-parser-schema-id": "<anonymous-schema-213>"
+                                        "x-parser-schema-id": "<anonymous-schema-220>"
                                       },
                                       "correct": {
                                         "type": "boolean",
-                                        "x-parser-schema-id": "<anonymous-schema-214>"
+                                        "x-parser-schema-id": "<anonymous-schema-221>"
                                       }
                                     },
-                                    "x-parser-schema-id": "<anonymous-schema-210>"
+                                    "x-parser-schema-id": "<anonymous-schema-217>"
                                   },
-                                  "x-parser-schema-id": "<anonymous-schema-209>"
+                                  "x-parser-schema-id": "<anonymous-schema-216>"
                                 },
                                 "aiPredictions": {
                                   "type": "array",
@@ -1786,30 +1870,30 @@
                                     "properties": {
                                       "predicted": {
                                         "type": "string",
-                                        "x-parser-schema-id": "<anonymous-schema-217>"
+                                        "x-parser-schema-id": "<anonymous-schema-224>"
                                       },
                                       "confidence": {
                                         "type": "number",
                                         "format": "float",
-                                        "x-parser-schema-id": "<anonymous-schema-218>"
+                                        "x-parser-schema-id": "<anonymous-schema-225>"
                                       }
                                     },
-                                    "x-parser-schema-id": "<anonymous-schema-216>"
+                                    "x-parser-schema-id": "<anonymous-schema-223>"
                                   },
-                                  "x-parser-schema-id": "<anonymous-schema-215>"
+                                  "x-parser-schema-id": "<anonymous-schema-222>"
                                 }
                               },
-                              "x-parser-schema-id": "<anonymous-schema-197>"
+                              "x-parser-schema-id": "<anonymous-schema-204>"
                             },
-                            "x-parser-schema-id": "<anonymous-schema-196>"
+                            "x-parser-schema-id": "<anonymous-schema-203>"
                           },
                           "scores": {
                             "type": "object",
                             "additionalProperties": {
                               "type": "integer",
-                              "x-parser-schema-id": "<anonymous-schema-220>"
+                              "x-parser-schema-id": "<anonymous-schema-227>"
                             },
-                            "x-parser-schema-id": "<anonymous-schema-219>"
+                            "x-parser-schema-id": "<anonymous-schema-226>"
                           }
                         },
                         "example": {
@@ -1898,26 +1982,26 @@
                             "l3lwXGrb": 3
                           }
                         },
-                        "x-parser-schema-id": "<anonymous-schema-191>"
+                        "x-parser-schema-id": "<anonymous-schema-198>"
                       },
                       "aiSays": {
                         "type": "string",
                         "example": "으.. 잠깐 오류가 났네. 다시 해볼게!",
-                        "x-parser-schema-id": "<anonymous-schema-221>"
+                        "x-parser-schema-id": "<anonymous-schema-228>"
                       },
                       "endTime": {
                         "type": "string",
                         "nullable": true,
                         "example": null,
-                        "x-parser-schema-id": "<anonymous-schema-222>"
+                        "x-parser-schema-id": "<anonymous-schema-229>"
                       },
                       "eventAt": {
                         "type": "string",
                         "example": "2025-05-28T21:02:41.1232855",
-                        "x-parser-schema-id": "<anonymous-schema-223>"
+                        "x-parser-schema-id": "<anonymous-schema-230>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-189>"
+                    "x-parser-schema-id": "<anonymous-schema-196>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_RoundEnd"
@@ -1930,11 +2014,11 @@
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-224>"
+                    "x-parser-schema-id": "<anonymous-schema-231>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-225>"
+                    "x-parser-schema-id": "<anonymous-schema-232>"
                   },
                   "payload": {
                     "type": "object",
@@ -1944,56 +2028,56 @@
                         "enum": [
                           "GAME_END"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-227>"
+                        "x-parser-schema-id": "<anonymous-schema-234>"
                       },
                       "data": {
                         "type": "object",
                         "properties": {
                           "roomId": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-229>"
+                            "x-parser-schema-id": "<anonymous-schema-236>"
                           },
                           "gameType": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-230>"
+                            "x-parser-schema-id": "<anonymous-schema-237>"
                           },
                           "difficulty": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-231>"
+                            "x-parser-schema-id": "<anonymous-schema-238>"
                           },
                           "gameStatus": {
                             "type": "string",
                             "nullable": true,
-                            "x-parser-schema-id": "<anonymous-schema-232>"
+                            "x-parser-schema-id": "<anonymous-schema-239>"
                           },
                           "currentRound": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-233>"
+                            "x-parser-schema-id": "<anonymous-schema-240>"
                           },
                           "totalRounds": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-234>"
+                            "x-parser-schema-id": "<anonymous-schema-241>"
                           },
                           "aiScore": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-235>"
+                            "x-parser-schema-id": "<anonymous-schema-242>"
                           },
                           "scores": {
                             "type": "object",
                             "additionalProperties": {
                               "type": "integer",
-                              "x-parser-schema-id": "<anonymous-schema-237>"
+                              "x-parser-schema-id": "<anonymous-schema-244>"
                             },
-                            "x-parser-schema-id": "<anonymous-schema-236>"
+                            "x-parser-schema-id": "<anonymous-schema-243>"
                           },
                           "gamePlayers": {
                             "type": "array",
                             "nullable": true,
                             "items": {
                               "type": "object",
-                              "x-parser-schema-id": "<anonymous-schema-239>"
+                              "x-parser-schema-id": "<anonymous-schema-246>"
                             },
-                            "x-parser-schema-id": "<anonymous-schema-238>"
+                            "x-parser-schema-id": "<anonymous-schema-245>"
                           },
                           "rounds": {
                             "type": "array",
@@ -2002,20 +2086,20 @@
                               "properties": {
                                 "roundIndex": {
                                   "type": "integer",
-                                  "x-parser-schema-id": "<anonymous-schema-242>"
+                                  "x-parser-schema-id": "<anonymous-schema-249>"
                                 },
                                 "drawingEndTime": {
                                   "type": "string",
-                                  "x-parser-schema-id": "<anonymous-schema-243>"
+                                  "x-parser-schema-id": "<anonymous-schema-250>"
                                 },
                                 "roundWinner": {
                                   "type": "string",
                                   "nullable": true,
-                                  "x-parser-schema-id": "<anonymous-schema-244>"
+                                  "x-parser-schema-id": "<anonymous-schema-251>"
                                 },
                                 "currentWordIndex": {
                                   "type": "integer",
-                                  "x-parser-schema-id": "<anonymous-schema-245>"
+                                  "x-parser-schema-id": "<anonymous-schema-252>"
                                 },
                                 "words": {
                                   "type": "array",
@@ -2024,23 +2108,23 @@
                                     "properties": {
                                       "wordIndex": {
                                         "type": "integer",
-                                        "x-parser-schema-id": "<anonymous-schema-248>"
+                                        "x-parser-schema-id": "<anonymous-schema-255>"
                                       },
                                       "word": {
                                         "type": "string",
-                                        "x-parser-schema-id": "<anonymous-schema-249>"
+                                        "x-parser-schema-id": "<anonymous-schema-256>"
                                       },
                                       "drawerUuid": {
                                         "type": "string",
-                                        "x-parser-schema-id": "<anonymous-schema-250>"
+                                        "x-parser-schema-id": "<anonymous-schema-257>"
                                       },
                                       "submitted": {
                                         "type": "boolean",
-                                        "x-parser-schema-id": "<anonymous-schema-251>"
+                                        "x-parser-schema-id": "<anonymous-schema-258>"
                                       },
                                       "imageURL": {
                                         "type": "string",
-                                        "x-parser-schema-id": "<anonymous-schema-252>"
+                                        "x-parser-schema-id": "<anonymous-schema-259>"
                                       },
                                       "aiGuesses": {
                                         "type": "array",
@@ -2049,24 +2133,24 @@
                                           "properties": {
                                             "guesserUuid": {
                                               "type": "string",
-                                              "x-parser-schema-id": "<anonymous-schema-255>"
+                                              "x-parser-schema-id": "<anonymous-schema-262>"
                                             },
                                             "guessWord": {
                                               "type": "string",
-                                              "x-parser-schema-id": "<anonymous-schema-256>"
+                                              "x-parser-schema-id": "<anonymous-schema-263>"
                                             },
                                             "attempts": {
                                               "type": "integer",
-                                              "x-parser-schema-id": "<anonymous-schema-257>"
+                                              "x-parser-schema-id": "<anonymous-schema-264>"
                                             },
                                             "correct": {
                                               "type": "boolean",
-                                              "x-parser-schema-id": "<anonymous-schema-258>"
+                                              "x-parser-schema-id": "<anonymous-schema-265>"
                                             }
                                           },
-                                          "x-parser-schema-id": "<anonymous-schema-254>"
+                                          "x-parser-schema-id": "<anonymous-schema-261>"
                                         },
-                                        "x-parser-schema-id": "<anonymous-schema-253>"
+                                        "x-parser-schema-id": "<anonymous-schema-260>"
                                       },
                                       "playerGuesses": {
                                         "type": "array",
@@ -2075,24 +2159,24 @@
                                           "properties": {
                                             "guesserUuid": {
                                               "type": "string",
-                                              "x-parser-schema-id": "<anonymous-schema-261>"
+                                              "x-parser-schema-id": "<anonymous-schema-268>"
                                             },
                                             "guessWord": {
                                               "type": "string",
-                                              "x-parser-schema-id": "<anonymous-schema-262>"
+                                              "x-parser-schema-id": "<anonymous-schema-269>"
                                             },
                                             "attempts": {
                                               "type": "integer",
-                                              "x-parser-schema-id": "<anonymous-schema-263>"
+                                              "x-parser-schema-id": "<anonymous-schema-270>"
                                             },
                                             "correct": {
                                               "type": "boolean",
-                                              "x-parser-schema-id": "<anonymous-schema-264>"
+                                              "x-parser-schema-id": "<anonymous-schema-271>"
                                             }
                                           },
-                                          "x-parser-schema-id": "<anonymous-schema-260>"
+                                          "x-parser-schema-id": "<anonymous-schema-267>"
                                         },
-                                        "x-parser-schema-id": "<anonymous-schema-259>"
+                                        "x-parser-schema-id": "<anonymous-schema-266>"
                                       },
                                       "aiPredictions": {
                                         "type": "array",
@@ -2101,39 +2185,39 @@
                                           "properties": {
                                             "predicted": {
                                               "type": "string",
-                                              "x-parser-schema-id": "<anonymous-schema-267>"
+                                              "x-parser-schema-id": "<anonymous-schema-274>"
                                             },
                                             "confidence": {
                                               "type": "number",
                                               "format": "float",
-                                              "x-parser-schema-id": "<anonymous-schema-268>"
+                                              "x-parser-schema-id": "<anonymous-schema-275>"
                                             }
                                           },
-                                          "x-parser-schema-id": "<anonymous-schema-266>"
+                                          "x-parser-schema-id": "<anonymous-schema-273>"
                                         },
-                                        "x-parser-schema-id": "<anonymous-schema-265>"
+                                        "x-parser-schema-id": "<anonymous-schema-272>"
                                       }
                                     },
-                                    "x-parser-schema-id": "<anonymous-schema-247>"
+                                    "x-parser-schema-id": "<anonymous-schema-254>"
                                   },
-                                  "x-parser-schema-id": "<anonymous-schema-246>"
+                                  "x-parser-schema-id": "<anonymous-schema-253>"
                                 },
                                 "scores": {
                                   "type": "object",
                                   "additionalProperties": {
                                     "type": "integer",
-                                    "x-parser-schema-id": "<anonymous-schema-270>"
+                                    "x-parser-schema-id": "<anonymous-schema-277>"
                                   },
-                                  "x-parser-schema-id": "<anonymous-schema-269>"
+                                  "x-parser-schema-id": "<anonymous-schema-276>"
                                 }
                               },
-                              "x-parser-schema-id": "<anonymous-schema-241>"
+                              "x-parser-schema-id": "<anonymous-schema-248>"
                             },
-                            "x-parser-schema-id": "<anonymous-schema-240>"
+                            "x-parser-schema-id": "<anonymous-schema-247>"
                           },
                           "winner": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-271>"
+                            "x-parser-schema-id": "<anonymous-schema-278>"
                           }
                         },
                         "example": {
@@ -2202,26 +2286,26 @@
                           ],
                           "winner": "DRAW"
                         },
-                        "x-parser-schema-id": "<anonymous-schema-228>"
+                        "x-parser-schema-id": "<anonymous-schema-235>"
                       },
                       "aiSays": {
                         "type": "string",
                         "example": "으.. 잠깐 오류가 났네. 다시 해볼게!",
-                        "x-parser-schema-id": "<anonymous-schema-272>"
+                        "x-parser-schema-id": "<anonymous-schema-279>"
                       },
                       "endTime": {
                         "type": "string",
                         "nullable": true,
                         "example": null,
-                        "x-parser-schema-id": "<anonymous-schema-273>"
+                        "x-parser-schema-id": "<anonymous-schema-280>"
                       },
                       "eventAt": {
                         "type": "string",
                         "example": "2025-05-28T21:02:41.1232855",
-                        "x-parser-schema-id": "<anonymous-schema-274>"
+                        "x-parser-schema-id": "<anonymous-schema-281>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-226>"
+                    "x-parser-schema-id": "<anonymous-schema-233>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_GameEnd"
@@ -2235,6 +2319,7 @@
   "components": {
     "schemas": {
       "ExceptionRes": "$ref:$.channels./user/queue/errors/{userUuid}.subscribe.message.payload",
+      "FriendEventRes": "$ref:$.channels./sub/friend/{userUuid}.subscribe.message.payload",
       "CreateRoomRequest": "$ref:$.channels./pub/lobby/create.publish.message.payload",
       "RoomReq": "$ref:$.channels./pub/room/{roomId}.publish.message.payload",
       "RedisResponse_RoomMetadata": {
@@ -2244,12 +2329,12 @@
           "userId": {
             "type": "string",
             "description": "메시지를 보낸 사용자 UUID",
-            "x-parser-schema-id": "<anonymous-schema-275>"
+            "x-parser-schema-id": "<anonymous-schema-282>"
           },
           "topic": {
             "type": "string",
             "description": "Redis로 발행된 채널명",
-            "x-parser-schema-id": "<anonymous-schema-276>"
+            "x-parser-schema-id": "<anonymous-schema-283>"
           },
           "payload": {
             "type": "object",
@@ -2257,37 +2342,37 @@
               "id": {
                 "type": "string",
                 "description": "방 ID",
-                "x-parser-schema-id": "<anonymous-schema-277>"
+                "x-parser-schema-id": "<anonymous-schema-284>"
               },
               "title": {
                 "type": "string",
                 "description": "방 제목",
-                "x-parser-schema-id": "<anonymous-schema-278>"
+                "x-parser-schema-id": "<anonymous-schema-285>"
               },
               "owner": {
                 "type": "string",
                 "description": "방장 닉네임",
-                "x-parser-schema-id": "<anonymous-schema-279>"
+                "x-parser-schema-id": "<anonymous-schema-286>"
               },
               "hasPassword": {
                 "type": "boolean",
                 "description": "비밀번호 사용 여부",
-                "x-parser-schema-id": "<anonymous-schema-280>"
+                "x-parser-schema-id": "<anonymous-schema-287>"
               },
               "password": {
                 "type": "string",
                 "description": "비밀번호 (빈 문자열일 수 있음)",
-                "x-parser-schema-id": "<anonymous-schema-281>"
+                "x-parser-schema-id": "<anonymous-schema-288>"
               },
               "max": {
                 "type": "integer",
                 "description": "최대 인원 수",
-                "x-parser-schema-id": "<anonymous-schema-282>"
+                "x-parser-schema-id": "<anonymous-schema-289>"
               },
               "min": {
                 "type": "integer",
                 "description": "최소 인원 수",
-                "x-parser-schema-id": "<anonymous-schema-283>"
+                "x-parser-schema-id": "<anonymous-schema-290>"
               },
               "aiLevel": {
                 "type": "string",
@@ -2296,7 +2381,7 @@
                   "ADVANCED"
                 ],
                 "description": "AI 난이도",
-                "x-parser-schema-id": "<anonymous-schema-284>"
+                "x-parser-schema-id": "<anonymous-schema-291>"
               },
               "gameMode": {
                 "type": "string",
@@ -2305,12 +2390,12 @@
                   "LULU_ART_EXAM"
                 ],
                 "description": "게임 모드",
-                "x-parser-schema-id": "<anonymous-schema-285>"
+                "x-parser-schema-id": "<anonymous-schema-292>"
               },
               "ownerUuid": {
                 "type": "string",
                 "description": "이 방을 생성한 사용자의 UUID입니다.  \n클라이언트는 해당 값을 통해 수신된 방 정보가 본인이 생성한 것인지 식별할 수 있습니다.\n",
-                "x-parser-schema-id": "<anonymous-schema-286>"
+                "x-parser-schema-id": "<anonymous-schema-293>"
               }
             },
             "x-parser-schema-id": "RoomMetadata"
@@ -2320,6 +2405,7 @@
       },
       "RoomSummaryRes": "$ref:$.channels./sub/lobby/list/event.subscribe.message.oneOf[0].payload.properties.payload.properties.data",
       "RoomMetadata": "$ref:$.components.schemas.RedisResponse_RoomMetadata.properties.payload",
+      "FriendSummaryRes": "$ref:$.channels./sub/friend/{userUuid}.subscribe.message.payload.properties.data.oneOf[1]",
       "RedisResponse_RoomList_Create": "$ref:$.channels./sub/lobby/list/event.subscribe.message.oneOf[0].payload",
       "RedisResponse_RoomList_Update": "$ref:$.channels./sub/lobby/list/event.subscribe.message.oneOf[1].payload",
       "RedisResponse_RoomList_Delete": "$ref:$.channels./sub/lobby/list/event.subscribe.message.oneOf[2].payload",
@@ -2329,11 +2415,11 @@
         "properties": {
           "userId": {
             "type": "string",
-            "x-parser-schema-id": "<anonymous-schema-287>"
+            "x-parser-schema-id": "<anonymous-schema-294>"
           },
           "topic": {
             "type": "string",
-            "x-parser-schema-id": "<anonymous-schema-288>"
+            "x-parser-schema-id": "<anonymous-schema-295>"
           },
           "payload": {
             "type": "object",
@@ -2343,12 +2429,12 @@
                 "enum": [
                   "JOIN"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-290>"
+                "x-parser-schema-id": "<anonymous-schema-297>"
               },
               "eventAt": {
                 "type": "string",
                 "format": "date-time",
-                "x-parser-schema-id": "<anonymous-schema-291>"
+                "x-parser-schema-id": "<anonymous-schema-298>"
               },
               "data": {
                 "type": "array",
@@ -2357,23 +2443,23 @@
                   "properties": {
                     "userUuid": {
                       "type": "string",
-                      "x-parser-schema-id": "<anonymous-schema-293>"
+                      "x-parser-schema-id": "<anonymous-schema-300>"
                     },
                     "nickname": {
                       "type": "string",
-                      "x-parser-schema-id": "<anonymous-schema-294>"
+                      "x-parser-schema-id": "<anonymous-schema-301>"
                     },
                     "ready": {
                       "type": "boolean",
-                      "x-parser-schema-id": "<anonymous-schema-295>"
+                      "x-parser-schema-id": "<anonymous-schema-302>"
                     }
                   },
                   "x-parser-schema-id": "RoomUserInfo"
                 },
-                "x-parser-schema-id": "<anonymous-schema-292>"
+                "x-parser-schema-id": "<anonymous-schema-299>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-289>"
+            "x-parser-schema-id": "<anonymous-schema-296>"
           }
         },
         "x-parser-schema-id": "RedisResponse_RoomJoin"

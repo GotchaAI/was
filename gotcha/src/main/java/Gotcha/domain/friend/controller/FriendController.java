@@ -56,9 +56,9 @@ public class FriendController implements FriendApi{
     }
 
     @DeleteMapping("/{uuid}")
-    public ResponseEntity<?> deleteFriend(@PathVariable(value = "uuid") String uuid,
+    public ResponseEntity<?> deleteFriend(@PathVariable(value = "uuid") String friendUuid,
                                           @AuthenticationPrincipal SecurityUserDetails userDetails) {
-        friendService.deleteFriend(userDetails.getId(), uuid);
+        friendService.deleteFriend(userDetails.getId(), friendUuid);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

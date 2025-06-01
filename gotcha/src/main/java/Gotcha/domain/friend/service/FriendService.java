@@ -14,6 +14,9 @@ import gotcha_user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import socket_server.domain.friend.dto.FriendEventType;
+import socket_server.domain.friend.dto.FriendSummaryRes;
+import socket_server.domain.friend.service.FriendSocketService;
 
 import java.util.List;
 
@@ -23,6 +26,7 @@ public class FriendService {
     private final FriendRepository friendRepository;
     private final FriendRequestRepository friendRequestRepository;
     private final UserService userService;
+    private final FriendSocketService friendSocketService;
 
     @Transactional(readOnly = true)
     public List<FriendRes> getFriends(Long userId) {
@@ -66,6 +70,8 @@ public class FriendService {
                 .build();
 
         friendRequestRepository.save(request);
+
+        friendSocketService.sendFriendAlert(fromUser.getUuid(), toUser.getUuid(), FriendSummaryRes.from(request), FriendEventType.REQUEST);
     }
 
     @Transactional
@@ -88,6 +94,10 @@ public class FriendService {
         friendRepository.save(friend);
 
         friendRequestRepository.delete(friendRequest);
+
+        FriendSummaryRes friendSummaryRes = FriendSummaryRes.from(friendRequest);
+
+        friendSocketService.sendFriendAlert(toUser.getUuid(), fromUser.getUuid(), friendSummaryRes, FriendEventType.ACCEPT);
     }
 
     @Transactional
@@ -102,12 +112,17 @@ public class FriendService {
         }
 
         friendRequestRepository.delete(friendRequest);
+
+
+        FriendSummaryRes friendSummaryRes = FriendSummaryRes.from(friendRequest);
+
+        friendSocketService.sendFriendAlert(toUser.getUuid(), friendRequest.getFromUser().getUuid(), friendSummaryRes, FriendEventType.REJECT);
     }
 
     @Transactional
-    public void deleteFriend(Long userId, String uuid) {
+    public void deleteFriend(Long userId, String friendUuid) {
         User user = userService.findUserByUserId(userId);
-        User friend = userService.findUserByUuid(uuid);
+        User friend = userService.findUserByUuid(friendUuid);
 
         Friend relation = friendRepository
                 .findFriendRelation(user.getId(), friend.getId());
@@ -117,5 +132,7 @@ public class FriendService {
         }
 
         friendRepository.delete(relation);
+
+        friendSocketService.sendFriendAlert(user.getUuid(), friendUuid, user.getUuid(), FriendEventType.DELETE);
     }
 }
