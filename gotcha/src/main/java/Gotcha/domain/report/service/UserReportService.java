@@ -23,12 +23,12 @@ public class UserReportService {
     private final UserService userService;
 
     public void reportUser(UserReportReq reportReq, SecurityUserDetails userDetails) {
-        if (reportReq.reportedNickname().equals(userDetails.getNickname())) {
+        if (reportReq.reportedUserNickname().equals(userDetails.getNickname())) {
             throw new CustomException(ReportExceptionCode.CANNOT_REPORT_SELF);
         }
 
-        List<ChatMessage> chatLog = chatLogService.getSurroundingMessages(reportReq.chatType(), reportReq.identifier(), userDetails.getUuid(), reportReq.chatTime(), 10);
-        User reportedUser = userService.findUserByNickname(reportReq.reportedNickname());
+        List<ChatMessage> chatLog = chatLogService.getSurroundingMessages(reportReq.chatType(), reportReq.identifier(), userDetails.getUuid(), reportReq.reportedChatTime(), 10);
+        User reportedUser = userService.findUserByNickname(reportReq.reportedUserNickname());
 
         UserReport userReport = UserReport.of(
                 reportReq.reportType(),

@@ -26,10 +26,10 @@ public record UserReportReq (
 
         @Schema(description = "신고 대상 채팅 시간", example = "2025-06-01T16:23:29.108754")
         @NotNull(message = "신고 대상 채팅 시간은 필수 입니다.")
-        LocalDateTime chatTime,
+        LocalDateTime reportedChatTime,
 
         @Schema(description = "신고 대상 사용자 닉네임", example ="테스트")
         @NotNull(message = "신고 대상 사용자의 닉네임은 필수 입니다.")
-        String reportedNickname
+        String reportedUserNickname
 ){
 }
