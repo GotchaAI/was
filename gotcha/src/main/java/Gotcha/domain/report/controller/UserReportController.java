@@ -23,7 +23,7 @@ public class UserReportController implements UserReportApi {
     @PostMapping()
     public ResponseEntity<?> reportUser(@RequestBody @Valid UserReportReq reportReq,
                                         @AuthenticationPrincipal SecurityUserDetails userDetails) {
-        userReportService.reportUser(reportReq, userDetails.getUuid());
+        userReportService.reportUser(reportReq, userDetails);
         return ResponseEntity.ok(SuccessRes.from("성공적으로 신고하였습니다."));
     }
 }
