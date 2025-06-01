@@ -7,10 +7,7 @@ import socket_server.common.exception.ErrorType;
 import socket_server.common.exception.SocketCustomException;
 import socket_server.common.exception.game.GameExceptionCode;
 import socket_server.common.util.JsonSerializer;
-import socket_server.domain.game.dto.AIGameEndReq;
-import socket_server.domain.game.dto.AIGuessMessageReq;
-import socket_server.domain.game.dto.AIGuessReactReq;
-import socket_server.domain.game.dto.AIRoundEndReq;
+import socket_server.domain.game.dto.*;
 import socket_server.domain.game.enumType.GameEventType;
 import socket_server.domain.game.enumType.GameStatus;
 import socket_server.domain.game.meta.GameMeta;
@@ -84,18 +81,12 @@ public class GuessFlowService {
         validateGameEvent(gameMeta, GameEventType.GUESS_REQUEST);
 
         Round currentRound = getCurrentRound(roomId);
-        Word currentWord = getCurrentWord(currentRound);
+        Word currentWord = getCurrentWord(roomId, currentRound);
 
         if(currentWord == null){
             handleRoundEnd(roomId);
             return;
         }
-        // Guess 데이터 찾아서 넣어주고
-        List<Guess> playerGuesses = getPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
-        currentWord.setPlayerGuesses(playerGuesses);
-
-        List<Guess> aiGuesses = getAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
-        currentWord.setAiGuesses(aiGuesses);
 
         if(isWordGuessCompleted(currentWord)){
             moveToNextWord(roomId, currentRound);
@@ -170,7 +161,7 @@ public class GuessFlowService {
     }
 
 
-    public void handlePlayerGuessSubmit(String roomId, Guess guess, String guesserUuid){
+    public void handlePlayerGuessSubmit(String roomId, GuessSubmitReq guessSubmitReq, String guesserUuid){
         //0. 상태 검증
         GameMeta gameMeta = getGameMetaByRoomId(roomId);
         validateGameEvent(gameMeta, GameEventType.GUESS_SUBMIT);
@@ -179,25 +170,35 @@ public class GuessFlowService {
 
         //1. 현재 Round, Word 가져오기
         Round currentRound = getCurrentRound(roomId);
-        Word currentWord = getCurrentWord(getCurrentRound(roomId));
+        Word currentWord = getCurrentWord(roomId, getCurrentRound(roomId));
 
         // 2. 현재 Word의 Drawer == guesser 라면 Exception
         if(currentWord.getDrawerUuid().equals(guesserUuid)) {
             throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GUESSER);
         }
 
+        //3. BUILD GUESS DATA
+        Guess guess = Guess.builder()
+                .guesserUuid(guesserUuid)
+                .guessWord(guessSubmitReq.guessWord())
+                .attempts(currentWord.getPlayerGuesses().size() + 1)
+                .build();
+
+
         //3. GUESS 정보 Broadcast
         gameBroadCaster.broadcastGameEvent(guesserUuid, roomId, GameEventType.GUESS_SUBMIT, guess, null, null);
 
+
+        //4. 현재 PlayerGuess 조회
         List<Guess> playerGuesses = getPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
         currentWord.setPlayerGuesses(playerGuesses);
 
-
-        guess.setCorrect(guess.getGuessWord().equalsIgnoreCase(currentWord.getWord()));
-        guess.setGuesserUuid(guesserUuid);
-        guess.setAttempts(playerGuesses.size());
-        //4. 현재 Word에 guess 추가
+        //5. 현재 Word에 guess 추가
         currentWord.getPlayerGuesses().add(guess);
+
+        //6. 맞음?
+        guess.setCorrect(guess.getGuessWord().equalsIgnoreCase(currentWord.getWord()));
+
         String playerGuessesJson = jsonSerializer.serialize(playerGuesses, GAME_ERROR);
         roundRepository.savePlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), playerGuessesJson);
 
@@ -464,13 +465,12 @@ public class GuessFlowService {
         RoundMeta currentRoundMeta = roundMetas.get(gameMeta.getCurrentRound() - 1);
 
 
-
         String guesserUuid = guess.getGuesserUuid();
 
         // 점수 업데이트
         int currentScore = gamePlayerRepository.findRoundScoreByUuid(roomId, guesserUuid, gameMeta.getCurrentRound());
         int newScore = currentScore + 10 * (3 - guess.getAttempts() + 1);
-        log.info("Player {} score updated from {} to {}", guesserUuid, currentScore, newScore);
+//        log.info("Player {} score updated from {} to {}", guesserUuid, currentScore, newScore);
         gamePlayerRepository.saveRoundScoreByUuid(roomId, guesserUuid, gameMeta.getCurrentRound(), newScore);
 
         // SCORE_UPDATE Broadcast
@@ -545,11 +545,19 @@ public class GuessFlowService {
     /**
      * 현재 추측할 단어 가져오기
      */
-    private Word getCurrentWord(Round round) {
+    private Word getCurrentWord(String roomId, Round round) {
         if (round.getCurrentWordIndex() >= round.getWords().size()) {
             return null; // 모든 단어 완료
         }
-        return round.getWords().get(round.getCurrentWordIndex());
+
+        List<Guess> playerGuesses = getPlayerGuesses(roomId, round.getRoundIndex(), round.getCurrentWordIndex());
+        List<Guess> aiGuesses = getAIGuesses(roomId, round.getRoundIndex(), round.getCurrentWordIndex());
+
+        Word word = round.getWords().get(round.getCurrentWordIndex());
+        word.setPlayerGuesses(playerGuesses);
+        word.setAiGuesses(aiGuesses);
+
+        return word;
     }
 
 
@@ -576,6 +584,8 @@ public class GuessFlowService {
 
         Round round = RoundMeta.toRound(roundMeta);
         round.setWords(words);
+
+
 
         return round;
     }
