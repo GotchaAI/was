@@ -13,6 +13,9 @@ import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.model.RoomEventType;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static socket_server.common.constants.WebSocketConstants.GAME_PREFIX;
 import static socket_server.common.constants.WebSocketConstants.ROOM_PREFIX;
@@ -49,14 +52,17 @@ public class GameBroadCaster {
                 .endTime(endTime)
                 .build();
 
-        objectRedisTemplate.convertAndSend(
-                GAME_PREFIX + roomId,
-                new RedisMessage(
-                        senderUuid,
-                        GAME_PREFIX + roomId,
-                        jsonSerializer.serialize(gameRes, ErrorType.GAME)
-                )
-        );
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.schedule(() -> {
+            objectRedisTemplate.convertAndSend(
+                    GAME_PREFIX + roomId,
+                    new RedisMessage(
+                            senderUuid,
+                            GAME_PREFIX + roomId,
+                            jsonSerializer.serialize(gameRes, ErrorType.GAME)
+                    )
+            );
+        }, 1, TimeUnit.SECONDS);
 
     }
 }
