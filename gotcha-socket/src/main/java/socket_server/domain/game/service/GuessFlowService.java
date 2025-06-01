@@ -299,7 +299,9 @@ public class GuessFlowService {
         Game game = Game.fromGameMeta(gameMeta);
         game.setRounds(rounds);
 
-
+        //5. GamePlayers 찾기
+        List<GamePlayer> gamePlayers = getGamePlayersByRoomId(roomId);
+        game.setGamePlayers(gamePlayers);
 
         //5. Score 추가, GameWinner 찾기
         determineGameWinnerAndCalculateScores(roomId, game);
@@ -354,7 +356,7 @@ public class GuessFlowService {
 
         //2. GameWinner 구하기
         int aiScore = scores.getOrDefault("AI", 0);
-        int playerScore = scores.getOrDefault("PLAYER", 0);
+        int playerScore = scores.getOrDefault(game.getGamePlayers().get(0).getPlayerUuid(), 0) + scores.getOrDefault(game.getGamePlayers().get(1).getPlayerUuid(), 0);
         String gameWinner = aiScore > playerScore ? "AI" : aiScore == playerScore ? "DRAW" : "PLAYER";
         game.setWinner(gameWinner);
 
