@@ -1,5 +1,6 @@
 package Gotcha.domain.report.controller;
 
+import Gotcha.domain.report.api.AdminReportApi;
 import Gotcha.domain.report.service.AdminReportService;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/report")
-public class AdminReportController {
+public class AdminReportController implements AdminReportApi {
     private final AdminReportService adminReportService;
 
     @GetMapping("/users")
