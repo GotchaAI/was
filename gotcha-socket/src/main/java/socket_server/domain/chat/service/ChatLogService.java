@@ -10,6 +10,10 @@ import socket_server.domain.chat.dto.ChatType;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -63,6 +67,35 @@ public class ChatLogService {
                 .map(raw -> jsonSerializer.deserialize(raw, ChatMessage.class, CHAT_ERROR))
                 .collect(Collectors.toList());
     }
+
+    //신고한 채팅을 기준으로 앞뒤 10개의 채팅 가져오기
+    public List<ChatMessage> getSurroundingMessages(ChatType chatType, String identifier, String senderId, LocalDateTime baseTime, int range) {
+        String key = chatKey(chatType, identifier, senderId);
+        long baseTimestamp = baseTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+
+        // 기준 메시지
+        Set<String> baseMessageRaw = redisTemplate.opsForZSet()
+                .rangeByScore(key, baseTimestamp, baseTimestamp);
+
+        // 앞쪽 메시지 (기준 이전 메시지들)
+        Set<String> beforeRaw = redisTemplate.opsForZSet()
+                .reverseRangeByScore(key, 0, baseTimestamp - 1, 0, range);
+
+        // 뒤쪽 메시지 (기준 이후 메시지들)
+        Set<String> afterRaw = redisTemplate.opsForZSet()
+                .rangeByScore(key, baseTimestamp + 1, Double.MAX_VALUE, 0, range);
+
+        // 병합 후 정렬 (총 20개)
+        List<String> combined = new ArrayList<>(beforeRaw);
+        combined.addAll(baseMessageRaw);
+        combined.addAll(afterRaw);
+
+        return combined.stream()
+                .map(raw -> jsonSerializer.deserialize(raw, ChatMessage.class, CHAT_ERROR))
+                .sorted(Comparator.comparing(ChatMessage::sentAt))
+                .collect(Collectors.toList());
+    }
+
 
     public Set<String> getPrivateChatKeys() {
         Set<String> keys = redisTemplate.keys("chat:private:*:*:log");
