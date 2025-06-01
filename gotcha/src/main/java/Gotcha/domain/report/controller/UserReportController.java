@@ -1,5 +1,6 @@
 package Gotcha.domain.report.controller;
 
+import Gotcha.domain.report.api.UserReportApi;
 import Gotcha.domain.report.dto.UserReportReq;
 import Gotcha.domain.report.service.UserReportService;
 import gotcha_common.dto.SuccessRes;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/report/user")
-public class UserReportController {
+public class UserReportController implements UserReportApi {
     private final UserReportService userReportService;
 
     @PostMapping()
