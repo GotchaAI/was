@@ -62,7 +62,7 @@ public class RoundStartService {
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.schedule(() -> {
             currentRoundMeta.setDrawingEndTime(LocalDateTime.now().plusSeconds(30));
-            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_START, currentRoundMeta, aiSays, null);
+            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_START, currentRoundMeta, aiSays);
         }, 5, TimeUnit.SECONDS);
 
 

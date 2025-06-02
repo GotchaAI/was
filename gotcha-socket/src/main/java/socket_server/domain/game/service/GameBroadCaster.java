@@ -43,26 +43,24 @@ public class GameBroadCaster {
         objectRedisTemplate.convertAndSend(ROOM_PREFIX + roomId, jsonSerializer.serialize(redisMessage, ErrorType.GAME));
     }
 
-    public void broadcastGameEvent(String senderUuid, String roomId, GameEventType gameEventType, Object data, String aiSays, LocalDateTime endTime) {
+    public void broadcastGameEvent(String senderUuid, String roomId, GameEventType gameEventType, Object data, String aiSays) {
         GameRes gameRes = GameRes.builder()
                 .eventType(gameEventType)
                 .data(data)
                 .aiSays(aiSays)
                 .eventAt(LocalDateTime.now())
-                .endTime(endTime)
                 .build();
 
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.schedule(() -> {
-            objectRedisTemplate.convertAndSend(
-                    GAME_PREFIX + roomId,
-                    new RedisMessage(
-                            senderUuid,
-                            GAME_PREFIX + roomId,
-                            jsonSerializer.serialize(gameRes, ErrorType.GAME)
-                    )
-            );
-        }, 1, TimeUnit.SECONDS);
+
+        objectRedisTemplate.convertAndSend(
+                GAME_PREFIX + roomId,
+                new RedisMessage(
+                        senderUuid,
+                        GAME_PREFIX + roomId,
+                        jsonSerializer.serialize(gameRes, ErrorType.GAME)
+                )
+        );
+
 
     }
 }

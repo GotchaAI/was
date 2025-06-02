@@ -1,6 +1,7 @@
 package socket_server.domain.game.service;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.el.stream.Stream;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.util.JsonSerializer;
@@ -12,10 +13,13 @@ import socket_server.domain.game.model.Guess;
 import socket_server.domain.game.model.Word;
 import socket_server.domain.game.repository.GamePlayerRepository;
 import socket_server.domain.game.repository.RoundRepository;
-
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -39,10 +43,10 @@ public class GuessRequestService {
         String aiSays = aIClientService.getGuessStartMessage(roomId, new AIGuessStartReq(gameMeta.getCurrentRound(), gameMeta.getTotalRounds(), drawerName, "AI"));
 
         // 2. BUILD NEW GUESS DATA
-        Guess guess = Guess.builder().guesserUuid("AI").attempts(guesses.size()+1).build();
+        Guess guess = Guess.builder().guesserUuid("AI").attempts(guesses.size()+1).guessEndTime(LocalDateTime.now().plusSeconds(31)).build();
 
         // 3. 해당 정보 브로드캐스트
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_REQUEST, guess, aiSays, null);
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_REQUEST, guess, aiSays);
         return guess;
 
     }
@@ -81,9 +85,13 @@ public class GuessRequestService {
 
         // 3. BUILD NEW GUESS DATA
         Guess guess = Guess.builder().guesserUuid(gusser.getPlayerUuid()).attempts(guesses.size()+1).build();
+        guess.setGuessEndTime(LocalDateTime.now().plusSeconds(32));
 
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.schedule(() -> {
         // 4. BroadCast
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_REQUEST, guess, aiSays, LocalDateTime.now().plusSeconds(30));
+            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_REQUEST, guess, aiSays);
+        }, 2, TimeUnit.SECONDS);
     }
 
     private List<GamePlayer> getGamePlayersByRoomId(String roomId) {
