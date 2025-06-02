@@ -10,13 +10,15 @@ import socket_server.common.exception.ErrorType;
 import socket_server.common.exception.SocketCustomException;
 import socket_server.common.exception.room.RoomExceptionCode;
 import socket_server.common.util.JsonSerializer;
-import socket_server.domain.chat.dto.ChatMessage;
-import socket_server.domain.chat.dto.ChatType;
+import gotcha_domain.chat.ChatMessage;
+import gotcha_domain.chat.ChatType;
+import socket_server.domain.chat.service.ChatLogService;
 import socket_server.domain.lobby.service.LobbyBroadCaster;
 import socket_server.domain.room.RoomField.RoomField;
 import socket_server.domain.lobby.dto.CreateRoomReq;
 import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.model.RoomEventType;
+import socket_server.domain.lobby.dto.RoomJoinRes;
 import socket_server.domain.room.dto.RoomSummaryRes;
 import socket_server.domain.room.dto.RoomUpdateReq;
 import socket_server.domain.room.model.RoomMetadata;
@@ -43,6 +45,7 @@ public class RoomService {
     private final RoomUserRepository roomUserRepository;
     private final RoomBroadcaster roomBroadcaster;
     private final LobbyBroadCaster lobbyBroadCaster;
+    private final ChatLogService chatLogService;
     private final ErrorType ROOM_ERROR = ErrorType.ROOM;
 
     public RoomService(
@@ -52,7 +55,9 @@ public class RoomService {
             @Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
             JsonSerializer jsonSerializer,
             RoomUserRepository roomUserRepository,
-            RoomBroadcaster roomBroadcaster, LobbyBroadCaster lobbyBroadCaster) {
+            RoomBroadcaster roomBroadcaster,
+            LobbyBroadCaster lobbyBroadCaster,
+            ChatLogService chatLogService) {
         this.roomIdService = roomIdService;
         this.roomUserService = roomUserService;
         this.roomRepository = roomRepository;
@@ -61,6 +66,7 @@ public class RoomService {
         this.roomUserRepository = roomUserRepository;
         this.roomBroadcaster = roomBroadcaster;
         this.lobbyBroadCaster = lobbyBroadCaster;
+        this.chatLogService = chatLogService;
     }
 
     //todo : lua 스크립트 적용
@@ -113,6 +119,8 @@ public class RoomService {
         redisTemplate.convertAndSend(ROOM_PREFIX + roomId, jsonSerializer.serialize(redisMessage, ROOM_ERROR));
 
         log.info("chat - roomId: {}, user: {}, content: {}", roomId, userDetails.getUuid(), content);
+
+        chatLogService.saveChatMessage(ChatType.ROOM, roomId, chatMessage, userDetails.getUuid());
     }
 
     public void updateRoomField(String roomId, RoomUpdateReq roomUpdateReq, String userUuid) {
@@ -159,7 +167,8 @@ public class RoomService {
         lobbyBroadCaster.broadcastToRoomList("SYSTEM", RoomEventType.UPDATE, summary);
 
         List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR);
-        roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", RoomEventType.UPDATE, userList);
+        RoomJoinRes roomJoinRes = new RoomJoinRes(metadata, userList);
+        roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", RoomEventType.UPDATE, roomJoinRes);
 
         log.info("방 {} 업데이트 정보를 ROOM_LIST_EVENT 및 ROOM_EVENT 로 브로드캐스트 완료", roomId);
     }

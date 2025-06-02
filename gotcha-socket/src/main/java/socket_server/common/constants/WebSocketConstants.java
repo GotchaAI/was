@@ -22,11 +22,14 @@ public interface WebSocketConstants {
     String LOBBY_ROOM_CREATE_CHANNEL = LOBBY_PREFIX+"create/"; // + uuid
     String LOBBY_ROOM_LIST_EVENT = LOBBY_PREFIX + "list/event";
 
+    //친구 관련 소켓
+    String FRIEND_PREFIX = "/sub/friend/"; //+uuid
+
     // 에러 처리 채널
-    String ERROR_CHANNEL_PREFIX = "/user/";
-    String ERROR_DEFAULT_CHANEL = "/queue/errors";
-    String ERROR_ROOM_CHANNEL = "/room/errors";
-    String ERROR_LOBBY_CHANNEL = "/lobby/errors";
-    String ERROR_CHAT_CHANNEL = "/chat/errors";
-    String ERROR_GAME_CHANNEL = "/game/errors";
+    String ERROR_CHANNEL_PREFIX = "/user";
+    String ERROR_DEFAULT_CHANEL = "/queue/errors/";
+    String ERROR_ROOM_CHANNEL = "/room/errors/";
+    String ERROR_LOBBY_CHANNEL = "/lobby/errors/";
+    String ERROR_CHAT_CHANNEL = "/chat/errors/";
+    String ERROR_GAME_CHANNEL = "/game/errors/";
 }

@@ -26,6 +26,7 @@ import org.springframework.messaging.support.ErrorMessage;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.util.JsonSerializer;
+import socket_server.domain.friend.handler.FriendPubSubHandler;
 import socket_server.domain.game.handler.GamePubSubHandler;
 import socket_server.domain.lobby.handler.LobbyPubSubHandler;
 import socket_server.domain.room.handler.RoomPubSubHandler;
@@ -41,11 +42,13 @@ public class RedisIntegrationConfig {
     private final RoomPubSubHandler roomHandler;
     private final GamePubSubHandler gamePubSubHandler;
     private final LobbyPubSubHandler lobbyPubSubHandler;
+    private final FriendPubSubHandler friendPubSubHandler;
 
-    public RedisIntegrationConfig(RoomPubSubHandler roomHandler, GamePubSubHandler gamePubSubHandler, LobbyPubSubHandler lobbyPubSubHandler) {
+    public RedisIntegrationConfig(RoomPubSubHandler roomHandler, GamePubSubHandler gamePubSubHandler, LobbyPubSubHandler lobbyPubSubHandler, FriendPubSubHandler friendPubSubHandler) {
         this.roomHandler = roomHandler;
         this.gamePubSubHandler = gamePubSubHandler;
         this.lobbyPubSubHandler = lobbyPubSubHandler;
+        this.friendPubSubHandler = friendPubSubHandler;
     }
 
     @Bean("redisExecutor")
@@ -107,6 +110,11 @@ public class RedisIntegrationConfig {
     }
 
     @Bean
+    public MessageChannel friendMessageChannel(@Qualifier("redisExecutor") TaskExecutor exec) {
+        return new ExecutorChannel(exec);
+    }
+
+    @Bean
     public MessageProducer redisInboundAdapter(RedisConnectionFactory cf) {
         RedisInboundChannelAdapter adapter = new RedisInboundChannelAdapter(cf);
         adapter.setTopicPatterns(
@@ -128,7 +136,10 @@ public class RedisIntegrationConfig {
                 //로비
                 LOBBY_JOIN_CHANNEL + "*",         //sub/lobby/join/ + roomId
                 LOBBY_ROOM_CREATE_CHANNEL + "*",  //sub/lobby/create/ + uuid
-                LOBBY_ROOM_LIST_EVENT + "*"       //sub/lobby/list/event
+                LOBBY_ROOM_LIST_EVENT + "*",       //sub/lobby/list/event
+
+                //친구
+                FRIEND_PREFIX + "*"
         );
         adapter.setSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
         adapter.setOutputChannel(redisInputChannel(redisExecutor()));
@@ -145,6 +156,7 @@ public class RedisIntegrationConfig {
                     if (topic.startsWith(CHAT_PREFIX)) return "chatMessageChannel";
                     if (topic.startsWith(ROOM_PREFIX)) return "roomMessageChannel";
                     if (topic.startsWith(LOBBY_PREFIX)) return "lobbyMessageChannel";
+                    if (topic.startsWith(FRIEND_PREFIX)) return "friendMessageChannel";
                     return "unknownMessageChannel";
                 })
                 .get();
@@ -206,6 +218,18 @@ public class RedisIntegrationConfig {
     }
 
     @Bean
+    public IntegrationFlow friendMessageFlow(JsonSerializer jsonSerializer) {
+        return IntegrationFlow.from("friendMessageChannel")
+                .handle((msg, headers) -> {
+                    RedisMessage redisMessage = jsonSerializer.deserialize(msg, RedisMessage.class, ErrorType.FRIEND);
+                    log.info("👯 [친구 메시지] topic={}, user={}, payload={}",
+                            redisMessage.topic(), redisMessage.userId(), redisMessage.payload());
+                    friendPubSubHandler.onMessage(redisMessage.topic(), redisMessage);
+                    return null;
+                }).get();
+    }
+
+    @Bean
     public IntegrationFlow unknownMessageFlow() {
         return IntegrationFlow.from("unknownMessageChannel")
                 .handle((GenericHandler<Object>) (payload, headers) -> {
@@ -239,7 +263,7 @@ public class RedisIntegrationConfig {
                                     ? ExceptionRes.from(ce.getExceptionCode())
                                     : ExceptionRes.from(GlobalExceptionCode.INTERNAL_SERVER_ERROR);
 
-                            template.convertAndSend(ERROR_CHANNEL_PREFIX+userId+ERROR_DEFAULT_CHANEL, dto);
+                            template.convertAndSend(ERROR_CHANNEL_PREFIX+ERROR_DEFAULT_CHANEL+userId, dto);
                             log.debug("🚨 에러 메시지 전송 완료 → /user/{}/queue/errors", userId);
                         } else {
                             log.warn("❌ [redisErrorFlow] userId 추출 실패. 메시지 내용: {}", t.getMessage());

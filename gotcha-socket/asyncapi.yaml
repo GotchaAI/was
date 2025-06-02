@@ -17,7 +17,7 @@ info:
     ⭐[도메인 채널 prefix]
     -
     
-    본 서비스는 총 5개의 메시지 전송 경로(prefix)를 사용하며, 구체적인 로직 분기는 경로가 아닌 DTO 필드로 구분됩니다. 
+    본 서비스는 총 4개의 메시지 전송 경로(prefix)를 사용하며, 구체적인 로직 분기는 경로가 아닌 DTO 필드로 구분됩니다. 
 
     - /pub/room/{roomId} : 대기방 관련 로직들 (대기방 내 채팅 포함)
     - /pub/chat/** : 채팅 관련 로직들 (전체 채팅 및 개인 채팅)
@@ -27,11 +27,11 @@ info:
     ⭐[에러 채널]
     -
 
-    - 대기방 에러 채널 : /user/{userUuid}/room/errors
-    - 로비 에러 채널 : /user/{userUuid}/lobby/errors
-    - 채팅 에러 채널 : /user/{userUuid}/chat/errors
-    - 게임 에러 채널 : /user/{userUuid}/game/errors
-    - 기본 에러 채널 : /user/{userUuid}/queue/errors
+    - 대기방 에러 채널 : /user/room/errors/{userUuid}
+    - 로비 에러 채널 : /user/lobby/errors/{userUuid}
+    - 채팅 에러 채널 : /user/chat/errors/{userUuid}
+    - 게임 에러 채널 : /user/game/errors/{userUuid}
+    - 기본 에러 채널 : /user/queue/errors/{userUuid}
 
 
 
@@ -49,7 +49,7 @@ servers:
 
 
 channels:
-  /user/{userUuid}/queue/errors:
+  /user/queue/errors/{userUuid}:
     description: |
       도메인 에러 외 서버에서 발생된 에러 메시지를 수신하는 WebSocket 구독 채널입니다.
     parameters:
@@ -64,7 +64,7 @@ channels:
         payload:
           $ref: '#/components/schemas/ExceptionRes'
 
-  /user/{userUuid}/room/errors:
+  /user/room/errors/{userUuid}:
     description: |
       대기방에서 발생한 에러 메시지를 수신하는 WebSocket 구독 채널입니다. (대기방 채팅에서 발생된 에러도 포함됩니다.)
     parameters:
@@ -79,7 +79,7 @@ channels:
         payload:
           $ref: '#/components/schemas/ExceptionRes'
 
-  /user/{userUuid}/game/errors:
+  /user/game/errors/{userUuid}:
     description: |
       게임에서 발생한 에러 메시지를 수신하는 WebSocket 구독 채널입니다.
     parameters:
@@ -94,7 +94,7 @@ channels:
         payload:
           $ref: '#/components/schemas/ExceptionRes'
 
-  /user/{userUuid}/lobby/errors:
+  /user/lobby/errors/{userUuid}:
     description: |
       로비에서 발생한 에러 메시지를 수신하는 WebSocket 구독 채널입니다.
     parameters:
@@ -109,7 +109,7 @@ channels:
         payload:
           $ref: '#/components/schemas/ExceptionRes'
 
-  /user/{userUuid}/chat/errors:
+  /user/chat/errors/{userUuid}:
     description: |
       채팅(전체체팅 및 개인 채팅)에서 발생한 에러 메시지를 수신하는 WebSocket 구독 채널입니다.
     parameters:
@@ -123,6 +123,19 @@ channels:
         summary: 에러 응답 메시지
         payload:
           $ref: '#/components/schemas/ExceptionRes'
+
+  /sub/friend/{userUuid}:
+    description: 클라이언트가 친구 관련 알림을 수신받는 채널
+    parameters:
+      userUuid:
+        description: 사용자의 UUID
+        schema:
+          type: string
+    subscribe:
+      message:
+        payload:
+          $ref: '#/components/schemas/FriendEventRes'
+
 
   /pub/lobby/create:
     description: 클라이언트가 새 방을 생성 요청하는 채널
@@ -250,6 +263,11 @@ channels:
             summary: START 이벤트 - 게임 시작 알림(게임 메타데이터 포함)
             payload:
               $ref: '#/components/schemas/RedisResponse_GameStart'
+
+          - name: Room Update
+            summary: UPDATE 이벤트 - 방정보 및 유저 리스트 반환
+            payload:
+              $ref: '#/components/schemas/RedisResponse_RoomList_Update'
 
   /pub/chat/all:
     description: 클라이언트가 전체 채팅 메시지를 전송하는 채널
@@ -403,6 +421,28 @@ components:
         - status
         - message
 
+    FriendEventRes:
+      type: object
+      description: 친구 관련 이벤트 응답 구조
+      properties:
+        eventType:
+          type: string
+          description: 친구 이벤트 타입
+          enum: [ ONLINE, REQUEST, REJECT, ACCEPT, DELETE ]
+        data:
+          oneOf:
+            - type: string
+            - $ref: '#/components/schemas/FriendSummaryRes'
+          description: 이벤트 관련 데이터 (DELETE, ONLINE의 경우 - 사용자 UUID, REQUEST, REJECT, ACCEPT의 경우 - 친구 정보 요약)
+        eventAt:
+          type: string
+          format: date-time
+          description: 이벤트 발생 시각
+      required:
+        - eventType
+        - data
+        - eventAt
+
     CreateRoomRequest:
       type: object
       required:
@@ -538,6 +578,24 @@ components:
           description: |
             이 방을 생성한 사용자의 UUID입니다.  
             클라이언트는 해당 값을 통해 수신된 방 정보가 본인이 생성한 것인지 식별할 수 있습니다.
+
+    FriendSummaryRes:
+      type: object
+      description: 친구 요약 정보
+      properties:
+        id:
+          type: integer
+          description: 친구 관계 ID
+        nickname:
+          type: string
+          description: 친구 닉네임
+        uuid:
+          type: string
+          description: 친구 UUID
+      required:
+        - id
+        - nickname
+        - uuid
 
     RedisResponse_RoomList_Create:
       type: object
