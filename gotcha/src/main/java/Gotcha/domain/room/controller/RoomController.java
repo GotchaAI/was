@@ -1,5 +1,6 @@
 package Gotcha.domain.room.controller;
 
+import Gotcha.domain.room.api.RoomApi;
 import gotcha_domain.auth.SecurityUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,7 @@ import socket_server.domain.room.service.RoomService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/room")
-public class RoomController {
+public class RoomController implements RoomApi {
     private final RoomService roomService;
 
     @GetMapping()
