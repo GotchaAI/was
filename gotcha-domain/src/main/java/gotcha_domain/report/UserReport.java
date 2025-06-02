@@ -43,7 +43,7 @@ public class UserReport extends BaseTimeEntity {
     private User user;
 
     @Convert(converter = ChatMessageListConverter.class)
-    @Column(name = "chat_log", columnDefinition = "TEXT")
+    @Column(name = "chat_log", columnDefinition = "LONGTEXT")
     private List<ChatMessage> chatLog;
 
     @Builder
