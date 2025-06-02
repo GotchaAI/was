@@ -1,7 +1,9 @@
 package Gotcha.domain.room.controller;
 
+import gotcha_domain.auth.SecurityUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +22,8 @@ public class RoomController {
     }
 
     @GetMapping("/{roomId}")
-    public ResponseEntity<?> getRoomInfo(@PathVariable(value = "roomId") String roomId) {
-        return ResponseEntity.ok(roomService.getRoomDetails(roomId));
+    public ResponseEntity<?> getRoomInfo(@PathVariable(value = "roomId") String roomId,
+                                         @AuthenticationPrincipal SecurityUserDetails userDetails) {
+        return ResponseEntity.ok(roomService.getRoomDetails(roomId, userDetails.getUuid()));
     }
 }

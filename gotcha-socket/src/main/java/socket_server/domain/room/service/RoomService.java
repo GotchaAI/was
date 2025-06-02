@@ -199,11 +199,15 @@ public class RoomService {
                 .toList();
     }
 
-    public RoomDetailRes getRoomDetails(String roomId) {
+    public RoomDetailRes getRoomDetails(String roomId, String userUuid) {
         Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
 
         if (roomData == null || roomData.isEmpty()) {
             throw new CustomException(RoomExceptionCode.INVALID_ROOM_ID);
+        }
+
+        if (!roomUserService.validateUserInRoom(roomId, userUuid)) {
+            throw new CustomException(RoomExceptionCode.USER_NOT_IN_ROOM);
         }
 
         RoomMetadata metadata = RoomMetadata.fromRedisMap(roomId, roomData);
