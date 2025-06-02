@@ -3,6 +3,8 @@ package socket_server.domain.game.model;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 /**
  * 게임 속 제시어에 대한 추측 데이터(Redis에 저장)
  */
@@ -13,4 +15,5 @@ public class Guess {
     private String guessWord;
     private int attempts;
     private Boolean correct;
+    private LocalDateTime guessEndTime;
 }

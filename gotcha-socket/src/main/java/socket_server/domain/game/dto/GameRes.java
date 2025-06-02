@@ -13,7 +13,6 @@ public record GameRes(
         GameEventType eventType,
         Object data,
         String aiSays,
-        LocalDateTime endTime,
         LocalDateTime eventAt
 ) {
 }
