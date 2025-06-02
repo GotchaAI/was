@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 /**
  * todo: 너무 많은 코드 !!! 리팩토링 필요
@@ -61,7 +64,7 @@ public class GuessFlowService {
         // 2. WordMeta BroadCast (현재 라운드에 대해서)
         // GUESS_START 이벤트 발행
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_START,
-                currentRound.getWords().stream().map(Word::toWordMeta).toList(), null, null);
+                currentRound.getWords().stream().map(Word::toWordMeta).toList(), null);
 
 
         processNextGuessRequest(roomId);
@@ -94,14 +97,15 @@ public class GuessFlowService {
         }
 
         boolean isAITurn = determineNextGuesser(currentWord);
-
-        if(isAITurn){ // next guess
-            Guess newGuess = guessRequestService.requestGuessAI(roomId, gameMeta, currentWord);
-            handleAIGuessSubmit(roomId, currentRound, currentWord, newGuess);
-        } else {
-            guessRequestService.requestGuessPlayer(roomId, gameMeta, currentWord);
-        }
-
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.schedule(() -> {
+            if(isAITurn){ // next guess
+                Guess newGuess = guessRequestService.requestGuessAI(roomId, gameMeta, currentWord);
+                handleAIGuessSubmit(roomId, currentRound, currentWord, newGuess);
+            } else {
+                guessRequestService.requestGuessPlayer(roomId, gameMeta, currentWord);
+            }
+        }, 2, TimeUnit.SECONDS);
     }
 
     private List<AiPrediction> getAIPredictions(String roomId, int roundIndex, int wordIndex){
@@ -143,7 +147,7 @@ public class GuessFlowService {
         String aiSays = aiClientService.getGuessMessage(roomId, new AIGuessMessageReq(predictions.get(guess.getAttempts()-1).getPredicted()));
 
         // 4. AI GUESS Broadcast
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_SUBMIT, guess, aiSays, null);
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_SUBMIT, guess, aiSays);
 
         // 5. 정답 확인
         guess.setCorrect(aiPredicted.equalsIgnoreCase(currentWord.getWord()));
@@ -186,7 +190,7 @@ public class GuessFlowService {
 
 
         //3. GUESS 정보 Broadcast
-        gameBroadCaster.broadcastGameEvent(guesserUuid, roomId, GameEventType.GUESS_SUBMIT, guess, null, null);
+        gameBroadCaster.broadcastGameEvent(guesserUuid, roomId, GameEventType.GUESS_SUBMIT, guess, null);
 
 
         //4. 현재 PlayerGuess 조회
@@ -244,7 +248,7 @@ public class GuessFlowService {
         String aiSays = aiClientService.getRoundEndMessage(roomId, new AIRoundEndReq(currentRound.getRoundIndex(), gameMeta.getTotalRounds(), currentRound.getRoundWinner()));
 
         // ROUND_END 이벤트 발행, 현재 라운드 정보 broadcast
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_END, currentRound, aiSays, null);
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_END, currentRound, aiSays);
 
         if(gameMeta.getCurrentRound() < gameMeta.getTotalRounds()){
             // next round 시작
@@ -313,7 +317,7 @@ public class GuessFlowService {
 
 
         //6. GameEnded 이벤트 broadcast
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GAME_END, game, aiSays, null);
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GAME_END, game, aiSays);
 
         //todo: 7. Game 마무리 : DB 저장
 
@@ -432,9 +436,11 @@ public class GuessFlowService {
         // AI 반응 받음
         String aiSays = aiClientService.getGuessReactMessage(roomId, new AIGuessReactReq(guess.getCorrect(), currentWord, guesser));
 
-        // GUESS RESULT Broadcast
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_RESULT, guess, aiSays, null);
-
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.schedule(() -> {
+            // GUESS RESULT Broadcast
+            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_RESULT, guess, aiSays);
+        }, 2, TimeUnit.SECONDS);
         if(guess.getCorrect()){
             // GUESS 성공. attempts와 함께 점수 업데이트
             updateScore(roomId, guess);
@@ -481,7 +487,7 @@ public class GuessFlowService {
         scores.put("AI", gamePlayerRepository.findRoundScoreByUuid(roomId, "AI", gameMeta.getCurrentRound()));
         scores.put(playerA, gamePlayerRepository.findRoundScoreByUuid(roomId, playerA, gameMeta.getCurrentRound()));
         scores.put(playerB, gamePlayerRepository.findRoundScoreByUuid(roomId, playerB, gameMeta.getCurrentRound()));
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.SCORE_UPDATE, scores, null, null);
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.SCORE_UPDATE, scores, null);
 
         currentRoundMeta.setRoundScores(scores);
         String roundMetasJson = jsonSerializer.serialize(roundMetas, GAME_ERROR);
