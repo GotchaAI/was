@@ -1,6 +1,9 @@
 package socket_server.domain.room.service;
 
+import gotcha_common.exception.CustomException;
 import gotcha_domain.auth.SecurityUserDetails;
+import gotcha_domain.chat.ChatMessage;
+import gotcha_domain.chat.ChatType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -10,17 +13,16 @@ import socket_server.common.exception.ErrorType;
 import socket_server.common.exception.SocketCustomException;
 import socket_server.common.exception.room.RoomExceptionCode;
 import socket_server.common.util.JsonSerializer;
-import gotcha_domain.chat.ChatMessage;
-import gotcha_domain.chat.ChatType;
 import socket_server.domain.chat.service.ChatLogService;
+import socket_server.domain.lobby.dto.CreateRoomReq;
+import socket_server.domain.lobby.dto.RoomDetailRes;
 import socket_server.domain.lobby.service.LobbyBroadCaster;
 import socket_server.domain.room.RoomField.RoomField;
-import socket_server.domain.lobby.dto.CreateRoomReq;
 import socket_server.domain.room.dto.EventRes;
-import socket_server.domain.room.model.RoomEventType;
-import socket_server.domain.lobby.dto.RoomJoinRes;
+import socket_server.domain.room.dto.RoomInfoRes;
 import socket_server.domain.room.dto.RoomSummaryRes;
 import socket_server.domain.room.dto.RoomUpdateReq;
+import socket_server.domain.room.model.RoomEventType;
 import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomRepository;
@@ -30,7 +32,9 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import static socket_server.common.constants.WebSocketConstants.ROOM_PREFIX;
 
@@ -167,8 +171,8 @@ public class RoomService {
         lobbyBroadCaster.broadcastToRoomList("SYSTEM", RoomEventType.UPDATE, summary);
 
         List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR);
-        RoomJoinRes roomJoinRes = new RoomJoinRes(metadata, userList);
-        roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", RoomEventType.UPDATE, roomJoinRes);
+        RoomDetailRes roomDetailRes = new RoomDetailRes(RoomInfoRes.from(metadata), userList);
+        roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", RoomEventType.UPDATE, roomDetailRes);
 
         log.info("방 {} 업데이트 정보를 ROOM_LIST_EVENT 및 ROOM_EVENT 로 브로드캐스트 완료", roomId);
     }
@@ -178,4 +182,37 @@ public class RoomService {
         return RoomMetadata.fromRedisMap(roomId, fields);
     }
 
+    public List<RoomSummaryRes> getAllRoomSummaries() {
+        Set<String> allRoomIds = roomRepository.getAllRoomIds();
+        return allRoomIds.stream()
+                .map(roomId -> {
+                    Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
+                    if (roomData == null || roomData.isEmpty()) {
+                        return null;
+                    }
+
+                    RoomMetadata metadata = RoomMetadata.fromRedisMap(roomId, roomData);
+                    int currentUser = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR).size();
+                    return RoomSummaryRes.of(metadata, currentUser);
+                })
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    public RoomDetailRes getRoomDetails(String roomId, String userUuid) {
+        Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
+
+        if (roomData == null || roomData.isEmpty()) {
+            throw new CustomException(RoomExceptionCode.INVALID_ROOM_ID);
+        }
+
+        if (!roomUserService.validateUserInRoom(roomId, userUuid)) {
+            throw new CustomException(RoomExceptionCode.USER_NOT_IN_ROOM);
+        }
+
+        RoomMetadata metadata = RoomMetadata.fromRedisMap(roomId, roomData);
+        List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR);
+
+        return new RoomDetailRes(RoomInfoRes.from(metadata), userList);
+    }
 }

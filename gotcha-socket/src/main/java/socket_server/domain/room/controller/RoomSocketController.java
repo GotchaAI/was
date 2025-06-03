@@ -17,7 +17,7 @@ import socket_server.domain.room.handler.RoomEventDispatcher;
 @Controller
 @MessageMapping("/room")
 @RequiredArgsConstructor
-public class RoomController {
+public class RoomSocketController {
     private final SocketFieldValidator fieldValidator;
     private final RoomEventDispatcher dispatcher;
 
