@@ -1655,3 +1655,4 @@ components:
           description: 업로드된 그림의 URL
       required:
         - imageURL
+
