@@ -11,7 +11,7 @@
     </head>
   
     <body>
-      <div id="root"><section class="aui-root"><div class="container:xl relative md:flex bg-white leading-normal" id=""><div class="burger-menu rounded-full h-16 w-16 bg-white fixed bottom-16 right-8 flex items-center justify-center z-30 cursor-pointer shadow-md bg-teal-500" data-lol="false"><svg viewBox="0 0 100 70" width="40" height="30" class="fill-current text-gray-200"><rect width="100" height="10"></rect><rect y="30" width="100" height="10"></rect><rect y="60" width="100" height="10"></rect></svg></div><div class="hidden sidebar relative w-64 max-h-screen h-full bg-gray-200 shadow z-20"><div class=" block fixed max-h-screen h-full font-sans px-4 pt-8 pb-16 overflow-y-auto bg-gray-200"><div class="sidebar--content"><div><h1 class="text-2xl font-light">Gotcha WebSocket API<!-- --> <!-- -->1.0.0</h1></div><ul class="text-sm mt-10 relative"><li class="mb-3"><a class="text-gray-700 no-underline hover:text-gray-900" href="#introduction">Introduction</a></li><li class="mb-3 mt-9"><a class="text-xs uppercase text-gray-700 mt-10 mb-4 font-thin hover:text-gray-900" href="#servers">Servers</a><ul class="text-sm mt-2"><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#server-production"><span class="break-all inline-block">production</span></a></li></ul></li><li class="mb-3 mt-9"><a class="text-xs uppercase text-gray-700 mt-10 mb-4 font-thin hover:text-gray-900" href="#operations">Operations</a><ul class="text-sm mt-2"><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/user/queue/errors/{userUuid}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/user/room/errors/{userUuid}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/user/game/errors/{userUuid}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/user/lobby/errors/{userUuid}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/user/chat/errors/{userUuid}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/sub/friend/{userUuid}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-receive-publish"><span class="bg-green-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="PUB">PUB</span><span class="break-all inline-block">/pub/lobby/create</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/sub/lobby/create/{userUuid}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-receive-publish"><span class="bg-green-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="PUB">PUB</span><span class="break-all inline-block">/pub/lobby/join/{roomId}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/sub/lobby/join/{userUuid}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/sub/lobby/list/event</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-receive-publish"><span class="bg-green-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="PUB">PUB</span><span class="break-all inline-block">/pub/room/{roomId}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/sub/room/{roomId}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-receive-publish"><span class="bg-green-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="PUB">PUB</span><span class="break-all inline-block">/pub/chat/all</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/sub/chat/all</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-receive-publish"><span class="bg-green-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="PUB">PUB</span><span class="break-all inline-block">/pub/chat/private</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/sub/chat/private/{receiverId}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-receive-publish"><span class="bg-green-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="PUB">PUB</span><span class="break-all inline-block">/pub/game/{roomId}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/sub/game/{roomId}</span></a></li></ul></li><li class="mb-3 mt-9"><a class="text-xs uppercase text-gray-700 mt-10 mb-4 font-thin hover:text-gray-900" href="#schemas">Schemas</a><ul class="text-sm mt-2"><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-ExceptionRes"><div class="break-all inline-block">ExceptionRes</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-FriendEventRes"><div class="break-all inline-block">FriendEventRes</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-CreateRoomRequest"><div class="break-all inline-block">CreateRoomRequest</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RoomReq"><div class="break-all inline-block">RoomReq</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoomMetadata"><div class="break-all inline-block">RedisResponse_RoomMetadata</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RoomSummaryRes"><div class="break-all inline-block">RoomSummaryRes</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RoomMetadata"><div class="break-all inline-block">RoomMetadata</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-FriendSummaryRes"><div class="break-all inline-block">FriendSummaryRes</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoomList_Create"><div class="break-all inline-block">RedisResponse_RoomList_Create</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoomList_Update"><div class="break-all inline-block">RedisResponse_RoomList_Update</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoomList_Delete"><div class="break-all inline-block">RedisResponse_RoomList_Delete</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoomChat"><div class="break-all inline-block">RedisResponse_RoomChat</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoomJoin"><div class="break-all inline-block">RedisResponse_RoomJoin</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoomReady"><div class="break-all inline-block">RedisResponse_RoomReady</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoomUnReady"><div class="break-all inline-block">RedisResponse_RoomUnReady</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoomExit"><div class="break-all inline-block">RedisResponse_RoomExit</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_GameStart"><div class="break-all inline-block">RedisResponse_GameStart</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-AISaysRes"><div class="break-all inline-block">AISaysRes</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoundStart"><div class="break-all inline-block">RedisResponse_RoundStart</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_GuessStart"><div class="break-all inline-block">RedisResponse_GuessStart</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_GuessRequest"><div class="break-all inline-block">RedisResponse_GuessRequest</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_GameEnd"><div class="break-all inline-block">RedisResponse_GameEnd</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoundEnd"><div class="break-all inline-block">RedisResponse_RoundEnd</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_ScoreUpdate"><div class="break-all inline-block">RedisResponse_ScoreUpdate</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_GuessResult"><div class="break-all inline-block">RedisResponse_GuessResult</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_GuessSubmit"><div class="break-all inline-block">RedisResponse_GuessSubmit</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-AllChatMessage"><div class="break-all inline-block">AllChatMessage</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-PrivateChatMessage"><div class="break-all inline-block">PrivateChatMessage</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RoomChatMessage"><div class="break-all inline-block">RoomChatMessage</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RoomUserInfo"><div class="break-all inline-block">RoomUserInfo</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisReq_PrivateChat"><div class="break-all inline-block">RedisReq_PrivateChat</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisReq_AllChat"><div class="break-all inline-block">RedisReq_AllChat</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisRes_AllChat"><div class="break-all inline-block">RedisRes_AllChat</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisRes_PrivateChat"><div class="break-all inline-block">RedisRes_PrivateChat</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-Game"><div class="break-all inline-block">Game</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-GamePlayer"><div class="break-all inline-block">GamePlayer</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-Round"><div class="break-all inline-block">Round</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-Word"><div class="break-all inline-block">Word</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-Guess"><div class="break-all inline-block">Guess</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-AIPrediction"><div class="break-all inline-block">AIPrediction</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-Score"><div class="break-all inline-block">Score</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RoomIdRes"><div class="break-all inline-block">RoomIdRes</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-DrawingSubmitReq"><div class="break-all inline-block">DrawingSubmitReq</div></a></li></ul></li></ul></div></div></div><div class="panel--center relative py-8 flex-1"><div class="relative z-10"><div class="panel-item"><div class="panel-item--center px-8 text-left" id="introduction"><div class="text-4xl">Gotcha WebSocket API<!-- --> <!-- -->1.0.0</div><ul class="flex flex-wrap mt-2 leading-normal"><li class="inline-block mt-2 mr-2"><a href="https://www.iana.org/assignments/media-types/application/json" class="border border-solid border-orange-300 hover:bg-orange-300 hover:text-orange-600 text-orange-500 font-bold no-underline text-xs uppercase rounded px-3 py-1" target="_blank" rel="nofollow noopener noreferrer"><span>application/json</span></a></li><li class="inline-block mt-2 mr-2"><span class="border border-solid border-blue-300 hover:bg-blue-300 hover:text-blue-600 text-blue-500 font-bold no-underline text-xs uppercase rounded px-3 py-1">ID: <!-- -->gotcha:websocket-api</span></li></ul><div class="mt-4"><div class="prose max-w-none text-sm"><p>이 문서는 Gotcha 게임 플랫폼의 실시간 WebSocket(STOMP) 통신 명세서입니다.
+      <div id="root"><section class="aui-root"><div class="container:xl relative md:flex bg-white leading-normal" id=""><div class="burger-menu rounded-full h-16 w-16 bg-white fixed bottom-16 right-8 flex items-center justify-center z-30 cursor-pointer shadow-md bg-teal-500" data-lol="false"><svg viewBox="0 0 100 70" width="40" height="30" class="fill-current text-gray-200"><rect width="100" height="10"></rect><rect y="30" width="100" height="10"></rect><rect y="60" width="100" height="10"></rect></svg></div><div class="hidden sidebar relative w-64 max-h-screen h-full bg-gray-200 shadow z-20"><div class=" block fixed max-h-screen h-full font-sans px-4 pt-8 pb-16 overflow-y-auto bg-gray-200"><div class="sidebar--content"><div><h1 class="text-2xl font-light">Gotcha WebSocket API<!-- --> <!-- -->1.0.0</h1></div><ul class="text-sm mt-10 relative"><li class="mb-3"><a class="text-gray-700 no-underline hover:text-gray-900" href="#introduction">Introduction</a></li><li class="mb-3 mt-9"><a class="text-xs uppercase text-gray-700 mt-10 mb-4 font-thin hover:text-gray-900" href="#servers">Servers</a><ul class="text-sm mt-2"><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#server-production"><span class="break-all inline-block">production</span></a></li></ul></li><li class="mb-3 mt-9"><a class="text-xs uppercase text-gray-700 mt-10 mb-4 font-thin hover:text-gray-900" href="#operations">Operations</a><ul class="text-sm mt-2"><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/user/queue/errors/{userUuid}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/user/room/errors/{userUuid}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/user/game/errors/{userUuid}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/user/lobby/errors/{userUuid}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/user/chat/errors/{userUuid}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/sub/friend/{userUuid}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-receive-publish"><span class="bg-green-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="PUB">PUB</span><span class="break-all inline-block">/pub/lobby/create</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/sub/lobby/create/{userUuid}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-receive-publish"><span class="bg-green-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="PUB">PUB</span><span class="break-all inline-block">/pub/lobby/join/{roomId}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/sub/lobby/join/{userUuid}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/sub/lobby/list/event</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-receive-publish"><span class="bg-green-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="PUB">PUB</span><span class="break-all inline-block">/pub/room/{roomId}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/sub/room/{roomId}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-receive-publish"><span class="bg-green-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="PUB">PUB</span><span class="break-all inline-block">/pub/chat/all</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/sub/chat/all</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-receive-publish"><span class="bg-green-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="PUB">PUB</span><span class="break-all inline-block">/pub/chat/private</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/sub/chat/private/{receiverId}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-receive-publish"><span class="bg-green-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="PUB">PUB</span><span class="break-all inline-block">/pub/game/{roomId}</span></a></li><li><a class="flex no-underline text-gray-700 mb-2 hover:text-gray-900" href="#operation-send-subscribe"><span class="bg-blue-600 font-bold h-6 no-underline text-white uppercase p-1 mr-2 rounded text-xs" title="SUB">SUB</span><span class="break-all inline-block">/sub/game/{roomId}</span></a></li></ul></li><li class="mb-3 mt-9"><a class="text-xs uppercase text-gray-700 mt-10 mb-4 font-thin hover:text-gray-900" href="#schemas">Schemas</a><ul class="text-sm mt-2"><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-ExceptionRes"><div class="break-all inline-block">ExceptionRes</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-FriendEventRes"><div class="break-all inline-block">FriendEventRes</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-CreateRoomRequest"><div class="break-all inline-block">CreateRoomRequest</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RoomReq"><div class="break-all inline-block">RoomReq</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoomMetadata"><div class="break-all inline-block">RedisResponse_RoomMetadata</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RoomSummaryRes"><div class="break-all inline-block">RoomSummaryRes</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RoomMetadata"><div class="break-all inline-block">RoomMetadata</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-FriendSummaryRes"><div class="break-all inline-block">FriendSummaryRes</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoomList_Create"><div class="break-all inline-block">RedisResponse_RoomList_Create</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoomList_Update"><div class="break-all inline-block">RedisResponse_RoomList_Update</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoomList_Delete"><div class="break-all inline-block">RedisResponse_RoomList_Delete</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoomChat"><div class="break-all inline-block">RedisResponse_RoomChat</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoomJoin"><div class="break-all inline-block">RedisResponse_RoomJoin</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoomReady"><div class="break-all inline-block">RedisResponse_RoomReady</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoomUnReady"><div class="break-all inline-block">RedisResponse_RoomUnReady</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoomExit"><div class="break-all inline-block">RedisResponse_RoomExit</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_GameStart"><div class="break-all inline-block">RedisResponse_GameStart</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-AISaysRes"><div class="break-all inline-block">AISaysRes</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoundStart"><div class="break-all inline-block">RedisResponse_RoundStart</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_GuessStart"><div class="break-all inline-block">RedisResponse_GuessStart</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_GuessRequest"><div class="break-all inline-block">RedisResponse_GuessRequest</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_GameEnd"><div class="break-all inline-block">RedisResponse_GameEnd</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_RoundEnd"><div class="break-all inline-block">RedisResponse_RoundEnd</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_ScoreUpdate"><div class="break-all inline-block">RedisResponse_ScoreUpdate</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_GuessResult"><div class="break-all inline-block">RedisResponse_GuessResult</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisResponse_GuessSubmit"><div class="break-all inline-block">RedisResponse_GuessSubmit</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-AllChatMessage"><div class="break-all inline-block">AllChatMessage</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-PrivateChatMessage"><div class="break-all inline-block">PrivateChatMessage</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RoomChatMessage"><div class="break-all inline-block">RoomChatMessage</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RoomUserInfo"><div class="break-all inline-block">RoomUserInfo</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisReq_PrivateChat"><div class="break-all inline-block">RedisReq_PrivateChat</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisReq_AllChat"><div class="break-all inline-block">RedisReq_AllChat</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisRes_AllChat"><div class="break-all inline-block">RedisRes_AllChat</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RedisRes_PrivateChat"><div class="break-all inline-block">RedisRes_PrivateChat</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-Game"><div class="break-all inline-block">Game</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-GamePlayer"><div class="break-all inline-block">GamePlayer</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-Round"><div class="break-all inline-block">Round</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-Word"><div class="break-all inline-block">Word</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-Guess"><div class="break-all inline-block">Guess</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-AIPrediction"><div class="break-all inline-block">AIPrediction</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-Score"><div class="break-all inline-block">Score</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RoomIdRes"><div class="break-all inline-block">RoomIdRes</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-DrawingSubmitReq"><div class="break-all inline-block">DrawingSubmitReq</div></a></li><li><a class="flex break-words no-underline text-gray-700 mt-2 hover:text-gray-900" href="#schema-RoomJoinReq"><div class="break-all inline-block">RoomJoinReq</div></a></li></ul></li></ul></div></div></div><div class="panel--center relative py-8 flex-1"><div class="relative z-10"><div class="panel-item"><div class="panel-item--center px-8 text-left" id="introduction"><div class="text-4xl">Gotcha WebSocket API<!-- --> <!-- -->1.0.0</div><ul class="flex flex-wrap mt-2 leading-normal"><li class="inline-block mt-2 mr-2"><a href="https://www.iana.org/assignments/media-types/application/json" class="border border-solid border-orange-300 hover:bg-orange-300 hover:text-orange-600 text-orange-500 font-bold no-underline text-xs uppercase rounded px-3 py-1" target="_blank" rel="nofollow noopener noreferrer"><span>application/json</span></a></li><li class="inline-block mt-2 mr-2"><span class="border border-solid border-blue-300 hover:bg-blue-300 hover:text-blue-600 text-blue-500 font-bold no-underline text-xs uppercase rounded px-3 py-1">ID: <!-- -->gotcha:websocket-api</span></li></ul><div class="mt-4"><div class="prose max-w-none text-sm"><p>이 문서는 Gotcha 게임 플랫폼의 실시간 WebSocket(STOMP) 통신 명세서입니다.
 SockJS를 통해 WebSocket 연결을 시도합니다.</p>
 <table>
 <thead>
@@ -182,21 +182,10 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
 </code></pre>
 </div><h6 class="text-xs font-bold text-gray-600 italic mt-2">This example has been generated automatically.</h6></div></div></div></div></div></div></div></div></div></div></li><li class="mb-12" id="operation-receive-publish"><div><div class="panel-item--center px-8"><div class="mb-4"><h3><span class="font-mono border uppercase p-1 rounded mr-2 border-green-600 text-green-600" title="receive">PUB</span> <span class="font-mono text-base">/pub/lobby/join/{roomId}</span></h3></div><div class="mt-2"><div class="prose max-w-none text-sm"><p>클라이언트가 방에 참가 요청하는 채널</p>
 </div></div><div class="border bg-gray-100 rounded px-4 py-2 mt-2"><div class="text-sm text-gray-700">Operation ID<span class="border text-orange-600 rounded text-xs ml-2 py-0 px-2">publish</span></div></div><div class="mt-2 text-sm"><p>Available only on servers:</p><ul class="flex flex-wrap leading-normal"><li class="inline-block mt-2 mr-2"><a href="#server-production" class="border border-solid border-blue-300 hover:bg-blue-300 hover:text-blue-600 text-blue-500 font-bold no-underline text-xs rounded px-3 py-1 cursor-pointer"><span class="underline">production</span></a></li></ul></div><div class="mt-2" id="operation-receive-/pub/lobby/join/{roomId}-parameters"><div><div class="flex py-2"><div class="min-w-1/4 mr-2"><button class="focus:outline-none undefined" type="button"><div class="inline-block"><span class="break-anywhere text-sm ">Parameters</span></div><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 20 20" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg" class="inline-block align-baseline cursor-pointer ml-0.5 -mb-1 w-5 h-5 transform transition-transform duration-150 ease-linear -rotate-90 "><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></button><button type="button" class="ml-1 text-sm text-gray-500">Expand all</button></div><div><div><div class="capitalize text-sm text-teal-500 font-bold inline-block mr-2">object</div><div class="inline-block"></div></div></div></div><div class="rounded p-4 py-2 border bg-gray-100  block"><div><div class="flex py-2"><div class="min-w-1/4 mr-2"><span class="break-anywhere text-sm italic">roomId</span><div class="text-red-600 text-xs">required</div></div><div><div><div class="capitalize text-sm text-teal-500 font-bold inline-block mr-2">string</div><div class="inline-block"></div><div><div class="prose max-w-none text-sm"><p>대기방의 고유 식별자</p>
-</div></div></div></div></div></div></div></div></div><div class="mt-2" id="operation-receive-/pub/lobby/join/{roomId}-security"></div><div class="mt-2"></div><div class="mt-2"></div><div class="mt-2"></div></div><div class="w-full mt-4" id="operation-receive-/pub/lobby/join/{roomId}-message"><div class="mt-2"><p class="px-8">Accepts the following message:</p><div class="mt-2"><div class="panel-item"><div class="panel-item--center px-8"><div class="shadow rounded bg-gray-200 p-4 border"><div><span class="border text-orange-600 rounded text-xs py-0 px-2">&lt;anonymous-message-4&gt;</span></div><ul class="leading-normal mt-2 mb-4 space-x-2 space-y-2"><li class="inline-block"><a href="https://www.iana.org/assignments/media-types/application/json" class="border border-solid border-orange-300 hover:bg-orange-300 hover:text-orange-600 text-orange-500 font-bold no-underline text-xs uppercase rounded px-3 py-1" target="_blank" rel="nofollow noopener noreferrer"><span>application/json</span></a></li></ul><div class="border bg-gray-100 rounded px-4 py-2 mt-2"><div class="text-sm text-gray-700">Message ID<span class="border text-orange-600 rounded text-xs ml-2 py-0 px-2">&lt;anonymous-message-4&gt;</span></div></div><div class="mt-2"><div><div class="flex py-2"><div class="min-w-1/4 mr-2"><button class="focus:outline-none undefined" type="button"><div class="inline-block"><span class="break-anywhere text-sm ">Payload</span></div><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 20 20" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg" class="inline-block align-baseline cursor-pointer ml-0.5 -mb-1 w-5 h-5 transform transition-transform duration-150 ease-linear  "><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></button><button type="button" class="ml-1 text-sm text-gray-500">Expand all</button></div><div><div><div class="capitalize text-sm text-teal-500 font-bold inline-block mr-2">object</div><div class="inline-block"></div></div></div></div><div class="rounded p-4 py-2 border bg-gray-100  hidden"><div><div class="flex py-2"><div class="min-w-1/4 mr-2"><span class="break-anywhere text-sm italic">title</span><div class="text-red-600 text-xs">required</div></div><div><div><div class="capitalize text-sm text-teal-500 font-bold inline-block mr-2">string</div><div class="inline-block"></div><div><div class="prose max-w-none text-sm"><p>제목 (필수 입력)</p>
-</div></div></div></div></div></div><div><div class="flex py-2"><div class="min-w-1/4 mr-2"><span class="break-anywhere text-sm italic">maxUser</span><div class="text-red-600 text-xs">required</div></div><div><div><div class="capitalize text-sm text-teal-500 font-bold inline-block mr-2">integer</div><div class="inline-block"></div><div><div class="prose max-w-none text-sm"><p>최대 인원수 (필수 입력)</p>
-</div></div></div></div></div></div><div><div class="flex py-2"><div class="min-w-1/4 mr-2"><span class="break-anywhere text-sm italic">hasPassword</span><div class="text-red-600 text-xs">required</div></div><div><div><div class="capitalize text-sm text-teal-500 font-bold inline-block mr-2">boolean</div><div class="inline-block"></div><div><div class="prose max-w-none text-sm"><p>비밀번호 사용 여부</p>
-</div></div></div></div></div></div><div><div class="flex py-2"><div class="min-w-1/4 mr-2"><span class="break-anywhere text-sm italic">password</span></div><div><div><div class="capitalize text-sm text-teal-500 font-bold inline-block mr-2">string</div><div class="inline-block"></div><div><div class="prose max-w-none text-sm"><p>문자열이 숫자 4자리로만 구성되어 있어야 한다</p>
-</div></div></div></div></div></div><div><div class="flex py-2"><div class="min-w-1/4 mr-2"><span class="break-anywhere text-sm italic">difficulty</span><div class="text-red-600 text-xs">required</div></div><div><div><div class="capitalize text-sm text-teal-500 font-bold inline-block mr-2">string</div><div class="inline-block"></div><div><div class="prose max-w-none text-sm"><p>인공지능 난이도 (필수)</p>
-</div></div><ul class="text-xs">Allowed values:<!-- --> <li class="border inline-block text-orange-600 rounded ml-1 py-0 px-2"><span>&quot;BASIC&quot;</span></li><li class="border inline-block text-orange-600 rounded ml-1 py-0 px-2"><span>&quot;ADVANCED&quot;</span></li></ul></div></div></div></div><div><div class="flex py-2"><div class="min-w-1/4 mr-2"><span class="break-anywhere text-sm italic">gameType</span><div class="text-red-600 text-xs">required</div></div><div><div><div class="capitalize text-sm text-teal-500 font-bold inline-block mr-2">string</div><div class="inline-block"></div><div><div class="prose max-w-none text-sm"><p>묘묘 - 2인 / 루루 - 1인 게임 모드</p>
-</div></div><ul class="text-xs">Allowed values:<!-- --> <li class="border inline-block text-orange-600 rounded ml-1 py-0 px-2"><span>&quot;TRICK_MYOMYO&quot;</span></li><li class="border inline-block text-orange-600 rounded ml-1 py-0 px-2"><span>&quot;LULU_ART_EXAM&quot;</span></li></ul></div></div></div></div><div><div class="flex py-2"><div class="min-w-1/4 mr-2"><span class="break-anywhere text-sm italic">roundCount</span><div class="text-red-600 text-xs">required</div></div><div><div><div class="capitalize text-sm text-teal-500 font-bold inline-block mr-2">integer</div><div class="inline-block"><span class="bg-purple-600 font-bold no-underline text-white rounded lowercase mr-2 p-1 text-xs">[ 1 .. 5 ]</span></div><div><div class="prose max-w-none text-sm"><p>라운드 수 (1~5 사이)</p>
+</div></div></div></div></div></div></div></div></div><div class="mt-2" id="operation-receive-/pub/lobby/join/{roomId}-security"></div><div class="mt-2"></div><div class="mt-2"></div><div class="mt-2"></div></div><div class="w-full mt-4" id="operation-receive-/pub/lobby/join/{roomId}-message"><div class="mt-2"><p class="px-8">Accepts the following message:</p><div class="mt-2"><div class="panel-item"><div class="panel-item--center px-8"><div class="shadow rounded bg-gray-200 p-4 border"><div><span class="border text-orange-600 rounded text-xs py-0 px-2">&lt;anonymous-message-4&gt;</span></div><ul class="leading-normal mt-2 mb-4 space-x-2 space-y-2"><li class="inline-block"><a href="https://www.iana.org/assignments/media-types/application/json" class="border border-solid border-orange-300 hover:bg-orange-300 hover:text-orange-600 text-orange-500 font-bold no-underline text-xs uppercase rounded px-3 py-1" target="_blank" rel="nofollow noopener noreferrer"><span>application/json</span></a></li></ul><div class="border bg-gray-100 rounded px-4 py-2 mt-2"><div class="text-sm text-gray-700">Message ID<span class="border text-orange-600 rounded text-xs ml-2 py-0 px-2">&lt;anonymous-message-4&gt;</span></div></div><div class="mt-2"><div><div class="flex py-2"><div class="min-w-1/4 mr-2"><button class="focus:outline-none undefined" type="button"><div class="inline-block"><span class="break-anywhere text-sm ">Payload</span></div><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 20 20" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg" class="inline-block align-baseline cursor-pointer ml-0.5 -mb-1 w-5 h-5 transform transition-transform duration-150 ease-linear  "><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></button><button type="button" class="ml-1 text-sm text-gray-500">Expand all</button></div><div><div><div class="capitalize text-sm text-teal-500 font-bold inline-block mr-2">object</div><div class="inline-block"></div><div><div class="prose max-w-none text-sm"><p>방 참가 시 요청 dto</p>
+</div></div></div></div></div><div class="rounded p-4 py-2 border bg-gray-100  hidden"><div><div class="flex py-2"><div class="min-w-1/4 mr-2"><span class="break-anywhere text-sm italic">password</span></div><div><div><div class="capitalize text-sm text-teal-500 font-bold inline-block mr-2">string</div><div class="inline-block"></div><div><div class="prose max-w-none text-sm"><p>방 비밀번호</p>
 </div></div></div></div></div></div><p class="mt-2 text-xs text-gray-700">Additional properties are allowed.</p></div></div></div></div></div><div class="panel-item--right px-8"><div class="bg-gray-800 px-8 py-4 mt-4 -mx-8 2xl:mx-0 2xl:px-4 2xl:rounded examples"><h4 class="text-white text-lg">Examples</h4><div class="mt-4"><div><button class="focus:outline-none undefined" type="button"><div class="inline-block"><span class="inline-block w-20 py-0.5 mr-1 text-gray-200 text-sm border text-center rounded focus:outline-none">Payload</span></div><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 20 20" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg" class="inline-block align-baseline cursor-pointer ml-0.5 -mb-1 w-5 h-5 transform transition-transform duration-150 ease-linear  fill-current text-gray-200"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></button></div><div class="hidden"><div class="mt-4"><div class="prose max-w-none text-sm"><pre><code class="hljs language-json">{
-  <span class="hljs-attr">"title"</span>: <span class="hljs-string">"string"</span>,
-  <span class="hljs-attr">"maxUser"</span>: <span class="hljs-number">0</span>,
-  <span class="hljs-attr">"hasPassword"</span>: <span class="hljs-literal">true</span>,
-  <span class="hljs-attr">"password"</span>: <span class="hljs-string">"string"</span>,
-  <span class="hljs-attr">"difficulty"</span>: <span class="hljs-string">"BASIC"</span>,
-  <span class="hljs-attr">"gameType"</span>: <span class="hljs-string">"TRICK_MYOMYO"</span>,
-  <span class="hljs-attr">"roundCount"</span>: <span class="hljs-number">1</span>
+  <span class="hljs-attr">"password"</span>: <span class="hljs-string">"string"</span>
 }
 </code></pre>
 </div><h6 class="text-xs font-bold text-gray-600 italic mt-2">This example has been generated automatically.</h6></div></div></div></div></div></div></div></div></div></div></li><li class="mb-12" id="operation-send-subscribe"><div><div class="panel-item--center px-8"><div class="mb-4"><h3><span class="font-mono border uppercase p-1 rounded mr-2 border-blue-600 text-blue-500" title="send">SUB</span> <span class="font-mono text-base">/sub/lobby/join/{userUuid}</span></h3></div><div class="mt-2"><div class="prose max-w-none text-sm"><p>클라이언트가 방에 참가 응답 채널</p>
@@ -1162,6 +1151,8 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
 </div></div></div></div></div><div class="rounded p-4 py-2 border bg-gray-100  hidden"><div><div class="flex py-2"><div class="min-w-1/4 mr-2"><span class="break-anywhere text-sm italic">roomId</span><div class="text-red-600 text-xs">required</div></div><div><div><div class="capitalize text-sm text-teal-500 font-bold inline-block mr-2">string</div><div class="inline-block"></div><div><div class="prose max-w-none text-sm"><p>생성된 방의 고유 ID</p>
 </div></div></div></div></div></div><p class="mt-2 text-xs text-gray-700">Additional properties are allowed.</p></div></div></div></div><div class="w-full mt-4"></div></div></li><li class="mb-4" id="schema-DrawingSubmitReq"><div><div class="panel-item--center px-8"><div class="shadow rounded px-4 py-2 border bg-gray-200"><div><div class="flex py-2"><div class="min-w-1/4 mr-2"><button class="focus:outline-none undefined" type="button"><div class="inline-block"><span class="break-anywhere text-sm ">DrawingSubmitReq</span></div><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 20 20" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg" class="inline-block align-baseline cursor-pointer ml-0.5 -mb-1 w-5 h-5 transform transition-transform duration-150 ease-linear  "><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></button><button type="button" class="ml-1 text-sm text-gray-500">Expand all</button></div><div><div><div class="capitalize text-sm text-teal-500 font-bold inline-block mr-2">object</div><div class="inline-block"></div><div><div class="prose max-w-none text-sm"><p>그림 제출 요청</p>
 </div></div></div></div></div><div class="rounded p-4 py-2 border bg-gray-100  hidden"><div><div class="flex py-2"><div class="min-w-1/4 mr-2"><span class="break-anywhere text-sm italic">imageURL</span><div class="text-red-600 text-xs">required</div></div><div><div><div class="capitalize text-sm text-teal-500 font-bold inline-block mr-2">string</div><div class="inline-block"><span class="bg-yellow-600 font-bold no-underline text-white rounded lowercase mr-2 p-1 text-xs">format: <!-- -->uri</span></div><div><div class="prose max-w-none text-sm"><p>업로드된 그림의 URL</p>
+</div></div></div></div></div></div><p class="mt-2 text-xs text-gray-700">Additional properties are allowed.</p></div></div></div></div><div class="w-full mt-4"></div></div></li><li class="mb-4" id="schema-RoomJoinReq"><div><div class="panel-item--center px-8"><div class="shadow rounded px-4 py-2 border bg-gray-200"><div><div class="flex py-2"><div class="min-w-1/4 mr-2"><button class="focus:outline-none undefined" type="button"><div class="inline-block"><span class="break-anywhere text-sm ">RoomJoinReq</span></div><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 20 20" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg" class="inline-block align-baseline cursor-pointer ml-0.5 -mb-1 w-5 h-5 transform transition-transform duration-150 ease-linear  "><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg></button><button type="button" class="ml-1 text-sm text-gray-500">Expand all</button></div><div><div><div class="capitalize text-sm text-teal-500 font-bold inline-block mr-2">object</div><div class="inline-block"></div><div><div class="prose max-w-none text-sm"><p>방 참가 시 요청 dto</p>
+</div></div></div></div></div><div class="rounded p-4 py-2 border bg-gray-100  hidden"><div><div class="flex py-2"><div class="min-w-1/4 mr-2"><span class="break-anywhere text-sm italic">password</span></div><div><div><div class="capitalize text-sm text-teal-500 font-bold inline-block mr-2">string</div><div class="inline-block"></div><div><div class="prose max-w-none text-sm"><p>방 비밀번호</p>
 </div></div></div></div></div></div><p class="mt-2 text-xs text-gray-700">Additional properties are allowed.</p></div></div></div></div><div class="w-full mt-4"></div></div></li></ul></section></div><div class="panel--right absolute top-0 right-0 h-full bg-gray-800"></div></div></div></section></div>
   
       <script src="js/asyncapi-ui.min.js" type="application/javascript"></script>
@@ -1511,7 +1502,18 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
       },
       "publish": {
         "message": {
-          "payload": "$ref:$.channels./pub/lobby/create.publish.message.payload",
+          "payload": {
+            "type": "object",
+            "description": "방 참가 시 요청 dto",
+            "properties": {
+              "password": {
+                "type": "string",
+                "description": "방 비밀번호",
+                "x-parser-schema-id": "<anonymous-schema-21>"
+              }
+            },
+            "x-parser-schema-id": "RoomJoinReq"
+          },
           "x-parser-message-name": "<anonymous-message-4>"
         }
       }
@@ -1547,11 +1549,11 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-21>"
+                    "x-parser-schema-id": "<anonymous-schema-22>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-22>"
+                    "x-parser-schema-id": "<anonymous-schema-23>"
                   },
                   "payload": {
                     "type": "object",
@@ -1561,12 +1563,12 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                         "enum": [
                           "CREATE"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-24>"
+                        "x-parser-schema-id": "<anonymous-schema-25>"
                       },
                       "eventAt": {
                         "type": "string",
                         "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-25>"
+                        "x-parser-schema-id": "<anonymous-schema-26>"
                       },
                       "data": {
                         "type": "object",
@@ -1574,38 +1576,38 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                           "roomId": {
                             "type": "string",
                             "description": "방 ID",
-                            "x-parser-schema-id": "<anonymous-schema-26>"
+                            "x-parser-schema-id": "<anonymous-schema-27>"
                           },
                           "title": {
                             "type": "string",
                             "description": "방 제목",
-                            "x-parser-schema-id": "<anonymous-schema-27>"
+                            "x-parser-schema-id": "<anonymous-schema-28>"
                           },
                           "owner": {
                             "type": "string",
                             "description": "방장 닉네임",
-                            "x-parser-schema-id": "<anonymous-schema-28>"
+                            "x-parser-schema-id": "<anonymous-schema-29>"
                           },
                           "hasPassword": {
                             "type": "boolean",
                             "description": "비밀번호 사용 여부",
-                            "x-parser-schema-id": "<anonymous-schema-29>"
+                            "x-parser-schema-id": "<anonymous-schema-30>"
                           },
                           "maxUser": {
                             "type": "integer",
                             "description": "최대 인원 수",
-                            "x-parser-schema-id": "<anonymous-schema-30>"
+                            "x-parser-schema-id": "<anonymous-schema-31>"
                           },
                           "currentUser": {
                             "type": "integer",
                             "description": "현재 인원 수",
-                            "x-parser-schema-id": "<anonymous-schema-31>"
+                            "x-parser-schema-id": "<anonymous-schema-32>"
                           }
                         },
                         "x-parser-schema-id": "RoomSummaryRes"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-23>"
+                    "x-parser-schema-id": "<anonymous-schema-24>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_RoomList_Create"
@@ -1619,11 +1621,11 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-32>"
+                    "x-parser-schema-id": "<anonymous-schema-33>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-33>"
+                    "x-parser-schema-id": "<anonymous-schema-34>"
                   },
                   "payload": {
                     "type": "object",
@@ -1633,16 +1635,16 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                         "enum": [
                           "UPDATE"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-35>"
+                        "x-parser-schema-id": "<anonymous-schema-36>"
                       },
                       "eventAt": {
                         "type": "string",
                         "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-36>"
+                        "x-parser-schema-id": "<anonymous-schema-37>"
                       },
                       "data": "$ref:$.channels./sub/lobby/list/event.subscribe.message.oneOf[0].payload.properties.payload.properties.data"
                     },
-                    "x-parser-schema-id": "<anonymous-schema-34>"
+                    "x-parser-schema-id": "<anonymous-schema-35>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_RoomList_Update"
@@ -1656,11 +1658,11 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-37>"
+                    "x-parser-schema-id": "<anonymous-schema-38>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-38>"
+                    "x-parser-schema-id": "<anonymous-schema-39>"
                   },
                   "payload": {
                     "type": "object",
@@ -1670,16 +1672,16 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                         "enum": [
                           "DELETE"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-40>"
+                        "x-parser-schema-id": "<anonymous-schema-41>"
                       },
                       "eventAt": {
                         "type": "string",
                         "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-41>"
+                        "x-parser-schema-id": "<anonymous-schema-42>"
                       },
                       "data": "$ref:$.channels./sub/lobby/list/event.subscribe.message.oneOf[0].payload.properties.payload.properties.data"
                     },
-                    "x-parser-schema-id": "<anonymous-schema-39>"
+                    "x-parser-schema-id": "<anonymous-schema-40>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_RoomList_Delete"
@@ -1724,12 +1726,12 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                   "KICK"
                 ],
                 "description": "클라이언트가 수행하고자 하는 이벤트의 종류입니다.\n",
-                "x-parser-schema-id": "<anonymous-schema-42>"
+                "x-parser-schema-id": "<anonymous-schema-43>"
               },
               "content": {
                 "type": "string",
                 "description": "이벤트에 따라 의미가 달라지는 콘텐츠입니다.\n- CHAT: 채팅 메시지\n- JOIN: 비밀번호가 있는 대기방의 경우 비밀번호, 비밀번호가 없다면 안보내도 됩니다.\n- KICK: 강퇴하고자 하는 사용자의 UUID\n- UPDATE: 방의 정보(title, hasPassword, password, difficulty, roundCount)를 json문자열 형태로 보냅니다.\n- OWNER_CHANGE: 방장 권한을 위임하고자 하는 사용자의 UUID\n- 나머지는 content를 사용하지 않습니다.\n",
-                "x-parser-schema-id": "<anonymous-schema-43>"
+                "x-parser-schema-id": "<anonymous-schema-44>"
               }
             },
             "x-parser-schema-id": "RoomReq"
@@ -1759,11 +1761,11 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-44>"
+                    "x-parser-schema-id": "<anonymous-schema-45>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-45>"
+                    "x-parser-schema-id": "<anonymous-schema-46>"
                   },
                   "payload": {
                     "type": "object",
@@ -1773,41 +1775,41 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                         "enum": [
                           "CHAT"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-47>"
+                        "x-parser-schema-id": "<anonymous-schema-48>"
                       },
                       "eventAt": {
                         "type": "string",
                         "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-48>"
+                        "x-parser-schema-id": "<anonymous-schema-49>"
                       },
                       "data": {
                         "type": "object",
                         "properties": {
                           "nickname": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-49>"
+                            "x-parser-schema-id": "<anonymous-schema-50>"
                           },
                           "content": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-50>"
+                            "x-parser-schema-id": "<anonymous-schema-51>"
                           },
                           "chatType": {
                             "type": "string",
                             "enum": [
                               "ROOM"
                             ],
-                            "x-parser-schema-id": "<anonymous-schema-51>"
+                            "x-parser-schema-id": "<anonymous-schema-52>"
                           },
                           "sentAt": {
                             "type": "string",
                             "format": "date-time",
-                            "x-parser-schema-id": "<anonymous-schema-52>"
+                            "x-parser-schema-id": "<anonymous-schema-53>"
                           }
                         },
                         "x-parser-schema-id": "RoomChatMessage"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-46>"
+                    "x-parser-schema-id": "<anonymous-schema-47>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_RoomChat"
@@ -1821,11 +1823,11 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-53>"
+                    "x-parser-schema-id": "<anonymous-schema-54>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-54>"
+                    "x-parser-schema-id": "<anonymous-schema-55>"
                   },
                   "payload": {
                     "type": "object",
@@ -1835,20 +1837,20 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                         "enum": [
                           "READY"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-56>"
+                        "x-parser-schema-id": "<anonymous-schema-57>"
                       },
                       "eventAt": {
                         "type": "string",
                         "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-57>"
+                        "x-parser-schema-id": "<anonymous-schema-58>"
                       },
                       "data": {
                         "type": "string",
                         "description": "레디를 한 사용자의 UUID",
-                        "x-parser-schema-id": "<anonymous-schema-58>"
+                        "x-parser-schema-id": "<anonymous-schema-59>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-55>"
+                    "x-parser-schema-id": "<anonymous-schema-56>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_RoomReady"
@@ -1862,11 +1864,11 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-59>"
+                    "x-parser-schema-id": "<anonymous-schema-60>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-60>"
+                    "x-parser-schema-id": "<anonymous-schema-61>"
                   },
                   "payload": {
                     "type": "object",
@@ -1876,20 +1878,20 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                         "enum": [
                           "UNREADY"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-62>"
+                        "x-parser-schema-id": "<anonymous-schema-63>"
                       },
                       "eventAt": {
                         "type": "string",
                         "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-63>"
+                        "x-parser-schema-id": "<anonymous-schema-64>"
                       },
                       "data": {
                         "type": "string",
                         "description": "레디 취소를 한 사용자의 UUID",
-                        "x-parser-schema-id": "<anonymous-schema-64>"
+                        "x-parser-schema-id": "<anonymous-schema-65>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-61>"
+                    "x-parser-schema-id": "<anonymous-schema-62>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_RoomUnReady"
@@ -1903,11 +1905,11 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-65>"
+                    "x-parser-schema-id": "<anonymous-schema-66>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-66>"
+                    "x-parser-schema-id": "<anonymous-schema-67>"
                   },
                   "payload": {
                     "type": "object",
@@ -1917,20 +1919,20 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                         "enum": [
                           "EXIT"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-68>"
+                        "x-parser-schema-id": "<anonymous-schema-69>"
                       },
                       "eventAt": {
                         "type": "string",
                         "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-69>"
+                        "x-parser-schema-id": "<anonymous-schema-70>"
                       },
                       "data": {
                         "type": "string",
                         "description": "퇴장한 사용자의 UUID",
-                        "x-parser-schema-id": "<anonymous-schema-70>"
+                        "x-parser-schema-id": "<anonymous-schema-71>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-67>"
+                    "x-parser-schema-id": "<anonymous-schema-68>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_RoomExit"
@@ -1944,11 +1946,11 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-71>"
+                    "x-parser-schema-id": "<anonymous-schema-72>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-72>"
+                    "x-parser-schema-id": "<anonymous-schema-73>"
                   },
                   "payload": {
                     "type": "object",
@@ -1958,12 +1960,12 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                         "enum": [
                           "START"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-74>"
+                        "x-parser-schema-id": "<anonymous-schema-75>"
                       },
                       "eventAt": {
                         "type": "string",
                         "format": "date-time",
-                        "x-parser-schema-id": "<anonymous-schema-75>"
+                        "x-parser-schema-id": "<anonymous-schema-76>"
                       },
                       "data": {
                         "type": "object",
@@ -1976,7 +1978,7 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                                 "type": "string",
                                 "description": "게임 방의 고유 식별자",
                                 "example": "9827",
-                                "x-parser-schema-id": "<anonymous-schema-76>"
+                                "x-parser-schema-id": "<anonymous-schema-77>"
                               },
                               "gameType": {
                                 "type": "string",
@@ -1986,7 +1988,7 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                                   "LULU_ART_EXAM"
                                 ],
                                 "example": "TRICK_MYOMYO",
-                                "x-parser-schema-id": "<anonymous-schema-77>"
+                                "x-parser-schema-id": "<anonymous-schema-78>"
                               },
                               "difficulty": {
                                 "type": "string",
@@ -1996,7 +1998,7 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                                   "ADVANCED"
                                 ],
                                 "example": "BASIC",
-                                "x-parser-schema-id": "<anonymous-schema-78>"
+                                "x-parser-schema-id": "<anonymous-schema-79>"
                               },
                               "gameStatus": {
                                 "type": "string",
@@ -2009,25 +2011,25 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                                   "ROUND_ENDED",
                                   "GAME_ENDED"
                                 ],
-                                "x-parser-schema-id": "<anonymous-schema-79>"
+                                "x-parser-schema-id": "<anonymous-schema-80>"
                               },
                               "currentRound": {
                                 "type": "integer",
                                 "description": "현재 라운드 번호 (0이면 아직 아무 라운드 시작하지 않음, 1부터 시작)",
                                 "example": 0,
-                                "x-parser-schema-id": "<anonymous-schema-80>"
+                                "x-parser-schema-id": "<anonymous-schema-81>"
                               },
                               "totalRounds": {
                                 "type": "integer",
                                 "description": "전체 라운드 수",
                                 "example": 3,
-                                "x-parser-schema-id": "<anonymous-schema-81>"
+                                "x-parser-schema-id": "<anonymous-schema-82>"
                               },
                               "aiScore": {
                                 "type": "integer",
                                 "description": "AI의 현재 점수",
                                 "example": 0,
-                                "x-parser-schema-id": "<anonymous-schema-82>"
+                                "x-parser-schema-id": "<anonymous-schema-83>"
                               },
                               "scores": {
                                 "type": "object",
@@ -2035,7 +2037,7 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                                 "additionalProperties": {
                                   "type": "integer",
                                   "description": "획득한 점수",
-                                  "x-parser-schema-id": "<anonymous-schema-83>"
+                                  "x-parser-schema-id": "<anonymous-schema-84>"
                                 },
                                 "example": {
                                   "AI": 0,
@@ -2054,18 +2056,18 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                                       "type": "string",
                                       "description": "플레이어의 UUID",
                                       "example": "l3lwXGrb",
-                                      "x-parser-schema-id": "<anonymous-schema-85>"
+                                      "x-parser-schema-id": "<anonymous-schema-86>"
                                     },
                                     "nickname": {
                                       "type": "string",
                                       "description": "플레이어의 닉네임",
                                       "example": "test1",
-                                      "x-parser-schema-id": "<anonymous-schema-86>"
+                                      "x-parser-schema-id": "<anonymous-schema-87>"
                                     }
                                   },
                                   "x-parser-schema-id": "GamePlayer"
                                 },
-                                "x-parser-schema-id": "<anonymous-schema-84>"
+                                "x-parser-schema-id": "<anonymous-schema-85>"
                               },
                               "rounds": {
                                 "type": "array",
@@ -2077,7 +2079,7 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                                       "type": "integer",
                                       "description": "라운드 번호 (0부터 시작)",
                                       "example": 0,
-                                      "x-parser-schema-id": "<anonymous-schema-88>"
+                                      "x-parser-schema-id": "<anonymous-schema-89>"
                                     },
                                     "drawingEndTime": {
                                       "type": "string",
@@ -2085,20 +2087,20 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                                       "nullable": true,
                                       "description": "그리기 종료 시간 (ISO 8601)",
                                       "example": "null",
-                                      "x-parser-schema-id": "<anonymous-schema-89>"
+                                      "x-parser-schema-id": "<anonymous-schema-90>"
                                     },
                                     "roundWinner": {
                                       "type": "string",
                                       "nullable": true,
                                       "description": "라운드 승리자 (playerUuid 또는 'AI' 또는 'players')",
                                       "example": "null",
-                                      "x-parser-schema-id": "<anonymous-schema-90>"
+                                      "x-parser-schema-id": "<anonymous-schema-91>"
                                     },
                                     "currentWordIndex": {
                                       "type": "integer",
                                       "description": "현재 추측중인 Word 인덱스",
                                       "example": 0,
-                                      "x-parser-schema-id": "<anonymous-schema-91>"
+                                      "x-parser-schema-id": "<anonymous-schema-92>"
                                     },
                                     "words": {
                                       "type": "array",
@@ -2110,31 +2112,31 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                                             "type": "integer",
                                             "description": "단어 인덱스",
                                             "example": 0,
-                                            "x-parser-schema-id": "<anonymous-schema-93>"
+                                            "x-parser-schema-id": "<anonymous-schema-94>"
                                           },
                                           "word": {
                                             "type": "string",
                                             "description": "제시어",
                                             "example": "bush",
-                                            "x-parser-schema-id": "<anonymous-schema-94>"
+                                            "x-parser-schema-id": "<anonymous-schema-95>"
                                           },
                                           "drawerUuid": {
                                             "type": "string",
                                             "description": "그림을 그린 플레이어의 UUID",
                                             "example": "l3lwXGrb",
-                                            "x-parser-schema-id": "<anonymous-schema-95>"
+                                            "x-parser-schema-id": "<anonymous-schema-96>"
                                           },
                                           "submitted": {
                                             "type": "boolean",
                                             "description": "해당 그림이 제출되었는지 여부",
                                             "example": false,
-                                            "x-parser-schema-id": "<anonymous-schema-96>"
+                                            "x-parser-schema-id": "<anonymous-schema-97>"
                                           },
                                           "imageURL": {
                                             "type": "string",
                                             "description": "해당 그림의 URL",
                                             "example": "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png",
-                                            "x-parser-schema-id": "<anonymous-schema-97>"
+                                            "x-parser-schema-id": "<anonymous-schema-98>"
                                           },
                                           "aiGuesses": {
                                             "type": "array",
@@ -2146,36 +2148,36 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                                                   "type": "string",
                                                   "description": "추측을 시도한 플레이어의 UUID(AI일 경우 'AI')",
                                                   "example": "z2E63KqK",
-                                                  "x-parser-schema-id": "<anonymous-schema-99>"
+                                                  "x-parser-schema-id": "<anonymous-schema-100>"
                                                 },
                                                 "guessWord": {
                                                   "type": "string",
                                                   "description": "플레이어의 추측 단어",
                                                   "example": "tree",
-                                                  "x-parser-schema-id": "<anonymous-schema-100>"
+                                                  "x-parser-schema-id": "<anonymous-schema-101>"
                                                 },
                                                 "attempts": {
                                                   "type": "integer",
                                                   "description": "플레이어의 추측 시도 수",
                                                   "example": 1,
-                                                  "x-parser-schema-id": "<anonymous-schema-101>"
+                                                  "x-parser-schema-id": "<anonymous-schema-102>"
                                                 },
                                                 "correct": {
                                                   "type": "boolean",
                                                   "description": "플레이어의 추측 정답 여부",
                                                   "example": true,
-                                                  "x-parser-schema-id": "<anonymous-schema-102>"
+                                                  "x-parser-schema-id": "<anonymous-schema-103>"
                                                 }
                                               },
                                               "x-parser-schema-id": "Guess"
                                             },
-                                            "x-parser-schema-id": "<anonymous-schema-98>"
+                                            "x-parser-schema-id": "<anonymous-schema-99>"
                                           },
                                           "playerGuesses": {
                                             "type": "array",
                                             "description": "사용자의 추측 목록",
                                             "items": "$ref:$.channels./sub/room/{roomId}.subscribe.message.oneOf[4].payload.properties.payload.properties.data.properties.gameData.properties.rounds.items.properties.words.items.properties.aiGuesses.items",
-                                            "x-parser-schema-id": "<anonymous-schema-103>"
+                                            "x-parser-schema-id": "<anonymous-schema-104>"
                                           },
                                           "aiPredictions": {
                                             "type": "array",
@@ -2187,36 +2189,36 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                                                   "type": "string",
                                                   "description": "AI의 추측 단어",
                                                   "example": "apple",
-                                                  "x-parser-schema-id": "<anonymous-schema-105>"
+                                                  "x-parser-schema-id": "<anonymous-schema-106>"
                                                 },
                                                 "confidence": {
                                                   "type": "number",
                                                   "format": "float",
                                                   "description": "AI 추측의 신뢰도 (0~1)",
                                                   "example": 0.85,
-                                                  "x-parser-schema-id": "<anonymous-schema-106>"
+                                                  "x-parser-schema-id": "<anonymous-schema-107>"
                                                 }
                                               },
                                               "x-parser-schema-id": "AIPrediction"
                                             },
-                                            "x-parser-schema-id": "<anonymous-schema-104>"
+                                            "x-parser-schema-id": "<anonymous-schema-105>"
                                           }
                                         },
                                         "x-parser-schema-id": "Word"
                                       },
-                                      "x-parser-schema-id": "<anonymous-schema-92>"
+                                      "x-parser-schema-id": "<anonymous-schema-93>"
                                     }
                                   },
                                   "x-parser-schema-id": "Round"
                                 },
-                                "x-parser-schema-id": "<anonymous-schema-87>"
+                                "x-parser-schema-id": "<anonymous-schema-88>"
                               },
                               "winner": {
                                 "type": "string",
                                 "description": "게임 최종 우승자 (playerUuid 또는 'AI' 또는 'players')",
                                 "nullable": true,
                                 "example": "AI",
-                                "x-parser-schema-id": "<anonymous-schema-107>"
+                                "x-parser-schema-id": "<anonymous-schema-108>"
                               }
                             },
                             "x-parser-schema-id": "Game"
@@ -2224,13 +2226,13 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                           "aiSays": {
                             "type": "string",
                             "description": "게임 시작 시 AI의 메시지",
-                            "x-parser-schema-id": "<anonymous-schema-108>"
+                            "x-parser-schema-id": "<anonymous-schema-109>"
                           }
                         },
                         "x-parser-schema-id": "AISaysRes"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-73>"
+                    "x-parser-schema-id": "<anonymous-schema-74>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_GameStart"
@@ -2256,7 +2258,7 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
               "content": {
                 "type": "string",
                 "description": "메시지 내용",
-                "x-parser-schema-id": "<anonymous-schema-109>"
+                "x-parser-schema-id": "<anonymous-schema-110>"
               }
             },
             "required": [
@@ -2282,35 +2284,35 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "type": "string",
                 "nullable": true,
                 "description": "null (전체 채팅이므로 사용자 구분 없음)",
-                "x-parser-schema-id": "<anonymous-schema-110>"
+                "x-parser-schema-id": "<anonymous-schema-111>"
               },
               "topic": {
                 "type": "string",
                 "description": "Redis로 발행된 전체 채팅 채널명",
-                "x-parser-schema-id": "<anonymous-schema-111>"
+                "x-parser-schema-id": "<anonymous-schema-112>"
               },
               "payload": {
                 "type": "object",
                 "properties": {
                   "nickname": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-112>"
+                    "x-parser-schema-id": "<anonymous-schema-113>"
                   },
                   "content": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-113>"
+                    "x-parser-schema-id": "<anonymous-schema-114>"
                   },
                   "chatType": {
                     "type": "string",
                     "enum": [
                       "ALL"
                     ],
-                    "x-parser-schema-id": "<anonymous-schema-114>"
+                    "x-parser-schema-id": "<anonymous-schema-115>"
                   },
                   "sentAt": {
                     "type": "string",
                     "format": "date-time",
-                    "x-parser-schema-id": "<anonymous-schema-115>"
+                    "x-parser-schema-id": "<anonymous-schema-116>"
                   }
                 },
                 "x-parser-schema-id": "AllChatMessage"
@@ -2333,12 +2335,12 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "type": "string",
                 "nullable": true,
                 "description": "- 개인 채팅 시, `receiverUuid'는 필수입니다.\n",
-                "x-parser-schema-id": "<anonymous-schema-116>"
+                "x-parser-schema-id": "<anonymous-schema-117>"
               },
               "content": {
                 "type": "string",
                 "description": "메시지 내용",
-                "x-parser-schema-id": "<anonymous-schema-117>"
+                "x-parser-schema-id": "<anonymous-schema-118>"
               }
             },
             "required": [
@@ -2372,35 +2374,35 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
               "userId": {
                 "type": "string",
                 "description": "수신 대상 사용자의 UUID입니다.",
-                "x-parser-schema-id": "<anonymous-schema-118>"
+                "x-parser-schema-id": "<anonymous-schema-119>"
               },
               "topic": {
                 "type": "string",
                 "description": "Redis로 발행된 개인 채팅 채널명 (`/sub/chat/private/{receiverUuid}`)",
-                "x-parser-schema-id": "<anonymous-schema-119>"
+                "x-parser-schema-id": "<anonymous-schema-120>"
               },
               "payload": {
                 "type": "object",
                 "properties": {
                   "nickname": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-120>"
+                    "x-parser-schema-id": "<anonymous-schema-121>"
                   },
                   "content": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-121>"
+                    "x-parser-schema-id": "<anonymous-schema-122>"
                   },
                   "chatType": {
                     "type": "string",
                     "enum": [
                       "PRIVATE"
                     ],
-                    "x-parser-schema-id": "<anonymous-schema-122>"
+                    "x-parser-schema-id": "<anonymous-schema-123>"
                   },
                   "sentAt": {
                     "type": "string",
                     "format": "date-time",
-                    "x-parser-schema-id": "<anonymous-schema-123>"
+                    "x-parser-schema-id": "<anonymous-schema-124>"
                   }
                 },
                 "x-parser-schema-id": "PrivateChatMessage"
@@ -2436,7 +2438,7 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                     "type": "string",
                     "format": "uri",
                     "description": "업로드된 그림의 URL",
-                    "x-parser-schema-id": "<anonymous-schema-124>"
+                    "x-parser-schema-id": "<anonymous-schema-125>"
                   }
                 },
                 "required": [
@@ -2475,11 +2477,11 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-125>"
+                    "x-parser-schema-id": "<anonymous-schema-126>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-126>"
+                    "x-parser-schema-id": "<anonymous-schema-127>"
                   },
                   "payload": {
                     "type": "object",
@@ -2489,34 +2491,34 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                         "enum": [
                           "ROUND_START"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-128>"
+                        "x-parser-schema-id": "<anonymous-schema-129>"
                       },
                       "aiSays": {
                         "type": "string",
                         "description": "게임 진행 중 AI에게서 오는 메시지입니다. AI에서 메시지가 오지 않는 이벤트 경우 \"null\" 값으로 오게 됩니다.",
                         "example": "\"으.. 잠깐 오류가 났네. 다시 해볼게!\"",
-                        "x-parser-schema-id": "<anonymous-schema-129>"
+                        "x-parser-schema-id": "<anonymous-schema-130>"
                       },
                       "data": {
                         "type": "object",
                         "properties": {
                           "roundIndex": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-131>"
+                            "x-parser-schema-id": "<anonymous-schema-132>"
                           },
                           "drawingEndTime": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-132>"
+                            "x-parser-schema-id": "<anonymous-schema-133>"
                           },
                           "currentWordIndex": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-133>"
+                            "x-parser-schema-id": "<anonymous-schema-134>"
                           },
                           "roundWinner": {
                             "type": "string",
                             "nullable": true,
                             "description": "해당 라운드의 Winner를 나타내는 필드입니다. ROUND_START 이벤트 발생 시에는 null로 반환됩니다.",
-                            "x-parser-schema-id": "<anonymous-schema-134>"
+                            "x-parser-schema-id": "<anonymous-schema-135>"
                           }
                         },
                         "example": {
@@ -2525,21 +2527,21 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                           "currentWordIndex": 0,
                           "roundWinner": null
                         },
-                        "x-parser-schema-id": "<anonymous-schema-130>"
+                        "x-parser-schema-id": "<anonymous-schema-131>"
                       },
                       "endTime": {
                         "type": "string",
                         "nullable": true,
                         "example": null,
-                        "x-parser-schema-id": "<anonymous-schema-135>"
+                        "x-parser-schema-id": "<anonymous-schema-136>"
                       },
                       "eventAt": {
                         "type": "string",
                         "example": "2025-05-28T21:00:56.30379",
-                        "x-parser-schema-id": "<anonymous-schema-136>"
+                        "x-parser-schema-id": "<anonymous-schema-137>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-127>"
+                    "x-parser-schema-id": "<anonymous-schema-128>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_RoundStart"
@@ -2552,11 +2554,11 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-137>"
+                    "x-parser-schema-id": "<anonymous-schema-138>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-138>"
+                    "x-parser-schema-id": "<anonymous-schema-139>"
                   },
                   "payload": {
                     "type": "object",
@@ -2566,7 +2568,7 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                         "enum": [
                           "GUESS_START"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-140>"
+                        "x-parser-schema-id": "<anonymous-schema-141>"
                       },
                       "data": {
                         "type": "array",
@@ -2575,26 +2577,26 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                           "properties": {
                             "wordIndex": {
                               "type": "integer",
-                              "x-parser-schema-id": "<anonymous-schema-143>"
+                              "x-parser-schema-id": "<anonymous-schema-144>"
                             },
                             "word": {
                               "type": "string",
-                              "x-parser-schema-id": "<anonymous-schema-144>"
+                              "x-parser-schema-id": "<anonymous-schema-145>"
                             },
                             "drawerUuid": {
                               "type": "string",
-                              "x-parser-schema-id": "<anonymous-schema-145>"
+                              "x-parser-schema-id": "<anonymous-schema-146>"
                             },
                             "imageURL": {
                               "type": "string",
-                              "x-parser-schema-id": "<anonymous-schema-146>"
+                              "x-parser-schema-id": "<anonymous-schema-147>"
                             },
                             "submitted": {
                               "type": "boolean",
-                              "x-parser-schema-id": "<anonymous-schema-147>"
+                              "x-parser-schema-id": "<anonymous-schema-148>"
                             }
                           },
-                          "x-parser-schema-id": "<anonymous-schema-142>"
+                          "x-parser-schema-id": "<anonymous-schema-143>"
                         },
                         "example": [
                           {
@@ -2612,15 +2614,15 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                             "submitted": true
                           }
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-141>"
+                        "x-parser-schema-id": "<anonymous-schema-142>"
                       },
                       "eventAt": {
                         "type": "string",
                         "example": "2025-05-27T20:28:36.4511966",
-                        "x-parser-schema-id": "<anonymous-schema-148>"
+                        "x-parser-schema-id": "<anonymous-schema-149>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-139>"
+                    "x-parser-schema-id": "<anonymous-schema-140>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_GuessStart"
@@ -2633,11 +2635,11 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-149>"
+                    "x-parser-schema-id": "<anonymous-schema-150>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-150>"
+                    "x-parser-schema-id": "<anonymous-schema-151>"
                   },
                   "payload": {
                     "type": "object",
@@ -2647,28 +2649,28 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                         "enum": [
                           "GUESS_REQUEST"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-152>"
+                        "x-parser-schema-id": "<anonymous-schema-153>"
                       },
                       "data": {
                         "type": "object",
                         "properties": {
                           "guesserUuid": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-154>"
+                            "x-parser-schema-id": "<anonymous-schema-155>"
                           },
                           "guessWord": {
                             "type": "string",
                             "nullable": true,
-                            "x-parser-schema-id": "<anonymous-schema-155>"
+                            "x-parser-schema-id": "<anonymous-schema-156>"
                           },
                           "attempts": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-156>"
+                            "x-parser-schema-id": "<anonymous-schema-157>"
                           },
                           "correct": {
                             "type": "boolean",
                             "nullable": true,
-                            "x-parser-schema-id": "<anonymous-schema-157>"
+                            "x-parser-schema-id": "<anonymous-schema-158>"
                           }
                         },
                         "example": {
@@ -2677,27 +2679,27 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                           "attempts": 1,
                           "correct": null
                         },
-                        "x-parser-schema-id": "<anonymous-schema-153>"
+                        "x-parser-schema-id": "<anonymous-schema-154>"
                       },
                       "aiSays": {
                         "type": "string",
                         "nullable": true,
                         "example": null,
-                        "x-parser-schema-id": "<anonymous-schema-158>"
+                        "x-parser-schema-id": "<anonymous-schema-159>"
                       },
                       "endTime": {
                         "type": "string",
                         "nullable": true,
                         "example": null,
-                        "x-parser-schema-id": "<anonymous-schema-159>"
+                        "x-parser-schema-id": "<anonymous-schema-160>"
                       },
                       "eventAt": {
                         "type": "string",
                         "example": "2025-05-31T22:17:36.8926635",
-                        "x-parser-schema-id": "<anonymous-schema-160>"
+                        "x-parser-schema-id": "<anonymous-schema-161>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-151>"
+                    "x-parser-schema-id": "<anonymous-schema-152>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_GuessRequest"
@@ -2710,11 +2712,11 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-161>"
+                    "x-parser-schema-id": "<anonymous-schema-162>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-162>"
+                    "x-parser-schema-id": "<anonymous-schema-163>"
                   },
                   "payload": {
                     "type": "object",
@@ -2724,27 +2726,27 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                         "enum": [
                           "GUESS_SUBMIT"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-164>"
+                        "x-parser-schema-id": "<anonymous-schema-165>"
                       },
                       "data": {
                         "type": "object",
                         "properties": {
                           "guesserUuid": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-166>"
+                            "x-parser-schema-id": "<anonymous-schema-167>"
                           },
                           "guessWord": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-167>"
+                            "x-parser-schema-id": "<anonymous-schema-168>"
                           },
                           "attempts": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-168>"
+                            "x-parser-schema-id": "<anonymous-schema-169>"
                           },
                           "correct": {
                             "type": "boolean",
                             "nullable": true,
-                            "x-parser-schema-id": "<anonymous-schema-169>"
+                            "x-parser-schema-id": "<anonymous-schema-170>"
                           }
                         },
                         "example": {
@@ -2753,26 +2755,26 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                           "attempts": 1,
                           "correct": null
                         },
-                        "x-parser-schema-id": "<anonymous-schema-165>"
+                        "x-parser-schema-id": "<anonymous-schema-166>"
                       },
                       "aiSays": {
                         "type": "string",
                         "example": "으.. 잠깐 오류가 났네. 다시 해볼게!",
-                        "x-parser-schema-id": "<anonymous-schema-170>"
+                        "x-parser-schema-id": "<anonymous-schema-171>"
                       },
                       "endTime": {
                         "type": "string",
                         "nullable": true,
                         "example": null,
-                        "x-parser-schema-id": "<anonymous-schema-171>"
+                        "x-parser-schema-id": "<anonymous-schema-172>"
                       },
                       "eventAt": {
                         "type": "string",
                         "example": "2025-05-28T21:02:18.3712128",
-                        "x-parser-schema-id": "<anonymous-schema-172>"
+                        "x-parser-schema-id": "<anonymous-schema-173>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-163>"
+                    "x-parser-schema-id": "<anonymous-schema-164>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_GuessSubmit"
@@ -2785,11 +2787,11 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-173>"
+                    "x-parser-schema-id": "<anonymous-schema-174>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-174>"
+                    "x-parser-schema-id": "<anonymous-schema-175>"
                   },
                   "payload": {
                     "type": "object",
@@ -2799,26 +2801,26 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                         "enum": [
                           "GUESS_RESULT"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-176>"
+                        "x-parser-schema-id": "<anonymous-schema-177>"
                       },
                       "data": {
                         "type": "object",
                         "properties": {
                           "guesserUuid": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-178>"
+                            "x-parser-schema-id": "<anonymous-schema-179>"
                           },
                           "guessWord": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-179>"
+                            "x-parser-schema-id": "<anonymous-schema-180>"
                           },
                           "attempts": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-180>"
+                            "x-parser-schema-id": "<anonymous-schema-181>"
                           },
                           "correct": {
                             "type": "boolean",
-                            "x-parser-schema-id": "<anonymous-schema-181>"
+                            "x-parser-schema-id": "<anonymous-schema-182>"
                           }
                         },
                         "example": {
@@ -2827,26 +2829,26 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                           "attempts": 1,
                           "correct": false
                         },
-                        "x-parser-schema-id": "<anonymous-schema-177>"
+                        "x-parser-schema-id": "<anonymous-schema-178>"
                       },
                       "aiSays": {
                         "type": "string",
                         "example": "으.. 잠깐 오류가 났네. 다시 해볼게!",
-                        "x-parser-schema-id": "<anonymous-schema-182>"
+                        "x-parser-schema-id": "<anonymous-schema-183>"
                       },
                       "endTime": {
                         "type": "string",
                         "nullable": true,
                         "example": null,
-                        "x-parser-schema-id": "<anonymous-schema-183>"
+                        "x-parser-schema-id": "<anonymous-schema-184>"
                       },
                       "eventAt": {
                         "type": "string",
                         "example": "2025-05-28T21:02:20.4475533",
-                        "x-parser-schema-id": "<anonymous-schema-184>"
+                        "x-parser-schema-id": "<anonymous-schema-185>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-175>"
+                    "x-parser-schema-id": "<anonymous-schema-176>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_GuessResult"
@@ -2859,11 +2861,11 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-185>"
+                    "x-parser-schema-id": "<anonymous-schema-186>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-186>"
+                    "x-parser-schema-id": "<anonymous-schema-187>"
                   },
                   "payload": {
                     "type": "object",
@@ -2873,40 +2875,40 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                         "enum": [
                           "SCORE_UPDATE"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-188>"
+                        "x-parser-schema-id": "<anonymous-schema-189>"
                       },
                       "data": {
                         "type": "object",
                         "additionalProperties": {
                           "type": "integer",
-                          "x-parser-schema-id": "<anonymous-schema-190>"
+                          "x-parser-schema-id": "<anonymous-schema-191>"
                         },
                         "example": {
                           "AI": 0,
                           "z2E63KqK": 3,
                           "l3lwXGrb": 3
                         },
-                        "x-parser-schema-id": "<anonymous-schema-189>"
+                        "x-parser-schema-id": "<anonymous-schema-190>"
                       },
                       "aiSays": {
                         "type": "string",
                         "nullable": true,
                         "example": null,
-                        "x-parser-schema-id": "<anonymous-schema-191>"
+                        "x-parser-schema-id": "<anonymous-schema-192>"
                       },
                       "endTime": {
                         "type": "string",
                         "nullable": true,
                         "example": null,
-                        "x-parser-schema-id": "<anonymous-schema-192>"
+                        "x-parser-schema-id": "<anonymous-schema-193>"
                       },
                       "eventAt": {
                         "type": "string",
                         "example": "2025-05-28T21:02:39.2287028",
-                        "x-parser-schema-id": "<anonymous-schema-193>"
+                        "x-parser-schema-id": "<anonymous-schema-194>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-187>"
+                    "x-parser-schema-id": "<anonymous-schema-188>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_ScoreUpdate"
@@ -2919,11 +2921,11 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-194>"
+                    "x-parser-schema-id": "<anonymous-schema-195>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-195>"
+                    "x-parser-schema-id": "<anonymous-schema-196>"
                   },
                   "payload": {
                     "type": "object",
@@ -2933,26 +2935,26 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                         "enum": [
                           "ROUND_END"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-197>"
+                        "x-parser-schema-id": "<anonymous-schema-198>"
                       },
                       "data": {
                         "type": "object",
                         "properties": {
                           "roundIndex": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-199>"
+                            "x-parser-schema-id": "<anonymous-schema-200>"
                           },
                           "drawingEndTime": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-200>"
+                            "x-parser-schema-id": "<anonymous-schema-201>"
                           },
                           "roundWinner": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-201>"
+                            "x-parser-schema-id": "<anonymous-schema-202>"
                           },
                           "currentWordIndex": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-202>"
+                            "x-parser-schema-id": "<anonymous-schema-203>"
                           },
                           "words": {
                             "type": "array",
@@ -2961,23 +2963,23 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                               "properties": {
                                 "wordIndex": {
                                   "type": "integer",
-                                  "x-parser-schema-id": "<anonymous-schema-205>"
+                                  "x-parser-schema-id": "<anonymous-schema-206>"
                                 },
                                 "word": {
                                   "type": "string",
-                                  "x-parser-schema-id": "<anonymous-schema-206>"
+                                  "x-parser-schema-id": "<anonymous-schema-207>"
                                 },
                                 "drawerUuid": {
                                   "type": "string",
-                                  "x-parser-schema-id": "<anonymous-schema-207>"
+                                  "x-parser-schema-id": "<anonymous-schema-208>"
                                 },
                                 "submitted": {
                                   "type": "boolean",
-                                  "x-parser-schema-id": "<anonymous-schema-208>"
+                                  "x-parser-schema-id": "<anonymous-schema-209>"
                                 },
                                 "imageURL": {
                                   "type": "string",
-                                  "x-parser-schema-id": "<anonymous-schema-209>"
+                                  "x-parser-schema-id": "<anonymous-schema-210>"
                                 },
                                 "aiGuesses": {
                                   "type": "array",
@@ -2986,24 +2988,24 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                                     "properties": {
                                       "guesserUuid": {
                                         "type": "string",
-                                        "x-parser-schema-id": "<anonymous-schema-212>"
+                                        "x-parser-schema-id": "<anonymous-schema-213>"
                                       },
                                       "guessWord": {
                                         "type": "string",
-                                        "x-parser-schema-id": "<anonymous-schema-213>"
+                                        "x-parser-schema-id": "<anonymous-schema-214>"
                                       },
                                       "attempts": {
                                         "type": "integer",
-                                        "x-parser-schema-id": "<anonymous-schema-214>"
+                                        "x-parser-schema-id": "<anonymous-schema-215>"
                                       },
                                       "correct": {
                                         "type": "boolean",
-                                        "x-parser-schema-id": "<anonymous-schema-215>"
+                                        "x-parser-schema-id": "<anonymous-schema-216>"
                                       }
                                     },
-                                    "x-parser-schema-id": "<anonymous-schema-211>"
+                                    "x-parser-schema-id": "<anonymous-schema-212>"
                                   },
-                                  "x-parser-schema-id": "<anonymous-schema-210>"
+                                  "x-parser-schema-id": "<anonymous-schema-211>"
                                 },
                                 "playerGuesses": {
                                   "type": "array",
@@ -3012,24 +3014,24 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                                     "properties": {
                                       "guesserUuid": {
                                         "type": "string",
-                                        "x-parser-schema-id": "<anonymous-schema-218>"
+                                        "x-parser-schema-id": "<anonymous-schema-219>"
                                       },
                                       "guessWord": {
                                         "type": "string",
-                                        "x-parser-schema-id": "<anonymous-schema-219>"
+                                        "x-parser-schema-id": "<anonymous-schema-220>"
                                       },
                                       "attempts": {
                                         "type": "integer",
-                                        "x-parser-schema-id": "<anonymous-schema-220>"
+                                        "x-parser-schema-id": "<anonymous-schema-221>"
                                       },
                                       "correct": {
                                         "type": "boolean",
-                                        "x-parser-schema-id": "<anonymous-schema-221>"
+                                        "x-parser-schema-id": "<anonymous-schema-222>"
                                       }
                                     },
-                                    "x-parser-schema-id": "<anonymous-schema-217>"
+                                    "x-parser-schema-id": "<anonymous-schema-218>"
                                   },
-                                  "x-parser-schema-id": "<anonymous-schema-216>"
+                                  "x-parser-schema-id": "<anonymous-schema-217>"
                                 },
                                 "aiPredictions": {
                                   "type": "array",
@@ -3038,30 +3040,30 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                                     "properties": {
                                       "predicted": {
                                         "type": "string",
-                                        "x-parser-schema-id": "<anonymous-schema-224>"
+                                        "x-parser-schema-id": "<anonymous-schema-225>"
                                       },
                                       "confidence": {
                                         "type": "number",
                                         "format": "float",
-                                        "x-parser-schema-id": "<anonymous-schema-225>"
+                                        "x-parser-schema-id": "<anonymous-schema-226>"
                                       }
                                     },
-                                    "x-parser-schema-id": "<anonymous-schema-223>"
+                                    "x-parser-schema-id": "<anonymous-schema-224>"
                                   },
-                                  "x-parser-schema-id": "<anonymous-schema-222>"
+                                  "x-parser-schema-id": "<anonymous-schema-223>"
                                 }
                               },
-                              "x-parser-schema-id": "<anonymous-schema-204>"
+                              "x-parser-schema-id": "<anonymous-schema-205>"
                             },
-                            "x-parser-schema-id": "<anonymous-schema-203>"
+                            "x-parser-schema-id": "<anonymous-schema-204>"
                           },
                           "scores": {
                             "type": "object",
                             "additionalProperties": {
                               "type": "integer",
-                              "x-parser-schema-id": "<anonymous-schema-227>"
+                              "x-parser-schema-id": "<anonymous-schema-228>"
                             },
-                            "x-parser-schema-id": "<anonymous-schema-226>"
+                            "x-parser-schema-id": "<anonymous-schema-227>"
                           }
                         },
                         "example": {
@@ -3150,26 +3152,26 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                             "l3lwXGrb": 3
                           }
                         },
-                        "x-parser-schema-id": "<anonymous-schema-198>"
+                        "x-parser-schema-id": "<anonymous-schema-199>"
                       },
                       "aiSays": {
                         "type": "string",
                         "example": "으.. 잠깐 오류가 났네. 다시 해볼게!",
-                        "x-parser-schema-id": "<anonymous-schema-228>"
+                        "x-parser-schema-id": "<anonymous-schema-229>"
                       },
                       "endTime": {
                         "type": "string",
                         "nullable": true,
                         "example": null,
-                        "x-parser-schema-id": "<anonymous-schema-229>"
+                        "x-parser-schema-id": "<anonymous-schema-230>"
                       },
                       "eventAt": {
                         "type": "string",
                         "example": "2025-05-28T21:02:41.1232855",
-                        "x-parser-schema-id": "<anonymous-schema-230>"
+                        "x-parser-schema-id": "<anonymous-schema-231>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-196>"
+                    "x-parser-schema-id": "<anonymous-schema-197>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_RoundEnd"
@@ -3182,11 +3184,11 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "properties": {
                   "userId": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-231>"
+                    "x-parser-schema-id": "<anonymous-schema-232>"
                   },
                   "topic": {
                     "type": "string",
-                    "x-parser-schema-id": "<anonymous-schema-232>"
+                    "x-parser-schema-id": "<anonymous-schema-233>"
                   },
                   "payload": {
                     "type": "object",
@@ -3196,56 +3198,56 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                         "enum": [
                           "GAME_END"
                         ],
-                        "x-parser-schema-id": "<anonymous-schema-234>"
+                        "x-parser-schema-id": "<anonymous-schema-235>"
                       },
                       "data": {
                         "type": "object",
                         "properties": {
                           "roomId": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-236>"
+                            "x-parser-schema-id": "<anonymous-schema-237>"
                           },
                           "gameType": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-237>"
+                            "x-parser-schema-id": "<anonymous-schema-238>"
                           },
                           "difficulty": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-238>"
+                            "x-parser-schema-id": "<anonymous-schema-239>"
                           },
                           "gameStatus": {
                             "type": "string",
                             "nullable": true,
-                            "x-parser-schema-id": "<anonymous-schema-239>"
+                            "x-parser-schema-id": "<anonymous-schema-240>"
                           },
                           "currentRound": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-240>"
+                            "x-parser-schema-id": "<anonymous-schema-241>"
                           },
                           "totalRounds": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-241>"
+                            "x-parser-schema-id": "<anonymous-schema-242>"
                           },
                           "aiScore": {
                             "type": "integer",
-                            "x-parser-schema-id": "<anonymous-schema-242>"
+                            "x-parser-schema-id": "<anonymous-schema-243>"
                           },
                           "scores": {
                             "type": "object",
                             "additionalProperties": {
                               "type": "integer",
-                              "x-parser-schema-id": "<anonymous-schema-244>"
+                              "x-parser-schema-id": "<anonymous-schema-245>"
                             },
-                            "x-parser-schema-id": "<anonymous-schema-243>"
+                            "x-parser-schema-id": "<anonymous-schema-244>"
                           },
                           "gamePlayers": {
                             "type": "array",
                             "nullable": true,
                             "items": {
                               "type": "object",
-                              "x-parser-schema-id": "<anonymous-schema-246>"
+                              "x-parser-schema-id": "<anonymous-schema-247>"
                             },
-                            "x-parser-schema-id": "<anonymous-schema-245>"
+                            "x-parser-schema-id": "<anonymous-schema-246>"
                           },
                           "rounds": {
                             "type": "array",
@@ -3254,20 +3256,20 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                               "properties": {
                                 "roundIndex": {
                                   "type": "integer",
-                                  "x-parser-schema-id": "<anonymous-schema-249>"
+                                  "x-parser-schema-id": "<anonymous-schema-250>"
                                 },
                                 "drawingEndTime": {
                                   "type": "string",
-                                  "x-parser-schema-id": "<anonymous-schema-250>"
+                                  "x-parser-schema-id": "<anonymous-schema-251>"
                                 },
                                 "roundWinner": {
                                   "type": "string",
                                   "nullable": true,
-                                  "x-parser-schema-id": "<anonymous-schema-251>"
+                                  "x-parser-schema-id": "<anonymous-schema-252>"
                                 },
                                 "currentWordIndex": {
                                   "type": "integer",
-                                  "x-parser-schema-id": "<anonymous-schema-252>"
+                                  "x-parser-schema-id": "<anonymous-schema-253>"
                                 },
                                 "words": {
                                   "type": "array",
@@ -3276,23 +3278,23 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                                     "properties": {
                                       "wordIndex": {
                                         "type": "integer",
-                                        "x-parser-schema-id": "<anonymous-schema-255>"
+                                        "x-parser-schema-id": "<anonymous-schema-256>"
                                       },
                                       "word": {
                                         "type": "string",
-                                        "x-parser-schema-id": "<anonymous-schema-256>"
+                                        "x-parser-schema-id": "<anonymous-schema-257>"
                                       },
                                       "drawerUuid": {
                                         "type": "string",
-                                        "x-parser-schema-id": "<anonymous-schema-257>"
+                                        "x-parser-schema-id": "<anonymous-schema-258>"
                                       },
                                       "submitted": {
                                         "type": "boolean",
-                                        "x-parser-schema-id": "<anonymous-schema-258>"
+                                        "x-parser-schema-id": "<anonymous-schema-259>"
                                       },
                                       "imageURL": {
                                         "type": "string",
-                                        "x-parser-schema-id": "<anonymous-schema-259>"
+                                        "x-parser-schema-id": "<anonymous-schema-260>"
                                       },
                                       "aiGuesses": {
                                         "type": "array",
@@ -3301,24 +3303,24 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                                           "properties": {
                                             "guesserUuid": {
                                               "type": "string",
-                                              "x-parser-schema-id": "<anonymous-schema-262>"
+                                              "x-parser-schema-id": "<anonymous-schema-263>"
                                             },
                                             "guessWord": {
                                               "type": "string",
-                                              "x-parser-schema-id": "<anonymous-schema-263>"
+                                              "x-parser-schema-id": "<anonymous-schema-264>"
                                             },
                                             "attempts": {
                                               "type": "integer",
-                                              "x-parser-schema-id": "<anonymous-schema-264>"
+                                              "x-parser-schema-id": "<anonymous-schema-265>"
                                             },
                                             "correct": {
                                               "type": "boolean",
-                                              "x-parser-schema-id": "<anonymous-schema-265>"
+                                              "x-parser-schema-id": "<anonymous-schema-266>"
                                             }
                                           },
-                                          "x-parser-schema-id": "<anonymous-schema-261>"
+                                          "x-parser-schema-id": "<anonymous-schema-262>"
                                         },
-                                        "x-parser-schema-id": "<anonymous-schema-260>"
+                                        "x-parser-schema-id": "<anonymous-schema-261>"
                                       },
                                       "playerGuesses": {
                                         "type": "array",
@@ -3327,24 +3329,24 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                                           "properties": {
                                             "guesserUuid": {
                                               "type": "string",
-                                              "x-parser-schema-id": "<anonymous-schema-268>"
+                                              "x-parser-schema-id": "<anonymous-schema-269>"
                                             },
                                             "guessWord": {
                                               "type": "string",
-                                              "x-parser-schema-id": "<anonymous-schema-269>"
+                                              "x-parser-schema-id": "<anonymous-schema-270>"
                                             },
                                             "attempts": {
                                               "type": "integer",
-                                              "x-parser-schema-id": "<anonymous-schema-270>"
+                                              "x-parser-schema-id": "<anonymous-schema-271>"
                                             },
                                             "correct": {
                                               "type": "boolean",
-                                              "x-parser-schema-id": "<anonymous-schema-271>"
+                                              "x-parser-schema-id": "<anonymous-schema-272>"
                                             }
                                           },
-                                          "x-parser-schema-id": "<anonymous-schema-267>"
+                                          "x-parser-schema-id": "<anonymous-schema-268>"
                                         },
-                                        "x-parser-schema-id": "<anonymous-schema-266>"
+                                        "x-parser-schema-id": "<anonymous-schema-267>"
                                       },
                                       "aiPredictions": {
                                         "type": "array",
@@ -3353,39 +3355,39 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                                           "properties": {
                                             "predicted": {
                                               "type": "string",
-                                              "x-parser-schema-id": "<anonymous-schema-274>"
+                                              "x-parser-schema-id": "<anonymous-schema-275>"
                                             },
                                             "confidence": {
                                               "type": "number",
                                               "format": "float",
-                                              "x-parser-schema-id": "<anonymous-schema-275>"
+                                              "x-parser-schema-id": "<anonymous-schema-276>"
                                             }
                                           },
-                                          "x-parser-schema-id": "<anonymous-schema-273>"
+                                          "x-parser-schema-id": "<anonymous-schema-274>"
                                         },
-                                        "x-parser-schema-id": "<anonymous-schema-272>"
+                                        "x-parser-schema-id": "<anonymous-schema-273>"
                                       }
                                     },
-                                    "x-parser-schema-id": "<anonymous-schema-254>"
+                                    "x-parser-schema-id": "<anonymous-schema-255>"
                                   },
-                                  "x-parser-schema-id": "<anonymous-schema-253>"
+                                  "x-parser-schema-id": "<anonymous-schema-254>"
                                 },
                                 "scores": {
                                   "type": "object",
                                   "additionalProperties": {
                                     "type": "integer",
-                                    "x-parser-schema-id": "<anonymous-schema-277>"
+                                    "x-parser-schema-id": "<anonymous-schema-278>"
                                   },
-                                  "x-parser-schema-id": "<anonymous-schema-276>"
+                                  "x-parser-schema-id": "<anonymous-schema-277>"
                                 }
                               },
-                              "x-parser-schema-id": "<anonymous-schema-248>"
+                              "x-parser-schema-id": "<anonymous-schema-249>"
                             },
-                            "x-parser-schema-id": "<anonymous-schema-247>"
+                            "x-parser-schema-id": "<anonymous-schema-248>"
                           },
                           "winner": {
                             "type": "string",
-                            "x-parser-schema-id": "<anonymous-schema-278>"
+                            "x-parser-schema-id": "<anonymous-schema-279>"
                           }
                         },
                         "example": {
@@ -3454,26 +3456,26 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                           ],
                           "winner": "DRAW"
                         },
-                        "x-parser-schema-id": "<anonymous-schema-235>"
+                        "x-parser-schema-id": "<anonymous-schema-236>"
                       },
                       "aiSays": {
                         "type": "string",
                         "example": "으.. 잠깐 오류가 났네. 다시 해볼게!",
-                        "x-parser-schema-id": "<anonymous-schema-279>"
+                        "x-parser-schema-id": "<anonymous-schema-280>"
                       },
                       "endTime": {
                         "type": "string",
                         "nullable": true,
                         "example": null,
-                        "x-parser-schema-id": "<anonymous-schema-280>"
+                        "x-parser-schema-id": "<anonymous-schema-281>"
                       },
                       "eventAt": {
                         "type": "string",
                         "example": "2025-05-28T21:02:41.1232855",
-                        "x-parser-schema-id": "<anonymous-schema-281>"
+                        "x-parser-schema-id": "<anonymous-schema-282>"
                       }
                     },
-                    "x-parser-schema-id": "<anonymous-schema-233>"
+                    "x-parser-schema-id": "<anonymous-schema-234>"
                   }
                 },
                 "x-parser-schema-id": "RedisResponse_GameEnd"
@@ -3497,12 +3499,12 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
           "userId": {
             "type": "string",
             "description": "메시지를 보낸 사용자 UUID",
-            "x-parser-schema-id": "<anonymous-schema-282>"
+            "x-parser-schema-id": "<anonymous-schema-283>"
           },
           "topic": {
             "type": "string",
             "description": "Redis로 발행된 채널명",
-            "x-parser-schema-id": "<anonymous-schema-283>"
+            "x-parser-schema-id": "<anonymous-schema-284>"
           },
           "payload": {
             "type": "object",
@@ -3510,37 +3512,37 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
               "id": {
                 "type": "string",
                 "description": "방 ID",
-                "x-parser-schema-id": "<anonymous-schema-284>"
+                "x-parser-schema-id": "<anonymous-schema-285>"
               },
               "title": {
                 "type": "string",
                 "description": "방 제목",
-                "x-parser-schema-id": "<anonymous-schema-285>"
+                "x-parser-schema-id": "<anonymous-schema-286>"
               },
               "owner": {
                 "type": "string",
                 "description": "방장 닉네임",
-                "x-parser-schema-id": "<anonymous-schema-286>"
+                "x-parser-schema-id": "<anonymous-schema-287>"
               },
               "hasPassword": {
                 "type": "boolean",
                 "description": "비밀번호 사용 여부",
-                "x-parser-schema-id": "<anonymous-schema-287>"
+                "x-parser-schema-id": "<anonymous-schema-288>"
               },
               "password": {
                 "type": "string",
                 "description": "비밀번호 (빈 문자열일 수 있음)",
-                "x-parser-schema-id": "<anonymous-schema-288>"
+                "x-parser-schema-id": "<anonymous-schema-289>"
               },
               "max": {
                 "type": "integer",
                 "description": "최대 인원 수",
-                "x-parser-schema-id": "<anonymous-schema-289>"
+                "x-parser-schema-id": "<anonymous-schema-290>"
               },
               "min": {
                 "type": "integer",
                 "description": "최소 인원 수",
-                "x-parser-schema-id": "<anonymous-schema-290>"
+                "x-parser-schema-id": "<anonymous-schema-291>"
               },
               "aiLevel": {
                 "type": "string",
@@ -3549,7 +3551,7 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                   "ADVANCED"
                 ],
                 "description": "AI 난이도",
-                "x-parser-schema-id": "<anonymous-schema-291>"
+                "x-parser-schema-id": "<anonymous-schema-292>"
               },
               "gameMode": {
                 "type": "string",
@@ -3558,12 +3560,12 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                   "LULU_ART_EXAM"
                 ],
                 "description": "게임 모드",
-                "x-parser-schema-id": "<anonymous-schema-292>"
+                "x-parser-schema-id": "<anonymous-schema-293>"
               },
               "ownerUuid": {
                 "type": "string",
                 "description": "이 방을 생성한 사용자의 UUID입니다.  \n클라이언트는 해당 값을 통해 수신된 방 정보가 본인이 생성한 것인지 식별할 수 있습니다.\n",
-                "x-parser-schema-id": "<anonymous-schema-293>"
+                "x-parser-schema-id": "<anonymous-schema-294>"
               }
             },
             "x-parser-schema-id": "RoomMetadata"
@@ -3583,11 +3585,11 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
         "properties": {
           "userId": {
             "type": "string",
-            "x-parser-schema-id": "<anonymous-schema-294>"
+            "x-parser-schema-id": "<anonymous-schema-295>"
           },
           "topic": {
             "type": "string",
-            "x-parser-schema-id": "<anonymous-schema-295>"
+            "x-parser-schema-id": "<anonymous-schema-296>"
           },
           "payload": {
             "type": "object",
@@ -3597,12 +3599,12 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                 "enum": [
                   "JOIN"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-297>"
+                "x-parser-schema-id": "<anonymous-schema-298>"
               },
               "eventAt": {
                 "type": "string",
                 "format": "date-time",
-                "x-parser-schema-id": "<anonymous-schema-298>"
+                "x-parser-schema-id": "<anonymous-schema-299>"
               },
               "data": {
                 "type": "array",
@@ -3611,23 +3613,23 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
                   "properties": {
                     "userUuid": {
                       "type": "string",
-                      "x-parser-schema-id": "<anonymous-schema-300>"
+                      "x-parser-schema-id": "<anonymous-schema-301>"
                     },
                     "nickname": {
                       "type": "string",
-                      "x-parser-schema-id": "<anonymous-schema-301>"
+                      "x-parser-schema-id": "<anonymous-schema-302>"
                     },
                     "ready": {
                       "type": "boolean",
-                      "x-parser-schema-id": "<anonymous-schema-302>"
+                      "x-parser-schema-id": "<anonymous-schema-303>"
                     }
                   },
                   "x-parser-schema-id": "RoomUserInfo"
                 },
-                "x-parser-schema-id": "<anonymous-schema-299>"
+                "x-parser-schema-id": "<anonymous-schema-300>"
               }
             },
-            "x-parser-schema-id": "<anonymous-schema-296>"
+            "x-parser-schema-id": "<anonymous-schema-297>"
           }
         },
         "x-parser-schema-id": "RedisResponse_RoomJoin"
@@ -3661,7 +3663,8 @@ SockJS를 통해 WebSocket 연결을 시도합니다.</p>
       "AIPrediction": "$ref:$.channels./sub/room/{roomId}.subscribe.message.oneOf[4].payload.properties.payload.properties.data.properties.gameData.properties.rounds.items.properties.words.items.properties.aiPredictions.items",
       "Score": "$ref:$.channels./sub/room/{roomId}.subscribe.message.oneOf[4].payload.properties.payload.properties.data.properties.gameData.properties.scores",
       "RoomIdRes": "$ref:$.channels./sub/lobby/create/{userUuid}.subscribe.message.payload",
-      "DrawingSubmitReq": "$ref:$.channels./pub/game/{roomId}.publish.message.oneOf[0].payload"
+      "DrawingSubmitReq": "$ref:$.channels./pub/game/{roomId}.publish.message.oneOf[0].payload",
+      "RoomJoinReq": "$ref:$.channels./pub/lobby/join/{roomId}.publish.message.payload"
     }
   },
   "x-parser-spec-parsed": true,
