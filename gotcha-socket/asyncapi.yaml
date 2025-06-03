@@ -1511,8 +1511,6 @@ components:
           nullable: true
           example: "AI"
 
-
-
     GamePlayer:
       type: object
       properties:
