@@ -166,7 +166,7 @@ channels:
     publish:
       message:
         payload:
-          $ref: '#/components/schemas/CreateRoomRequest'
+          $ref: '#/components/schemas/RoomJoinReq'
 
   /sub/lobby/join/{userUuid}:
     description: 클라이언트가 방에 참가 응답 채널
@@ -1653,4 +1653,13 @@ components:
           description: 업로드된 그림의 URL
       required:
         - imageURL
+
+    RoomJoinReq:
+      type: object
+      description: 방 참가 시 요청 dto
+      properties:
+        password:
+          type: string
+          description: 방 비밀번호
+
 
