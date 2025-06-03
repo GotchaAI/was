@@ -23,7 +23,6 @@ import java.util.Optional;
 public class GameRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
-    private final JsonSerializer jsonSerializer;
     /**
      * <pre>
      * game:{roomId} (HASH) // List Player, List Round 빼고 저장
@@ -42,10 +41,8 @@ public class GameRepository {
      * └──
      * </pre>
      */
-    public GameRepository(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
-                          JsonSerializer jsonSerializer) {
+    public GameRepository(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
-        this.jsonSerializer = jsonSerializer;
     }
 
     /**
@@ -65,8 +62,8 @@ public class GameRepository {
                 "difficulty", gameMeta.getDifficulty().name(),
                 "currentRound", String.valueOf(gameMeta.getCurrentRound()),
                 "gameStatus", String.valueOf(gameMeta.getGameStatus()),
-                "totalRounds", String.valueOf(gameMeta.getTotalRounds()),
-                "aiScore", String.valueOf(gameMeta.getAiScore())
+                "totalRounds", String.valueOf(gameMeta.getTotalRounds())
+                //todo: scores
         );
 
         redisTemplate.opsForHash().putAll(getGameKey(gameMeta.getRoomId()), gameData);
@@ -77,13 +74,9 @@ public class GameRepository {
     /**
      * Game 메타데이터만 조회(List GamePlayers, List Rounds 제외)
      */
-    public GameMeta findGameMeta(String roomId, ErrorType errorType) {
+    public Map<Object, Object> findGameMeta(String roomId) {
         String key = getGameKey(roomId);
-        Map<Object, Object> gameDataMap = redisTemplate.opsForHash().entries(key);
-        if (gameDataMap.isEmpty()) {
-            throw new SocketCustomException(errorType, GameExceptionCode.INVALID_GAME_ID);
-        }
-        return GameMeta.fromRedisMap(roomId, gameDataMap);
+        return redisTemplate.opsForHash().entries(key);
     }
 
 
