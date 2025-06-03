@@ -45,14 +45,14 @@ jobs:
       - name: Clean old docs
         run: rm -rf gotcha-socket/src/main/resources/static.docs gotcha-socket/src/main/resources/static/docs
 
-      # 3. AsyncAPI Generator 전역 설치
-      - name: Install AsyncAPI Generator
-        run: npm install -g @asyncapi/generator
+      # 3. AsyncAPI CLI 전역 설치 (최신 버전)
+      - name: Install AsyncAPI CLI
+        run: npm install -g @asyncapi/cli@latest
 
       # 4. AsyncAPI → HTML 문서 자동 생성
       - name: Generate HTML Docs
         run: |
-          npx @asyncapi/generator gotcha-socket/asyncapi.yaml @asyncapi/html-template -o gotcha-socket/src/main/resources/static/docs
+          asyncapi generate fromTemplate gotcha-socket/asyncapi.yaml @asyncapi/html-template@3.0.0 --output gotcha-socket/src/main/resources/static/docs --use-new-generator
 
       # 5. 문서 변경사항 커밋 & 푸시
       - name: Commit and Push Generated Docs
