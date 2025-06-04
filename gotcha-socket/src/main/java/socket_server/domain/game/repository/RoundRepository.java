@@ -129,5 +129,18 @@ public class RoundRepository {
         log.info("Player Guesses {} saved", guessesJson);
     }
 
+    public String getRoundBattleWinnersKey(String roomId, int roundIndex) {
+        return getGameRoundsKey(roomId) + ":" + roundIndex + ":battle";
+    }
 
+
+    public String findRoundBattleWinners(String roomId, int roundIndex) {
+        String key = getRoundBattleWinnersKey(roomId, roundIndex);
+        return redisTemplate.opsForValue().get(key);
+    }
+
+    public void saveRoundBattleWinners(String roomId, int roundIndex, String winners) {
+        String key = getRoundBattleWinnersKey(roomId, roundIndex);
+        redisTemplate.opsForValue().set(key, winners);
+    }
 }

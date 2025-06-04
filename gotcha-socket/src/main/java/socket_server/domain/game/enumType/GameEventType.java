@@ -11,6 +11,7 @@ public enum GameEventType {
     GUESS_SUBMIT,
     GUESS_RESULT,
     SCORE_UPDATE,
+    BATTLE_END,
 
 
     ROUND_END,
