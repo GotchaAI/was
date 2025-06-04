@@ -60,51 +60,6 @@ public class GuessFlowService {
 
         // 1. 라운드 데이터 전체 조회
         Round currentRound = getCurrentRound(roomId);
-
-        // 2. WordMeta BroadCast (현재 라운드에 대해서)
-        // GUESS_START 이벤트 발행
-//        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_START,
-//                currentRound.getWords().stream().map(Word::toWordMeta).toList(), null);
-//
-
-        startBattle(roomId, currentRound);
-    }
-
-
-    /**
-     * 개별 배틀 시작
-     * GUESS_START 이벤트 : 한 단어만 발행
-     */
-    private void startBattle(String roomId, Round currentRound) {
-        Word currentWord = getCurrentWord(roomId, currentRound);
-
-        if (currentWord == null) {
-            handleRoundEnd(roomId); // todo: 중복로직
-            return;
-        }
-
-        WordMeta currentWordMeta = Word.toWordMeta(currentWord);
-        // GUESS_START 이벤트 발행 (현재 배틀만)
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_START,
-                currentWordMeta, null);
-
-        processNextGuessRequest(roomId);
-    }
-
-
-    /**
-     * GUESS_REQUEST 이벤트 발행.
-     * 현재 GUESS 상태 확인.
-     * 1. Round 종료 여부 확인
-     * 2. Guess 완료 여부 확인
-     * 3. check whether AI turn or Player turn
-     */
-    public void processNextGuessRequest(String roomId){
-        // 상태 검증
-        GameMeta gameMeta = getGameMetaByRoomId(roomId);
-        validateGameEvent(gameMeta, GameEventType.GUESS_REQUEST);
-
-        Round currentRound = getCurrentRound(roomId);
         Word currentWord = getCurrentWord(roomId, currentRound);
 
         if(currentWord == null){
@@ -117,6 +72,34 @@ public class GuessFlowService {
             moveToNextWord(roomId, currentRound);
             return;
         }
+
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.schedule(() -> {
+        /// GUESS_START BROADCAST
+            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId,GameEventType.GUESS_START,  Word.toWordMeta(currentWord), null);
+             processNextGuessRequest(roomId , currentWord, currentRound);
+        }, 5, TimeUnit.SECONDS);
+    }
+
+
+
+
+
+    /**
+     * GUESS_REQUEST 이벤트 발행.
+     * 현재 GUESS 상태 확인.
+     * 1. Round 종료 여부 확인
+     * 2. Guess 완료 여부 확인
+     * 3. check whether AI turn or Player turn
+     */
+    public void processNextGuessRequest(String roomId, Word currentWord, Round currentRound){
+
+                // 상태 검증
+        GameMeta gameMeta = getGameMetaByRoomId(roomId);
+        validateGameEvent(gameMeta, GameEventType.GUESS_REQUEST);
+
+
+
 
         boolean isAITurn = determineNextGuesser(currentWord);
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -426,7 +409,7 @@ public class GuessFlowService {
         roundMetas.get(currentRound.getRoundIndex() - 1).setCurrentWordIndex(currentRound.getCurrentWordIndex());
         roundRepository.saveRoundMetasString(roomId, jsonSerializer.serialize(roundMetas, GAME_ERROR));
 
-        processNextGuessRequest(roomId);
+        startGuessingPhase(roomId);
     }
 
 
@@ -464,7 +447,7 @@ public class GuessFlowService {
         }, 2, TimeUnit.SECONDS);
 
         // 다음 턴
-        processNextGuessRequest(roomId);
+        startGuessingPhase(roomId);
     }
 
 
@@ -524,9 +507,11 @@ public class GuessFlowService {
         }
 
 
-        String currentRoundBattleWinners = roundRepository.findRoundBattleWinners(roomId, gameMeta.getCurrentRound());
+        String currentRoundBattleWinners = roundRepository.findBattleWinners(roomId);
         List<String> battleWinners = jsonSerializer.deserializeList(currentRoundBattleWinners, String.class, GAME_ERROR);
-
+        if(battleWinners == null) {
+            battleWinners = new ArrayList<>();
+        }
         if(isPlayerWin) {
             battleWinners.add("PLAYER");
         } else {
@@ -535,7 +520,7 @@ public class GuessFlowService {
 
 
         String battleWinnersJson = jsonSerializer.serialize(battleWinners, GAME_ERROR);
-        roundRepository.saveRoundBattleWinners(roomId, gameMeta.getCurrentRound(), battleWinnersJson);
+        roundRepository.saveBattleWinners(roomId, battleWinnersJson);
 
         // SCORE_UPDATE Broadcast
         List<GamePlayer> gamePlayers = getGamePlayersByRoomId(roomId);
