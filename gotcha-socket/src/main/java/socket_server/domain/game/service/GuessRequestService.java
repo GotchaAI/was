@@ -91,7 +91,7 @@ public class GuessRequestService {
         executor.schedule(() -> {
         // 4. BroadCast
             gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_REQUEST, guess, aiSays);
-        }, 2, TimeUnit.SECONDS);
+        }, 5, TimeUnit.SECONDS);
     }
 
     private List<GamePlayer> getGamePlayersByRoomId(String roomId) {
