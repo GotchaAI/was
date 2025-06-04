@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
-import socket_server.common.util.JsonSerializer;
 
 
 @Slf4j
@@ -129,18 +128,18 @@ public class RoundRepository {
         log.info("Player Guesses {} saved", guessesJson);
     }
 
-    public String getRoundBattleWinnersKey(String roomId, int roundIndex) {
-        return getGameRoundsKey(roomId) + ":" + roundIndex + ":battle";
+    public String getBattleWinnersKey(String roomId) {
+        return getGameRoundsKey(roomId) + ":battleWinners";
     }
 
 
-    public String findRoundBattleWinners(String roomId, int roundIndex) {
-        String key = getRoundBattleWinnersKey(roomId, roundIndex);
+    public String findBattleWinners(String roomId) {
+        String key = getBattleWinnersKey(roomId);
         return redisTemplate.opsForValue().get(key);
     }
 
-    public void saveRoundBattleWinners(String roomId, int roundIndex, String winners) {
-        String key = getRoundBattleWinnersKey(roomId, roundIndex);
+    public void saveBattleWinners(String roomId, String winners) {
+        String key = getBattleWinnersKey(roomId);
         redisTemplate.opsForValue().set(key, winners);
     }
 }
