@@ -24,7 +24,8 @@ public enum GameStatus {
     public boolean canHandleEvent(GameEventType gameEventType) {
         return switch(gameEventType){
             case ROUND_START -> this == GameStatus.GAME_STARTED || this == GameStatus.ROUND_ENDED;
-            case DRAWING_SUBMIT, GUESS_START -> this == GameStatus.DRAWING_PHASE;
+            case GUESS_START -> this == GameStatus.DRAWING_PHASE || this == GameStatus.GUESSING_PHASE;
+            case DRAWING_SUBMIT -> this == GameStatus.DRAWING_PHASE;
             case GUESS_SUBMIT, ROUND_END, GUESS_REQUEST, GUESS_RESULT, SCORE_UPDATE, BATTLE_END -> this == GameStatus.GUESSING_PHASE;
             case GAME_END -> this == GameStatus.ROUND_ENDED;
             case GAME_START -> this == GameStatus.GAME_ENDED;
