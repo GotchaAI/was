@@ -136,7 +136,7 @@ public class GameStartService {
             }
 
             Round round = Round.builder().
-                    roundIndex(i + 1).
+                    roundIndex(i).
                     currentWordIndex(0).
                     words(words).
                     build();

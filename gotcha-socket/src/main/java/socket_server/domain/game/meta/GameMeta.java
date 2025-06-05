@@ -30,11 +30,11 @@ public class GameMeta {
                 gameType(GameType.valueOf((String) map.get("gameType"))).
                 gameStatus(GameStatus.valueOf((String) map.get("gameStatus"))).
                 difficulty(Difficulty.valueOf((String) map.get("difficulty"))).
-                currentRound(Integer.parseInt((String) map.get("currentRound"))).
-                totalRounds(Integer.parseInt((String) map.get("totalRounds"))).
-                playerWon(Boolean.parseBoolean((String) map.get("playerWon"))).
-                aiScore(Integer.parseInt((String) map.get("aiScore"))).
-                playerScore(Integer.parseInt((String) map.get("playerScore"))).
+                currentRound(parseInteger((String) map.get("currentRound"))).
+                totalRounds(parseInteger((String) map.get("totalRounds"))).
+                playerWon(parseBoolean((String) map.get("playerWon"))).
+                aiScore(parseInteger((String) map.getOrDefault("aiScore", 0))).
+                playerScore(parseInteger((String) map.get("playerScore"))).
                 build();
     }
 
@@ -50,6 +50,16 @@ public class GameMeta {
                 currentRound(game.getCurrentRound()).
                 totalRounds(game.getTotalRounds()).
                 build();
+    }
+
+    private static Integer parseInteger(Object value) {
+        if (value == null || "null".equals(value.toString())) return null;
+        return Integer.parseInt(value.toString());
+    }
+
+    private static Boolean parseBoolean(Object value) {
+        if (value == null || "null".equals(value.toString())) return null;
+        return Boolean.parseBoolean(value.toString());
     }
 
 }

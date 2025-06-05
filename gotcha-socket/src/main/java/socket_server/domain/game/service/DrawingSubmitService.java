@@ -1,6 +1,7 @@
 package socket_server.domain.game.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.exception.SocketCustomException;
@@ -14,9 +15,11 @@ import socket_server.domain.game.model.AiPrediction;
 import socket_server.domain.game.repository.GameRepository;
 import socket_server.domain.game.repository.RoundRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DrawingSubmitService {
@@ -35,7 +38,7 @@ public class DrawingSubmitService {
         int currentRound = gameMeta.getCurrentRound();
 
         // 2. word 찾고 업데이트
-        List<WordMeta> wordMetas = getWordMetas(roomId, currentRound);
+        List<WordMeta> wordMetas = getWordMetas(roomId, currentRound); // NPE
         WordMeta targetWord = wordMetas.get(getWordIndexByDrawerUuid(wordMetas, drawerUuid));
 
         if (targetWord.isSubmitted()) {
@@ -78,7 +81,8 @@ public class DrawingSubmitService {
 
 
     private int getWordIndexByDrawerUuid(List<WordMeta> wordMetas, String drawerUuid) {
-        return wordMetas.stream()
+        log.info("wordMetas {}", wordMetas.toString());
+        return wordMetas.stream() // NPE
                 .filter(word -> word.getDrawerUuid().equals(drawerUuid))
                 .findFirst()
                 .orElseThrow(() -> new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_DRAWER_ID))
@@ -88,6 +92,7 @@ public class DrawingSubmitService {
 
     private List<WordMeta> getWordMetas(String roomId, int roundIndex) {
         String wordMetasJson = roundRepository.findWordMetasString(roomId, roundIndex);
+        if(wordMetasJson == null) return new ArrayList<>();
         return jsonSerializer.deserializeList(wordMetasJson, WordMeta.class, GAME_ERROR);
     }
 

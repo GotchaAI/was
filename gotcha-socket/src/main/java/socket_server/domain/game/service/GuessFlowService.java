@@ -66,8 +66,7 @@ public class GuessFlowService {
 
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.schedule(() -> {
-        /// GUESS_START BROADCAST
-            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId,GameEventType.GUESS_START,  currentWord, null);
+            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId,GameEventType.GUESS_START, currentWord, null);
             processNextGuessRequest(roomId);
         }, 5, TimeUnit.SECONDS);
     }
@@ -102,6 +101,7 @@ public class GuessFlowService {
             moveToNextWord(roomId, currentRound);
             return;
         }
+
 
 
         boolean isAITurn = determineNextGuesser(currentWord);
@@ -350,7 +350,15 @@ public class GuessFlowService {
         // currentRound의 currentWordIndex 값을 바꿔서 저장
         roundMetas.get(currentRound.getRoundIndex()).setCurrentWordIndex(currentRound.getCurrentWordIndex());
         roundRepository.saveRoundMetasString(roomId, jsonSerializer.serialize(roundMetas, GAME_ERROR));
+        Word currentWord = getCurrentWord(roomId, currentRound);
 
+
+
+
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.schedule(() -> {
+            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId,GameEventType.GUESS_START,  Word.toWordMeta(currentWord), null);
+        }, 5, TimeUnit.SECONDS);
         processNextGuessRequest(roomId);
     }
 
@@ -448,8 +456,10 @@ public class GuessFlowService {
             }
         }
 
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.BATTLE_END, allPlayerWons, null);
-
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.schedule(() -> {
+            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.BATTLE_END, allPlayerWons, null);
+        }, 5, TimeUnit.SECONDS);
     }
 
     private GameMeta getGameMetaByRoomId(String roomId) {
