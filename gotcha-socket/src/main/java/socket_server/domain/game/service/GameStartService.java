@@ -48,8 +48,6 @@ public class GameStartService {
         RoomMetadata roomMetadata = roomUserService.validateRoomOwnerAndGetRoomMetadata(roomId, userUuid);
         roomUserService.checkGameStart(roomId, roomMetadata.getGameType());
 
-        //todo: 이미 진행중인 게임이 있다면?
-
         // 게임 메타정보 조회
         Map<Object, Object> gameMetaMap = gameRepository.findGameMeta(roomId);
         // 없으면 시작 가능
