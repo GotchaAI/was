@@ -97,6 +97,8 @@ public class GuessFlowService {
         }
 
         if(isWordGuessCompleted(currentWord)){
+
+            log.info("WordGuessCompleted : {}", currentWord);
             handleBattleEnd(roomId, currentRound, currentWord);
             moveToNextWord(roomId, currentRound);
             return;
@@ -231,10 +233,11 @@ public class GuessFlowService {
         // 상태 업데이트
         gameMeta.setGameStatus(GameStatus.ROUND_ENDED);
 
+        gameMeta.setCurrentRound(gameMeta.getCurrentRound() + 1);
+
+        gameRepository.saveGameMeta(gameMeta);
         if(gameMeta.getCurrentRound() < gameMeta.getTotalRounds()){
             // next round 시작
-            gameMeta.setCurrentRound(gameMeta.getCurrentRound() + 1);
-            gameRepository.saveGameMeta(gameMeta);
             roundStartService.startNextRound(roomId);
         } else {
             endGame(roomId);
@@ -351,10 +354,6 @@ public class GuessFlowService {
         roundMetas.get(currentRound.getRoundIndex()).setCurrentWordIndex(currentRound.getCurrentWordIndex());
         roundRepository.saveRoundMetasString(roomId, jsonSerializer.serialize(roundMetas, GAME_ERROR));
         Word currentWord = getCurrentWord(roomId, currentRound);
-
-
-
-
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.schedule(() -> {
             gameBroadCaster.broadcastGameEvent("SYSTEM", roomId,GameEventType.GUESS_START,  Word.toWordMeta(currentWord), null);
@@ -410,18 +409,19 @@ public class GuessFlowService {
         // 상태 검증
         GameMeta gameMeta = getGameMetaByRoomId(roomId);
         validateGameEvent(gameMeta, GameEventType.BATTLE_END);
-
+        log.info("currentRound: {}", currentRound);
         // 1. currentWord 에서 Guess 가져오기
         List<Guess> playerGuesses = getPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
         List<Guess> aiGuesses = getAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
+        log.info("PlayerGuesses: {}", playerGuesses.toString());
+        log.info("AIGuesses: {}", aiGuesses.toString());
 
-        // 2. Guess 정답 된 guess 가져오기
-        boolean isPlayerWin = false;
+        // 2. Guess 정답 된 guess 가져오기, 정답이 없으면?
+        boolean isPlayerWin = true;
         Guess guess = null;
         for(Guess playerGuess : playerGuesses){
             if(playerGuess.getCorrect()) {
                 guess = playerGuess;
-                isPlayerWin = true;
                 break;
             }
         }
@@ -433,19 +433,20 @@ public class GuessFlowService {
             }
         }
 
-        if(guess == null) {
-            return;
-        }
-
-        int newScore = 10 * (3 - guess.getAttempts() + 1);
-
         //3. WordMeta 값 바꾸기
         List<WordMeta> wordMetas = getWordMetas(roomId, currentRound.getRoundIndex());
         wordMetas.get(currentWord.getWordIndex()).setPlayerWon(isPlayerWin);
-        wordMetas.get(currentWord.getWordIndex()).setScore(newScore);
+
+        // guess == null이면 정답 없음.
+        if(guess == null) {
+            wordMetas.get(currentWord.getWordIndex()).setScore(0);
+        }
+        else {
+            int newScore = 10 * (3 - guess.getAttempts() + 1);
+            wordMetas.get(currentWord.getWordIndex()).setScore(newScore);
+        }
 
         saveWordMetas(roomId, currentRound.getRoundIndex(), wordMetas);
-
 
         //4. WordMeta 전체 가져오기
         List<Boolean> allPlayerWons = new ArrayList<>();

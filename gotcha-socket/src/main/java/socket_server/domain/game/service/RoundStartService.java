@@ -34,7 +34,7 @@ public class RoundStartService {
     public void startNextRound(String roomId) {
         GameMeta gameMeta = getGameMetaByRoomId(roomId);
 
-        if (!isGameEnded(gameMeta)) {
+        if (isGameEnded(gameMeta)) {
             throw new SocketCustomException(GAME_ERROR, GameExceptionCode.ALREADY_FINISHED_GAME);
         }
 
@@ -78,6 +78,6 @@ public class RoundStartService {
 
     // 게임 종료 check시 반드시 필요
     public boolean isGameEnded(GameMeta gameMeta){
-        return gameMeta.getCurrentRound() <= gameMeta.getTotalRounds();
+        return gameMeta.getCurrentRound() >= gameMeta.getTotalRounds();
     }
 }
