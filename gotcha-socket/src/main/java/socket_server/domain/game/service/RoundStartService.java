@@ -42,7 +42,7 @@ public class RoundStartService {
             throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
         }
 
-        int currentRound = gameMeta.getCurrentRound() + 1;
+        int currentRound = gameMeta.getCurrentRound();
 
         String roundMetasJson =roundRepository.findRoundMetasString(roomId);
         List<RoundMeta> roundMetaList = jsonSerializer.deserializeList(roundMetasJson, RoundMeta.class, GAME_ERROR);
@@ -51,7 +51,7 @@ public class RoundStartService {
         gameMeta.setGameStatus(GameStatus.DRAWING_PHASE); // ROUND_STARTED 생략 가능
         gameRepository.saveGameMeta(gameMeta);
 
-        RoundMeta currentRoundMeta = roundMetaList.get(currentRound - 1);
+        RoundMeta currentRoundMeta = roundMetaList.get(currentRound);
 
         roundRepository.saveRoundMetasString(roomId, jsonSerializer.serialize(roundMetaList, GAME_ERROR));
 

@@ -130,6 +130,7 @@ public class GameStartService {
                         .wordIndex(j)
                         .word(WordUtils.getEngWord(indexes.get(i * 2 + j)))
                         .drawerUuid(gamePlayers.get(j).getPlayerUuid())
+                        .drawerName(gamePlayers.get(j).getNickname())
                         .aiGuesses(new ArrayList<>())
                         .playerGuesses(new ArrayList<>())
                         .aiPredictions(new ArrayList<>()).build();
