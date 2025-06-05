@@ -128,18 +128,4 @@ public class RoundRepository {
         log.info("Player Guesses {} saved", guessesJson);
     }
 
-    public String getBattleWinnersKey(String roomId) {
-        return getGameRoundsKey(roomId) + ":battleWinners";
-    }
-
-
-    public String findBattleWinners(String roomId) {
-        String key = getBattleWinnersKey(roomId);
-        return redisTemplate.opsForValue().get(key);
-    }
-
-    public void saveBattleWinners(String roomId, String winners) {
-        String key = getBattleWinnersKey(roomId);
-        redisTemplate.opsForValue().set(key, winners);
-    }
 }
