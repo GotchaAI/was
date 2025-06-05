@@ -21,8 +21,6 @@ public class RoundMeta {
                 roundIndex(roundMeta.getRoundIndex()).
                 drawingEndTime(roundMeta.getDrawingEndTime()).
                 currentWordIndex(roundMeta.getCurrentWordIndex()).
-                roundScores(roundMeta.getRoundScores()).
-                roundWinner(roundMeta.getRoundWinner()).
                 build();
     }
 }

@@ -15,18 +15,14 @@ import java.util.Map;
 public class Round {
     private int roundIndex;
     private LocalDateTime drawingEndTime;
-    private String roundWinner; // 'AI' or 'Players'
     private int currentWordIndex;
     private List<Word> words;
-    private Map<String, Integer> roundScores;
 
     public static RoundMeta toRoundMeta(Round round) {
         return RoundMeta.builder().
                 roundIndex(round.getRoundIndex()).
                 drawingEndTime(round.getDrawingEndTime()).
                 currentWordIndex(round.getCurrentWordIndex()).
-                roundScores(round.getRoundScores()).
-                roundWinner(round.getRoundWinner()).
                 build();
     }
 
