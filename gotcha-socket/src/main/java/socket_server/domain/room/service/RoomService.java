@@ -1,6 +1,9 @@
 package socket_server.domain.room.service;
 
+import gotcha_common.exception.CustomException;
 import gotcha_domain.auth.SecurityUserDetails;
+import gotcha_domain.chat.ChatMessage;
+import gotcha_domain.chat.ChatType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -10,15 +13,17 @@ import socket_server.common.exception.ErrorType;
 import socket_server.common.exception.SocketCustomException;
 import socket_server.common.exception.room.RoomExceptionCode;
 import socket_server.common.util.JsonSerializer;
-import socket_server.domain.chat.dto.ChatMessage;
-import socket_server.domain.chat.dto.ChatType;
+import socket_server.domain.chat.service.ChatLogService;
+import socket_server.domain.lobby.dto.CreateRoomReq;
+import socket_server.domain.lobby.dto.RoomDetailRes;
 import socket_server.domain.lobby.service.LobbyBroadCaster;
 import socket_server.domain.room.RoomField.RoomField;
-import socket_server.domain.lobby.dto.CreateRoomReq;
 import socket_server.domain.room.dto.EventRes;
-import socket_server.domain.room.model.RoomEventType;
+import socket_server.domain.room.dto.RoomInfoRes;
+import socket_server.domain.room.dto.RoomListReq;
 import socket_server.domain.room.dto.RoomSummaryRes;
 import socket_server.domain.room.dto.RoomUpdateReq;
+import socket_server.domain.room.model.RoomEventType;
 import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomRepository;
@@ -28,7 +33,9 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import static socket_server.common.constants.WebSocketConstants.ROOM_PREFIX;
 
@@ -43,6 +50,7 @@ public class RoomService {
     private final RoomUserRepository roomUserRepository;
     private final RoomBroadcaster roomBroadcaster;
     private final LobbyBroadCaster lobbyBroadCaster;
+    private final ChatLogService chatLogService;
     private final ErrorType ROOM_ERROR = ErrorType.ROOM;
 
     public RoomService(
@@ -52,7 +60,9 @@ public class RoomService {
             @Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
             JsonSerializer jsonSerializer,
             RoomUserRepository roomUserRepository,
-            RoomBroadcaster roomBroadcaster, LobbyBroadCaster lobbyBroadCaster) {
+            RoomBroadcaster roomBroadcaster,
+            LobbyBroadCaster lobbyBroadCaster,
+            ChatLogService chatLogService) {
         this.roomIdService = roomIdService;
         this.roomUserService = roomUserService;
         this.roomRepository = roomRepository;
@@ -61,6 +71,7 @@ public class RoomService {
         this.roomUserRepository = roomUserRepository;
         this.roomBroadcaster = roomBroadcaster;
         this.lobbyBroadCaster = lobbyBroadCaster;
+        this.chatLogService = chatLogService;
     }
 
     //todo : lua 스크립트 적용
@@ -113,6 +124,8 @@ public class RoomService {
         redisTemplate.convertAndSend(ROOM_PREFIX + roomId, jsonSerializer.serialize(redisMessage, ROOM_ERROR));
 
         log.info("chat - roomId: {}, user: {}, content: {}", roomId, userDetails.getUuid(), content);
+
+        chatLogService.saveChatMessage(ChatType.ROOM, roomId, chatMessage, userDetails.getUuid());
     }
 
     public void updateRoomField(String roomId, RoomUpdateReq roomUpdateReq, String userUuid) {
@@ -159,7 +172,8 @@ public class RoomService {
         lobbyBroadCaster.broadcastToRoomList("SYSTEM", RoomEventType.UPDATE, summary);
 
         List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR);
-        roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", RoomEventType.UPDATE, userList);
+        RoomDetailRes roomDetailRes = new RoomDetailRes(RoomInfoRes.from(metadata), userList);
+        roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", RoomEventType.UPDATE, roomDetailRes);
 
         log.info("방 {} 업데이트 정보를 ROOM_LIST_EVENT 및 ROOM_EVENT 로 브로드캐스트 완료", roomId);
     }
@@ -169,4 +183,47 @@ public class RoomService {
         return RoomMetadata.fromRedisMap(roomId, fields);
     }
 
+    public List<RoomSummaryRes> getAllRoomSummaries(RoomListReq roomListReq) {
+        Set<String> allRoomIds = roomRepository.getAllRoomIds();
+
+        return allRoomIds.stream()
+                .map(roomId -> {
+                    Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
+                    if (roomData == null || roomData.isEmpty()) {
+                        return null;
+                    }
+
+                    RoomMetadata metadata = RoomMetadata.fromRedisMap(roomId, roomData);
+
+                    if (!metadata.getGameType().equals(roomListReq.gameType())) {
+                        return null;
+                    }
+                    if (roomListReq.difficulty() != null && !roomListReq.difficulty().equals(metadata.getDifficulty())) {
+                        return null;
+                    }
+
+                    int currentUser = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR).size();
+                    return RoomSummaryRes.of(metadata, currentUser);
+                })
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+
+    public RoomDetailRes getRoomDetails(String roomId, String userUuid) {
+        Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
+
+        if (roomData == null || roomData.isEmpty()) {
+            throw new CustomException(RoomExceptionCode.INVALID_ROOM_ID);
+        }
+
+        if (!roomUserService.validateUserInRoom(roomId, userUuid)) {
+            throw new CustomException(RoomExceptionCode.USER_NOT_IN_ROOM);
+        }
+
+        RoomMetadata metadata = RoomMetadata.fromRedisMap(roomId, roomData);
+        List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR);
+
+        return new RoomDetailRes(RoomInfoRes.from(metadata), userList);
+    }
 }

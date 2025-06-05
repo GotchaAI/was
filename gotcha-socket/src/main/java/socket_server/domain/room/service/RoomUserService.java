@@ -194,5 +194,8 @@ public class RoomUserService {
         }
     }
 
+    public boolean validateUserInRoom(String roomId, String userUuid) {
+        return roomUserRepository.findUserInfoInRoom(roomId, userUuid, ROOM_ERROR) != null;
+    }
 }
 

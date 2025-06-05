@@ -124,6 +124,19 @@ channels:
         payload:
           $ref: '#/components/schemas/ExceptionRes'
 
+  /sub/friend/{userUuid}:
+    description: 클라이언트가 친구 관련 알림을 수신받는 채널
+    parameters:
+      userUuid:
+        description: 사용자의 UUID
+        schema:
+          type: string
+    subscribe:
+      message:
+        payload:
+          $ref: '#/components/schemas/FriendEventRes'
+
+
   /pub/lobby/create:
     description: 클라이언트가 새 방을 생성 요청하는 채널
     publish:
@@ -153,7 +166,7 @@ channels:
     publish:
       message:
         payload:
-          $ref: '#/components/schemas/CreateRoomRequest'
+          $ref: '#/components/schemas/RoomJoinReq'
 
   /sub/lobby/join/{userUuid}:
     description: 클라이언트가 방에 참가 응답 채널
@@ -250,6 +263,11 @@ channels:
             summary: START 이벤트 - 게임 시작 알림(게임 메타데이터 포함)
             payload:
               $ref: '#/components/schemas/RedisResponse_GameStart'
+
+          - name: Room Update
+            summary: UPDATE 이벤트 - 방정보 및 유저 리스트 반환
+            payload:
+              $ref: '#/components/schemas/RedisResponse_RoomList_Update'
 
   /pub/chat/all:
     description: 클라이언트가 전체 채팅 메시지를 전송하는 채널
@@ -403,6 +421,28 @@ components:
         - status
         - message
 
+    FriendEventRes:
+      type: object
+      description: 친구 관련 이벤트 응답 구조
+      properties:
+        eventType:
+          type: string
+          description: 친구 이벤트 타입
+          enum: [ ONLINE, REQUEST, REJECT, ACCEPT, DELETE ]
+        data:
+          oneOf:
+            - type: string
+            - $ref: '#/components/schemas/FriendSummaryRes'
+          description: 이벤트 관련 데이터 (DELETE, ONLINE의 경우 - 사용자 UUID, REQUEST, REJECT, ACCEPT의 경우 - 친구 정보 요약)
+        eventAt:
+          type: string
+          format: date-time
+          description: 이벤트 발생 시각
+      required:
+        - eventType
+        - data
+        - eventAt
+
     CreateRoomRequest:
       type: object
       required:
@@ -538,6 +578,24 @@ components:
           description: |
             이 방을 생성한 사용자의 UUID입니다.  
             클라이언트는 해당 값을 통해 수신된 방 정보가 본인이 생성한 것인지 식별할 수 있습니다.
+
+    FriendSummaryRes:
+      type: object
+      description: 친구 요약 정보
+      properties:
+        id:
+          type: integer
+          description: 친구 관계 ID
+        nickname:
+          type: string
+          description: 친구 닉네임
+        uuid:
+          type: string
+          description: 친구 UUID
+      required:
+        - id
+        - nickname
+        - uuid
 
     RedisResponse_RoomList_Create:
       type: object
@@ -1453,8 +1511,6 @@ components:
           nullable: true
           example: "AI"
 
-
-
     GamePlayer:
       type: object
       properties:
@@ -1597,3 +1653,13 @@ components:
           description: 업로드된 그림의 URL
       required:
         - imageURL
+
+    RoomJoinReq:
+      type: object
+      description: 방 참가 시 요청 dto
+      properties:
+        password:
+          type: string
+          description: 방 비밀번호
+
+
