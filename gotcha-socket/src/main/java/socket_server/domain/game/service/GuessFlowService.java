@@ -275,13 +275,8 @@ public class GuessFlowService {
                 word.setAiGuesses(aiGuesses);
                 word.setPlayerGuesses(playerGuesses);
                 word.setAiPredictions(aiPredictions);
-                
-                //todo: word 별 점수, 승자 조회
             }
-
             round.setWords(words);
-
-
         }
 
         // 4. Game 데이터 만들기
@@ -293,11 +288,10 @@ public class GuessFlowService {
         game.setGamePlayers(gamePlayers);
 
         //5. Score 추가, GameWinner 찾기
-        determineGameWinnerAndCalculateScores(roomId, game);
+        determineGameWinnerAndCalculateScores(game);
 
         //6. GameEnded React 가져오기
-        String aiSays = aiClientService.getGameEndMessage(roomId, new AIGameEndReq(game.getWinner()));
-
+        String aiSays = aiClientService.getGameEndMessage(roomId, new AIGameEndReq(game.getPlayerWon() ? "PLAYER" : "AI"));
 
 
         //6. GameEnded 이벤트 broadcast
@@ -321,24 +315,27 @@ public class GuessFlowService {
 
 
 
-    private void determineGameWinnerAndCalculateScores(String roomId, Game game) {
-        //0. Score Map 초기 설정
-
-
+    private void determineGameWinnerAndCalculateScores(Game game) {
         //1. 점수 가져오기
-        //todo: word 별 점수 가져오기
+        List<Word> words = new ArrayList<>();
+        for(Round round : game.getRounds()){
+            words.addAll(round.getWords());
+        }
 
-        //2. GameWinner 구하기
-        int aiScore = scores.getOrDefault("AI", 0);
-        int playerScore = scores.getOrDefault(game.getGamePlayers().get(0).getPlayerUuid(), 0) + scores.getOrDefault(game.getGamePlayers().get(1).getPlayerUuid(), 0);
-        String gameWinner = aiScore > playerScore ? "AI" : aiScore == playerScore ? "DRAW" : "PLAYER";
-        game.setWinner(gameWinner);
+        // playerWon = True면 playerScore, False면 aiScore
+        int playerScore = 0;
+        int aiScore = 0;
+        for(Word word : words){
+            if(word.getPlayerWon()){
+                playerScore += word.getScore();
+            } else {
+                aiScore += word.getScore();
+            }
+        }
 
-
-        //3. 최종점수 저장
-        game.setScores(scores);
-
-
+        game.setPlayerScore(playerScore);
+        game.setAiScore(aiScore);
+        game.setPlayerWon(playerScore >= aiScore);
     }
 
 

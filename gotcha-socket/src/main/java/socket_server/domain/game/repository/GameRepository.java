@@ -23,24 +23,7 @@ import java.util.Optional;
 public class GameRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
-    /**
-     * <pre>
-     * game:{roomId} (HASH) // List Player, List Round 빼고 저장
-     * ├── gameType, difficulty, currentRound, totalRounds, aiScore, status
-     *
-     * game:{roomId}:players (STRING, JSON)
-     * └── [{"playerUuid":"p1","nickname":"user1","score":10}, {"playerUuid":"p2",...}]
-     *
-     * game:{roomId}:rounds (STRING, JSON) List Word 빼고 저장
-     * └── [{"roundIndex":1,"drawingEndTime":123,"roundWinner":"AI"}, ...]
-     *
-     * game:{roomId}:round:{roundIndex}:words (STRING, JSON) List Guess 빼고 저장
-     * └── [{"wordIndex":0,"word":"cat","drawerUuid":"p1"}, {"wordIndex":1,...}]
-     *
-     * game:{roomId}:round:{roundIndex}:word:{wordIndex}:guesses (LIST)
-     * └──
-     * </pre>
-     */
+
     public GameRepository(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
