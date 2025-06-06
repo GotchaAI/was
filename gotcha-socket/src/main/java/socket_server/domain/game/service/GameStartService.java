@@ -1,6 +1,8 @@
 package socket_server.domain.game.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.exception.SocketCustomException;
@@ -24,14 +26,20 @@ import socket_server.domain.room.repository.RoomUserRepository;
 import socket_server.domain.room.service.RoomUserService;
 import socket_server.domain.game.enumType.GameEventType;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GameStartService {
+
+    private final TaskScheduler taskScheduler;
     private final RoomUserService roomUserService;
     private final GamePlayerRepository gamePlayerRepository;
     private final AIClientService aiClientService;
@@ -44,6 +52,7 @@ public class GameStartService {
     private final JsonSerializer jsonSerializer;
 
     public void startGame(String roomId, String userUuid, ErrorType errorType)  {
+//        log.info("[FUNCTION CALL] startGame({}, {}) called", roomId, userUuid);
         // 1. 게임 시작 가능한지(레디 상태, 플레이어 수) check 후 방 메타정보 조회
         RoomMetadata roomMetadata = roomUserService.validateRoomOwnerAndGetRoomMetadata(roomId, userUuid);
         roomUserService.checkGameStart(roomId, roomMetadata.getGameType());
@@ -88,8 +97,7 @@ public class GameStartService {
 
 
         // 8. 5초 후 게임 시작(EntryPoint)
-        roundStartService.startNextRound(roomId);
-
+        taskScheduler.schedule(() -> roundStartService.startNextRound(roomId), Instant.now().plusSeconds(5));
     }
 
     private void saveGame(Game game) {
@@ -102,7 +110,6 @@ public class GameStartService {
             String wordsJson =
                     jsonSerializer.serialize(round.getWords().stream().map(Word::toWordMeta).toList(), GAME_ERROR);
             roundRepository.saveWordMetasString(game.getRoomId(), round.getRoundIndex(), wordsJson);
-            // todo: guess?
         }
     }
 
@@ -126,7 +133,7 @@ public class GameStartService {
             for(int j = 0; j < 2; j++){
                 Word word = Word.builder()
                         .wordIndex(j)
-                        .word(WordUtils.getEngWord(indexes.get(i * 2 + j)))
+                        .word(WordUtils.getKorWord(indexes.get(i * 2 + j)))
                         .drawerUuid(gamePlayers.get(j).getPlayerUuid())
                         .drawerName(gamePlayers.get(j).getNickname())
                         .aiGuesses(new ArrayList<>())
