@@ -32,6 +32,7 @@ public class RoomUserService {
     private final LobbyBroadCaster lobbyBroadCaster;
     private final RoomIdService roomIdService;
     private final ErrorType ROOM_ERROR = ErrorType.ROOM;
+    private final RoomMetadata roomMetadata;
 
     public void joinRoom(String roomId, String userUuid, String nickname, boolean isOwner, ErrorType errorType) {
         RoomUserInfo roomUserInfo = RoomUserInfo.builder().
@@ -111,7 +112,7 @@ public class RoomUserService {
 
         List<RoomUserInfo> remainingUsers = roomUserRepository.findUsersByRoomId(roomId, errorType);
 
-        if(roomMetadata.getMax()>= remainingUsers.size()) {
+        if(roomMetadata.getMax()<= remainingUsers.size()) {
             throw new SocketCustomException(errorType, RoomExceptionCode.ROOM_IS_FULL);
         }
     }
