@@ -418,18 +418,18 @@ public class GuessFlowService {
         List<Guess> aiGuesses = getAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
 
         // 2. Guess 정답 된 guess 가져오기, 정답이 없으면?
-        boolean isPlayerWin = true;
-        Guess guess = null;
+        boolean isPlayerWin = false;
+        int score = 0;
         for(Guess playerGuess : playerGuesses){
             if(playerGuess.getCorrect()) {
-                guess = playerGuess;
+                score = 10 * (3 - playerGuess.getAttempts() + 1);
+                isPlayerWin = true;
                 break;
             }
         }
         for(Guess aiGuess : aiGuesses){
             if(aiGuess.getCorrect()) {
-                guess = aiGuess;
-                isPlayerWin = false;
+                score = 10 * (3 - aiGuess.getAttempts() + 1);
                 break;
             }
         }
@@ -437,15 +437,8 @@ public class GuessFlowService {
         //3. WordMeta 값 바꾸기
         List<WordMeta> wordMetas = getWordMetas(roomId, currentRound.getRoundIndex());
         wordMetas.get(currentWord.getWordIndex()).setPlayerWon(isPlayerWin);
+        wordMetas.get(currentWord.getWordIndex()).setScore(score);
 
-        // guess == null이면 정답 없음.
-        if(guess == null) {
-            wordMetas.get(currentWord.getWordIndex()).setScore(0);
-        }
-        else {
-            int newScore = 10 * (3 - guess.getAttempts() + 1);
-            wordMetas.get(currentWord.getWordIndex()).setScore(newScore);
-        }
 
         saveWordMetas(roomId, currentRound.getRoundIndex(), wordMetas);
 
