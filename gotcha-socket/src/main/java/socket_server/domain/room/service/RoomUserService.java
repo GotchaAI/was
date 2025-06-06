@@ -105,6 +105,17 @@ public class RoomUserService {
         changeRoomOwner(roomId, newOwner);
     }
 
+    public void checkRoomIsFull(String roomId, ErrorType errorType){
+        Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
+        RoomMetadata roomMetadata = RoomMetadata.fromRedisMap(roomId, roomData);
+
+        List<RoomUserInfo> remainingUsers = roomUserRepository.findUsersByRoomId(roomId, errorType);
+
+        if(roomMetadata.getMax()>= remainingUsers.size()) {
+            throw new SocketCustomException(errorType, RoomExceptionCode.ROOM_IS_FULL);
+        }
+    }
+
     private void processUserExit(String roomId, String userUuid, boolean isKicked) {
         roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", isKicked ? RoomEventType.KICK : RoomEventType.EXIT, userUuid);
 

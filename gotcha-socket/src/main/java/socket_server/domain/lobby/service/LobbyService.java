@@ -41,6 +41,7 @@ public class LobbyService {
     public void joinRoom(String roomId, SecurityUserDetails userDetails, String password) {
         String uuid = userDetails.getUuid();
         roomUserService.checkUserNotInAnyRoom(uuid, LOBBY_ERROR);
+        roomUserService.checkRoomIsFull(roomId, LOBBY_ERROR);
         roomService.validateRoomExistsAndPassword(roomId, password, LOBBY_ERROR);
 
         roomUserService.joinRoom(roomId, uuid, userDetails.getNickname(), false, LOBBY_ERROR);
