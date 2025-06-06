@@ -13,8 +13,6 @@ public class RoundMeta {
     private int roundIndex;
     private LocalDateTime drawingEndTime;
     private int currentWordIndex;
-    private String roundWinner;
-    private Map<String, Integer> roundScores;
 
     public static Round toRound(RoundMeta roundMeta) {
         return Round.builder().

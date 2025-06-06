@@ -53,7 +53,7 @@ public class GameRepository {
 
         redisTemplate.opsForHash().putAll(getGameKey(gameMeta.getRoomId()), gameData);
 
-        log.info("Game {} saved", gameData);
+//        log.info("Game {} saved", gameData);
     }
 
     /**

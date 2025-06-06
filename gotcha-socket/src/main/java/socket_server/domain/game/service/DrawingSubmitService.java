@@ -81,7 +81,7 @@ public class DrawingSubmitService {
 
 
     private int getWordIndexByDrawerUuid(List<WordMeta> wordMetas, String drawerUuid) {
-        log.info("wordMetas {}", wordMetas.toString());
+//        log.info("wordMetas {}", wordMetas.toString());
         return wordMetas.stream() // NPE
                 .filter(word -> word.getDrawerUuid().equals(drawerUuid))
                 .findFirst()

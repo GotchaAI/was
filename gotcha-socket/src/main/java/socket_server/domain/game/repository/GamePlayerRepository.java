@@ -61,7 +61,7 @@ public class GamePlayerRepository {
     public void saveGamePlayerString(String roomId, String playerUuid, String playerJson) {
         String key = getPlayerKey(roomId, playerUuid);
         redisTemplate.opsForValue().set(key, playerJson);
-        log.info("Player {} saved", playerJson);
+//        log.info("Player {} saved", playerJson);
     }
 
 

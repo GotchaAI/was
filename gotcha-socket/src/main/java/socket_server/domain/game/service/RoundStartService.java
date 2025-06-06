@@ -1,6 +1,7 @@
 package socket_server.domain.game.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.exception.SocketCustomException;
@@ -21,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RoundStartService {
@@ -32,6 +34,7 @@ public class RoundStartService {
     private final JsonSerializer jsonSerializer;
 
     public void startNextRound(String roomId) {
+//        log.info("[FUNCTION CALL] startNextRound({}) called", roomId);
         GameMeta gameMeta = getGameMetaByRoomId(roomId);
 
         if (isGameEnded(gameMeta)) {
@@ -59,13 +62,9 @@ public class RoundStartService {
                 roomId,
                 new AIRoundStartReq(currentRound, gameMeta.getTotalRounds())
         );
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.schedule(() -> {
-            currentRoundMeta.setDrawingEndTime(LocalDateTime.now().plusSeconds(30));
-            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_START, currentRoundMeta, aiSays);
-        }, 5, TimeUnit.SECONDS);
 
-
+        currentRoundMeta.setDrawingEndTime(LocalDateTime.now().plusSeconds(30));
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_START, currentRoundMeta, aiSays);
     }
 
     private GameMeta getGameMetaByRoomId(String roomId) {

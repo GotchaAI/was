@@ -2,6 +2,7 @@ package socket_server.domain.game.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.exception.SocketCustomException;
@@ -18,6 +19,7 @@ import socket_server.domain.game.repository.GamePlayerRepository;
 import socket_server.domain.game.repository.GameRepository;
 import socket_server.domain.game.repository.RoundRepository;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +36,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GuessFlowService {
 
+
+    private final TaskScheduler taskScheduler;
     private final GameRepository gameRepository;
     private final RoundRepository roundRepository;
     private final GameBroadCaster gameBroadCaster;
@@ -50,6 +54,7 @@ public class GuessFlowService {
      * DRAWING_PHASE -> GUESSING_PHASE
      */
     public void startGuessingPhase(String roomId) {
+//        log.info("[FUNCTION CALL] startGuessingPhase({}) called", roomId);
         // 0. 게임 메타정보 조회 -> GameStatus 업데이트
         GameMeta gameMeta = getGameMetaByRoomId(roomId);
         validateGameEvent(gameMeta, GameEventType.GUESS_START);
@@ -63,16 +68,14 @@ public class GuessFlowService {
         List<WordMeta> wordMetas = getWordMetas(roomId, currentRound.getRoundIndex());
         WordMeta currentWord = wordMetas.get(currentRound.getCurrentWordIndex());
 
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId,GameEventType.GUESS_START, currentWord, null);
+//        log.info("[GUESS_START] broadcasted");
 
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
         executor.schedule(() -> {
-            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId,GameEventType.GUESS_START, currentWord, null);
             processNextGuessRequest(roomId);
         }, 5, TimeUnit.SECONDS);
     }
-
-
-
 
 
     /**
@@ -83,6 +86,7 @@ public class GuessFlowService {
      * 3. check whether AI turn or Player turn
      */
     public void processNextGuessRequest(String roomId){
+//        log.info("[FUNCTION CALL] processNextGuessRequest({}) called", roomId);
         // 상태 검증
         GameMeta gameMeta = getGameMetaByRoomId(roomId);
         validateGameEvent(gameMeta, GameEventType.GUESS_REQUEST);
@@ -90,32 +94,19 @@ public class GuessFlowService {
         // 1. 라운드 데이터 전체 조회
         Round currentRound = getCurrentRound(roomId);
         Word currentWord = getCurrentWord(roomId, currentRound);
-
-        if(currentWord == null){
-            handleRoundEnd(roomId);
-            return;
-        }
-
-        if(isWordGuessCompleted(currentWord)){
-
-            log.info("WordGuessCompleted : {}", currentWord);
-            handleBattleEnd(roomId, currentRound, currentWord);
-            moveToNextWord(roomId, currentRound);
-            return;
-        }
-
-
+//        log.info("[DEBUG] {}", currentRound);
+//        log.info("[DEBUG] {}", currentWord);
 
         boolean isAITurn = determineNextGuesser(currentWord);
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.schedule(() -> {
-            if(isAITurn){ // next guess
-                Guess newGuess = guessRequestService.requestGuessAI(roomId, gameMeta, currentWord);
+        if(isAITurn){ // next guess
+            Guess newGuess = guessRequestService.requestGuessAI(roomId, gameMeta, currentWord);
+            ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+            executor.schedule(() -> {
                 handleAIGuessSubmit(roomId, currentRound, currentWord, newGuess);
-            } else {
-                guessRequestService.requestGuessPlayer(roomId, gameMeta, currentWord);
-            }
-        }, 5, TimeUnit.SECONDS);
+            }, 5, TimeUnit.SECONDS);
+        } else {
+            guessRequestService.requestGuessPlayer(roomId, gameMeta, currentWord);
+        }
     }
 
     private List<AiPrediction> getAIPredictions(String roomId, int roundIndex, int wordIndex){
@@ -142,6 +133,7 @@ public class GuessFlowService {
      * AI 추측 제출 처리(GUESS_SUBMIT) 이벤트 발행, BROADCAST
      */
     public void handleAIGuessSubmit(String roomId, Round currentRound, Word currentWord, Guess guess) {
+//        log.info("[FUNCTION CALL] handleAIGuessSubmit({}, {}, {}) called", currentRound.getRoundIndex(), currentWord.getWordIndex(), guess.getAttempts());
         // 0. 상태 검증
         GameMeta gameMeta = getGameMetaByRoomId(roomId);
         validateGameEvent(gameMeta, GameEventType.GUESS_SUBMIT);
@@ -158,6 +150,8 @@ public class GuessFlowService {
 
         // 4. AI GUESS Broadcast
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_SUBMIT, guess, aiSays);
+//        log.info("[GUESS_SUBMIT] broadcasted");
+
 
         // 5. 정답 확인
         guess.setCorrect(aiPredicted.equalsIgnoreCase(currentWord.getWord()));
@@ -171,11 +165,12 @@ public class GuessFlowService {
         roundRepository.saveAIGuessesString(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), aiGuessesString);
 
         // 7. Handle Guess Result
-        handleGuessResult(roomId,  currentWord, guess);
+        taskScheduler.schedule(() -> handleGuessResult(roomId, currentRound, currentWord, guess), Instant.now().plusSeconds(5));
     }
 
 
     public void handlePlayerGuessSubmit(String roomId, GuessSubmitReq guessSubmitReq, String guesserUuid){
+//        log.info("[FUNCTION CALL] handlePlayerGuessSubmit({}) called", roomId);
         //0. 상태 검증
         GameMeta gameMeta = getGameMetaByRoomId(roomId);
         validateGameEvent(gameMeta, GameEventType.GUESS_SUBMIT);
@@ -201,6 +196,7 @@ public class GuessFlowService {
 
         //3. GUESS 정보 Broadcast
         gameBroadCaster.broadcastGameEvent(guesserUuid, roomId, GameEventType.GUESS_SUBMIT, guess, null);
+//        log.info("[GUESS_SUBMIT] broadcasted");
 
 
         //4. 현재 PlayerGuess 조회
@@ -217,8 +213,10 @@ public class GuessFlowService {
         roundRepository.savePlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), playerGuessesJson);
 
         //5. handle guess result
-        //todo: handlerguessresult() 호출 시에 정답 확인, word에 guess를 추가하는건 어떨까? handlerAIGuessSubmit()과 코드가 중복된 내용이 있음.
-        handleGuessResult(roomId, currentWord, guess);
+        taskScheduler.schedule(() ->
+                handleGuessResult(roomId, currentRound, currentWord, guess),
+                Instant.now().plusSeconds(5));
+        //todo: handlerAIGuessSubmit()과 코드가 중복된 내용이 있음.
     }
 
 
@@ -226,6 +224,7 @@ public class GuessFlowService {
      * 라운드 종료 처리 (GUESSING_PHASE -> ROUND_ENDED)
      */
     private void handleRoundEnd(String roomId){
+//        log.info("[FUNCTION CALL] handleRoundEnd({}) called", roomId);
         // 상태 검증
         GameMeta gameMeta = getGameMetaByRoomId(roomId);
         validateGameEvent(gameMeta, GameEventType.ROUND_END);
@@ -236,12 +235,12 @@ public class GuessFlowService {
         gameMeta.setCurrentRound(gameMeta.getCurrentRound() + 1);
 
         gameRepository.saveGameMeta(gameMeta);
-        if(gameMeta.getCurrentRound() < gameMeta.getTotalRounds()){
-            // next round 시작
-            roundStartService.startNextRound(roomId);
+        if(gameMeta.getCurrentRound() < gameMeta.getTotalRounds()) {
+            taskScheduler.schedule(() -> roundStartService.startNextRound(roomId), Instant.now().plusSeconds(5));
         } else {
-            endGame(roomId);
+            taskScheduler.schedule(() -> endGame(roomId), Instant.now().plusSeconds(5));
         }
+
     }
 
 
@@ -252,6 +251,7 @@ public class GuessFlowService {
      * Game 데이터 전부 모아서 반환
      */
     private void endGame(String roomId){
+//        log.info("[FUNCTION CALL] endGame({}) called", roomId);
         // 상태 검증
         GameMeta gameMeta = getGameMetaByRoomId(roomId);
         validateGameEvent(gameMeta, GameEventType.GAME_END);
@@ -297,14 +297,18 @@ public class GuessFlowService {
         String aiSays = aiClientService.getGameEndMessage(roomId, new AIGameEndReq(game.getPlayerWon() ? "PLAYER" : "AI"));
 
 
-        //6. GameEnded 이벤트 broadcast
+        //7. GameEnded 이벤트 broadcast
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GAME_END, game, aiSays);
+//        log.info("[GAME_END] broadcasted");
 
-        //todo: 7. Game 마무리 : DB 저장
+
+        //todo: 8. scoreupdate
+
+
+        //todo: Game 마무리, DB 저장
 
 
     }
-
 
     private List<WordMeta> getWordMetas(String roomId, int roundIndex){
         String wordMetasJson = roundRepository.findWordMetasString(roomId, roundIndex);
@@ -315,8 +319,6 @@ public class GuessFlowService {
         String wordMetasJson = jsonSerializer.serialize(wordMetas, GAME_ERROR);
         roundRepository.saveWordMetasString(roomId, roundIndex, wordMetasJson);
     }
-
-
 
     private void determineGameWinnerAndCalculateScores(Game game) {
         //1. 점수 가져오기
@@ -342,23 +344,19 @@ public class GuessFlowService {
     }
 
 
-
-
     /**
-     * 다음 단어로 이동(word index + 1)
+     * 다음 단어로 이동
      */
     private void moveToNextWord(String roomId, Round currentRound){
-        currentRound.setCurrentWordIndex(currentRound.getCurrentWordIndex() + 1);
-        List<RoundMeta> roundMetas = getRoundMetas(roomId);
+//        log.info("[FUNCTION CALL] moveToNextWord({}) called", currentRound.getRoundIndex());
         // currentRound의 currentWordIndex 값을 바꿔서 저장
-        roundMetas.get(currentRound.getRoundIndex()).setCurrentWordIndex(currentRound.getCurrentWordIndex());
-        roundRepository.saveRoundMetasString(roomId, jsonSerializer.serialize(roundMetas, GAME_ERROR));
         Word currentWord = getCurrentWord(roomId, currentRound);
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.schedule(() -> {
-            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId,GameEventType.GUESS_START,  Word.toWordMeta(currentWord), null);
-        }, 5, TimeUnit.SECONDS);
-        processNextGuessRequest(roomId);
+
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId,GameEventType.GUESS_START,  Word.toWordMeta(currentWord), null);
+//        log.info("[GUESS_START] broadcasted");
+
+        taskScheduler.schedule(() ->  processNextGuessRequest(roomId), Instant.now().plusSeconds(5));
+
     }
 
 
@@ -375,7 +373,8 @@ public class GuessFlowService {
      *     "aiSays" : "이걸 맞추네 ㄷㄷㄷ 이게 어케 바나나임?"
      *   }
      */
-    private void handleGuessResult(String roomId, Word currentWord, Guess guess){
+    private void handleGuessResult(String roomId, Round currentRound, Word currentWord, Guess guess){
+//        log.info("[FUNCTION CALL] handleGuessResult({}, {}) called", currentWord.getWordIndex(), guess.getAttempts());
         // 상태 검증
         GameMeta gameMeta = getGameMetaByRoomId(roomId);
         validateGameEvent(gameMeta, GameEventType.GUESS_RESULT);
@@ -389,14 +388,16 @@ public class GuessFlowService {
         // AI 반응 받음
         String aiSays = aiClientService.getGuessReactMessage(roomId, new AIGuessReactReq(guess.getCorrect(), currentWord.getWord(), guesser));
 
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.schedule(() -> {
-            // GUESS RESULT Broadcast
-            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_RESULT, guess, aiSays);
-        }, 5, TimeUnit.SECONDS);
+         // GUESS RESULT Broadcast
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_RESULT, guess, aiSays);
+//        log.info("[GUESS_RESULT] BROADCASTED");
 
-        // 다음 턴
-        processNextGuessRequest(roomId);
+
+        if(isWordGuessCompleted(currentWord)){
+            handleBattleEnd(roomId, currentRound, currentWord);
+        } else {
+            processNextGuessRequest(roomId);
+        }
     }
 
 
@@ -406,15 +407,15 @@ public class GuessFlowService {
      * 추측 종료 후 점수 업데이트
      */
     private void handleBattleEnd(String roomId, Round currentRound, Word currentWord){
+//        log.info("[FUNCTION CALL] handleBattleEnd({}) called", currentWord.getWordIndex());
+
         // 상태 검증
         GameMeta gameMeta = getGameMetaByRoomId(roomId);
         validateGameEvent(gameMeta, GameEventType.BATTLE_END);
-        log.info("currentRound: {}", currentRound);
+
         // 1. currentWord 에서 Guess 가져오기
         List<Guess> playerGuesses = getPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
         List<Guess> aiGuesses = getAIGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
-        log.info("PlayerGuesses: {}", playerGuesses.toString());
-        log.info("AIGuesses: {}", aiGuesses.toString());
 
         // 2. Guess 정답 된 guess 가져오기, 정답이 없으면?
         boolean isPlayerWin = true;
@@ -457,10 +458,22 @@ public class GuessFlowService {
             }
         }
 
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.schedule(() -> {
-            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.BATTLE_END, allPlayerWons, null);
-        }, 5, TimeUnit.SECONDS);
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.BATTLE_END, allPlayerWons, null);
+//        log.info("[BATTLE_END] BROADCASTED");
+        currentRound.setCurrentWordIndex(currentRound.getCurrentWordIndex() + 1);
+
+        List<RoundMeta> roundMetas = getRoundMetas(roomId);
+        roundMetas.get(currentRound.getRoundIndex()).setCurrentWordIndex(currentRound.getCurrentWordIndex());
+        saveRoundMetas(roomId, roundMetas);
+
+        // 다음 word로 갈지, round 종료할지, game 종료할지를 찾아야 됨
+
+        if (currentRound.getCurrentWordIndex() >= 2) { // >=2
+            taskScheduler.schedule(() ->handleRoundEnd(roomId), Instant.now().plusSeconds(5));
+        } else {
+            taskScheduler.schedule(() ->moveToNextWord(roomId, currentRound), Instant.now().plusSeconds(5));
+        }
+
     }
 
     private GameMeta getGameMetaByRoomId(String roomId) {
@@ -499,6 +512,10 @@ public class GuessFlowService {
         return jsonSerializer.deserializeList(roundsJson, RoundMeta.class, GAME_ERROR);
     }
 
+    private void saveRoundMetas(String roomId, List<RoundMeta> roundMetas) {
+        roundRepository.saveRoundMetasString(roomId, jsonSerializer.serialize(roundMetas, GAME_ERROR));
+    }
+
     /**
      * 단어 추측 완료 여부 확인
      */
@@ -520,9 +537,6 @@ public class GuessFlowService {
      * 현재 추측할 단어 가져오기
      */
     private Word getCurrentWord(String roomId, Round round) {
-        if (round.getCurrentWordIndex() >= round.getWords().size()) {
-            return null; // 모든 단어 완료
-        }
 
         List<Guess> playerGuesses = getPlayerGuesses(roomId, round.getRoundIndex(), round.getCurrentWordIndex());
         List<Guess> aiGuesses = getAIGuesses(roomId, round.getRoundIndex(), round.getCurrentWordIndex());

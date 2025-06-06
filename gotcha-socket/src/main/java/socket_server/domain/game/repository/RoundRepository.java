@@ -28,7 +28,7 @@ public class RoundRepository {
     public void saveRoundMetasString(String roomId, String roundsJson) {
         String key = getGameRoundsKey(roomId);
         redisTemplate.opsForValue().set(key, roundsJson);
-        log.info("RoundMetas {} saved", roundsJson);
+//        log.info("RoundMetas {} saved", roundsJson);
     }
 
     /**
@@ -52,7 +52,7 @@ public class RoundRepository {
     public void saveWordMetasString(String roomId, int roundIndex, String wordsJson) {
         String key = getRoundWordsKey(roomId, roundIndex);
         redisTemplate.opsForValue().set(key, wordsJson);
-        log.info("Words {} saved", wordsJson);
+//        log.info("Words {} saved", wordsJson);
     }
 
     /**
@@ -66,7 +66,7 @@ public class RoundRepository {
 
 
     private String getAIPredicionsKey(String roomId, int roundIndex, int wordIndex) {
-        return getRoundWordsKey(roomId, roundIndex) + wordIndex + ":ai_predictions";
+        return getRoundWordsKey(roomId, roundIndex) + ":" +wordIndex + ":ai_predictions";
     }
 
     /**
@@ -85,12 +85,12 @@ public class RoundRepository {
     }
 
     private String getAIGuessKey(String roomId, int roundIndex, int wordIndex){
-        return getRoundWordsKey(roomId, roundIndex) + wordIndex + ":ai_guesses";
+        return getRoundWordsKey(roomId, roundIndex) + ":" + wordIndex + ":ai_guesses";
     }
 
 
     private String getPlayerGuessKey(String roomId, int roundIndex, int wordIndex){
-        return getRoundWordsKey(roomId, roundIndex) + wordIndex + ":player_guesses";
+        return getRoundWordsKey(roomId, roundIndex) +":" + wordIndex + ":player_guesses";
     }
 
     /**
@@ -99,7 +99,7 @@ public class RoundRepository {
     public void saveAIGuessesString(String roomId, int roundIndex, int wordIndex, String guessesJson){
         String key = getAIGuessKey(roomId, roundIndex, wordIndex);
         redisTemplate.opsForValue().set(key, guessesJson);
-        log.info("AI Guesses {} saved", guessesJson);
+//        log.info("AI Guesses {} saved", guessesJson);
     }
 
     /**
@@ -125,7 +125,7 @@ public class RoundRepository {
     public void savePlayerGuesses(String roomId, int roundIndex, int wordIndex, String guessesJson){
         String key = getPlayerGuessKey(roomId, roundIndex, wordIndex);
         redisTemplate.opsForValue().set(key, guessesJson);
-        log.info("Player Guesses {} saved", guessesJson);
+//        log.info("Player Guesses {} saved", guessesJson);
     }
 
 }
