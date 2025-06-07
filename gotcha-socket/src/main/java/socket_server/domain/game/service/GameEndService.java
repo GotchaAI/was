@@ -1,12 +1,13 @@
 package socket_server.domain.game.service;
 
-import gotcha_common.ranking.dto.RankingUserRes;
-import gotcha_common.ranking.service.RankingRedisService;
+
 import gotcha_domain.user.User;
+import gotcha_ranking.dto.RankingUserRes;
 import gotcha_user.service.UserService;
 import gotcha_user.util.LevelExpProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import gotcha_ranking.service.RankingRedisService;
 import socket_server.domain.game.enumType.GameEventType;
 import socket_server.domain.game.model.Game;
 import socket_server.domain.game.model.GamePlayer;
