@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GuessFlowService {
 
-
+    private final GameEndService gameEndService;
     private final TaskScheduler taskScheduler;
     private final GameRepository gameRepository;
     private final RoundRepository roundRepository;
@@ -301,14 +301,15 @@ public class GuessFlowService {
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GAME_END, game, aiSays);
 //        log.info("[GAME_END] broadcasted");
 
+        //todo: 8. score update
+        taskScheduler.schedule(() -> gameEndService.updateScore(game), Instant.now().plusSeconds(5));
 
-        //todo: 8. scoreupdate
 
 
         //todo: Game 마무리, DB 저장
-
-
     }
+
+
 
     private List<WordMeta> getWordMetas(String roomId, int roundIndex){
         String wordMetasJson = roundRepository.findWordMetasString(roomId, roundIndex);

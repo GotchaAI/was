@@ -29,4 +29,10 @@ public class GameHistoryService {
 
         return UserGameHistoryDetailRes.from(userGameHistory);
     }
+
+    public void handleGameEnd(UserGameHistory userGameHistory) {
+
+
+    }
+
 }
