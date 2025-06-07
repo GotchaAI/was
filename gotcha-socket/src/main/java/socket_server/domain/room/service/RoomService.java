@@ -20,6 +20,7 @@ import socket_server.domain.lobby.service.LobbyBroadCaster;
 import socket_server.domain.room.RoomField.RoomField;
 import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.dto.RoomInfoRes;
+import socket_server.domain.room.dto.RoomListReq;
 import socket_server.domain.room.dto.RoomSummaryRes;
 import socket_server.domain.room.dto.RoomUpdateReq;
 import socket_server.domain.room.model.RoomEventType;
@@ -182,8 +183,9 @@ public class RoomService {
         return RoomMetadata.fromRedisMap(roomId, fields);
     }
 
-    public List<RoomSummaryRes> getAllRoomSummaries() {
+    public List<RoomSummaryRes> getAllRoomSummaries(RoomListReq roomListReq) {
         Set<String> allRoomIds = roomRepository.getAllRoomIds();
+
         return allRoomIds.stream()
                 .map(roomId -> {
                     Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
@@ -192,12 +194,21 @@ public class RoomService {
                     }
 
                     RoomMetadata metadata = RoomMetadata.fromRedisMap(roomId, roomData);
+
+                    if (!metadata.getGameType().equals(roomListReq.gameType())) {
+                        return null;
+                    }
+                    if (roomListReq.difficulty() != null && !roomListReq.difficulty().equals(metadata.getDifficulty())) {
+                        return null;
+                    }
+
                     int currentUser = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR).size();
                     return RoomSummaryRes.of(metadata, currentUser);
                 })
                 .filter(Objects::nonNull)
                 .toList();
     }
+
 
     public RoomDetailRes getRoomDetails(String roomId, String userUuid) {
         Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
