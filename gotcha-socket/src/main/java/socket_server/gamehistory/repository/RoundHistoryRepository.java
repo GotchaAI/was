@@ -1,4 +1,4 @@
-package Gotcha.domain.gamehistory.repository;
+package socket_server.gamehistory.repository;
 
 import gotcha_domain.gamehistory.RoundHistory;
 import org.springframework.data.jpa.repository.JpaRepository;

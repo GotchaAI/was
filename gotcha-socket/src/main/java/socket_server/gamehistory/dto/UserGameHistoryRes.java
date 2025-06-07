@@ -1,4 +1,4 @@
-package Gotcha.domain.gamehistory.dto;
+package socket_server.gamehistory.dto;
 
 import gotcha_domain.gamehistory.RoundHistory;
 import lombok.Builder;

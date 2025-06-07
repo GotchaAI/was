@@ -1,9 +1,10 @@
 package socket_server.domain.game.model;
 
+import gotcha_domain.gamehistory.GameHistory;
 import lombok.*;
 import socket_server.domain.game.enumType.GameStatus;
-import socket_server.domain.game.enumType.GameType;
-import socket_server.domain.game.enumType.Difficulty;
+import gotcha_domain.gamehistory.GameType;
+import gotcha_domain.gamehistory.Difficulty;
 import socket_server.domain.game.meta.GameMeta;
 
 import java.util.List;
@@ -42,5 +43,12 @@ public class Game {
                 totalRounds(gameMeta.getTotalRounds()).
                 build();
     }
+
+//    public static GameHistory toGameHistory(Game game) {
+//        return GameHistory.builder().
+//                gameType(game.getGameType()).
+//                difficulty(game.getDifficulty()).
+//                gameStatus(game.getGameStatus()).
+//                playerWon(game.getPlayerWon()).
 
 }

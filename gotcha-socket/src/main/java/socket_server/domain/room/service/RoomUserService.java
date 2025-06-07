@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.exception.SocketCustomException;
 import socket_server.common.exception.room.RoomExceptionCode;
-import socket_server.domain.game.enumType.GameType;
+import gotcha_domain.gamehistory.GameType;
 import socket_server.domain.lobby.dto.RoomIdRes;
 import socket_server.domain.lobby.service.LobbyBroadCaster;
 import socket_server.domain.room.RoomField.RoomField;

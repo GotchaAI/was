@@ -300,9 +300,13 @@ public class GuessFlowService {
         //todo: 8. score update
         taskScheduler.schedule(() -> gameEndService.updateScore(game), Instant.now().plusSeconds(5));
 
-
-
         //todo: Game 마무리, DB 저장
+        gameEndService.saveGame(game);
+
+
+
+
+
     }
 
 
@@ -459,7 +463,7 @@ public class GuessFlowService {
         // 다음 word로 갈지, round 종료할지, game 종료할지를 찾아야 됨
 
         if (currentRound.getCurrentWordIndex() >= 2) { // >=2
-            taskScheduler.schedule(() ->handleRoundEnd(roomId), Instant.now().plusSeconds(5));
+            taskScheduler.schedule(() -> handleRoundEnd(roomId), Instant.now().plusSeconds(5));
         } else {
             taskScheduler.schedule(() ->moveToNextWord(roomId, currentRound), Instant.now().plusSeconds(5));
         }

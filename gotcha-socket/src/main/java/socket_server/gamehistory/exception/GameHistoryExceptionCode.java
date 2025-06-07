@@ -1,4 +1,4 @@
-package Gotcha.domain.gamehistory.exception;
+package socket_server.gamehistory.exception;
 
 import gotcha_common.exception.exceptionCode.ExceptionCode;
 import lombok.AllArgsConstructor;

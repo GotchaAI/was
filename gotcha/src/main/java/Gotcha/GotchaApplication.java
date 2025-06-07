@@ -17,7 +17,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 })
 @EnableJpaRepositories(basePackages = {
         "gotcha_user.repository",
-        "Gotcha.domain"
+        "Gotcha.domain",
+        "socket_server.gamehistory.repository"
 })
 @EntityScan(basePackages = {
         "gotcha_domain",

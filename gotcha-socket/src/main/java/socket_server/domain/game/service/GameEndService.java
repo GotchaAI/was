@@ -1,6 +1,7 @@
 package socket_server.domain.game.service;
 
 
+import gotcha_domain.gamehistory.GameHistory;
 import gotcha_domain.user.User;
 import gotcha_ranking.dto.RankingUserRes;
 import gotcha_user.service.UserService;
@@ -11,6 +12,7 @@ import gotcha_ranking.service.RankingRedisService;
 import socket_server.domain.game.enumType.GameEventType;
 import socket_server.domain.game.model.Game;
 import socket_server.domain.game.model.GamePlayer;
+import socket_server.gamehistory.service.GameHistoryService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +24,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GameEndService {
 
+    private final GameHistoryService gameHistoryService;
     private final GameBroadCaster gameBroadCaster;
     private final UserService userService;
     private final RankingRedisService rankingRedisService;
@@ -50,6 +53,12 @@ public class GameEndService {
         }
 
         gameBroadCaster.broadcastGameEvent("SYSTEM", game.getRoomId(), GameEventType.SCORE_UPDATE, scoreUpdates, null);
+    }
+
+    public void saveGame(Game game) {
+//        GameHistory gameHistory = Game.toGameHistory(game);
+//        gameHistoryRepository.saveGameHistory(gameHistory);
+
     }
 
 

@@ -1,4 +1,4 @@
-package Gotcha.domain.gamehistory.dto;
+package socket_server.gamehistory.dto;
 
 public enum GameRoomState {
     WAITING("대기 중"),

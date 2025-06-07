@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
-import socket_server.domain.game.enumType.Difficulty;
-import socket_server.domain.game.enumType.GameType;
+import gotcha_domain.gamehistory.GameType;
+import gotcha_domain.gamehistory.Difficulty;
 
 import java.util.HashMap;
 import java.util.Map;
