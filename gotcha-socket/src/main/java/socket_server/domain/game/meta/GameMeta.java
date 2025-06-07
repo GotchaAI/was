@@ -2,9 +2,9 @@ package socket_server.domain.game.meta;
 
 import lombok.Builder;
 import lombok.Data;
-import socket_server.domain.game.enumType.Difficulty;
 import socket_server.domain.game.enumType.GameStatus;
-import socket_server.domain.game.enumType.GameType;
+import gotcha_domain.gamehistory.GameType;
+import gotcha_domain.gamehistory.Difficulty;
 import socket_server.domain.game.model.Game;
 
 import java.util.Map;
@@ -16,10 +16,13 @@ public class GameMeta {
     private GameType gameType;
     private Difficulty difficulty;
     private GameStatus gameStatus;
+    private Boolean playerWon; // AI or Player
+    private Integer aiScore;
+    private Integer playerScore;
+
     private int currentRound; // 1, 2, 3, 4, 5
     private int totalRounds;
-    private int aiScore;
-    private String winner; // AI or Player
+
 
     public static GameMeta fromRedisMap(String roomId, Map<Object, Object> map) {
         return GameMeta.builder().
@@ -27,9 +30,11 @@ public class GameMeta {
                 gameType(GameType.valueOf((String) map.get("gameType"))).
                 gameStatus(GameStatus.valueOf((String) map.get("gameStatus"))).
                 difficulty(Difficulty.valueOf((String) map.get("difficulty"))).
-                currentRound(Integer.parseInt((String) map.get("currentRound"))).
-                totalRounds(Integer.parseInt((String) map.get("totalRounds"))).
-                aiScore(Integer.parseInt((String) map.get("aiScore"))).
+                currentRound(parseInteger((String) map.get("currentRound"))).
+                totalRounds(parseInteger((String) map.get("totalRounds"))).
+                playerWon(parseBoolean((String) map.get("playerWon"))).
+                aiScore(parseInteger((String) map.getOrDefault("aiScore", 0))).
+                playerScore(parseInteger((String) map.get("playerScore"))).
                 build();
     }
 
@@ -39,10 +44,22 @@ public class GameMeta {
                 gameType(game.getGameType()).
                 difficulty(game.getDifficulty()).
                 gameStatus(game.getGameStatus()).
+                playerWon(game.getPlayerWon()).
+                aiScore(game.getAiScore()).
+                playerScore(game.getPlayerScore()).
                 currentRound(game.getCurrentRound()).
                 totalRounds(game.getTotalRounds()).
-                aiScore(game.getAiScore()).
                 build();
+    }
+
+    private static Integer parseInteger(Object value) {
+        if (value == null || "null".equals(value.toString())) return null;
+        return Integer.parseInt(value.toString());
+    }
+
+    private static Boolean parseBoolean(Object value) {
+        if (value == null || "null".equals(value.toString())) return null;
+        return Boolean.parseBoolean(value.toString());
     }
 
 }

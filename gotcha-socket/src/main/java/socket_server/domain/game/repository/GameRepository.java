@@ -23,29 +23,9 @@ import java.util.Optional;
 public class GameRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
-    private final JsonSerializer jsonSerializer;
-    /**
-     * <pre>
-     * game:{roomId} (HASH) // List Player, List Round 빼고 저장
-     * ├── gameType, difficulty, currentRound, totalRounds, aiScore, status
-     *
-     * game:{roomId}:players (STRING, JSON)
-     * └── [{"playerUuid":"p1","nickname":"user1","score":10}, {"playerUuid":"p2",...}]
-     *
-     * game:{roomId}:rounds (STRING, JSON) List Word 빼고 저장
-     * └── [{"roundIndex":1,"drawingEndTime":123,"roundWinner":"AI"}, ...]
-     *
-     * game:{roomId}:round:{roundIndex}:words (STRING, JSON) List Guess 빼고 저장
-     * └── [{"wordIndex":0,"word":"cat","drawerUuid":"p1"}, {"wordIndex":1,...}]
-     *
-     * game:{roomId}:round:{roundIndex}:word:{wordIndex}:guesses (LIST)
-     * └──
-     * </pre>
-     */
-    public GameRepository(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
-                          JsonSerializer jsonSerializer) {
+
+    public GameRepository(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
-        this.jsonSerializer = jsonSerializer;
     }
 
     /**
@@ -66,24 +46,22 @@ public class GameRepository {
                 "currentRound", String.valueOf(gameMeta.getCurrentRound()),
                 "gameStatus", String.valueOf(gameMeta.getGameStatus()),
                 "totalRounds", String.valueOf(gameMeta.getTotalRounds()),
-                "aiScore", String.valueOf(gameMeta.getAiScore())
+                "aiScore", String.valueOf(gameMeta.getAiScore()),
+                "playerScore", String.valueOf(gameMeta.getPlayerScore()),
+                "playerWon", String.valueOf(gameMeta.getPlayerWon())
         );
 
         redisTemplate.opsForHash().putAll(getGameKey(gameMeta.getRoomId()), gameData);
 
-        log.info("Game {} saved", gameData);
+//        log.info("Game {} saved", gameData);
     }
 
     /**
      * Game 메타데이터만 조회(List GamePlayers, List Rounds 제외)
      */
-    public GameMeta findGameMeta(String roomId, ErrorType errorType) {
+    public Map<Object, Object> findGameMeta(String roomId) {
         String key = getGameKey(roomId);
-        Map<Object, Object> gameDataMap = redisTemplate.opsForHash().entries(key);
-        if (gameDataMap.isEmpty()) {
-            throw new SocketCustomException(errorType, GameExceptionCode.INVALID_GAME_ID);
-        }
-        return GameMeta.fromRedisMap(roomId, gameDataMap);
+        return redisTemplate.opsForHash().entries(key);
     }
 
 

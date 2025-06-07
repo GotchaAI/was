@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import socket_server.common.validator.ValidPassword;
-import socket_server.domain.game.enumType.Difficulty;
+import gotcha_domain.gamehistory.Difficulty;
 
 @ValidPassword
 public record RoomUpdateReq(

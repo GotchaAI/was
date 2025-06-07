@@ -4,10 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
-import socket_server.common.exception.ErrorType;
-import socket_server.common.util.JsonSerializer;
-import socket_server.domain.game.model.GamePlayer;
-import socket_server.domain.game.model.Round;
 
 import java.util.*;
 
@@ -16,15 +12,12 @@ import java.util.*;
 public class GamePlayerRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
-    private final JsonSerializer jsonSerializer;
-    public GamePlayerRepository(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
-                                JsonSerializer jsonSerializer) {
+    public GamePlayerRepository(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
-        this.jsonSerializer = jsonSerializer;
     }
 
     //todo: game:{roomId}:players 는 SET,
-    //todo: player:{roomId}:{uuid} 는 STRING (uuid, USERNAME), 데이터 구조 수정 필요
+    //todo: player:{roomId}:{uuid} 는 STRING (uuid, USERNAME)
 
     /**
      * game:{roomId}:players
@@ -36,32 +29,21 @@ public class GamePlayerRepository {
     /**
      * GamePlayers 저장
      */
-    public void savePlayers(String roomId, List<GamePlayer> gamePlayers, ErrorType errorType) {
+    public void savePlayerUuids(String roomId, List<String> playerUuids) {
         String key = getGamePlayersKey(roomId);
-        redisTemplate.opsForSet().add(key, gamePlayers.stream().map(GamePlayer::getPlayerUuid).toList().toArray(new String[0]));
-        for(GamePlayer gamePlayer : gamePlayers) {
-            savePlayer(roomId, gamePlayer, errorType );
-        }
+        redisTemplate.opsForSet().add(key, playerUuids.toArray(new String[0]));
     };
 
     /**
      * GamePlayers 조회
      */
-    public List<GamePlayer> findPlayersByRoomId(String roomId, ErrorType errorType) {
+    public List<String> findPlayerUuidsByRoomId(String roomId) {
         String key = getGamePlayersKey(roomId);
         Set<String> uuids = redisTemplate.opsForSet().members(key);
         if (uuids == null || uuids.isEmpty()) {
             return new ArrayList<>();
         }
-
-        List<GamePlayer> players = new ArrayList<>();
-        for (String uuid : uuids) {
-            GamePlayer player = findPlayerByUuid(roomId, uuid, errorType);
-            if (player != null) {
-                players.add(player);
-            }
-        }
-        return players;
+        return new ArrayList<>(uuids);
     }
 
     /**
@@ -71,58 +53,18 @@ public class GamePlayerRepository {
         return GameRepository.getGameKey(roomId) + ":" + uuid;
     }
 
-    public GamePlayer findPlayerByUuid(String roomId, String uuid, ErrorType errorType) {
+    public String findGamePlayerStringByUuid(String roomId, String uuid) {
         String key = getPlayerKey(roomId, uuid);
-        String playerJson = redisTemplate.opsForValue().get(key);
-        if (playerJson == null) {
-            return null;
-        }
-        return jsonSerializer.deserialize(playerJson, GamePlayer.class, errorType);
+        return redisTemplate.opsForValue().get(key);
     }
 
-    public void savePlayer(String roomId, GamePlayer player, ErrorType errorType) {
-        String key = getPlayerKey(roomId, player.getPlayerUuid());
-        String playerJson = jsonSerializer.serialize(player, errorType);
+    public void saveGamePlayerString(String roomId, String playerUuid, String playerJson) {
+        String key = getPlayerKey(roomId, playerUuid);
         redisTemplate.opsForValue().set(key, playerJson);
-        log.info("Player {} saved", playerJson);
+//        log.info("Player {} saved", playerJson);
     }
 
 
-    /**
-     * game:{roomId}:round:{roundIndex}:scores
-     */
-    public static String getScoreKey(String roomId, int roundIndex) {
-        return RoundRepository.getGameRoundsKey(roomId) + ":" + roundIndex + ":scores";
-    }
-
-    public void saveScoreByUuid(String roomId, String uuid, int roundIndex,  int score) {
-        String key = getScoreKey(roomId, roundIndex);
-        redisTemplate.opsForHash().put(key, uuid, String.valueOf(score));
-    }
-
-    public int findScoreByUuid(String roomId, String uuid, int roundIndex) {
-        String key = getScoreKey(roomId, roundIndex);
-        String score = (String) redisTemplate.opsForHash().get(key, uuid);
-        if (score == null) {
-            return 0;
-        }
-        return Integer.parseInt(score);
-    }
-
-    public Map<String, Integer> findScores(String roomId, int roundIndex) {
-        String key = getScoreKey(roomId, roundIndex);
-        Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
-
-        Map<String, Integer> result = new HashMap<>();
-        for (Map.Entry<Object, Object> entry : entries.entrySet()) {
-            String playerUuid = (String) entry.getKey();
-            String scoreStr = (String) entry.getValue();
-            Integer score = Integer.valueOf(scoreStr);  // String → Integer 변환
-            result.put(playerUuid, score);
-        }
-
-        return result;
-    }
 
 
 }

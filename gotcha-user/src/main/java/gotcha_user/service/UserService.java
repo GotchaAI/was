@@ -101,4 +101,16 @@ public class UserService {
         user.setLastLogout(accessTokenExpiredAt);
         userRepository.save(user);
     }
+
+    @Transactional
+    public void updateUserExp(User user, Long exp) {
+        user.setExp(exp);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void updateUserLevel(User user, int level) {
+        user.setLevel(level);
+        userRepository.save(user);
+    }
 }

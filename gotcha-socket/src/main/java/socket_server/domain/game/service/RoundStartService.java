@@ -1,13 +1,13 @@
 package socket_server.domain.game.service;
 
-import gotcha_common.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.exception.SocketCustomException;
 import socket_server.common.exception.game.GameExceptionCode;
+import socket_server.common.util.JsonSerializer;
 import socket_server.domain.game.dto.AIRoundStartReq;
-import socket_server.domain.game.dto.AISaysRes;
 import socket_server.domain.game.enumType.GameEventType;
 import socket_server.domain.game.enumType.GameStatus;
 import socket_server.domain.game.meta.GameMeta;
@@ -17,10 +17,12 @@ import socket_server.domain.game.repository.RoundRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RoundStartService {
@@ -29,11 +31,13 @@ public class RoundStartService {
     private final GameBroadCaster gameBroadCaster;
     private final AIClientService aIClientService;
     private final ErrorType GAME_ERROR = ErrorType.GAME;
+    private final JsonSerializer jsonSerializer;
 
     public void startNextRound(String roomId) {
-        GameMeta gameMeta = gameRepository.findGameMeta(roomId, GAME_ERROR);
+//        log.info("[FUNCTION CALL] startNextRound({}) called", roomId);
+        GameMeta gameMeta = getGameMetaByRoomId(roomId);
 
-        if (!isGameEnded(gameMeta)) {
+        if (isGameEnded(gameMeta)) {
             throw new SocketCustomException(GAME_ERROR, GameExceptionCode.ALREADY_FINISHED_GAME);
         }
 
@@ -41,32 +45,38 @@ public class RoundStartService {
             throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
         }
 
-        int currentRound = gameMeta.getCurrentRound() + 1;
-        List<RoundMeta> roundMetaList = roundRepository.findRoundMetas(roomId, GAME_ERROR);
+        int currentRound = gameMeta.getCurrentRound();
+
+        String roundMetasJson =roundRepository.findRoundMetasString(roomId);
+        List<RoundMeta> roundMetaList = jsonSerializer.deserializeList(roundMetasJson, RoundMeta.class, GAME_ERROR);
 
         gameMeta.setCurrentRound(currentRound);
         gameMeta.setGameStatus(GameStatus.DRAWING_PHASE); // ROUND_STARTED 생략 가능
         gameRepository.saveGameMeta(gameMeta);
 
-        RoundMeta currentRoundMeta = roundMetaList.get(currentRound - 1);
+        RoundMeta currentRoundMeta = roundMetaList.get(currentRound);
 
-        roundRepository.saveRoundMetas(roomId, roundMetaList, GAME_ERROR);
+        roundRepository.saveRoundMetasString(roomId, jsonSerializer.serialize(roundMetaList, GAME_ERROR));
 
         String aiSays = aIClientService.getRoundStartMessage(
                 roomId,
                 new AIRoundStartReq(currentRound, gameMeta.getTotalRounds())
         );
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.schedule(() -> {
-            currentRoundMeta.setDrawingEndTime(LocalDateTime.now().plusSeconds(30));
-            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_START, currentRoundMeta, aiSays, null);
-        }, 5, TimeUnit.SECONDS);
 
+        currentRoundMeta.setDrawingEndTime(LocalDateTime.now().plusSeconds(30));
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_START, currentRoundMeta, aiSays);
+    }
 
+    private GameMeta getGameMetaByRoomId(String roomId) {
+        Map<Object, Object> gameMetaMap = gameRepository.findGameMeta(roomId);
+        if(gameMetaMap.isEmpty()) {
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_ID);
+        }
+        return GameMeta.fromRedisMap(roomId, gameMetaMap);
     }
 
     // 게임 종료 check시 반드시 필요
     public boolean isGameEnded(GameMeta gameMeta){
-        return gameMeta.getCurrentRound() <= gameMeta.getTotalRounds();
+        return gameMeta.getCurrentRound() >= gameMeta.getTotalRounds();
     }
 }

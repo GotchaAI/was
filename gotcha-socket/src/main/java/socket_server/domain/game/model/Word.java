@@ -14,6 +14,9 @@ public class Word {
     private int wordIndex;
     private String word;
     private String drawerUuid;
+    private String drawerName;
+    private Boolean playerWon;
+    private Integer score;
     private boolean submitted;
     private String imageURL;
     private List<Guess> aiGuesses;
@@ -26,6 +29,9 @@ public class Word {
                 word(word.getWord()).
                 drawerUuid(word.getDrawerUuid()).
                 imageURL(word.getImageURL()).
+                playerWon(word.getPlayerWon()).
+                score(word.getScore()).
+                drawerName(word.getDrawerName()).
                 submitted(word.isSubmitted()).
                 build();
     }
