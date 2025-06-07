@@ -12,8 +12,10 @@ public record UserGameHistoryDetailRes(
         String gameType,
         String difficulty,
         LocalDateTime playedAt,
-        int score,
-        List<UserGameHistoryRes> rounds
+        Boolean playerWon,
+        Integer aiScore,
+        Integer playerScore,
+        List<RoundHistoryRes> rounds
 ) {
     public static UserGameHistoryDetailRes from(UserGameHistory userGameHistory) {
         return UserGameHistoryDetailRes.builder()
@@ -21,9 +23,11 @@ public record UserGameHistoryDetailRes(
                 .gameType(String.valueOf(userGameHistory.getGameHistory().getGameType()))
                 .difficulty(String.valueOf(userGameHistory.getGameHistory().getDifficulty()))
                 .playedAt(userGameHistory.getGameHistory().getCreatedAt())
-                .score(userGameHistory.getGameHistory().getScore())
+                .playerScore(userGameHistory.getGameHistory().getPlayerScore())
+                .aiScore(userGameHistory.getGameHistory().getAiScore())
+                .playerWon(userGameHistory.getGameHistory().getPlayerWon())
                 .rounds(userGameHistory.getGameHistory().getRoundHistories().stream()
-                        .map(UserGameHistoryRes::from)
+                        .map(RoundHistoryRes::from)
                         .toList())
                 .build();
     }

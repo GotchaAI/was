@@ -19,7 +19,7 @@ public record UserGameHistorySummaryRes(
                 .gameType(String.valueOf(userGameHistory.getGameHistory().getGameType()))
                 .difficulty(String.valueOf(userGameHistory.getGameHistory().getDifficulty()))
                 .playedAt(userGameHistory.getGameHistory().getCreatedAt())
-                .score(userGameHistory.getGameHistory().getScore())
+                .score(userGameHistory.getGameHistory().getPlayerScore())
                 .build();
     }
 }

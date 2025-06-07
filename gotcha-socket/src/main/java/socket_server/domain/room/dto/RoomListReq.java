@@ -2,8 +2,9 @@ package socket_server.domain.room.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import socket_server.domain.game.enumType.Difficulty;
-import socket_server.domain.game.enumType.GameType;
+import gotcha_domain.gamehistory.GameType;
+import gotcha_domain.gamehistory.Difficulty;
+
 
 public record RoomListReq(
         @Schema(description = "게임 모드", examples = "TRICK_MYOMYO")
