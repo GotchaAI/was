@@ -41,7 +41,7 @@ public class GameHistoryService {
 
 
     @Transactional
-    public List<UserGameHistory> createGameHistoryWithUsers(Game game, List<User> users) {
+    public GameHistory createGameHistoryWithUsers(Game game, List<User> users) {
         // 게임 히스토리 생성
         GameHistory gameHistory = GameHistory.builder()
                 .gameType(game.getGameType())
@@ -62,8 +62,9 @@ public class GameHistoryService {
                         .gameHistory(savedGameHistory)
                         .build())
                 .toList();
+        userGameHistoryRepository.saveAll(userGameHistories);
 
-        return userGameHistoryRepository.saveAll(userGameHistories);
+        return savedGameHistory;
     }
 
 
