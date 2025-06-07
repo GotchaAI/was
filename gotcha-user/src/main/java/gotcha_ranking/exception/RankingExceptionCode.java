@@ -1,4 +1,4 @@
-package Gotcha.domain.ranking.exception;
+package gotcha_ranking.exception;
 
 import gotcha_common.exception.exceptionCode.ExceptionCode;
 import lombok.AllArgsConstructor;

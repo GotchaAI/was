@@ -1,4 +1,4 @@
-package Gotcha.domain.ranking.api;
+package gotcha_ranking.api;
 
 import gotcha_domain.auth.SecurityUserDetails;
 import io.swagger.v3.oas.annotations.Operation;

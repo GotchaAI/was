@@ -12,7 +12,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         "gotcha_common",
         "gotcha_auth",
         "gotcha_domain",
-        "socket_server"
+        "socket_server",
+        "gotcha_ranking"
 })
 @EnableJpaRepositories(basePackages = {
         "gotcha_user.repository",

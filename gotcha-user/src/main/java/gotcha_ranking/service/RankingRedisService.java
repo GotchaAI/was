@@ -1,7 +1,7 @@
-package Gotcha.domain.ranking.service;
+package gotcha_ranking.service;
 
-import Gotcha.domain.ranking.dto.RankingUserRes;
-import Gotcha.domain.ranking.exception.RankingExceptionCode;
+import gotcha_ranking.dto.RankingUserRes;
+import gotcha_ranking.exception.RankingExceptionCode;
 import gotcha_common.exception.CustomException;
 import gotcha_domain.user.User;
 import gotcha_user.repository.UserRepository;
@@ -23,6 +23,7 @@ import static gotcha_common.redis.RedisProperties.RANKING_KEY_PREFIX;
 @Service
 @RequiredArgsConstructor
 public class RankingRedisService {
+
     private final StringRedisTemplate stringRedisTemplate;
     private final UserRepository userRepository;
     private final UserService userService;

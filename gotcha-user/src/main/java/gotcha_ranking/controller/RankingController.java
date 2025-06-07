@@ -1,7 +1,7 @@
-package Gotcha.domain.ranking.controller;
+package gotcha_ranking.controller;
 
-import Gotcha.domain.ranking.api.RankingApi;
-import Gotcha.domain.ranking.service.RankingRedisService;
+import gotcha_ranking.api.RankingApi;
+import gotcha_ranking.service.RankingRedisService;
 import gotcha_domain.auth.SecurityUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

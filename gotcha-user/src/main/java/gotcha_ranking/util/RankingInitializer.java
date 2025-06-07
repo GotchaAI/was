@@ -1,6 +1,6 @@
-package Gotcha.domain.ranking.util;
+package gotcha_ranking.util;
 
-import Gotcha.domain.ranking.service.RankingRedisService;
+import gotcha_ranking.service.RankingRedisService;
 import gotcha_domain.user.User;
 import gotcha_user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,4 +22,5 @@ public class RankingInitializer {
             rankingRedisService.updateUserExpRanking(user.getId(), user.getExp());
         }
     }
+
 }

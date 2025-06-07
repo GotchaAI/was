@@ -1,4 +1,4 @@
-package Gotcha.domain.ranking.util;
+package gotcha_ranking.util;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;

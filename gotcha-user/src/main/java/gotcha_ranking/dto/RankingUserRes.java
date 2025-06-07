@@ -1,4 +1,4 @@
-package Gotcha.domain.ranking.dto;
+package gotcha_ranking.dto;
 
 import gotcha_domain.user.User;
 import lombok.Builder;
