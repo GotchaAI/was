@@ -2,7 +2,8 @@ package socket_server.common.validator;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import socket_server.domain.game.enumType.GameType;
+import gotcha_domain.gamehistory.GameType;
+
 import socket_server.domain.lobby.dto.CreateRoomReq;
 
 public class MaxUserValidator implements ConstraintValidator<ValidMaxUser, CreateRoomReq> {

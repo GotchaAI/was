@@ -1,6 +1,6 @@
 package socket_server.domain.room.dto;
 
-import socket_server.gamehistory.*;
+
 import socket_server.domain.room.model.RoomMetadata;
 import gotcha_domain.gamehistory.GameType;
 import gotcha_domain.gamehistory.Difficulty;
