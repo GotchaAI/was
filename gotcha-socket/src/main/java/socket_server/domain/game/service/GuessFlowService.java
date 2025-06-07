@@ -71,10 +71,7 @@ public class GuessFlowService {
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId,GameEventType.GUESS_START, currentWord, null);
 //        log.info("[GUESS_START] broadcasted");
 
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.schedule(() -> {
-            processNextGuessRequest(roomId);
-        }, 5, TimeUnit.SECONDS);
+        taskScheduler.schedule(() ->processNextGuessRequest(roomId), Instant.now().plusSeconds(5));
     }
 
 
@@ -100,10 +97,9 @@ public class GuessFlowService {
         boolean isAITurn = determineNextGuesser(currentWord);
         if(isAITurn){ // next guess
             Guess newGuess = guessRequestService.requestGuessAI(roomId, gameMeta, currentWord);
-            ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-            executor.schedule(() -> {
-                handleAIGuessSubmit(roomId, currentRound, currentWord, newGuess);
-            }, 5, TimeUnit.SECONDS);
+            taskScheduler.schedule(() ->
+                handleAIGuessSubmit(roomId, currentRound, currentWord, newGuess)
+            , Instant.now().plusSeconds(5));
         } else {
             guessRequestService.requestGuessPlayer(roomId, gameMeta, currentWord);
         }
@@ -395,7 +391,7 @@ public class GuessFlowService {
 
 
         if(isWordGuessCompleted(currentWord)){
-            handleBattleEnd(roomId, currentRound, currentWord);
+            taskScheduler.schedule(() ->handleBattleEnd(roomId, currentRound, currentWord), Instant.now().plusSeconds(5));
         } else {
             processNextGuessRequest(roomId);
         }
