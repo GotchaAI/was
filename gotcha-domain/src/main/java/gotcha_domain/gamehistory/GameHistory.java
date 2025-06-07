@@ -5,12 +5,9 @@ import gotcha_domain.report.BugReport;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @Entity
@@ -29,14 +26,16 @@ public class GameHistory extends BaseTimeEntity {
     private Difficulty difficulty;
 
     @NotNull
-    private Integer totalRounds;
+    private int totalRounds;
 
     @NotNull
-    private String winner;
+    private Boolean playerWon; // AI or Player
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "final_scores", columnDefinition = "JSON")
-    private Map<String, Integer> finalScores;
+    @NotNull
+    private Integer aiScore;
+
+    @NotNull
+    private Integer playerScore;
 
     @OneToMany(mappedBy = "gameHistory")
     private List<BugReport> bugReports = new ArrayList<>();
@@ -48,9 +47,20 @@ public class GameHistory extends BaseTimeEntity {
     private List<RoundHistory> roundHistories = new ArrayList<>();
 
     @Builder
-    public GameHistory(GameType gameType, Difficulty difficulty){
+    public GameHistory(
+            GameType gameType,
+            Difficulty difficulty,
+            int totalRounds,
+            Boolean playerWon,
+            Integer aiScore,
+            Integer playerScore
+    ){
         this.gameType = gameType;
         this.difficulty = difficulty;
+        this.totalRounds = totalRounds;
+        this.playerWon = playerWon;
+        this.aiScore = aiScore;
+        this.playerScore = playerScore;
     }
 
 
