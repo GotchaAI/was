@@ -1,5 +1,6 @@
 package socket_server.domain.game.model;
 
+import gotcha_domain.gamehistory.RoundHistory;
 import lombok.*;
 import socket_server.domain.game.meta.RoundMeta;
 

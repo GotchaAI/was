@@ -21,12 +21,8 @@ import socket_server.domain.game.repository.RoundRepository;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 /**
  * todo: 너무 많은 코드 !!! 리팩토링 필요
@@ -105,9 +101,9 @@ public class GuessFlowService {
         }
     }
 
-    private List<AiPrediction> getAIPredictions(String roomId, int roundIndex, int wordIndex){
+    private List<AIPrediction> getAIPredictions(String roomId, int roundIndex, int wordIndex){
         String aiPredictionString = roundRepository.findAIPredictionsString(roomId, roundIndex, wordIndex);
-        return jsonSerializer.deserializeList(aiPredictionString, AiPrediction.class, GAME_ERROR);
+        return jsonSerializer.deserializeList(aiPredictionString, AIPrediction.class, GAME_ERROR);
     }
 
 
@@ -135,7 +131,7 @@ public class GuessFlowService {
         validateGameEvent(gameMeta, GameEventType.GUESS_SUBMIT);
 
         // 1. 실제 AI 추측 데이터 가져옴
-        List<AiPrediction> predictions = getAIPredictions(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
+        List<AIPrediction> predictions = getAIPredictions(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
         String aiPredicted = predictions.get(guess.getAttempts()-1).getPredicted();
 
         // 2. attempts에 따라 GUESS 데이터 저장
@@ -269,11 +265,11 @@ public class GuessFlowService {
                 //3. 모든 정보 조회 및 연결
                 List<Guess> aiGuesses = getAIGuesses(roomId, round.getRoundIndex(), word.getWordIndex());
                 List<Guess> playerGuesses = getPlayerGuesses(roomId, round.getRoundIndex(), word.getWordIndex());
-                List<AiPrediction> aiPredictions = getAIPredictions(roomId, round.getRoundIndex(), word.getWordIndex());
+                List<AIPrediction> AIPredictions = getAIPredictions(roomId, round.getRoundIndex(), word.getWordIndex());
 
                 word.setAiGuesses(aiGuesses);
                 word.setPlayerGuesses(playerGuesses);
-                word.setAiPredictions(aiPredictions);
+                word.setAIPredictions(AIPredictions);
             }
             round.setWords(words);
         }

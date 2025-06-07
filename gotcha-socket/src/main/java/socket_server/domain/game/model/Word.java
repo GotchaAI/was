@@ -21,7 +21,7 @@ public class Word {
     private String imageURL;
     private List<Guess> aiGuesses;
     private List<Guess> playerGuesses;
-    private List<AiPrediction> aiPredictions;
+    private List<AIPrediction> AIPredictions;
 
     public static WordMeta toWordMeta(Word word) {
         return WordMeta.builder().

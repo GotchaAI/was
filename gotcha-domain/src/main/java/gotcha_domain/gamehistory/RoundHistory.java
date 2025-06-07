@@ -31,12 +31,6 @@ public class RoundHistory extends BaseTimeEntity {
     @NotNull
     private Integer roundIndex;
 
-    @NotNull
-    private String roundWinner;
-
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "round_scores", columnDefinition = "JSON")
-    private Map<String, Integer> roundScores;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "words", columnDefinition = "JSON")
@@ -45,5 +39,15 @@ public class RoundHistory extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_history_id")
     private GameHistory gameHistory;
+
+
+
+    @Builder
+    public RoundHistory(Integer roundIndex, String roundWinner, Map<String, Integer> roundScores, List<WordInfo> words, GameHistory gameHistory) {
+        this.roundIndex = roundIndex;
+        this.words = words;
+        this.gameHistory = gameHistory;
+    }
+
 
 }

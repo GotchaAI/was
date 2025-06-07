@@ -11,7 +11,7 @@ import socket_server.domain.game.dto.AIGuessImageReq;
 import socket_server.domain.game.enumType.GameEventType;
 import socket_server.domain.game.meta.GameMeta;
 import socket_server.domain.game.meta.WordMeta;
-import socket_server.domain.game.model.AiPrediction;
+import socket_server.domain.game.model.AIPrediction;
 import socket_server.domain.game.repository.GameRepository;
 import socket_server.domain.game.repository.RoundRepository;
 
@@ -53,7 +53,7 @@ public class DrawingSubmitService {
         roundRepository.saveWordMetasString(roomId, currentRound, wordsJson);
 
         // 4. AI PREDICTION 받아서 SAVE !!!!
-        List<AiPrediction> predictions = aiClientService.getGuessImage(new AIGuessImageReq(imageURL)).result();
+        List<AIPrediction> predictions = aiClientService.getGuessImage(new AIGuessImageReq(imageURL)).result();
         String predictionsJson = jsonSerializer.serialize(predictions, GAME_ERROR);
         roundRepository.saveAIPredictionsString(roomId, currentRound, getWordIndexByDrawerUuid(wordMetas, drawerUuid), predictionsJson);
 
