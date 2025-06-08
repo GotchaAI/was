@@ -44,6 +44,9 @@ public class SecurityConfig {
 //                        })
 //                        .csrfTokenRepository(csrfTokenRepository)
 //                        .csrfTokenRequestHandler(csrfTokenRequestAttributeHandler))
+                .headers(headers -> headers
+                        .frameOptions(frameOptions -> frameOptions.disable()) // 여기 추가
+                )
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors((cors) -> cors.configurationSource(corsConfigurationSource))
                 .formLogin(AbstractHttpConfigurer::disable)
