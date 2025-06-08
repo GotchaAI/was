@@ -56,8 +56,7 @@ public class GuessFlowService {
         validateGameEvent(gameMeta, GameEventType.GUESS_START);
 
 
-        gameMeta.setGameStatus(GameStatus.GUESSING_PHASE);
-        gameRepository.saveGameMeta(gameMeta);
+
 
         // current wordmeta 조회
         Round currentRound = getCurrentRound(roomId);
@@ -66,7 +65,8 @@ public class GuessFlowService {
 
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId,GameEventType.GUESS_START, currentWord, null);
 //        log.info("[GUESS_START] broadcasted");
-
+        gameMeta.setGameStatus(GameStatus.GUESSING_STARTED);
+        gameRepository.saveGameMeta(gameMeta);
         taskScheduler.schedule(() ->processNextGuessRequest(roomId), Instant.now().plusSeconds(5));
     }
 
@@ -89,6 +89,8 @@ public class GuessFlowService {
         Word currentWord = getCurrentWord(roomId, currentRound);
 //        log.info("[DEBUG] {}", currentRound);
 //        log.info("[DEBUG] {}", currentWord);
+        gameMeta.setGameStatus(GameStatus.GUESSING_REQUESTED);
+        gameRepository.saveGameMeta(gameMeta);
 
         boolean isAITurn = determineNextGuesser(currentWord);
         if(isAITurn){ // next guess
@@ -130,6 +132,9 @@ public class GuessFlowService {
         GameMeta gameMeta = getGameMetaByRoomId(roomId);
         validateGameEvent(gameMeta, GameEventType.GUESS_SUBMIT);
 
+
+
+
         // 1. 실제 AI 추측 데이터 가져옴
         List<AIPrediction> predictions = getAIPredictions(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
         String aiPredicted = predictions.get(guess.getAttempts()-1).getPredicted();
@@ -143,7 +148,8 @@ public class GuessFlowService {
         // 4. AI GUESS Broadcast
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_SUBMIT, guess, aiSays);
 //        log.info("[GUESS_SUBMIT] broadcasted");
-
+        gameMeta.setGameStatus(GameStatus.GUESSING_PROCESSING);
+        gameRepository.saveGameMeta(gameMeta);
 
         // 5. 정답 확인
         guess.setCorrect(aiPredicted.equalsIgnoreCase(currentWord.getWord()));
@@ -172,16 +178,17 @@ public class GuessFlowService {
         //1. 현재 Round, Word 가져오기
         Round currentRound = getCurrentRound(roomId);
         Word currentWord = getCurrentWord(roomId, getCurrentRound(roomId));
-
+        //todo: lock은 사실 여기 아래 조건문까지 적용이 되어야 함
         // 2. 현재 Word의 Drawer == guesser 라면 Exception
         if(currentWord.getDrawerUuid().equals(guesserUuid)) {
             throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GUESSER);
         }
 
         // 3. 현재 AI 턴이라면?
-        if(determineNextGuesser(currentWord)){
+        if(determineNextGuesser(currentWord) || (currentWord.getPlayerGuesses().size() >= 3 && currentWord.getAiGuesses().size() >= 3)) {
             throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GUESSER);
         }
+
         else {
             //3. BUILD GUESS DATA
             Guess guess = Guess.builder()
@@ -208,6 +215,9 @@ public class GuessFlowService {
 
             String playerGuessesJson = jsonSerializer.serialize(playerGuesses, GAME_ERROR);
             roundRepository.savePlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), playerGuessesJson);
+
+            gameMeta.setGameStatus(GameStatus.GUESSING_PROCESSING);
+            gameRepository.saveGameMeta(gameMeta);
 
             //5. handle guess result
             taskScheduler.schedule(() ->
@@ -413,6 +423,8 @@ public class GuessFlowService {
         // 상태 검증
         GameMeta gameMeta = getGameMetaByRoomId(roomId);
         validateGameEvent(gameMeta, GameEventType.BATTLE_END);
+        gameMeta.setGameStatus(GameStatus.GUESSING_ENDED);
+        gameRepository.saveGameMeta(gameMeta);
 
         // 1. currentWord 에서 Guess 가져오기
         List<Guess> playerGuesses = getPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
@@ -465,7 +477,7 @@ public class GuessFlowService {
         if (currentRound.getCurrentWordIndex() >= 2) { // >=2
             taskScheduler.schedule(() -> handleRoundEnd(roomId), Instant.now().plusSeconds(5));
         } else {
-            taskScheduler.schedule(() ->moveToNextWord(roomId, currentRound), Instant.now().plusSeconds(5));
+            taskScheduler.schedule(() -> startGuessingPhase(roomId), Instant.now().plusSeconds(5));
         }
 
     }

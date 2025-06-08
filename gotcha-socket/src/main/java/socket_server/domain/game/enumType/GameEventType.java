@@ -10,10 +10,11 @@ public enum GameEventType {
     GUESS_REQUEST,
     GUESS_SUBMIT,
     GUESS_RESULT,
-    SCORE_UPDATE,
     BATTLE_END,
 
 
-    ROUND_END,
-    GAME_END
+
+    SCORE_UPDATE,
+    GAME_END,
+    ROUND_END
 }

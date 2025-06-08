@@ -10,7 +10,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import gotcha_ranking.service.RankingRedisService;
+import socket_server.common.exception.ErrorType;
+import socket_server.common.exception.SocketCustomException;
+import socket_server.common.exception.game.GameExceptionCode;
 import socket_server.domain.game.enumType.GameEventType;
+import socket_server.domain.game.enumType.GameStatus;
 import socket_server.domain.game.model.Game;
 import socket_server.domain.game.model.GamePlayer;
 import socket_server.gamehistory.service.GameHistoryService;
@@ -32,8 +36,14 @@ public class GameEndService {
     private final GameBroadCaster gameBroadCaster;
     private final UserService userService;
     private final RankingRedisService rankingRedisService;
+    private final ErrorType GAME_ERROR = ErrorType.GAME;
+
 
     public void updateScore(Game game){
+        if(game.getGameStatus().canHandleEvent(GameEventType.SCORE_UPDATE))
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
+
+
         List<GamePlayer> gamePlayers = game.getGamePlayers();
         List<Map<String, Object>> scoreUpdates = new ArrayList<>();
 
