@@ -286,8 +286,11 @@ public class GuessFlowService {
         List<GamePlayer> gamePlayers = getGamePlayersByRoomId(roomId);
         game.setGamePlayers(gamePlayers);
 
+
         //5. Score 추가, GameWinner 찾기
         determineGameWinnerAndCalculateScores(game);
+
+        gameRepository.saveGameMeta(GameMeta.fromGame(game));
 
         //6. GameEnded React 가져오기
         String aiSays = aiClientService.getGameEndMessage(roomId, new AIGameEndReq(game.getPlayerWon() ? "PLAYER" : "AI"));
