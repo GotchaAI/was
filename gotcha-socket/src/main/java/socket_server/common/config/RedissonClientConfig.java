@@ -17,9 +17,5 @@ public class RedissonClientConfig {
         return Redisson.create(config);
     }
 
-    @Bean
-    public RedissonConnectionFactory redissonConnectionFactory(RedissonClient redissonClient){
-        return new RedissonConnectionFactory(redissonClient);
-    }
 
 }
