@@ -363,7 +363,7 @@ public class GuessFlowService {
         // currentRound의 currentWordIndex 값을 바꿔서 저장
         Word currentWord = getCurrentWord(roomId, currentRound);
 
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId,GameEventType.GUESS_START,  Word.toWordMeta(currentWord), null);
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId,GameEventType.GUESS_START,  Word.fromWord(currentWord), null);
 //        log.info("[GUESS_START] broadcasted");
 
         taskScheduler.schedule(() ->  processNextGuessRequest(roomId), Instant.now().plusSeconds(5));

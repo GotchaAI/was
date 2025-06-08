@@ -23,7 +23,7 @@ public class Word {
     private List<Guess> playerGuesses;
     private List<AIPrediction> AIPredictions;
 
-    public static WordMeta toWordMeta(Word word) {
+    public static WordMeta fromWord(Word word) {
         return WordMeta.builder().
                 wordIndex(word.getWordIndex()).
                 word(word.getWord()).

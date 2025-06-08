@@ -18,7 +18,7 @@ public class Guess {
     private Boolean correct;
     private LocalDateTime guessEndTime;
 
-    public static GuessInfo toGuessInfo(Guess guess) {
+    public static GuessInfo fromGuess(Guess guess) {
         return GuessInfo.builder()
                 .guesserUuid(guess.getGuesserUuid())
                 .guessWord(guess.getGuessWord())

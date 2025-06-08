@@ -101,11 +101,11 @@ public class GameStartService {
         gameRepository.saveGameMeta(GameMeta.fromGame(game));
         savePlayers(game.getRoomId(), game.getGamePlayers());
         roundRepository.saveRoundMetasString(game.getRoomId(),
-                jsonSerializer.serialize(game.getRounds().stream().map(Round::toRoundMeta).toList(), GAME_ERROR));
+                jsonSerializer.serialize(game.getRounds().stream().map(Round::fromRound).toList(), GAME_ERROR));
 
         for (Round round : game.getRounds()) {
             String wordsJson =
-                    jsonSerializer.serialize(round.getWords().stream().map(Word::toWordMeta).toList(), GAME_ERROR);
+                    jsonSerializer.serialize(round.getWords().stream().map(Word::fromWord).toList(), GAME_ERROR);
             roundRepository.saveWordMetasString(game.getRoomId(), round.getRoundIndex(), wordsJson);
         }
     }

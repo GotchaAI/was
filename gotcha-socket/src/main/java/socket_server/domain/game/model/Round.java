@@ -1,12 +1,10 @@
 package socket_server.domain.game.model;
 
-import gotcha_domain.gamehistory.RoundHistory;
 import lombok.*;
 import socket_server.domain.game.meta.RoundMeta;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 게임 Round 데이터(Redis에 저장)
@@ -19,7 +17,7 @@ public class Round {
     private int currentWordIndex;
     private List<Word> words;
 
-    public static RoundMeta toRoundMeta(Round round) {
+    public static RoundMeta fromRound(Round round) {
         return RoundMeta.builder().
                 roundIndex(round.getRoundIndex()).
                 drawingEndTime(round.getDrawingEndTime()).

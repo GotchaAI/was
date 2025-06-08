@@ -26,15 +26,15 @@ public class RoundHistoryService {
         List<WordInfo> wordInfos = new ArrayList<>(round.getWords().size());
         for(Word word: round.getWords()) {
             List<GuessInfo> playerGuesses = word.getPlayerGuesses().stream()
-                    .map(Guess::toGuessInfo)
+                    .map(Guess::fromGuess)
                     .toList();
 
             List<GuessInfo> aiGuesses = word.getAiGuesses().stream()
-                    .map(Guess::toGuessInfo)
+                    .map(Guess::fromGuess)
                     .toList();
 
             List<AIPredictionInfo> aiPredictions = word.getAIPredictions().stream()
-                    .map(AIPrediction::toAIPredictionInfo)
+                    .map(AIPrediction::fromAIPrediction)
                     .toList();
 
             WordInfo wordInfo = WordInfo.builder()
