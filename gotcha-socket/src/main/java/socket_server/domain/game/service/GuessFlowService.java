@@ -178,37 +178,42 @@ public class GuessFlowService {
             throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GUESSER);
         }
 
-        //3. BUILD GUESS DATA
-        Guess guess = Guess.builder()
-                .guesserUuid(guesserUuid)
-                .guessWord(guessSubmitReq.guessWord())
-                .attempts(currentWord.getPlayerGuesses().size() + 1)
-                .build();
+        // 3. 현재 AI 턴이라면?
+        if(determineNextGuesser(currentWord)){
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GUESSER);
+        }
+        else {
+            //3. BUILD GUESS DATA
+            Guess guess = Guess.builder()
+                    .guesserUuid(guesserUuid)
+                    .guessWord(guessSubmitReq.guessWord())
+                    .attempts(currentWord.getPlayerGuesses().size() + 1)
+                    .build();
 
 
-        //3. GUESS 정보 Broadcast
-        gameBroadCaster.broadcastGameEvent(guesserUuid, roomId, GameEventType.GUESS_SUBMIT, guess, null);
+            //3. GUESS 정보 Broadcast
+            gameBroadCaster.broadcastGameEvent(guesserUuid, roomId, GameEventType.GUESS_SUBMIT, guess, null);
 //        log.info("[GUESS_SUBMIT] broadcasted");
 
 
-        //4. 현재 PlayerGuess 조회
-        List<Guess> playerGuesses = getPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
-        currentWord.setPlayerGuesses(playerGuesses);
+            //4. 현재 PlayerGuess 조회
+            List<Guess> playerGuesses = getPlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex());
+            currentWord.setPlayerGuesses(playerGuesses);
 
-        //5. 현재 Word에 guess 추가
-        currentWord.getPlayerGuesses().add(guess);
+            //5. 현재 Word에 guess 추가
+            currentWord.getPlayerGuesses().add(guess);
 
-        //6. 맞음?
-        guess.setCorrect(guess.getGuessWord().equalsIgnoreCase(currentWord.getWord()));
+            //6. 맞음?
+            guess.setCorrect(guess.getGuessWord().equalsIgnoreCase(currentWord.getWord()));
 
-        String playerGuessesJson = jsonSerializer.serialize(playerGuesses, GAME_ERROR);
-        roundRepository.savePlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), playerGuessesJson);
+            String playerGuessesJson = jsonSerializer.serialize(playerGuesses, GAME_ERROR);
+            roundRepository.savePlayerGuesses(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), playerGuessesJson);
 
-        //5. handle guess result
-        taskScheduler.schedule(() ->
-                handleGuessResult(roomId, currentRound, currentWord, guess),
-                Instant.now().plusSeconds(5));
-        //todo: handlerAIGuessSubmit()과 코드가 중복된 내용이 있음.
+            //5. handle guess result
+            taskScheduler.schedule(() ->
+                            handleGuessResult(roomId, currentRound, currentWord, guess),
+                    Instant.now().plusSeconds(5));
+        }
     }
 
 
@@ -285,6 +290,8 @@ public class GuessFlowService {
         //5. Score 추가, GameWinner 찾기
         determineGameWinnerAndCalculateScores(game);
 
+        gameRepository.saveGameMeta(GameMeta.fromGame(game));
+
         //6. GameEnded React 가져오기
         String aiSays = aiClientService.getGameEndMessage(roomId, new AIGameEndReq(game.getPlayerWon() ? "PLAYER" : "AI"));
 
@@ -298,9 +305,6 @@ public class GuessFlowService {
 
         //todo: Game 마무리, DB 저장
         gameEndService.saveGame(game);
-
-
-
 
 
     }
@@ -492,8 +496,9 @@ public class GuessFlowService {
     /**
      * 다음 추측자는 누구?
      * attempts 지금까지 몇 번 했는지 확인
+     * true 면 AI 턴
      */
-    private boolean determineNextGuesser(Word word){
+    private boolean determineNextGuesser(Word word){ 
         return word.getAiGuesses().size() == word.getPlayerGuesses().size(); // AI가 먼저 시작, 번갈아가며 진행
     }
 
