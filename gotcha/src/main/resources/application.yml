@@ -68,4 +68,4 @@ server:
   address: 0.0.0.0
 
 ai-server:
-  url: http://54.180.151.51:8000/api/v1/
+  url: ${AI_SERVER_API}
