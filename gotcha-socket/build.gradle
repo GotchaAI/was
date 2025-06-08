@@ -42,6 +42,9 @@ dependencies {
     implementation 'org.springframework.integration:spring-integration-redis'
     implementation 'org.springframework.integration:spring-integration-redis'
 
+    // REDIS LOCK
+    implementation 'org.redisson:redisson-spring-boot-starter:3.17.0'
+
     // Spring Security Messaging (WebSocket 보안용)
     implementation 'org.springframework.security:spring-security-messaging:6.2.4'
     implementation 'org.springframework.boot:spring-boot-starter-security'
