@@ -15,6 +15,13 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
     List<Friend> findAllByUserId(@Param("userId") Long userId);
 
     @Query("""
+                SELECT f FROM Friend f
+                WHERE (f.user1.id = :userId AND LOWER(f.user2.nickname) LIKE LOWER(CONCAT('%', :keyword, '%')))
+                   OR (f.user2.id = :userId AND LOWER(f.user1.nickname) LIKE LOWER(CONCAT('%', :keyword, '%')))
+            """)
+    List<Friend> searchFriendsByNickname(@Param("userId") Long userId, @Param("keyword") String keyword);
+
+    @Query("""
                 SELECT COUNT(f) > 0 FROM Friend f
                 WHERE (f.user1.id = :id1 AND f.user2.id = :id2)
                    OR (f.user1.id = :id2 AND f.user2.id = :id1)

@@ -19,6 +19,7 @@ import socket_server.domain.friend.dto.FriendSummaryRes;
 import socket_server.domain.friend.service.FriendSocketService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +37,22 @@ public class FriendService {
                 .distinct()
                 .map(FriendRes::from)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<FriendRes> searchFriend(Long userId, String keyword) {
+        User user = userService.findUserByUserId(userId);
+
+        List<Friend> friends = friendRepository.searchFriendsByNickname(userId, keyword);
+
+        return friends.stream()
+                .map(friend -> {
+                    User friendUser = friend.getUser1().getId().equals(userId)
+                            ? friend.getUser2()
+                            : friend.getUser1();
+                    return FriendRes.from(friendUser);
+                })
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
