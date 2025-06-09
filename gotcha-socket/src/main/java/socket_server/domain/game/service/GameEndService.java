@@ -40,7 +40,7 @@ public class GameEndService {
 
 
     public void updateScore(Game game){
-        if(game.getGameStatus().canHandleEvent(GameEventType.SCORE_UPDATE))
+        if(!game.getGameStatus().canHandleEvent(GameEventType.SCORE_UPDATE))
             throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
 
 
@@ -67,6 +67,8 @@ public class GameEndService {
         }
 
         gameBroadCaster.broadcastGameEvent("SYSTEM", game.getRoomId(), GameEventType.SCORE_UPDATE, scoreUpdates, null);
+
+        saveGame(game);
     }
 
     public void saveGame(Game game) {

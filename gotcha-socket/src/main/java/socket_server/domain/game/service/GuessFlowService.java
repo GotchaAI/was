@@ -312,11 +312,6 @@ public class GuessFlowService {
 
         //todo: 8. score update
         taskScheduler.schedule(() -> gameEndService.updateScore(game), Instant.now().plusSeconds(5));
-
-        //todo: Game 마무리, DB 저장
-        gameEndService.saveGame(game);
-
-
     }
 
 
@@ -351,7 +346,7 @@ public class GuessFlowService {
 
         game.setPlayerScore(playerScore);
         game.setAiScore(aiScore);
-        game.setPlayerWon(playerScore >= aiScore);
+        game.setPlayerWon(playerScore > aiScore);
     }
 
 
