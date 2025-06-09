@@ -311,7 +311,7 @@ public class GuessFlowService {
 //        log.info("[GAME_END] broadcasted");
 
         //todo: 8. score update
-        taskScheduler.schedule(() -> gameEndService.updateScore(game), Instant.now().plusSeconds(5));
+        taskScheduler.schedule(() -> gameEndService.updateScore(game), Instant.now().plusSeconds(1));
     }
 
 

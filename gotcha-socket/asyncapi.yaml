@@ -353,6 +353,9 @@ channels:
         - `payload`의 `data`필드에는 지금까지의 플레이어 승리 여부를 나타내는 boolean flag list가 보내집니다.
       - `GAME_END`: 게임 종료 시 해당 게임의 결과를 포함한 게임 데이터를 브로드캐스트 해줍니다. 
         - `payload`의 `data` 필드에는 `game` 데이터가 전송됩니다. 
+      - `SCORE_UPDATE` : 게임 종료 후 플레이어들의 업데이트 된 Level, Exp 정보를 전송합니다.
+      
+      
 
     parameters:
       roomId:
@@ -384,6 +387,9 @@ channels:
           - name: GAME_END
             payload:
               $ref: "#/components/schemas/RedisResponse_GameEnd"
+          - name: SCORE_UPDATE
+            payload:
+              $ref: "#/components/schemas/RedisResponse_ScoreUpdate"
 
 
 
@@ -802,14 +808,6 @@ components:
                   type: string
                 currentWordIndex:
                   type: integer
-                roundWinner:
-                  type: string
-                  nullable: true
-                roundScores:
-                  type: object
-                  nullable: true
-                  additionalProperties:
-                    type: integer
             aiSays:
               type: string
               nullable: true
@@ -824,8 +822,6 @@ components:
             roundIndex: 0
             drawingEndTime: "2025-06-06T00:57:16.8049502"
             currentWordIndex: 0
-            roundWinner: null
-            roundScores: null
           aiSays: "헤헤, 이제 시작이야! 이 라운드에서 내 예측 실력을 보여줄게. 준비됐어? 😉🎨🔍"
           eventAt: "2025-06-06T00:56:46.8059451"
 
@@ -947,16 +943,15 @@ components:
                 correct:
                   type: boolean
                   nullable: true
+                guessEndTime:
+                  type: string
               example:
                 guesserUuid: "AI"
                 guessWord: null
                 attempts: 1
                 correct: null
+                guessEndTime: "2025-06-06T00:57:44.9890695"
             aiSays:
-              type: string
-              nullable: true
-              example: null
-            endTime:
               type: string
               nullable: true
               example: null
@@ -964,6 +959,45 @@ components:
               type: string
               example: "2025-05-31T22:17:36.8926635"
 
+
+    RedisResponse_ScoreUpdate:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [ SCORE_UPDATE ]
+            data:
+              type: object
+              properties:
+                scoreUpdate:
+                  type: object
+                  properties:
+                    rank:
+                      type: integer
+                    nickname:
+                      type: string
+                    exp:
+                      type: integer
+                    level:
+                      type: integer
+                levelUp:
+                  type: boolean
+              example:
+                scoreUpdate:
+                  rank: 1
+                  nickname: "test1"
+                  exp: 100
+                  level: 1
+                levelUp: true
+            aiSays:
+              type: string
 
     RedisResponse_GameEnd:
       type: object
@@ -994,12 +1028,12 @@ components:
                   type: integer
                 totalRounds:
                   type: integer
+                playerWon:
+                  type: boolean
                 aiScore:
                   type: integer
-                scores:
-                  type: object
-                  additionalProperties:
-                    type: integer
+                playerScore:
+                  type: integer
                 gamePlayers:
                   type: array
                   nullable: true
@@ -1013,9 +1047,6 @@ components:
                       roundIndex:
                         type: integer
                       drawingEndTime:
-                        type: string
-                        nullable: true
-                      roundWinner:
                         type: string
                         nullable: true
                       currentWordIndex:
@@ -1083,17 +1114,8 @@ components:
                                   confidence:
                                     type: number
                                     format: float
-                      scores:
-                        type: object
-                        additionalProperties:
-                          type: integer
-                winner:
-                  type: string
             aiSays:
               type: string
-            endTime:
-              type: string
-              nullable: true
             eventAt:
               type: string
       example:
@@ -1108,11 +1130,9 @@ components:
             gameStatus: "GAME_ENDED"
             currentRound: 1
             totalRounds: 1
+            playerWon: true
             aiScore: 0
-            scores:
-              AI: 0
-              l3lwXGrb: 30
-              z2E63KqK: 30
+            playerScore: 60
             gamePlayers:
               - playerUuid: "l3lwXGrb"
                 nickname: "test1"
@@ -1121,11 +1141,10 @@ components:
             rounds:
               - roundIndex: 0
                 drawingEndTime: null
-                roundWinner: null
                 currentWordIndex: 2
                 words:
                   - wordIndex: 0
-                    word: "string bean"
+                    word: "머그컵"
                     drawerUuid: "l3lwXGrb"
                     drawerName: "test1"
                     playerWon: true
@@ -1134,25 +1153,25 @@ components:
                     imageURL: "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png"
                     aiGuesses:
                       - guesserUuid: "AI"
-                        guessWord: "cat"
+                        guessWord: "노트북"
                         attempts: 1
                         correct: false
                         guessEndTime: "2025-06-06T00:57:55.8517855"
                     playerGuesses:
                       - guesserUuid: "z2E63KqK"
-                        guessWord: "string bean"
+                        guessWord: "머그컵"
                         attempts: 1
                         correct: true
                         guessEndTime: null
                     aiPredictions:
-                      - predicted: "cat"
+                      - predicted: "노트북"
                         confidence: 97.66533970832825
-                      - predicted: "calendar"
+                      - predicted: "지도"
                         confidence: 2.1140705794095993
-                      - predicted: "book"
+                      - predicted: "달력"
                         confidence: 0.06823934963904321
                   - wordIndex: 1
-                    word: "eyeglasses"
+                    word: "악어"
                     drawerUuid: "z2E63KqK"
                     drawerName: "test2"
                     playerWon: true
@@ -1161,26 +1180,24 @@ components:
                     imageURL: "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png"
                     aiGuesses:
                       - guesserUuid: "AI"
-                        guessWord: "cat"
+                        guessWord: "노트북"
                         attempts: 1
                         correct: false
                         guessEndTime: "2025-06-06T00:58:16.0198353"
                     playerGuesses:
                       - guesserUuid: "l3lwXGrb"
-                        guessWord: "eyeglasses"
+                        guessWord: "악어"
                         attempts: 1
                         correct: true
                         guessEndTime: null
                     aiPredictions:
-                      - predicted: "cat"
+                      - predicted: "노트북"
                         confidence: 99.56672191619873
-                      - predicted: "map"
+                      - predicted: "지도"
                         confidence: 0.14535653172060847
-                      - predicted: "bowtie"
+                      - predicted: "컵"
                         confidence: 0.08037258521653712
-            winner: "l3lwXGrb"
           aiSays: "이런, 이번에는 졌네... 근데 이것도 재미있는 경험이었어! 다음에는 분명히 이길 거니까, 준비해둬! 💪🎨🚀"
-          endTime: null
           eventAt: "2025-06-06T00:57:55.1647852"
 
 
@@ -1208,18 +1225,17 @@ components:
                   type: integer
                 correct:
                   type: boolean
+                guessEndTime:
+                  type: string
               example:
-                guesserUuid: "AI"
-                guessWord: "book"
+                guesserUuid: "gLF0rt9Y"
+                guessWord: "머그컵"
                 attempts: 1
-                correct: false
+                correct: true
+                guessEndTime: "2025-05-28T21:02:20.4475533"
             aiSays:
               type: string
-              example: "으.. 잠깐 오류가 났네. 다시 해볼게!"
-            endTime:
-              type: string
-              nullable: true
-              example: null
+              example: "\"와우, 축하해 test2! 이번에는 너한테 승리의 영광이야. 하지만 다음엔 내 차례에 주목해봐냥! \uD83D\uDE09\uD83D\uDC4F\uD83C\uDFC6\""
             eventAt:
               type: string
               example: "2025-05-28T21:02:20.4475533"
@@ -1249,17 +1265,16 @@ components:
                 correct:
                   type: boolean
                   nullable: true
+                guessEndTime:
+                  type: string
               example:
                 guesserUuid: "AI"
                 guessWord: "book"
                 attempts: 1
                 correct: null
+                guessEndTime: null
             aiSays:
               type: string
-              example: "으.. 잠깐 오류가 났네. 다시 해볼게!"
-            endTime:
-              type: string
-              nullable: true
               example: null
             eventAt:
               type: string
