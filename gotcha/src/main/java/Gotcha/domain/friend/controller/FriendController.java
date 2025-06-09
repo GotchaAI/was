@@ -31,9 +31,9 @@ public class FriendController implements FriendApi{
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> searchFriend(@AuthenticationPrincipal SecurityUserDetails userDetails,
+    public ResponseEntity<?> searchUser(@AuthenticationPrincipal SecurityUserDetails userDetails,
                                           @RequestParam(value = "keyword") String keyword) {
-        return ResponseEntity.ok(friendService.searchFriend(userDetails.getId(), keyword));
+        return ResponseEntity.ok(friendService.searchUser(userDetails.getId(), keyword));
     }
 
     @GetMapping("/request")

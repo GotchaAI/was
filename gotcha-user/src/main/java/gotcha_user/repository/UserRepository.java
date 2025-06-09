@@ -20,4 +20,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUuid(String uuid);
 
     List<User> findAll();
+
+    List<User> findByNicknameContaining(String keyword);
 }
