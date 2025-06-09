@@ -1,6 +1,7 @@
 package Gotcha.domain.lulu.controller;
 
 
+import Gotcha.domain.lulu.api.LuLuApi;
 import Gotcha.domain.lulu.dto.TaskEvalReq;
 import Gotcha.domain.lulu.dto.TaskEvalRes;
 import Gotcha.domain.lulu.dto.TaskStartRes;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/game")
-public class LuLuController {
+public class LuLuController implements LuLuApi {
 
     private final LuLuAIClientService luLuAIClientService;
 
