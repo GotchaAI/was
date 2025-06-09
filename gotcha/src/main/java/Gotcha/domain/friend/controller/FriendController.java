@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -27,6 +28,12 @@ public class FriendController implements FriendApi{
     @GetMapping()
     public ResponseEntity<?> getFriends(@AuthenticationPrincipal SecurityUserDetails userDetails) {
         return ResponseEntity.ok(friendService.getFriends(userDetails.getId()));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchFriend(@AuthenticationPrincipal SecurityUserDetails userDetails,
+                                          @RequestParam(value = "keyword") String keyword) {
+        return ResponseEntity.ok(friendService.searchFriend(userDetails.getId(), keyword));
     }
 
     @GetMapping("/request")
