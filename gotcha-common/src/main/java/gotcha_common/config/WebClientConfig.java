@@ -1,4 +1,4 @@
-package socket_server.common.config;
+package gotcha_common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
