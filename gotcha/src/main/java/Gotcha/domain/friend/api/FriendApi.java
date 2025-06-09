@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "[친구 API]", description = "친구 관련 API")
 public interface FriendApi {
@@ -27,6 +28,29 @@ public interface FriendApi {
                     }))
     })
     ResponseEntity<?> getFriends(@AuthenticationPrincipal SecurityUserDetails userDetails);
+
+    @Operation(summary = "친구 검색", description = "친구 검색 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "친구 검색 성공",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                    [
+                                        {
+                                            "nickname": "테스터",
+                                            "uuid": "2",
+                                            "lastLogout": "2025-06-09T13:11:24"
+                                        },
+                                        {
+                                            "nickname": "테스터다",
+                                            "uuid": "1",
+                                            "lastLogout": null
+                                        }
+                                    ]
+                                    """)
+                    }))
+    })
+    ResponseEntity<?> searchFriend(@AuthenticationPrincipal SecurityUserDetails userDetails,
+                                   @RequestParam(value = "keyword") String keyword);
 
     @Operation(summary = "친구 신청 목록 조회", description = "친구 신청 목록 조회 API")
     @ApiResponses({
