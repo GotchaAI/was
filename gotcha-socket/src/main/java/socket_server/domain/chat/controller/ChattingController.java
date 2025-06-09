@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import gotcha_common.exception.CustomException;
 import gotcha_domain.auth.SecurityUserDetails;
 import gotcha_domain.user.Role;
+import gotcha_domain.user.User;
+import gotcha_user.service.UserService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -31,13 +33,16 @@ public class ChattingController {
     private final RedisTemplate<String, String> redisTemplate;
     private final JsonSerializer jsonSerializer;
     private final ChatLogService chatLogService;
+    private final UserService userService;
 
     public ChattingController(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
                               JsonSerializer jsonSerializer,
-                              ChatLogService chatLogService) {
+                              ChatLogService chatLogService,
+                              UserService userService) {
         this.redisTemplate = redisTemplate;
         this.jsonSerializer = jsonSerializer;
         this.chatLogService = chatLogService;
+        this.userService = userService;
     }
 
     // 1. 전체 채팅방 메시지 전송
@@ -67,6 +72,8 @@ public class ChattingController {
     @MessageMapping("/private")
     public void sendPrivateMessage(@Payload ChatMessageReq messageReq, @AuthenticationPrincipal SecurityUserDetails userDetails) throws JsonProcessingException {
         validateChatPermission(userDetails);
+        User receiver = userService.findUserByNickname(messageReq.receiverNickname());
+        String receiverUuid = receiver.getUuid();
 
         ChatMessage message = new ChatMessage(
                 userDetails.getNickname(),
@@ -76,14 +83,14 @@ public class ChattingController {
         );
 
         RedisMessage redisMessage = new RedisMessage(
-                messageReq.receiverUuid(),
-                CHAT_PRIVATE_CHANNEL + messageReq.receiverUuid(),
+                receiverUuid,
+                CHAT_PRIVATE_CHANNEL + receiverUuid,
                 jsonSerializer.serialize(message, ErrorType.CHAT)
         );
 
-        redisTemplate.convertAndSend(CHAT_PRIVATE_CHANNEL + messageReq.receiverUuid(), jsonSerializer.serialize(redisMessage, ErrorType.CHAT));
+        redisTemplate.convertAndSend(CHAT_PRIVATE_CHANNEL + receiverUuid, jsonSerializer.serialize(redisMessage, ErrorType.CHAT));
 
-        chatLogService.saveChatMessage(ChatType.PRIVATE, messageReq.receiverUuid(), message, userDetails.getUuid() );
+        chatLogService.saveChatMessage(ChatType.PRIVATE, receiverUuid, message, userDetails.getUuid() );
     }
 
     private void validateChatPermission(SecurityUserDetails userDetails) {
