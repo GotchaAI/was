@@ -1,7 +1,6 @@
 package socket_server.domain.game.service;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.el.stream.Stream;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.util.JsonSerializer;
@@ -13,12 +12,9 @@ import socket_server.domain.game.model.Guess;
 import socket_server.domain.game.model.Word;
 import socket_server.domain.game.repository.GamePlayerRepository;
 import socket_server.domain.game.repository.RoundRepository;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -36,11 +32,7 @@ public class GuessRequestService {
         List<Guess> guesses = getAIGuesses(roomId, gameMeta.getCurrentRound(), guessTargetWord.getWordIndex()); // null!
 
         // 1. AI 서버에 Guess Request 메시지 받아옴
-        String drawerUuid = guessTargetWord.getDrawerUuid();
-        String playerJson = gamePlayerRepository.findGamePlayerStringByUuid(roomId, drawerUuid);
-        GamePlayer gamePlayer = jsonSerializer.deserialize(playerJson, GamePlayer.class, GAME_ERROR);
-        String drawerName = gamePlayer.getNickname();
-        String aiSays = aIClientService.getGuessStartMessage(roomId, new AIGuessStartReq(gameMeta.getCurrentRound(), gameMeta.getTotalRounds(), drawerName, "AI"));
+        String aiSays = aIClientService.getGuessStartMessage(roomId, new AIGuessStartReq(gameMeta.getCurrentRound(), gameMeta.getTotalRounds(), guessTargetWord.getDrawerName(), "AI"));
 
         // 2. BUILD NEW GUESS DATA
         Guess guess = Guess.builder().guesserUuid("AI").attempts(guesses.size()+1).guessEndTime(LocalDateTime.now().plusSeconds(31)).build();
@@ -92,11 +84,8 @@ public class GuessRequestService {
     }
 
     private List<GamePlayer> getGamePlayersByRoomId(String roomId) {
-        List<String> playerUuids = gamePlayerRepository.findPlayerUuidsByRoomId(roomId);
-        return playerUuids.stream()
-                .map(uuid -> gamePlayerRepository.findGamePlayerStringByUuid(roomId, uuid))
-                .map(gamePlayerJson -> jsonSerializer.deserialize(gamePlayerJson, GamePlayer.class, GAME_ERROR))
-                .collect(Collectors.toList());
+        String playersJson = gamePlayerRepository.findPlayersStringByRoomId(roomId);
+        return jsonSerializer.deserializeList(playersJson, GamePlayer.class, GAME_ERROR);
     }
 
     private List<Guess> getAIGuesses(String roomId, int roundIndex, int wordIndex){

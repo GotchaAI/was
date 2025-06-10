@@ -16,9 +16,6 @@ public class GamePlayerRepository {
         this.redisTemplate = redisTemplate;
     }
 
-    //todo: game:{roomId}:players 는 SET,
-    //todo: player:{roomId}:{uuid} 는 STRING (uuid, USERNAME)
-
     /**
      * game:{roomId}:players
      */
@@ -29,42 +26,17 @@ public class GamePlayerRepository {
     /**
      * GamePlayers 저장
      */
-    public void savePlayerUuids(String roomId, List<String> playerUuids) {
+    public void savePlayersString(String roomId, String playersJson) {
         String key = getGamePlayersKey(roomId);
-        redisTemplate.opsForSet().add(key, playerUuids.toArray(new String[0]));
+        redisTemplate.opsForValue().set(key, playersJson);
     };
 
     /**
      * GamePlayers 조회
      */
-    public List<String> findPlayerUuidsByRoomId(String roomId) {
+    public String findPlayersStringByRoomId(String roomId) {
         String key = getGamePlayersKey(roomId);
-        Set<String> uuids = redisTemplate.opsForSet().members(key);
-        if (uuids == null || uuids.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return new ArrayList<>(uuids);
-    }
-
-    /**
-     * player:{roomId}:{uuid}
-     */
-    public static String getPlayerKey(String roomId, String uuid) {
-        return GameRepository.getGameKey(roomId) + ":" + uuid;
-    }
-
-    public String findGamePlayerStringByUuid(String roomId, String uuid) {
-        String key = getPlayerKey(roomId, uuid);
         return redisTemplate.opsForValue().get(key);
     }
-
-    public void saveGamePlayerString(String roomId, String playerUuid, String playerJson) {
-        String key = getPlayerKey(roomId, playerUuid);
-        redisTemplate.opsForValue().set(key, playerJson);
-//        log.info("Player {} saved", playerJson);
-    }
-
-
-
 
 }
