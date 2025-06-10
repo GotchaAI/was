@@ -78,6 +78,12 @@ public class RoundRepository {
         }
     }
 
+
+    public void deleteRoundMetas(String roomId) {
+        String key = getGameRoundsKey(roomId);
+        redisTemplate.delete(key);
+    }
+
     /**
      * game:{roomId}:round:{roundIndex}:words
      */
@@ -131,6 +137,10 @@ public class RoundRepository {
         }
     }
 
+    public void deleteWordMetas(String roomId, int roundIndex) {
+        String key = getRoundWordsKey(roomId, roundIndex);
+        redisTemplate.delete(key);
+    }
 
 
     private String getAIPredicionsKey(String roomId, int roundIndex, int wordIndex) {
@@ -183,14 +193,16 @@ public class RoundRepository {
         }
     }
 
+    public void deleteAIPredictions(String roomId, int roundIndex, int wordIndex) {
+        String key = getAIPredicionsKey(roomId, roundIndex, wordIndex);
+        redisTemplate.delete(key);
+    }
+
+
     private String getAIGuessKey(String roomId, int roundIndex, int wordIndex){
         return getRoundWordsKey(roomId, roundIndex) + ":" + wordIndex + ":ai_guesses";
     }
 
-
-    private String getPlayerGuessKey(String roomId, int roundIndex, int wordIndex){
-        return getRoundWordsKey(roomId, roundIndex) +":" + wordIndex + ":player_guesses";
-    }
 
     /**
      * AI Guess 정보 저장
@@ -238,6 +250,17 @@ public class RoundRepository {
         }
     }
 
+    public void deleteAIGuesses(String roomId, int roundIndex, int wordIndex) {
+        String key = getAIGuessKey(roomId, roundIndex, wordIndex);
+        redisTemplate.delete(key);
+    }
+
+
+
+
+    private String getPlayerGuessKey(String roomId, int roundIndex, int wordIndex){
+        return getRoundWordsKey(roomId, roundIndex) +":" + wordIndex + ":player_guesses";
+    }
 
     /**
      * Player List Guess 조회
@@ -283,6 +306,11 @@ public class RoundRepository {
                 lock.unlock();
             }
         }
+    }
+
+    public void deletePlayerGuesses(String roomId, int roundIndex, int wordIndex) {
+        String key = getPlayerGuessKey(roomId, roundIndex, wordIndex);
+        redisTemplate.delete(key);
     }
 
 }
