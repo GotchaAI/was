@@ -1,5 +1,6 @@
-package Gotcha.domain.ws;
+package Gotcha.domain.ws.controller;
 
+import Gotcha.domain.ws.api.ReconnectApi;
 import gotcha_domain.auth.SecurityUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/ws")
 @RequiredArgsConstructor
-public class ReconnectController {
+public class ReconnectController implements ReconnectApi {
     private final DisconnectManager disconnectManager;
 
     @GetMapping("/reconnect")
