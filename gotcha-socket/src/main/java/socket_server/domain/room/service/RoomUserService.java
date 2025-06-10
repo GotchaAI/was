@@ -61,7 +61,7 @@ public class RoomUserService {
 
     public void exitRoom(String roomId, String userUuid) {
         processUserExit(roomId, userUuid, false);
-        broadcastExit(roomId, userUuid);
+//        broadcastExit(roomId, userUuid);
     }
 
     public String findRoomIdByUserUuid(String userUuid) {
