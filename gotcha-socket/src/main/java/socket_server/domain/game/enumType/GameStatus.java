@@ -20,7 +20,13 @@ public enum GameStatus {
     ROUND_ENDED("라운드 종료"),
 
     // 게임 종료
-    GAME_ENDED("게임 종료");
+    GAME_ENDED("게임 종료"),
+
+
+    // 연결 끊김
+    GAME_DISCONNECTED("연결 끊김"),;
+
+
     private final String description;
 
     /**
@@ -36,7 +42,7 @@ public enum GameStatus {
             case ROUND_END -> this == GameStatus.GUESSING_ENDED;
             case GUESS_REQUEST -> this == GameStatus.GUESSING_STARTED || this == GameStatus.GUESSING_PROCESSING;
             case GUESS_SUBMIT -> this == GameStatus.GUESSING_REQUESTED;
-            case GAME_END -> this == GameStatus.ROUND_ENDED;
+            case GAME_END -> this == GameStatus.ROUND_ENDED || this == GameStatus.GAME_DISCONNECTED;
             case GAME_START, SCORE_UPDATE -> this == GameStatus.GAME_ENDED;
             default -> false;
         };
