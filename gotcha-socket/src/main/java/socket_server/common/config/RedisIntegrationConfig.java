@@ -128,10 +128,6 @@ public class RedisIntegrationConfig {
 
                 // 게임
                 GAME_PREFIX + "*",                   // /sub/game/*
-                GAME_READY_CHANNEL + "*",            // /sub/game/ready/*
-                GAME_END_CHANNEL + "*",              // /sub/game/end/*
-                GAME_INFO_CHANNEL + "*",             // /sub/game/info/*
-                GAME_START_CHANNEL + "*",          // /sub/game/start/*
 
                 //로비
                 LOBBY_JOIN_CHANNEL + "*",         //sub/lobby/join/ + roomId
