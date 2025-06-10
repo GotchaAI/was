@@ -79,7 +79,6 @@ public class GameEndService {
         gameBroadCaster.broadcastGameEvent("SYSTEM", game.getRoomId(), GameEventType.SCORE_UPDATE, scoreUpdates, null);
 
         saveGameHistory(game);
-        flushGame(GameMeta.fromGame(game));
     }
 
     public void flushGame(GameMeta gameMeta) {
@@ -117,6 +116,7 @@ public class GameEndService {
         game.getRounds().forEach(
                 round -> log.info("RoundHistory Saved: {}", roundHistoryService.createRoundHistory(gameHistory, round)));
 
+        flushGame(GameMeta.fromGame(game));
     }
 
 
