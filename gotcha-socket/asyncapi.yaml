@@ -390,6 +390,21 @@ channels:
               $ref: "#/components/schemas/RedisResponse_ScoreUpdate"
 
 
+  /sub/game/disconnect/{roomId}:
+    description: |
+      게임 중 연결 종료 이벤트를 받는 구독 채널입니다.
+    parameters:
+      roomId:
+        description: 현재 게임이 진행 중인 방의 ID
+        schema:
+          type:
+            string
+    subscribe:
+      message:
+        name: DISCONNECT
+        summary: 게임 중 연결 종료 이벤트
+        payload:
+          $ref: '#/components/schemas/RedisResponse_Disconnect'
 
 components:
 
@@ -957,6 +972,29 @@ components:
               type: string
               example: "2025-05-31T22:17:36.8926635"
 
+
+    RedisResponse_Disconnect:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [ DISCONNECT ]
+            data:
+              type: string
+              description: "연결이 종료된 사용자의 UUID"
+            eventAt:
+              type: string
+          example:
+            eventType: "DISCONNECT"
+            data: "z2E63KqK"
+            eventAt: "2025-06-06T00:57:44.9890695"
 
     RedisResponse_ScoreUpdate:
       type: object
