@@ -37,7 +37,7 @@ public class GameRepository {
     /**
      * Game 메타데이터만 저장(List GamePlayers, List Rounds 제외)
      */
-    public void saveGameMeta(GameMeta gameMeta){
+    public void saveGameMeta(GameMeta gameMeta) {
         String redisKey = getGameKey(gameMeta.getRoomId());   // Redis 해시 키
         String lockKey = "lock:" + redisKey; // 락 키
 
@@ -91,8 +91,9 @@ public class GameRepository {
         }
     }
 
-
-
-
-
+    public void deleteGameMeta(String roomId){
+        String redisKey = getGameKey(roomId);
+        redisTemplate.delete(redisKey);
+    }
 }
+
