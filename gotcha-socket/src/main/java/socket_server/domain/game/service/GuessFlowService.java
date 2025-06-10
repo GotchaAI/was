@@ -222,7 +222,7 @@ public class GuessFlowService {
             //5. handle guess result
             taskScheduler.schedule(() ->
                             handleGuessResult(roomId, currentRound, currentWord, guess),
-                    Instant.now().plusSeconds(5));
+                    Instant.now().plusSeconds(2));
         }
     }
 
