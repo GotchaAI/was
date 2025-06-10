@@ -15,8 +15,6 @@ info:
     | 서버 → 클라이언트 | 메시지 보냄 | `stompClient.subscribe()` | `/sub/**`         |
 
     ⭐[도메인 채널 prefix]
-    -
-    
     본 서비스는 총 4개의 메시지 전송 경로(prefix)를 사용하며, 구체적인 로직 분기는 경로가 아닌 DTO 필드로 구분됩니다. 
 
     - /pub/room/{roomId} : 대기방 관련 로직들 (대기방 내 채팅 포함)
