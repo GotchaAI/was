@@ -1,5 +1,6 @@
 package socket_server.domain.game.model;
 
+import gotcha_domain.gamehistory.GuessInfo;
 import lombok.Builder;
 import lombok.Data;
 
@@ -16,4 +17,13 @@ public class Guess {
     private int attempts;
     private Boolean correct;
     private LocalDateTime guessEndTime;
+
+    public static GuessInfo fromGuess(Guess guess) {
+        return GuessInfo.builder()
+                .guesserUuid(guess.getGuesserUuid())
+                .guessWord(guess.getGuessWord())
+                .attempts(guess.getAttempts())
+                .correct(guess.getCorrect())
+                .build();
+    }
 }

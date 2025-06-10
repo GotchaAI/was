@@ -61,45 +61,10 @@ public class GamePlayerRepository {
     public void saveGamePlayerString(String roomId, String playerUuid, String playerJson) {
         String key = getPlayerKey(roomId, playerUuid);
         redisTemplate.opsForValue().set(key, playerJson);
-        log.info("Player {} saved", playerJson);
+//        log.info("Player {} saved", playerJson);
     }
 
 
-    /**
-     * game:{roomId}:round:{roundIndex}:scores
-     */
-    public static String getRoundScoreKey(String roomId, int roundIndex) {
-        return RoundRepository.getGameRoundsKey(roomId) + ":" + roundIndex + ":scores";
-    }
-
-    public void saveRoundScoreByUuid(String roomId, String uuid, int roundIndex, int score) {
-        String key = getRoundScoreKey(roomId, roundIndex);
-        redisTemplate.opsForHash().put(key, uuid, String.valueOf(score));
-    }
-
-    public int findRoundScoreByUuid(String roomId, String uuid, int roundIndex) {
-        String key = getRoundScoreKey(roomId, roundIndex);
-        String score = (String) redisTemplate.opsForHash().get(key, uuid);
-        if (score == null) {
-            return 0;
-        }
-        return Integer.parseInt(score);
-    }
-
-    public Map<String, Integer> findRoundScores(String roomId, int roundIndex) {
-        String key = getRoundScoreKey(roomId, roundIndex);
-        Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
-
-        Map<String, Integer> result = new HashMap<>();
-        for (Map.Entry<Object, Object> entry : entries.entrySet()) {
-            String playerUuid = (String) entry.getKey();
-            String scoreStr = (String) entry.getValue();
-            Integer score = Integer.valueOf(scoreStr);  // String → Integer 변환
-            result.put(playerUuid, score);
-        }
-
-        return result;
-    }
 
 
 }

@@ -1,8 +1,9 @@
 package socket_server.domain.room.dto;
 
-import socket_server.domain.game.enumType.Difficulty;
-import socket_server.domain.game.enumType.GameType;
+
 import socket_server.domain.room.model.RoomMetadata;
+import gotcha_domain.gamehistory.GameType;
+import gotcha_domain.gamehistory.Difficulty;
 
 public record RoomSummaryRes(
         String roomId,

@@ -2,18 +2,9 @@ package gotcha_domain.gamehistory;
 
 import gotcha_common.entity.BaseTimeEntity;
 import gotcha_domain.report.BugReport;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +25,17 @@ public class GameHistory extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Difficulty difficulty;
 
-    private int score;
+    @NotNull
+    private int totalRounds;
+
+    @NotNull
+    private Boolean playerWon; // AI or Player
+
+    @NotNull
+    private Integer aiScore;
+
+    @NotNull
+    private Integer playerScore;
 
     @OneToMany(mappedBy = "gameHistory")
     private List<BugReport> bugReports = new ArrayList<>();
@@ -46,10 +47,23 @@ public class GameHistory extends BaseTimeEntity {
     private List<RoundHistory> roundHistories = new ArrayList<>();
 
     @Builder
-    public GameHistory(GameType gameType, Difficulty difficulty){
+    public GameHistory(
+            GameType gameType,
+            Difficulty difficulty,
+            int totalRounds,
+            Boolean playerWon,
+            Integer aiScore,
+            Integer playerScore
+    ){
         this.gameType = gameType;
         this.difficulty = difficulty;
+        this.totalRounds = totalRounds;
+        this.playerWon = playerWon;
+        this.aiScore = aiScore;
+        this.playerScore = playerScore;
     }
+
+
 }
 
 

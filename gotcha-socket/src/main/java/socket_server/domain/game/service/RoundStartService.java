@@ -1,6 +1,7 @@
 package socket_server.domain.game.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.exception.SocketCustomException;
@@ -21,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RoundStartService {
@@ -32,9 +34,10 @@ public class RoundStartService {
     private final JsonSerializer jsonSerializer;
 
     public void startNextRound(String roomId) {
+//        log.info("[FUNCTION CALL] startNextRound({}) called", roomId);
         GameMeta gameMeta = getGameMetaByRoomId(roomId);
 
-        if (!isGameEnded(gameMeta)) {
+        if (isGameEnded(gameMeta)) {
             throw new SocketCustomException(GAME_ERROR, GameExceptionCode.ALREADY_FINISHED_GAME);
         }
 
@@ -42,7 +45,7 @@ public class RoundStartService {
             throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
         }
 
-        int currentRound = gameMeta.getCurrentRound() + 1;
+        int currentRound = gameMeta.getCurrentRound();
 
         String roundMetasJson =roundRepository.findRoundMetasString(roomId);
         List<RoundMeta> roundMetaList = jsonSerializer.deserializeList(roundMetasJson, RoundMeta.class, GAME_ERROR);
@@ -51,7 +54,7 @@ public class RoundStartService {
         gameMeta.setGameStatus(GameStatus.DRAWING_PHASE); // ROUND_STARTED 생략 가능
         gameRepository.saveGameMeta(gameMeta);
 
-        RoundMeta currentRoundMeta = roundMetaList.get(currentRound - 1);
+        RoundMeta currentRoundMeta = roundMetaList.get(currentRound);
 
         roundRepository.saveRoundMetasString(roomId, jsonSerializer.serialize(roundMetaList, GAME_ERROR));
 
@@ -59,13 +62,9 @@ public class RoundStartService {
                 roomId,
                 new AIRoundStartReq(currentRound, gameMeta.getTotalRounds())
         );
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.schedule(() -> {
-            currentRoundMeta.setDrawingEndTime(LocalDateTime.now().plusSeconds(30));
-            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_START, currentRoundMeta, aiSays);
-        }, 5, TimeUnit.SECONDS);
 
-
+        currentRoundMeta.setDrawingEndTime(LocalDateTime.now().plusSeconds(30));
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_START, currentRoundMeta, aiSays);
     }
 
     private GameMeta getGameMetaByRoomId(String roomId) {
@@ -78,6 +77,6 @@ public class RoundStartService {
 
     // 게임 종료 check시 반드시 필요
     public boolean isGameEnded(GameMeta gameMeta){
-        return gameMeta.getCurrentRound() <= gameMeta.getTotalRounds();
+        return gameMeta.getCurrentRound() >= gameMeta.getTotalRounds();
     }
 }

@@ -4,8 +4,9 @@ package socket_server.domain.lobby.dto;
 import jakarta.validation.constraints.*;
 import socket_server.common.validator.ValidMaxUser;
 import socket_server.common.validator.ValidPassword;
-import socket_server.domain.game.enumType.Difficulty;
-import socket_server.domain.game.enumType.GameType;
+import gotcha_domain.gamehistory.GameType;
+import gotcha_domain.gamehistory.Difficulty;
+
 
 @ValidMaxUser
 @ValidPassword

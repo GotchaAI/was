@@ -21,10 +21,10 @@ public interface MypageApi {
                                     [
                                         {
                                             "gameId": 1,
-                                            "gameType": "속여라",
-                                            "difficulty": "EASY",
-                                            "playedAt": "2025-05-14T15:34:26",
-                                            "score": 100
+                                            "gameType": "TRICK_MYOMYO",
+                                            "difficulty": "BASIC",
+                                            "playedAt": "2025-06-09T15:33:30.048225",
+                                            "score": 170
                                         }
                                     ]
                                     """)
@@ -38,50 +38,265 @@ public interface MypageApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                     {
-                                        "gameId": 1,
-                                        "gameType": "속여라",
-                                        "difficulty": "EASY",
-                                        "playedAt": "2025-05-14T15:34:26",
-                                        "score": 100,
-                                        "rounds": [
-                                            {
-                                                "round": 1,
-                                                "topic": "고양이",
-                                                "isSuccess": true,
-                                                "similarity": 0.92,
-                                                "prediction": [
-                                                    "고양이",
-                                                    "동물",
-                                                    "귀엽다"
-                                                ],
-                                                "picture": "cat.jpg"
-                                            },
-                                            {
-                                                "round": 2,
-                                                "topic": "사과",
-                                                "isSuccess": false,
-                                                "similarity": 0.45,
-                                                "prediction": [
-                                                    "바나나",
-                                                    "과일",
-                                                    "빨간색"
-                                                ],
-                                                "picture": "apple.jpg"
-                                            },
-                                            {
-                                                "round": 3,
-                                                "topic": "자동차",
-                                                "isSuccess": true,
-                                                "similarity": 0.87,
-                                                "prediction": [
-                                                    "차",
-                                                    "운전",
-                                                    "교통수단"
-                                                ],
-                                                "picture": "car.jpg"
-                                            }
-                                        ]
-                                    }
+                                         "gameId": 1,
+                                         "gameType": "TRICK_MYOMYO",
+                                         "difficulty": "BASIC",
+                                         "playedAt": "2025-06-09T15:33:30.048225",
+                                         "playerWon": true,
+                                         "aiScore": 0,
+                                         "playerScore": 170,
+                                         "rounds": [
+                                             {
+                                                 "roundIndex": 0,
+                                                 "words": [
+                                                     {
+                                                         "wordIndex": 0,
+                                                         "word": "악어",
+                                                         "drawerUuid": "HEjCRCjE",
+                                                         "submitted": true,
+                                                         "imageUrl": "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/z2E63KqK/9228e506-059c-4a0f-9874-65d68aff372b.png",
+                                                         "aiGuesses": [
+                                                             {
+                                                                 "guesserUuid": "AI",
+                                                                 "guessWord": "컵",
+                                                                 "attempts": 1,
+                                                                 "correct": false
+                                                             }
+                                                         ],
+                                                         "playerGuesses": [
+                                                             {
+                                                                 "guesserUuid": "gLF0rt9Y",
+                                                                 "guessWord": "악어",
+                                                                 "attempts": 1,
+                                                                 "correct": true
+                                                             }
+                                                         ],
+                                                         "aiPredictions": [
+                                                             {
+                                                                 "predicted": "컵",
+                                                                 "confidence": 98.141610622406
+                                                             },
+                                                             {
+                                                                 "predicted": "침대",
+                                                                 "confidence": 0.504483375698328
+                                                             },
+                                                             {
+                                                                 "predicted": "노트북",
+                                                                 "confidence": 0.47213733196258545
+                                                             }
+                                                         ]
+                                                     },
+                                                     {
+                                                         "wordIndex": 1,
+                                                         "word": "사자",
+                                                         "drawerUuid": "gLF0rt9Y",
+                                                         "submitted": true,
+                                                         "imageUrl": "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/z2E63KqK/9228e506-059c-4a0f-9874-65d68aff372b.png",
+                                                         "aiGuesses": [
+                                                             {
+                                                                 "guesserUuid": "AI",
+                                                                 "guessWord": "노트북",
+                                                                 "attempts": 1,
+                                                                 "correct": false
+                                                             },
+                                                             {
+                                                                 "guesserUuid": "AI",
+                                                                 "guessWord": "지도",
+                                                                 "attempts": 2,
+                                                                 "correct": false
+                                                             }
+                                                         ],
+                                                         "playerGuesses": [
+                                                             {
+                                                                 "guesserUuid": "HEjCRCjE",
+                                                                 "guessWord": "악어",
+                                                                 "attempts": 1,
+                                                                 "correct": false
+                                                             },
+                                                             {
+                                                                 "guesserUuid": "HEjCRCjE",
+                                                                 "guessWord": "사자",
+                                                                 "attempts": 2,
+                                                                 "correct": true
+                                                             }
+                                                         ],
+                                                         "aiPredictions": [
+                                                             {
+                                                                 "predicted": "노트북",
+                                                                 "confidence": 98.7697184085846
+                                                             },
+                                                             {
+                                                                 "predicted": "지도",
+                                                                 "confidence": 0.8258135989308357
+                                                             },
+                                                             {
+                                                                 "predicted": "달력",
+                                                                 "confidence": 0.21645468659698963
+                                                             }
+                                                         ]
+                                                     }
+                                                 ]
+                                             },
+                                             {
+                                                 "roundIndex": 1,
+                                                 "words": [
+                                                     {
+                                                         "wordIndex": 0,
+                                                         "word": "수풀",
+                                                         "drawerUuid": "HEjCRCjE",
+                                                         "submitted": true,
+                                                         "imageUrl": "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/z2E63KqK/9228e506-059c-4a0f-9874-65d68aff372b.png",
+                                                         "aiGuesses": [
+                                                             {
+                                                                 "guesserUuid": "AI",
+                                                                 "guessWord": "컵",
+                                                                 "attempts": 1,
+                                                                 "correct": false
+                                                             }
+                                                         ],
+                                                         "playerGuesses": [
+                                                             {
+                                                                 "guesserUuid": "gLF0rt9Y",
+                                                                 "guessWord": "수풀",
+                                                                 "attempts": 1,
+                                                                 "correct": true
+                                                             }
+                                                         ],
+                                                         "aiPredictions": [
+                                                             {
+                                                                 "predicted": "컵",
+                                                                 "confidence": 94.669908285141
+                                                             },
+                                                             {
+                                                                 "predicted": "노트북",
+                                                                 "confidence": 1.6384916380047798
+                                                             },
+                                                             {
+                                                                 "predicted": "지도",
+                                                                 "confidence": 1.1955133639276028
+                                                             }
+                                                         ]
+                                                     },
+                                                     {
+                                                         "wordIndex": 1,
+                                                         "word": "고양이",
+                                                         "drawerUuid": "gLF0rt9Y",
+                                                         "submitted": true,
+                                                         "imageUrl": "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/z2E63KqK/9228e506-059c-4a0f-9874-65d68aff372b.png",
+                                                         "aiGuesses": [
+                                                             {
+                                                                 "guesserUuid": "AI",
+                                                                 "guessWord": "지도",
+                                                                 "attempts": 1,
+                                                                 "correct": false
+                                                             }
+                                                         ],
+                                                         "playerGuesses": [
+                                                             {
+                                                                 "guesserUuid": "HEjCRCjE",
+                                                                 "guessWord": "고양이",
+                                                                 "attempts": 1,
+                                                                 "correct": true
+                                                             }
+                                                         ],
+                                                         "aiPredictions": [
+                                                             {
+                                                                 "predicted": "지도",
+                                                                 "confidence": 46.41824662685394
+                                                             },
+                                                             {
+                                                                 "predicted": "노트북",
+                                                                 "confidence": 18.52540224790573
+                                                             },
+                                                             {
+                                                                 "predicted": "얼굴",
+                                                                 "confidence": 12.265511602163317
+                                                             }
+                                                         ]
+                                                     }
+                                                 ]
+                                             },
+                                             {
+                                                 "roundIndex": 2,
+                                                 "words": [
+                                                     {
+                                                         "wordIndex": 0,
+                                                         "word": "산",
+                                                         "drawerUuid": "HEjCRCjE",
+                                                         "submitted": true,
+                                                         "imageUrl": "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/z2E63KqK/9228e506-059c-4a0f-9874-65d68aff372b.png",
+                                                         "aiGuesses": [
+                                                             {
+                                                                 "guesserUuid": "AI",
+                                                                 "guessWord": "노트북",
+                                                                 "attempts": 1,
+                                                                 "correct": false
+                                                             }
+                                                         ],
+                                                         "playerGuesses": [
+                                                             {
+                                                                 "guesserUuid": "gLF0rt9Y",
+                                                                 "guessWord": "산",
+                                                                 "attempts": 1,
+                                                                 "correct": true
+                                                             }
+                                                         ],
+                                                         "aiPredictions": [
+                                                             {
+                                                                 "predicted": "노트북",
+                                                                 "confidence": 44.12991106510162
+                                                             },
+                                                             {
+                                                                 "predicted": "컵",
+                                                                 "confidence": 39.702245593070984
+                                                             },
+                                                             {
+                                                                 "predicted": "지도",
+                                                                 "confidence": 6.604337692260742
+                                                             }
+                                                         ]
+                                                     },
+                                                     {
+                                                         "wordIndex": 1,
+                                                         "word": "천사",
+                                                         "drawerUuid": "gLF0rt9Y",
+                                                         "submitted": true,
+                                                         "imageUrl": "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/z2E63KqK/9228e506-059c-4a0f-9874-65d68aff372b.png",
+                                                         "aiGuesses": [
+                                                             {
+                                                                 "guesserUuid": "AI",
+                                                                 "guessWord": "노트북",
+                                                                 "attempts": 1,
+                                                                 "correct": false
+                                                             }
+                                                         ],
+                                                         "playerGuesses": [
+                                                             {
+                                                                 "guesserUuid": "HEjCRCjE",
+                                                                 "guessWord": "천사",
+                                                                 "attempts": 1,
+                                                                 "correct": true
+                                                             }
+                                                         ],
+                                                         "aiPredictions": [
+                                                             {
+                                                                 "predicted": "노트북",
+                                                                 "confidence": 41.66520535945892
+                                                             },
+                                                             {
+                                                                 "predicted": "달력",
+                                                                 "confidence": 36.07162833213806
+                                                             },
+                                                             {
+                                                                 "predicted": "침대",
+                                                                 "confidence": 6.018155440688133
+                                                             }
+                                                         ]
+                                                     }
+                                                 ]
+                                             }
+                                         ]
+                                     }
                                     """)
                     })),
             @ApiResponse(responseCode = "404", description = "게임 정보를 찾을 수 없음",

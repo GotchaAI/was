@@ -14,7 +14,10 @@ public enum GameExceptionCode implements ExceptionCode {
     DRAWING_ALREADY_SUBMITTED(HttpStatus.BAD_REQUEST, "GAME-400-005", "이미 제출된 그림입니다."),
     INVALID_GAME_STATUS(HttpStatus.BAD_REQUEST, "GAME-400-006", "진행할 수 없는 이벤트입니다."),
     AI_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "GAME-500-001", "AI 서버와의 연결 중에 오류가 발생하였습니다."),
-    INVALID_GUESSER(HttpStatus.BAD_REQUEST, "GAME-400-007", "추측 제출 턴이 아닙니다.");
+    INVALID_GUESSER(HttpStatus.BAD_REQUEST, "GAME-400-007", "추측 제출 턴이 아닙니다."),
+    LOCK_ACQUISITION_FAILED(HttpStatus.CONFLICT, "GAME-409-001", "다른 사용자가 처리 중입니다. 잠시 후 다시 시도해주세요."),
+    LOCK_INTERRUPTED(HttpStatus.INTERNAL_SERVER_ERROR, "GAME-500-002", "락을 획득하는 중 오류가 발생했습니다."),
+    LOCK_RELEASE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "GAME-500-003", "락 해제 중 예기치 않은 오류가 발생했습니다.");
 
 
     private final HttpStatus status;

@@ -87,11 +87,8 @@ public class GuessRequestService {
         Guess guess = Guess.builder().guesserUuid(gusser.getPlayerUuid()).attempts(guesses.size()+1).build();
         guess.setGuessEndTime(LocalDateTime.now().plusSeconds(32));
 
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.schedule(() -> {
         // 4. BroadCast
-            gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_REQUEST, guess, aiSays);
-        }, 2, TimeUnit.SECONDS);
+        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_REQUEST, guess, aiSays);
     }
 
     private List<GamePlayer> getGamePlayersByRoomId(String roomId) {

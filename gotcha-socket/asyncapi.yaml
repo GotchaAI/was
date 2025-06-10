@@ -15,8 +15,6 @@ info:
     | 서버 → 클라이언트 | 메시지 보냄 | `stompClient.subscribe()` | `/sub/**`         |
 
     ⭐[도메인 채널 prefix]
-    -
-    
     본 서비스는 총 4개의 메시지 전송 경로(prefix)를 사용하며, 구체적인 로직 분기는 경로가 아닌 DTO 필드로 구분됩니다. 
 
     - /pub/room/{roomId} : 대기방 관련 로직들 (대기방 내 채팅 포함)
@@ -349,14 +347,13 @@ channels:
         - `payload`의 `data` 필드에는 `Guess` 데이터가 전송됩니다. 
       - `GUESS_RESULT`: 추측 결과를 클라이언트에 브로드캐스트합니다.
         - `payload`의 `data` 필드에는 `guess` 데이터가 정답 여부와 함께 전송됩니다.
-      - `SCORE_UPDATE`: 추측 성공 시 점수 현황을 업데이트 해주고, 이를 브로드캐스트 해줍니다. 
-        - 추측 실패 시에는 전송되지 않습니다. 
-        - `payload`의 `data` 필드에는 `Score` 데이터가 전송됩니다. 
-      - `ROUND_END`: 해당 라운드의 종료를 알립니다.
-        - 라운드 종료 시 해당 라운드의 결과를 포함한 라운드 데이터를 브로드캐스트 해줍니다. 
-        - `payload`의 `data` 필드에는 `round` 데이터가 전송됩니다. 
+      - `BATTLE_END` : 해당 추측 배틀 종료 결과를 클라이언트에 브로드캐스트 합니다.
+        - `payload`의 `data`필드에는 지금까지의 플레이어 승리 여부를 나타내는 boolean flag list가 보내집니다.
       - `GAME_END`: 게임 종료 시 해당 게임의 결과를 포함한 게임 데이터를 브로드캐스트 해줍니다. 
         - `payload`의 `data` 필드에는 `game` 데이터가 전송됩니다. 
+      - `SCORE_UPDATE` : 게임 종료 후 플레이어들의 업데이트 된 Level, Exp 정보를 전송합니다.
+      
+      
 
     parameters:
       roomId:
@@ -382,15 +379,15 @@ channels:
           - name: GUESS_RESULT
             payload:
               $ref: '#/components/schemas/RedisResponse_GuessResult'
-          - name: SCORE_UPDATE
+          - name: BATTLE_END
             payload:
-              $ref: "#/components/schemas/RedisResponse_ScoreUpdate"
-          - name: ROUND_END
-            payload:
-              $ref: "#/components/schemas/RedisResponse_RoundEnd"
+              $ref: '#/components/schemas/RedisResponse_BattleEnd'
           - name: GAME_END
             payload:
               $ref: "#/components/schemas/RedisResponse_GameEnd"
+          - name: SCORE_UPDATE
+            payload:
+              $ref: "#/components/schemas/RedisResponse_ScoreUpdate"
 
 
 
@@ -799,11 +796,7 @@ components:
           properties:
             eventType:
               type: string
-              enum: [ROUND_START]
-            aiSays:
-              type: string
-              description: 게임 진행 중 AI에게서 오는 메시지입니다. AI에서 메시지가 오지 않는 이벤트 경우 "null" 값으로 오게 됩니다.
-              example: "\"으.. 잠깐 오류가 났네. 다시 해볼게!\""
+              enum: [ ROUND_START ]
             data:
               type: object
               properties:
@@ -813,22 +806,23 @@ components:
                   type: string
                 currentWordIndex:
                   type: integer
-                roundWinner:
-                  type: string
-                  nullable: true
-                  description: 해당 라운드의 Winner를 나타내는 필드입니다. ROUND_START 이벤트 발생 시에는 null로 반환됩니다.
-              example:
-                roundIndex: 1
-                drawingEndTime: "2025-05-28T21:01:24.4270926"
-                currentWordIndex: 0
-                roundWinner: null
-            endTime:
+            aiSays:
               type: string
               nullable: true
-              example: null
             eventAt:
               type: string
-              example: "2025-05-28T21:00:56.30379"
+      example:
+        userId: "z2E63KqK"
+        topic: "game/6955"
+        payload:
+          eventType: "ROUND_START"
+          data:
+            roundIndex: 0
+            drawingEndTime: "2025-06-06T00:57:16.8049502"
+            currentWordIndex: 0
+          aiSays: "헤헤, 이제 시작이야! 이 라운드에서 내 예측 실력을 보여줄게. 준비됐어? 😉🎨🔍"
+          eventAt: "2025-06-06T00:56:46.8059451"
+
 
     RedisResponse_GuessStart:
       type: object
@@ -842,36 +836,84 @@ components:
           properties:
             eventType:
               type: string
-              enum: [GUESS_START]
+              enum: [ GUESS_START ]
+            data:
+              type: object
+              properties:
+                wordIndex:
+                  type: integer
+                word:
+                  type: string
+                drawerUuid:
+                  type: string
+                drawerName:
+                  type: string
+                playerWon:
+                  type: boolean
+                  nullable: true
+                score:
+                  type: integer
+                  nullable: true
+                imageURL:
+                  type: string
+                submitted:
+                  type: boolean
+            aiSays:
+              type: string
+              nullable: true
+            eventAt:
+              type: string
+      example:
+        userId: "z2E63KqK"
+        topic: "game/6955"
+        payload:
+          eventType: "GUESS_START"
+          data:
+            wordIndex: 1
+            word: "eyeglasses"
+            drawerUuid: "z2E63KqK"
+            drawerName: "test2"
+            playerWon: null
+            score: null
+            imageURL: "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png"
+            submitted: true
+          aiSays: null
+          eventAt: "2025-06-06T00:57:44.9890695"
+
+
+    RedisResponse_BattleEnd:
+      type: object
+      description: 매 배틀 종료 후 승자 정보를 List에 추가하여 반환합니다.
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [ BATTLE_END ]
             data:
               type: array
               items:
-                type: object
-                properties:
-                  wordIndex:
-                    type: integer
-                  word:
-                    type: string
-                  drawerUuid:
-                    type: string
-                  imageURL:
-                    type: string
-                  submitted:
-                    type: boolean
-              example:
-                - wordIndex: 0
-                  word: "syringe"
-                  drawerUuid: "l3lwXGrb"
-                  imageURL: "l3lwXGrb/9228e506-059c-4a0f-9874-65d68aff372b.png"
-                  submitted: true
-                - wordIndex: 1
-                  word: "cooler"
-                  drawerUuid: "z2E63KqK"
-                  imageURL: "z2E63KqK/39caa311-8195-4f39-94d1-84ae4710b474.png"
-                  submitted: true
+                type: boolean
+                nullable: true
+            aiSays:
+              type: string
+              nullable: true
             eventAt:
               type: string
-              example: "2025-05-27T20:28:36.4511966"
+      example:
+        userId: "z2E63KqK"
+        topic: "game/6955"
+        payload:
+          eventType: "BATTLE_END"
+          data: [ true, null ]
+          aiSays: null
+          eventAt: "2025-06-06T00:57:44.9739292"
+
 
     RedisResponse_GuessRequest:
       type: object
@@ -899,16 +941,15 @@ components:
                 correct:
                   type: boolean
                   nullable: true
+                guessEndTime:
+                  type: string
               example:
                 guesserUuid: "AI"
                 guessWord: null
                 attempts: 1
                 correct: null
+                guessEndTime: "2025-06-06T00:57:44.9890695"
             aiSays:
-              type: string
-              nullable: true
-              example: null
-            endTime:
               type: string
               nullable: true
               example: null
@@ -916,6 +957,45 @@ components:
               type: string
               example: "2025-05-31T22:17:36.8926635"
 
+
+    RedisResponse_ScoreUpdate:
+      type: object
+      properties:
+        userId:
+          type: string
+        topic:
+          type: string
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              enum: [ SCORE_UPDATE ]
+            data:
+              type: object
+              properties:
+                scoreUpdate:
+                  type: object
+                  properties:
+                    rank:
+                      type: integer
+                    nickname:
+                      type: string
+                    exp:
+                      type: integer
+                    level:
+                      type: integer
+                levelUp:
+                  type: boolean
+              example:
+                scoreUpdate:
+                  rank: 1
+                  nickname: "test1"
+                  exp: 100
+                  level: 1
+                levelUp: true
+            aiSays:
+              type: string
 
     RedisResponse_GameEnd:
       type: object
@@ -946,12 +1026,12 @@ components:
                   type: integer
                 totalRounds:
                   type: integer
+                playerWon:
+                  type: boolean
                 aiScore:
                   type: integer
-                scores:
-                  type: object
-                  additionalProperties:
-                    type: integer
+                playerScore:
+                  type: integer
                 gamePlayers:
                   type: array
                   nullable: true
@@ -965,8 +1045,6 @@ components:
                       roundIndex:
                         type: integer
                       drawingEndTime:
-                        type: string
-                      roundWinner:
                         type: string
                         nullable: true
                       currentWordIndex:
@@ -982,7 +1060,13 @@ components:
                               type: string
                             drawerUuid:
                               type: string
+                            drawerName:
+                              type: string
                             submitted:
+                              type: boolean
+                            score:
+                              type: integer
+                            playerWon:
                               type: boolean
                             imageURL:
                               type: string
@@ -999,6 +1083,9 @@ components:
                                     type: integer
                                   correct:
                                     type: boolean
+                                  guessEndTime:
+                                    type: string
+                                    nullable: true
                             playerGuesses:
                               type: array
                               items:
@@ -1012,6 +1099,9 @@ components:
                                     type: integer
                                   correct:
                                     type: boolean
+                                  guessEndTime:
+                                    type: string
+                                    nullable: true
                             aiPredictions:
                               type: array
                               items:
@@ -1022,243 +1112,91 @@ components:
                                   confidence:
                                     type: number
                                     format: float
-                      scores:
-                        type: object
-                        additionalProperties:
-                          type: integer
-                winner:
-                  type: string
-              example:
-                roomId: "6483"
-                gameType: "TRICK_MYOMYO"
-                difficulty: "BASIC"
-                gameStatus: null
-                currentRound: 3
-                totalRounds: 3
-                aiScore: 0
-                scores:
-                  AI: 0
-                  z2E63KqK: 3
-                  l3lwXGrb: 6
-                gamePlayers: null
-                rounds:
-                  - roundIndex: 1
-                    drawingEndTime: "2025-05-28T21:01:24.4270926"
-                    roundWinner: null
-                    currentWordIndex: 2
-                    words:
-                      - wordIndex: 0
-                        word: "sandwich"
-                        drawerUuid: "l3lwXGrb"
-                        submitted: true
-                        imageURL: "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png"
-                        aiGuesses:
-                          - guesserUuid: "AI"
-                            guessWord: "cat"
-                            attempts: 1
-                            correct: false
-                        playerGuesses:
-                          - guesserUuid: "z2E63KqK"
-                            guessWord: "laptop"
-                            attempts: 3
-                            correct: false
-                        aiPredictions:
-                          - predicted: "cat"
-                            confidence: 99.4355320930481
-                          - predicted: "book"
-                            confidence: 0.40926095098257065
-                          - predicted: "calendar"
-                            confidence: 0.06800925475545228
-                    scores:
-                      l3lwXGrb: 3
-                  # ... (roundIndex 2, 3도 동일 구조)
-                winner: "DRAW"
             aiSays:
               type: string
-              example: "으.. 잠깐 오류가 났네. 다시 해볼게!"
-            endTime:
-              type: string
-              nullable: true
-              example: null
             eventAt:
               type: string
-              example: "2025-05-28T21:02:41.1232855"
-
-    RedisResponse_RoundEnd:
-      type: object
-      properties:
-        userId:
-          type: string
-        topic:
-          type: string
+      example:
+        userId: "z2E63KqK"
+        topic: "game/6955"
         payload:
-          type: object
-          properties:
-            eventType:
-              type: string
-              enum: [ ROUND_END ]
-            data:
-              type: object
-              properties:
-                roundIndex:
-                  type: integer
-                drawingEndTime:
-                  type: string
-                roundWinner:
-                  type: string
-                currentWordIndex:
-                  type: integer
-                words:
-                  type: array
-                  items:
-                    type: object
-                    properties:
-                      wordIndex:
-                        type: integer
-                      word:
-                        type: string
-                      drawerUuid:
-                        type: string
-                      submitted:
-                        type: boolean
-                      imageURL:
-                        type: string
-                      aiGuesses:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            guesserUuid:
-                              type: string
-                            guessWord:
-                              type: string
-                            attempts:
-                              type: integer
-                            correct:
-                              type: boolean
-                      playerGuesses:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            guesserUuid:
-                              type: string
-                            guessWord:
-                              type: string
-                            attempts:
-                              type: integer
-                            correct:
-                              type: boolean
-                      aiPredictions:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            predicted:
-                              type: string
-                            confidence:
-                              type: number
-                              format: float
-                scores:
-                  type: object
-                  additionalProperties:
-                    type: integer
-              example:
-                roundIndex: 2
-                drawingEndTime: "2025-05-28T21:02:38.3805662"
-                roundWinner: "PLAYER"
+          eventType: "GAME_END"
+          data:
+            roomId: "6955"
+            gameType: "TRICK_MYOMYO"
+            difficulty: "BASIC"
+            gameStatus: "GAME_ENDED"
+            currentRound: 1
+            totalRounds: 1
+            playerWon: true
+            aiScore: 0
+            playerScore: 60
+            gamePlayers:
+              - playerUuid: "l3lwXGrb"
+                nickname: "test1"
+              - playerUuid: "z2E63KqK"
+                nickname: "test2"
+            rounds:
+              - roundIndex: 0
+                drawingEndTime: null
                 currentWordIndex: 2
                 words:
                   - wordIndex: 0
-                    word: "drums"
+                    word: "머그컵"
                     drawerUuid: "l3lwXGrb"
+                    drawerName: "test1"
+                    playerWon: true
+                    score: 30
                     submitted: true
                     imageURL: "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png"
                     aiGuesses:
                       - guesserUuid: "AI"
-                        guessWord: "book"
+                        guessWord: "노트북"
                         attempts: 1
                         correct: false
+                        guessEndTime: "2025-06-06T00:57:55.8517855"
                     playerGuesses:
                       - guesserUuid: "z2E63KqK"
-                        guessWord: "drums"
+                        guessWord: "머그컵"
                         attempts: 1
                         correct: true
+                        guessEndTime: null
                     aiPredictions:
-                      - predicted: "book"
-                        confidence: 75.47914385795593
-                      - predicted: "calendar"
-                        confidence: 11.874808371067047
-                      - predicted: "cat"
-                        confidence: 8.319798856973648
+                      - predicted: "노트북"
+                        confidence: 97.66533970832825
+                      - predicted: "지도"
+                        confidence: 2.1140705794095993
+                      - predicted: "달력"
+                        confidence: 0.06823934963904321
                   - wordIndex: 1
-                    word: "sword"
+                    word: "악어"
                     drawerUuid: "z2E63KqK"
+                    drawerName: "test2"
+                    playerWon: true
+                    score: 30
                     submitted: true
                     imageURL: "https://gotchaai-image-bucket.s3.ap-northeast-2.amazonaws.com/l3lwXGrb/546258da-8e18-4792-8b35-5b8f8c92bcec.png"
                     aiGuesses:
                       - guesserUuid: "AI"
-                        guessWord: "cat"
+                        guessWord: "노트북"
                         attempts: 1
                         correct: false
+                        guessEndTime: "2025-06-06T00:58:16.0198353"
                     playerGuesses:
                       - guesserUuid: "l3lwXGrb"
-                        guessWord: "sword"
+                        guessWord: "악어"
                         attempts: 1
                         correct: true
+                        guessEndTime: null
                     aiPredictions:
-                      - predicted: "cat"
-                        confidence: 91.84954762458801
-                      - predicted: "calendar"
-                        confidence: 6.590797007083893
-                      - predicted: "book"
-                        confidence: 0.9185523726046085
-                scores:
-                  z2E63KqK: 3
-                  l3lwXGrb: 3
-            aiSays:
-              type: string
-              example: "으.. 잠깐 오류가 났네. 다시 해볼게!"
-            endTime:
-              type: string
-              nullable: true
-              example: null
-            eventAt:
-              type: string
-              example: "2025-05-28T21:02:41.1232855"
-
-    RedisResponse_ScoreUpdate:
-      type: object
-      properties:
-        userId:
-          type: string
-        topic:
-          type: string
-        payload:
-          type: object
-          properties:
-            eventType:
-              type: string
-              enum: [ SCORE_UPDATE ]
-            data:
-              type: object
-              additionalProperties:
-                type: integer
-              example:
-                AI: 0
-                z2E63KqK: 3
-                l3lwXGrb: 3
-            aiSays:
-              type: string
-              nullable: true
-              example: null
-            endTime:
-              type: string
-              nullable: true
-              example: null
-            eventAt:
-              type: string
-              example: "2025-05-28T21:02:39.2287028"
+                      - predicted: "노트북"
+                        confidence: 99.56672191619873
+                      - predicted: "지도"
+                        confidence: 0.14535653172060847
+                      - predicted: "컵"
+                        confidence: 0.08037258521653712
+          aiSays: "이런, 이번에는 졌네... 근데 이것도 재미있는 경험이었어! 다음에는 분명히 이길 거니까, 준비해둬! 💪🎨🚀"
+          eventAt: "2025-06-06T00:57:55.1647852"
 
 
     RedisResponse_GuessResult:
@@ -1285,18 +1223,17 @@ components:
                   type: integer
                 correct:
                   type: boolean
+                guessEndTime:
+                  type: string
               example:
-                guesserUuid: "AI"
-                guessWord: "book"
+                guesserUuid: "gLF0rt9Y"
+                guessWord: "머그컵"
                 attempts: 1
-                correct: false
+                correct: true
+                guessEndTime: "2025-05-28T21:02:20.4475533"
             aiSays:
               type: string
-              example: "으.. 잠깐 오류가 났네. 다시 해볼게!"
-            endTime:
-              type: string
-              nullable: true
-              example: null
+              example: "\"와우, 축하해 test2! 이번에는 너한테 승리의 영광이야. 하지만 다음엔 내 차례에 주목해봐냥! \uD83D\uDE09\uD83D\uDC4F\uD83C\uDFC6\""
             eventAt:
               type: string
               example: "2025-05-28T21:02:20.4475533"
@@ -1326,17 +1263,16 @@ components:
                 correct:
                   type: boolean
                   nullable: true
+                guessEndTime:
+                  type: string
               example:
                 guesserUuid: "AI"
                 guessWord: "book"
                 attempts: 1
                 correct: null
+                guessEndTime: null
             aiSays:
               type: string
-              example: "으.. 잠깐 오류가 났네. 다시 해볼게!"
-            endTime:
-              type: string
-              nullable: true
               example: null
             eventAt:
               type: string
@@ -1491,10 +1427,14 @@ components:
           type: integer
           description: "AI의 현재 점수"
           example: 0
-        scores:
-          type: object
-          description: "게임 전체 참가자의 현재 점수"
-          $ref: "#/components/schemas/Score"
+        playerScore:
+          type: integer
+          description: "플레이어들의 현재 점수"
+          example: 40
+        playerWon:
+          type: boolean
+          description: "최종 승리 여부(true면 사용자 승리)"
+          example: true
         gamePlayers:
           type: array
           description: "게임에 참여 중인 플레이어 목록"
@@ -1505,11 +1445,6 @@ components:
           description: "게임의 라운드 정보 목록"
           items:
             $ref: '#/components/schemas/Round'
-        winner:
-          type: string
-          description: "게임 최종 우승자 (playerUuid 또는 'AI' 또는 'players')"
-          nullable: true
-          example: "AI"
 
     GamePlayer:
       type: object
@@ -1536,11 +1471,6 @@ components:
           nullable: true
           description: "그리기 종료 시간 (ISO 8601)"
           example: "null"
-        roundWinner:
-          type: string
-          nullable: true
-          description: "라운드 승리자 (playerUuid 또는 'AI' 또는 'players')"
-          example: "null"
         currentWordIndex:
           type: integer
           description: "현재 추측중인 Word 인덱스"
@@ -1565,6 +1495,18 @@ components:
           type: string
           description: "그림을 그린 플레이어의 UUID"
           example: "l3lwXGrb"
+        drawerName:
+          type: string
+          description: "그림을 그린 플레이어의 닉네임"
+          example: "test1"
+        playerWon:
+          type: boolean
+          description: "해당 Word를 맞추는 배틀에서의 플레이어 승리 여부"
+          example: true
+        score:
+          type: integer
+          description: "해당 Word를 맞추는 배틀에서 획득한 점수, playerWon==true면 플레이어 점수, else AI 점수"
+          example: 20
         submitted:
           type: boolean
           description: "해당 그림이 제출되었는지 여부"

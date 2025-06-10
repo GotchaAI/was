@@ -59,8 +59,10 @@ public class User extends BaseTimeEntity {
 
     private Boolean isLocked;
 
+    @Setter
     private int level;
 
+    @Setter
     private long exp;
 
     @Column(unique = true, nullable = false)

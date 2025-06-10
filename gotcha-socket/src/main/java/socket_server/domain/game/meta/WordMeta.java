@@ -10,6 +10,9 @@ public class WordMeta {
     private int wordIndex;
     private String word;
     private String drawerUuid;
+    private String drawerName;
+    private Boolean playerWon;
+    private Integer score;
     private String imageURL;
     private boolean submitted;
 
@@ -19,6 +22,9 @@ public class WordMeta {
                .word(wordMeta.getWord())
                .drawerUuid(wordMeta.getDrawerUuid())
                .submitted(wordMeta.isSubmitted())
+               .playerWon(wordMeta.getPlayerWon())
+               .score(wordMeta.getScore())
+               .drawerName(wordMeta.getDrawerName())
                .imageURL(wordMeta.getImageURL()).build();
     }
 

@@ -103,6 +103,18 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
+    public void updateUserExp(User user, Long exp) {
+        user.setExp(exp);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void updateUserLevel(User user, int level) {
+        user.setLevel(level);
+        userRepository.save(user);
+    }
+
     @Transactional(readOnly = true)
     public List<User> findUserListByKeyword(String keyword) {
         return userRepository.findByNicknameContaining(keyword);

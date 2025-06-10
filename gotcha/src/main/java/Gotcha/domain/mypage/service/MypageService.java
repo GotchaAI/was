@@ -1,8 +1,8 @@
 package Gotcha.domain.mypage.service;
 
-import Gotcha.domain.gamehistory.dto.UserGameHistoryDetailRes;
-import Gotcha.domain.gamehistory.dto.UserGameHistorySummaryRes;
-import Gotcha.domain.gamehistory.service.GameHistoryService;
+import socket_server.gamehistory.dto.UserGameHistoryDetailRes;
+import socket_server.gamehistory.dto.UserGameHistorySummaryRes;
+import socket_server.gamehistory.service.GameHistoryService;
 import gotcha_common.util.RedisUtil;
 import gotcha_domain.user.User;
 import gotcha_user.service.UserService;

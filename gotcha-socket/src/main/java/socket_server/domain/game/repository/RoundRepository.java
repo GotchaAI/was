@@ -1,19 +1,27 @@
 package socket_server.domain.game.repository;
 
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
-import socket_server.common.util.JsonSerializer;
+import socket_server.common.exception.ErrorType;
+import socket_server.common.exception.SocketCustomException;
+import socket_server.common.exception.game.GameExceptionCode;
+
+import java.util.concurrent.TimeUnit;
 
 
 @Slf4j
 @Repository
 public class RoundRepository {
     private final RedisTemplate<String, String> redisTemplate;
+    private final RedissonClient redissonClient;
 
-    public RoundRepository(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
+    public RoundRepository(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate, RedissonClient redissonClient) {
         this.redisTemplate = redisTemplate;
+        this.redissonClient = redissonClient;
     }
 
     /**
@@ -27,9 +35,24 @@ public class RoundRepository {
      * Round 메타정보 List 저장 (roundIndex, drawingEndTime, roundWinner)
      */
     public void saveRoundMetasString(String roomId, String roundsJson) {
-        String key = getGameRoundsKey(roomId);
-        redisTemplate.opsForValue().set(key, roundsJson);
-        log.info("RoundMetas {} saved", roundsJson);
+        String redisKey = getGameRoundsKey(roomId);
+        String lockKey = "lock:" + redisKey;
+
+        RLock lock = redissonClient.getLock(lockKey);
+        try {
+            if (lock.tryLock(1, 5, TimeUnit.SECONDS)) { // 1초 기다리고, 5초 동안 유지
+                redisTemplate.opsForValue().set(redisKey, roundsJson);
+            } else {
+                throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_ACQUISITION_FAILED);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); //
+            throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_INTERRUPTED);
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
     }
 
     /**
@@ -37,7 +60,22 @@ public class RoundRepository {
      */
     public String findRoundMetasString(String roomId) {
         String key = getGameRoundsKey(roomId);
-        return redisTemplate.opsForValue().get(key);
+        String lockKey = "lock:" + key;
+        RLock lock = redissonClient.getLock(lockKey);
+        try {
+            if (lock.tryLock(1, 5, TimeUnit.SECONDS)) { // 1초 기다리고, 5초 동안 유지
+                return redisTemplate.opsForValue().get(key);
+            } else {
+                throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_ACQUISITION_FAILED);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); //
+            throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_INTERRUPTED);
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
     }
 
     /**
@@ -51,64 +89,153 @@ public class RoundRepository {
      * Word 메타정보 List 저장(wordIndex, word, drawerUuid)
      */
     public void saveWordMetasString(String roomId, int roundIndex, String wordsJson) {
-        String key = getRoundWordsKey(roomId, roundIndex);
-        redisTemplate.opsForValue().set(key, wordsJson);
-        log.info("Words {} saved", wordsJson);
+        String redisKey = getRoundWordsKey(roomId, roundIndex);
+        String lockKey = "lock:" + redisKey;
+        RLock lock = redissonClient.getLock(lockKey);
+        try {
+            if (lock.tryLock(1, 5, TimeUnit.SECONDS)) { // 1초 기다리고, 5초 동안 유지
+                redisTemplate.opsForValue().set(redisKey, wordsJson);
+            } else {
+                throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_ACQUISITION_FAILED);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); //
+            throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_INTERRUPTED);
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
     }
 
     /**
      * Word 메타정보 List 조회(wordIndex, word, drawerUuid, imageURL)
      */
     public String findWordMetasString(String roomId, int roundIndex) {
-        String key = getRoundWordsKey(roomId, roundIndex);
-        return redisTemplate.opsForValue().get(key);
+        String redisKey = getRoundWordsKey(roomId, roundIndex);
+        String lockKey = "lock:" + redisKey;
+        RLock lock = redissonClient.getLock(lockKey);
+        try {
+            if (lock.tryLock(1, 5, TimeUnit.SECONDS)) { // 1초 기다리고, 5초 동안 유지
+                return redisTemplate.opsForValue().get(redisKey);
+            } else {
+                throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_ACQUISITION_FAILED);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); //
+            throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_INTERRUPTED);
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
     }
 
 
 
     private String getAIPredicionsKey(String roomId, int roundIndex, int wordIndex) {
-        return getRoundWordsKey(roomId, roundIndex) + wordIndex + ":ai_predictions";
+        return getRoundWordsKey(roomId, roundIndex) + ":" +wordIndex + ":ai_predictions";
     }
 
     /**
      * AI Prediction 정보 저장(top3 class, confidence)
      */
     public void saveAIPredictionsString(String roomId, int roundIndex, int wordIndex, String predictionsJson){
-        String key = getAIPredicionsKey(roomId, roundIndex, wordIndex);
-        redisTemplate.opsForValue().set(key, predictionsJson);
+        String redisKey = getAIPredicionsKey(roomId, roundIndex, wordIndex);
+        String lockKey = "lock:" + redisKey;
+        RLock lock = redissonClient.getLock(lockKey);
+        try {
+            if (lock.tryLock(1, 5, TimeUnit.SECONDS)) { // 1초 기다리고, 5초 동안 유지
+                redisTemplate.opsForValue().set(redisKey, predictionsJson);
+            } else {
+                throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_ACQUISITION_FAILED);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); //
+            throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_INTERRUPTED);
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
     }
 
     /**
      * AI Prediction 정보 조회(top3 class, confidence)
      */
     public String findAIPredictionsString(String roomId, int roundIndex, int wordIndex) {
-        return redisTemplate.opsForValue().get(getAIPredicionsKey(roomId, roundIndex, wordIndex));
+        String redisKey = getAIPredicionsKey(roomId, roundIndex, wordIndex);
+        String lockKey = "lock:" + redisKey;
+        RLock lock = redissonClient.getLock(lockKey);
+        try {
+            if (lock.tryLock(1, 5, TimeUnit.SECONDS)) { // 1초 기다리고, 5초 동안 유지
+                return redisTemplate.opsForValue().get(redisKey);
+            } else {
+                throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_ACQUISITION_FAILED);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); //
+            throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_INTERRUPTED);
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
     }
 
     private String getAIGuessKey(String roomId, int roundIndex, int wordIndex){
-        return getRoundWordsKey(roomId, roundIndex) + wordIndex + ":ai_guesses";
+        return getRoundWordsKey(roomId, roundIndex) + ":" + wordIndex + ":ai_guesses";
     }
 
 
     private String getPlayerGuessKey(String roomId, int roundIndex, int wordIndex){
-        return getRoundWordsKey(roomId, roundIndex) + wordIndex + ":player_guesses";
+        return getRoundWordsKey(roomId, roundIndex) +":" + wordIndex + ":player_guesses";
     }
 
     /**
      * AI Guess 정보 저장
      */
     public void saveAIGuessesString(String roomId, int roundIndex, int wordIndex, String guessesJson){
-        String key = getAIGuessKey(roomId, roundIndex, wordIndex);
-        redisTemplate.opsForValue().set(key, guessesJson);
-        log.info("AI Guesses {} saved", guessesJson);
+        String redisKey = getAIGuessKey(roomId, roundIndex, wordIndex);
+        String lockKey = "lock:" + redisKey;
+        RLock lock = redissonClient.getLock(lockKey);
+        try {
+            if (lock.tryLock(1, 5, TimeUnit.SECONDS)) { // 1초 기다리고, 5초 동안 유지
+                redisTemplate.opsForValue().set(redisKey, guessesJson);
+            } else {
+                throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_ACQUISITION_FAILED);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); //
+            throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_INTERRUPTED);
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
     }
 
     /**
      * AI List Guess 조회
      */
     public String findAIGuessesString(String roomId, int roundIndex, int wordIndex) {
-        String key = getAIGuessKey(roomId, roundIndex, wordIndex);
-        return redisTemplate.opsForValue().get(key);
+        String redisKey = getAIGuessKey(roomId, roundIndex, wordIndex);
+        String lockKey = "lock:" + redisKey;
+        RLock lock = redissonClient.getLock(lockKey);
+        try {
+            if (lock.tryLock(1, 5, TimeUnit.SECONDS)) { // 1초 기다리고, 5초 동안 유지
+                return redisTemplate.opsForValue().get(redisKey);
+            } else {
+                throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_ACQUISITION_FAILED);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); //
+            throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_INTERRUPTED);
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
     }
 
 
@@ -116,18 +243,46 @@ public class RoundRepository {
      * Player List Guess 조회
      */
     public String findPlayerGuessesString(String roomId, int roundIndex, int wordIndex) {
-        String key = getPlayerGuessKey(roomId, roundIndex, wordIndex);
-        return redisTemplate.opsForValue().get(key);
+        String redisKey = getPlayerGuessKey(roomId, roundIndex, wordIndex);
+        String lockKey = "lock:" + redisKey;
+        RLock lock = redissonClient.getLock(lockKey);
+        try {
+            if (lock.tryLock(1, 5, TimeUnit.SECONDS)) { // 1초 기다리고, 5초 동안 유지
+                return redisTemplate.opsForValue().get(redisKey);
+            } else {
+                throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_ACQUISITION_FAILED);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); //
+            throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_INTERRUPTED);
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
     }
 
     /**
      * Player Guess 정보 저장
      */
     public void savePlayerGuesses(String roomId, int roundIndex, int wordIndex, String guessesJson){
-        String key = getPlayerGuessKey(roomId, roundIndex, wordIndex);
-        redisTemplate.opsForValue().set(key, guessesJson);
-        log.info("Player Guesses {} saved", guessesJson);
+        String redisKey = getPlayerGuessKey(roomId, roundIndex, wordIndex);
+        String lockKey = "lock:" + redisKey;
+        RLock lock = redissonClient.getLock(lockKey);
+        try {
+            if (lock.tryLock(1, 5, TimeUnit.SECONDS)) { // 1초 기다리고, 5초 동안 유지
+                redisTemplate.opsForValue().set(redisKey, guessesJson);
+            } else {
+                throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_ACQUISITION_FAILED);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); //
+            throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_INTERRUPTED);
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
     }
-
 
 }
