@@ -49,6 +49,11 @@ public class LobbyService {
         roomUserService.broadcastUserListToRoom(roomId, uuid, LOBBY_ERROR);
         //개인채널 -> 방 참가 잘 됨 전달
         lobbyBroadCaster.sendToUser(LOBBY_JOIN_CHANNEL+uuid, uuid, new RoomIdRes(roomId));
+
+        RoomMetadata roomMetadata = roomService.getRoomInfo(roomId);
+        int currentUserCount = roomUserService.getUserSize(roomId,LOBBY_ERROR);
+        RoomSummaryRes updatedSummary = RoomSummaryRes.of(roomMetadata, currentUserCount);
+        lobbyBroadCaster.broadcastToRoomList("SYSTEM", RoomEventType.UPDATE, updatedSummary);
     }
 
 }

@@ -209,5 +209,9 @@ public class RoomUserService {
     public boolean validateUserInRoom(String roomId, String userUuid) {
         return roomUserRepository.findUserInfoInRoom(roomId, userUuid, ROOM_ERROR) != null;
     }
+
+    public int getUserSize(String roomId, ErrorType LOBBY_ERROR) {
+        return roomUserRepository.findUsersByRoomId(roomId, LOBBY_ERROR).size();
+    }
 }
 
