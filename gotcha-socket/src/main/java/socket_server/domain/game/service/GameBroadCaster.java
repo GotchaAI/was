@@ -13,12 +13,8 @@ import socket_server.domain.room.dto.EventRes;
 import socket_server.domain.room.model.RoomEventType;
 
 import java.time.LocalDateTime;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-import static socket_server.common.constants.WebSocketConstants.GAME_PREFIX;
-import static socket_server.common.constants.WebSocketConstants.ROOM_PREFIX;
+import static socket_server.common.constants.WebSocketConstants.*;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +23,6 @@ public class GameBroadCaster {
     private final RedisTemplate<String, Object> objectRedisTemplate;
 
     public void broadcastStartEvent(String userUuid, String roomId, AISaysRes aiSaysRes) {
-
         EventRes eventRes = new EventRes(
                 RoomEventType.START,
                 aiSaysRes,
@@ -51,7 +46,6 @@ public class GameBroadCaster {
                 .eventAt(LocalDateTime.now())
                 .build();
 
-
         objectRedisTemplate.convertAndSend(
                 GAME_PREFIX + roomId,
                 new RedisMessage(
@@ -60,7 +54,23 @@ public class GameBroadCaster {
                         jsonSerializer.serialize(gameRes, ErrorType.GAME)
                 )
         );
+    }
 
 
+    public void broadcastDisconnectEvent(String disconnectedUserUuid, String roomId) {
+        GameRes gameRes = GameRes.builder()
+                .eventType(GameEventType.DISCONNECTED)
+                .data(disconnectedUserUuid)
+                .eventAt(LocalDateTime.now())
+                .build();
+
+        objectRedisTemplate.convertAndSend(
+                GAME_DISCONNECT_PREFIX + roomId,
+                new RedisMessage(
+                        disconnectedUserUuid,
+                        GAME_DISCONNECT_PREFIX + roomId,
+                        jsonSerializer.serialize(gameRes, ErrorType.GAME)
+                )
+        );
     }
 }

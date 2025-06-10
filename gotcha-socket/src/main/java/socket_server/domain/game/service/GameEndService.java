@@ -120,10 +120,11 @@ public class GameEndService {
     }
 
 
-    public void handleDisconnect(String roomId, String userUuid) {
+    public void handleDisconnectGame(String roomId, String userUuid) {
         Map<Object, Object> gameMetaMap = gameRepository.findGameMeta(roomId);
         if(gameMetaMap.isEmpty()) {
             // 게임 진행중 아니라면
+            log.info("게임 진행 중 아님 ! ! ! !");
             return;
         }
 
@@ -131,20 +132,22 @@ public class GameEndService {
 
         if(gameMeta.getGameStatus().equals(GameStatus.GAME_ENDED)) {
             // 이미 끝난 게임
+            log.info("게임 진행 중 아님 ! ! ! !");
             return;
         }
 
         // gameMeta 상태를 DISCONNECTED로 바꿔서 게임 더 이상 진행 못하게 막은 다음
         gameMeta.setGameStatus(GameStatus.DISCONNECTED);
         gameRepository.saveGameMeta(gameMeta);
+        log.info("게임 상태 변경 ! ! ! ! !");
 
         // 10초 후 flushGame()
         taskScheduler.schedule(() -> flushGame(gameMeta), Instant.now().plusSeconds(10));
 
+        // 연결 끊김 상태 BROADCAST
+        gameBroadCaster.broadcastDisconnectEvent(userUuid, roomId);
 
     }
-
-
 
 
 }

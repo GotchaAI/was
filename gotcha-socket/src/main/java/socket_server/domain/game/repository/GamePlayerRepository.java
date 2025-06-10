@@ -39,4 +39,12 @@ public class GamePlayerRepository {
         return redisTemplate.opsForValue().get(key);
     }
 
+    /**
+     * GamePlayers 삭제
+     */
+    public void deletePlayersByRoomId(String roomId) {
+        String key = getGamePlayersKey(roomId);
+        redisTemplate.delete(key);
+    }
+
 }
