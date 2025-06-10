@@ -10,6 +10,7 @@ import gotcha_domain.gamehistory.GameType;
 import socket_server.domain.lobby.dto.RoomIdRes;
 import socket_server.domain.lobby.service.LobbyBroadCaster;
 import socket_server.domain.room.RoomField.RoomField;
+import socket_server.domain.room.dto.RoomInfoRes;
 import socket_server.domain.room.model.RoomEventType;
 import socket_server.domain.room.dto.RoomSummaryRes;
 import socket_server.domain.room.model.RoomMetadata;
@@ -59,7 +60,7 @@ public class RoomUserService {
 
     public void exitRoom(String roomId, String userUuid) {
         processUserExit(roomId, userUuid, false);
-        broadcastExit(roomId, userUuid);
+//        broadcastExit(roomId, userUuid);
     }
 
     public String findRoomIdByUserUuid(String userUuid) {
@@ -150,7 +151,10 @@ public class RoomUserService {
         ));
 
         RoomMetadata updatedMetadata = RoomMetadata.fromRedisMap(roomId, roomRepository.getRoomData(roomId));
-        roomBroadcaster.broadcastToRoom(roomId, newOwner.getUserUuid(), RoomEventType.UPDATE, updatedMetadata);
+        RoomInfoRes roomInfoRes = RoomInfoRes.from(updatedMetadata);
+        List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR);
+        RoomDetailRes detailRes = new RoomDetailRes(roomInfoRes, userList);
+        roomBroadcaster.broadcastToRoom(roomId, newOwner.getUserUuid(), RoomEventType.UPDATE, detailRes);
 
         int currentUserCount = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR).size();
         RoomSummaryRes roomSummaryRes = RoomSummaryRes.of(updatedMetadata, currentUserCount);
@@ -208,6 +212,10 @@ public class RoomUserService {
 
     public boolean validateUserInRoom(String roomId, String userUuid) {
         return roomUserRepository.findUserInfoInRoom(roomId, userUuid, ROOM_ERROR) != null;
+    }
+
+    public int getUserSize(String roomId, ErrorType LOBBY_ERROR) {
+        return roomUserRepository.findUsersByRoomId(roomId, LOBBY_ERROR).size();
     }
 }
 

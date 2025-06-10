@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ChatMessageReq (
-        String receiverUuid,
+        String receiverNickname,
         String content
 ) {
 }

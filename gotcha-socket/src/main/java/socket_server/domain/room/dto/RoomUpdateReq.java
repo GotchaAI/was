@@ -12,10 +12,10 @@ public record RoomUpdateReq(
         @NotBlank(message = "제목은 필수 입력입니다.")
         String title,
 
-        @NotNull
-        boolean hasPassword,
-
-        String password,
+//        @NotNull
+//        boolean hasPassword,
+//
+//        String password,
 
         @NotNull(message = "인공지능 난이도는 필수 입력입니다.")
         Difficulty difficulty,

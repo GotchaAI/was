@@ -131,13 +131,13 @@ public class RoomService {
     public void updateRoomField(String roomId, RoomUpdateReq roomUpdateReq, String userUuid) {
         RoomMetadata roomMetadata = roomUserService.validateRoomOwnerAndGetRoomMetadata(roomId, userUuid);
 
-        if (roomUpdateReq.hasPassword() && (roomUpdateReq.password() == null || roomUpdateReq.password().isBlank())) {
-            throw new SocketCustomException(ROOM_ERROR, RoomExceptionCode.PASSWORD_REQUIRED_BUT_MISSING);
-        }
+//        if (roomUpdateReq.hasPassword() && (roomUpdateReq.password() == null || roomUpdateReq.password().isBlank())) {
+//            throw new SocketCustomException(ROOM_ERROR, RoomExceptionCode.PASSWORD_REQUIRED_BUT_MISSING);
+//        }
 
         roomMetadata.setTitle(roomUpdateReq.title());
-        roomMetadata.setHasPassword(roomUpdateReq.hasPassword());
-        roomMetadata.setPassword(roomUpdateReq.hasPassword() ? roomUpdateReq.password() : "");
+//        roomMetadata.setHasPassword(roomUpdateReq.hasPassword());
+//        roomMetadata.setPassword(roomUpdateReq.hasPassword() ? roomUpdateReq.password() : "");
         roomMetadata.setDifficulty(roomUpdateReq.difficulty());
         roomMetadata.setRoundCount(roomUpdateReq.roundCount());
 
