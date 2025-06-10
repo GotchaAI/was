@@ -12,6 +12,7 @@ public interface WebSocketConstants {
 
     // 게임 관련 채널
     String GAME_PREFIX = "/sub/game/";
+    String GAME_DISCONNECT_PREFIX = "/sub/game/disconnect/";
 
     String LOBBY_PREFIX = "/sub/lobby/";
     String LOBBY_JOIN_CHANNEL = LOBBY_PREFIX+"join/"; // + uuid
