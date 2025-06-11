@@ -99,6 +99,8 @@ public class UserService {
 
     @Transactional
     public void updateLastLogout(User user, LocalDateTime accessTokenExpiredAt) {
+        if(user.getRole()==Role.GUEST)
+            return;
         user.setLastLogout(accessTokenExpiredAt);
         userRepository.save(user);
     }
