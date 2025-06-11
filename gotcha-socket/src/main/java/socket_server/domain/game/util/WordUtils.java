@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class WordUtils {
 
@@ -190,7 +191,7 @@ public class WordUtils {
             "말",
             "아이스크림",
             "재킷",
-            "캥거루", "키보드", "칼", "사다리", "노트북", "나뭇잎", "다리", "등대", "번개", "사자", "가재", "막대사탕", "우체통", "지도", "보드마카", "확성기", "달", "오토바이", "산", "머그컵");
+            "캥거루", "키보드", "칼", "사다리", "노트북", "나뭇잎", "다리", "등대", "번개", "사자", "가재", "막대사탕", "우체통", "지도", "보드마카", "확성기", "달", "오토바이", "산", "머그컵", "달력", "번개");
 
     private static final Random random = new Random();
 
@@ -215,4 +216,15 @@ public class WordUtils {
     public static String getKorWord(int index) {
         return KOR_WORDS.get(index);
     }
+
+    public static List<Integer> getDemoIndexes(int n) {
+        List<Integer> result = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            result.add(100);
+            result.add(101);
+        }
+        return result;
+    }
+
+
 }
