@@ -117,7 +117,8 @@ public class GameStartService {
      */
     private List<Round> initRounds(int totalRounds, List<GamePlayer> gamePlayers) {
         List<Round> rounds = new ArrayList<>();
-        List<Integer> indexes = WordUtils.getRandomIndexes(totalRounds * 2); // get random indexes, 플레이어는 항상 2명이라고 가정
+//        List<Integer> indexes = WordUtils.getRandomIndexes(totalRounds * 2);
+        List<Integer> indexes = WordUtils.getDemoIndexes(totalRounds * 2);
         for(int i = 0; i < totalRounds; i++) {
             List<Word> words = new ArrayList<>();
             for(int j = 0; j < 2; j++){
