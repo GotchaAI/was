@@ -24,7 +24,6 @@ import socket_server.domain.room.model.RoomMetadata;
 import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomUserRepository;
 import socket_server.domain.room.service.RoomUserService;
-import socket_server.domain.game.enumType.GameEventType;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -58,10 +57,7 @@ public class GameStartService {
         Map<Object, Object> gameMetaMap = gameRepository.findGameMeta(roomId);
         // 없으면 시작 가능
         if(!gameMetaMap.isEmpty()) {
-            if(!GameMeta.fromRedisMap(roomId, gameMetaMap).getGameStatus().canHandleEvent(GameEventType.GAME_START)) {
-                // 있으면 GameStatus 확인, GAME_ENDED 아니면 시작 불가능
-                throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
-            }
+            throw new SocketCustomException(GAME_ERROR, GameExceptionCode.INVALID_GAME_STATUS);
         }
 
 
