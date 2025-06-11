@@ -2,7 +2,9 @@ package socket_server.domain.game.service;
 
 
 import gotcha_common.exception.CustomException;
+import gotcha_common.util.RedisUtil;
 import gotcha_domain.gamehistory.GameHistory;
+import gotcha_domain.user.Role;
 import gotcha_domain.user.User;
 import gotcha_ranking.dto.RankingUserRes;
 import gotcha_ranking.service.RankingRedisService;
@@ -33,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static gotcha_common.redis.RedisProperties.GUEST_TTL_SECONDS;
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +52,7 @@ public class GameEndService {
     private final GamePlayerRepository gamePlayerRepository;
     private final RoundRepository roundRepository;
     private final TaskScheduler taskScheduler;
+    private final RedisUtil redisUtil;
 
 
     public void updateScore(Game game){
@@ -61,20 +65,32 @@ public class GameEndService {
 
         for(GamePlayer gamePlayer : gamePlayers) {
             Map<String, Object> scoreUpdate = new HashMap<>();
-            User user = userService.findUserByUuid(gamePlayer.getPlayerUuid());
+            User user = userService.getUserByUuidAllowingGuest(gamePlayer.getPlayerUuid());
             long newExp = user.getExp() + game.getPlayerScore();
             int newLevel = LevelExpProvider.getLevelByExp((int) newExp);
-
             boolean levelUp = newLevel > user.getLevel();
-            if (levelUp) {
-                userService.updateUserLevel(user, newLevel);
+
+            // 변경 적용
+            user.setExp(newExp);
+            user.setLevel(newLevel);
+
+            if (user.getRole() == Role.GUEST) {
+                // 게스트는 Redis에 저장
+                redisUtil.setData("guest::" + user.getUuid(), user);
+                redisUtil.setDataExpire("guest::" + user.getUuid(), GUEST_TTL_SECONDS);
+            } else {
+                // 일반 유저는 DB 저장
+                if (levelUp) {
+                    userService.updateUserLevel(user, newLevel);
+                }
+                userService.updateUserExp(user, newExp);
+                rankingRedisService.updateUserExpRanking(user.getId(), newExp);
+                RankingUserRes rankingUserRes = rankingRedisService.getUserRank(user.getId());
+
+                scoreUpdate.put("scoreUpdate", rankingUserRes);
             }
-            userService.updateUserExp(user, newExp);
-            rankingRedisService.updateUserExpRanking(user.getId(), newExp);
-            RankingUserRes rankingUserRes = rankingRedisService.getUserRank(user.getId());
 
             scoreUpdate.put("levelUp", levelUp);
-            scoreUpdate.put("scoreUpdate", rankingUserRes);
             scoreUpdates.add(scoreUpdate);
         }
 
@@ -161,6 +177,5 @@ public class GameEndService {
         gameBroadCaster.broadcastDisconnectEvent(userUuid, roomId);
 
     }
-
 
 }

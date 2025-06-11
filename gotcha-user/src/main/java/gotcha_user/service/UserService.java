@@ -121,4 +121,18 @@ public class UserService {
     public List<User> findUserListByKeyword(String keyword) {
         return userRepository.findByNicknameContaining(keyword);
     }
+
+    public User getUserByUuidAllowingGuest(String uuid) {
+        if (uuid == null) {
+            throw new CustomException(UserExceptionCode.INVALID_USERID);
+        }
+
+        Optional<User> dbUser = userRepository.findByUuid(uuid);
+        if (dbUser.isPresent()) return dbUser.get();
+
+        User guest = (User) redisUtil.getData(GUEST_KEY_PREFIX + uuid);
+        if (guest != null) return guest;
+
+        throw new CustomException(UserExceptionCode.INVALID_USERID);
+    }
 }
