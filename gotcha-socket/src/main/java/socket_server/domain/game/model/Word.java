@@ -1,5 +1,6 @@
 package socket_server.domain.game.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import socket_server.domain.game.meta.WordMeta;
 
@@ -11,6 +12,7 @@ import java.util.List;
 @Data
 @Builder
 public class Word {
+
     private int wordIndex;
     private String word;
     private String drawerUuid;
@@ -21,6 +23,7 @@ public class Word {
     private String imageURL;
     private List<Guess> aiGuesses;
     private List<Guess> playerGuesses;
+    @JsonProperty("aiPredictions")
     private List<AIPrediction> AIPredictions;
 
     public static WordMeta fromWord(Word word) {

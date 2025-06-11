@@ -245,7 +245,7 @@ public class GuessFlowService {
         if(gameMeta.getCurrentRound() < gameMeta.getTotalRounds()) {
             taskScheduler.schedule(() -> roundStartService.startNextRound(roomId), Instant.now().plusSeconds(5));
         } else {
-            taskScheduler.schedule(() -> endGame(roomId), Instant.now().plusSeconds(5));
+            taskScheduler.schedule(() -> endGame(roomId), Instant.now().plusSeconds(1));
         }
 
     }
@@ -400,7 +400,7 @@ public class GuessFlowService {
 
 
         if(isWordGuessCompleted(currentWord)){
-            taskScheduler.schedule(() ->handleBattleEnd(roomId, currentRound, currentWord), Instant.now().plusSeconds(5));
+            taskScheduler.schedule(() ->handleBattleEnd(roomId, currentRound, currentWord), Instant.now().plusSeconds(1));
         } else {
             processNextGuessRequest(roomId);
         }
@@ -470,9 +470,9 @@ public class GuessFlowService {
         // 다음 word로 갈지, round 종료할지, game 종료할지를 찾아야 됨
 
         if (currentRound.getCurrentWordIndex() >= 2) { // >=2
-            taskScheduler.schedule(() -> handleRoundEnd(roomId), Instant.now().plusSeconds(5));
+            taskScheduler.schedule(() -> handleRoundEnd(roomId), Instant.now().plusSeconds(1));
         } else {
-            taskScheduler.schedule(() -> startGuessingPhase(roomId), Instant.now().plusSeconds(5));
+            taskScheduler.schedule(() -> startGuessingPhase(roomId), Instant.now().plusSeconds(1));
         }
 
     }
