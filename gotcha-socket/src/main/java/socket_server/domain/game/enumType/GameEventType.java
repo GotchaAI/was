@@ -16,5 +16,7 @@ public enum GameEventType {
 
     SCORE_UPDATE,
     GAME_END,
-    ROUND_END
+    ROUND_END,
+
+    DISCONNECTED
 }

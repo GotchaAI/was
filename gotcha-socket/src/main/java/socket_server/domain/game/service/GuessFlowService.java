@@ -23,7 +23,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
 /**
  * todo: 너무 많은 코드 !!! 리팩토링 필요
  */
@@ -222,7 +222,7 @@ public class GuessFlowService {
             //5. handle guess result
             taskScheduler.schedule(() ->
                             handleGuessResult(roomId, currentRound, currentWord, guess),
-                    Instant.now().plusSeconds(5));
+                    Instant.now().plusSeconds(2));
         }
     }
 
@@ -385,14 +385,16 @@ public class GuessFlowService {
         GameMeta gameMeta = getGameMetaByRoomId(roomId);
         validateGameEvent(gameMeta, GameEventType.GUESS_RESULT);
 
-        // guesser 이름 받음
+        // guesserNickname 이름 받음
         String guesserUuid = guess.getGuesserUuid();
-        String guesserJson = gamePlayerRepository.findGamePlayerStringByUuid(roomId, guesserUuid);
-        GamePlayer gamePlayer = jsonSerializer.deserialize(guesserJson, GamePlayer.class, GAME_ERROR);
-        String guesser = guesserUuid.equals("AI") ? "묘묘" : gamePlayer.getNickname();
+
+        List<GamePlayer> gamePlayers = getGamePlayersByRoomId(roomId);
+        GamePlayer guesser = gamePlayers.stream().filter(player -> player.getPlayerUuid().equals(guesserUuid)).findFirst().orElse(null);
+
+        String guesserNickname = guesserUuid.equals("AI") ? "묘묘" : guesser.getNickname();
         
         // AI 반응 받음
-        String aiSays = aiClientService.getGuessReactMessage(roomId, new AIGuessReactReq(guess.getCorrect(), currentWord.getWord(), guesser));
+        String aiSays = aiClientService.getGuessReactMessage(roomId, new AIGuessReactReq(guess.getCorrect(), currentWord.getWord(), guesserNickname));
 
          // GUESS RESULT Broadcast
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_RESULT, guess, aiSays);
@@ -493,11 +495,8 @@ public class GuessFlowService {
 
 
     private List<GamePlayer> getGamePlayersByRoomId(String roomId) {
-        List<String> playerUuids = gamePlayerRepository.findPlayerUuidsByRoomId(roomId);
-        return playerUuids.stream()
-                .map(uuid -> gamePlayerRepository.findGamePlayerStringByUuid(roomId, uuid))
-                .map(gamePlayerJson -> jsonSerializer.deserialize(gamePlayerJson, GamePlayer.class, GAME_ERROR))
-                .collect(Collectors.toList());
+        String playersJson = gamePlayerRepository.findPlayersStringByRoomId(roomId);
+        return jsonSerializer.deserializeList(playersJson, GamePlayer.class, GAME_ERROR);
     }
 
     /**

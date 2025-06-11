@@ -112,11 +112,8 @@ public class GameStartService {
 
 
     private void savePlayers(String roomId, List<GamePlayer> gamePlayers) {
-        gamePlayerRepository.savePlayerUuids(roomId, gamePlayers.stream().map(GamePlayer::getPlayerUuid).toList());
-        for(GamePlayer gamePlayer : gamePlayers) {
-            String playerJson = jsonSerializer.serialize(gamePlayer, GAME_ERROR);
-            gamePlayerRepository.saveGamePlayerString(roomId, gamePlayer.getPlayerUuid(), playerJson);
-        }
+        String gamePlayersJson = jsonSerializer.serialize(gamePlayers, GAME_ERROR);
+        gamePlayerRepository.savePlayersString(roomId, gamePlayersJson);
     }
 
     /**
