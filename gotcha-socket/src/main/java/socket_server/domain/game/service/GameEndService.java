@@ -1,16 +1,17 @@
 package socket_server.domain.game.service;
 
 
+import gotcha_common.exception.CustomException;
 import gotcha_domain.gamehistory.GameHistory;
 import gotcha_domain.user.User;
 import gotcha_ranking.dto.RankingUserRes;
+import gotcha_ranking.service.RankingRedisService;
 import gotcha_user.service.UserService;
 import gotcha_user.util.LevelExpProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
-import gotcha_ranking.service.RankingRedisService;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.exception.SocketCustomException;
 import socket_server.common.exception.game.GameExceptionCode;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 
 @Service
@@ -105,9 +107,20 @@ public class GameEndService {
 
 
     public void saveGameHistory(Game game) {
-        List<User> users = game.getGamePlayers().stream().map(
-                gamePlayer -> userService.findUserByUuid(gamePlayer.getPlayerUuid())
-        ).toList();
+        List<User> users = game.getGamePlayers().stream()
+                .map(gp -> {
+                    try {
+                        return userService.findUserByUuid(gp.getPlayerUuid());
+                    } catch (CustomException e) {
+                        if ("USER-404-001".equals(e.getExceptionCode().getCode())) {
+                            log.warn("게스트 유저이므로 히스토리 저장 제외: {}", gp.getPlayerUuid());
+                            return null;
+                        }
+                        throw e;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .toList();
 
         GameHistory gameHistory = gameHistoryService.createGameHistoryWithUsers(game, users);
         log.info("GameHistory Saved: {}", gameHistory);

@@ -36,7 +36,13 @@ public class FriendSubscribeEventListener implements ApplicationListener<Session
         String uuid = destination.substring("/sub/friend/".length());
 
         // 2. 사용자 정보 조회
-        User user = userService.findUserByUuid(uuid);
+        User user;
+        try {
+            user = userService.findUserByUuid(uuid);
+        } catch (Exception e) {
+            log.warn("ONLINE 처리 중 사용자 조회 실패 (uuid: {}): {}", uuid, e.getMessage());
+            return;
+        }
 
         // 3. 친구 조회
         List<User> friends = friendRepository.findAllByUserId(user.getId()).stream()

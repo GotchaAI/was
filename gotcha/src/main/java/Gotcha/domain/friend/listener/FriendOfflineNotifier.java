@@ -23,7 +23,14 @@ public class FriendOfflineNotifier {
     public void handleUserDisconnected(UserDisconnectedEvent event) {
         String userUuid = event.getUserUuid();
 
-        User user = userService.findUserByUuid(userUuid);
+        User user;
+        try {
+            user = userService.findUserByUuid(userUuid);
+        } catch (Exception e) {
+            log.warn("OFFLINE 처리 중 사용자 조회 실패 (uuid: {}): {}", userUuid, e.getMessage());
+            return;
+        }
+
         List<User> friends = friendRepository.findAllByUserId(user.getId()).stream()
                 .map(friend -> friend.getOther(user))
                 .distinct()
