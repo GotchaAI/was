@@ -1,7 +1,9 @@
 package socket_server.common.listener;
 
+import gotcha_common.event.UserDisconnectedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,7 @@ public class WebSocketDisconnectListener {
     private final RoomUserService roomUserService;
     private final DisconnectManager disconnectManager;
     private final GameEndService gameEndService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @EventListener
     public void onDisconnect(SessionDisconnectEvent event) {
@@ -43,6 +46,7 @@ public class WebSocketDisconnectListener {
                 gameEndService.handleDisconnectGame(roomId, userUuid);
             }
 
+            eventPublisher.publishEvent(new UserDisconnectedEvent(userUuid));
         }
 
     }
