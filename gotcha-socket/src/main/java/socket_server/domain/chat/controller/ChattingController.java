@@ -1,8 +1,9 @@
 package socket_server.domain.chat.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import gotcha_common.exception.CustomException;
 import gotcha_domain.auth.SecurityUserDetails;
+import gotcha_domain.chat.ChatMessage;
+import gotcha_domain.chat.ChatType;
 import gotcha_domain.user.Role;
 import gotcha_domain.user.User;
 import gotcha_user.service.UserService;
@@ -14,11 +15,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import socket_server.common.config.RedisMessage;
 import socket_server.common.exception.ErrorType;
+import socket_server.common.exception.SocketCustomException;
 import socket_server.common.exception.chat.ChatExceptionCode;
 import socket_server.common.util.JsonSerializer;
-import gotcha_domain.chat.ChatMessage;
 import socket_server.domain.chat.dto.ChatMessageReq;
-import gotcha_domain.chat.ChatType;
 import socket_server.domain.chat.service.ChatLogService;
 
 import java.time.LocalDateTime;
@@ -34,6 +34,7 @@ public class ChattingController {
     private final JsonSerializer jsonSerializer;
     private final ChatLogService chatLogService;
     private final UserService userService;
+    private final ErrorType CHAT_ERROR = ErrorType.CHAT;
 
     public ChattingController(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
                               JsonSerializer jsonSerializer,
@@ -95,7 +96,7 @@ public class ChattingController {
 
     private void validateChatPermission(SecurityUserDetails userDetails) {
         if (userDetails.getRole().equals(Role.GUEST)) {
-            throw new CustomException(ChatExceptionCode.GUEST_CANNOT_CHAT);
+            throw new SocketCustomException(CHAT_ERROR, ChatExceptionCode.GUEST_CANNOT_CHAT);
         }
     }
 }
