@@ -63,7 +63,7 @@ public class RoundStartService {
                 new AIRoundStartReq(currentRound, gameMeta.getTotalRounds())
         );
 
-        currentRoundMeta.setDrawingEndTime(LocalDateTime.now().plusSeconds(30));
+        currentRoundMeta.setDrawingEndTime(LocalDateTime.now().plusSeconds(120));
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.ROUND_START, currentRoundMeta, aiSays);
     }
 
