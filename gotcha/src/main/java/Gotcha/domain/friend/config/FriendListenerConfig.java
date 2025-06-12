@@ -2,6 +2,7 @@ package Gotcha.domain.friend.config;
 
 import Gotcha.domain.friend.listener.FriendOfflineNotifier;
 import Gotcha.domain.friend.repository.FriendRepository;
+import gotcha_user.repository.UserRepository;
 import gotcha_user.service.UserService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -15,9 +16,10 @@ public class FriendListenerConfig {
     @ConditionalOnMissingBean(FriendOfflineNotifier.class)
     public FriendOfflineNotifier friendOfflineNotifier(
             UserService userService,
+            UserRepository userRepository,
             FriendRepository friendRepository,
             FriendSocketService friendSocketService
     ) {
-        return new FriendOfflineNotifier(userService, friendRepository, friendSocketService);
+        return new FriendOfflineNotifier(userService, userRepository, friendRepository, friendSocketService);
     }
 }
