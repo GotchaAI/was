@@ -67,7 +67,7 @@ public class GuessFlowService {
 //        log.info("[GUESS_START] broadcasted");
         gameMeta.setGameStatus(GameStatus.GUESSING_STARTED);
         gameRepository.saveGameMeta(gameMeta);
-        taskScheduler.schedule(() ->processNextGuessRequest(roomId), Instant.now().plusSeconds(5));
+        taskScheduler.schedule(() ->processNextGuessRequest(roomId), Instant.now().plusSeconds(1));
     }
 
 
@@ -97,7 +97,7 @@ public class GuessFlowService {
             Guess newGuess = guessRequestService.requestGuessAI(roomId, gameMeta, currentWord);
             taskScheduler.schedule(() ->
                 handleAIGuessSubmit(roomId, currentRound, currentWord, newGuess)
-            , Instant.now().plusSeconds(5));
+            , Instant.now().plusSeconds(3));
         } else {
             guessRequestService.requestGuessPlayer(roomId, gameMeta, currentWord);
         }
@@ -163,7 +163,7 @@ public class GuessFlowService {
         roundRepository.saveAIGuessesString(roomId, currentRound.getRoundIndex(), currentWord.getWordIndex(), aiGuessesString);
 
         // 7. Handle Guess Result
-        taskScheduler.schedule(() -> handleGuessResult(roomId, currentRound, currentWord, guess), Instant.now().plusSeconds(5));
+        taskScheduler.schedule(() -> handleGuessResult(roomId, currentRound, currentWord, guess), Instant.now().plusSeconds(3));
     }
 
 
@@ -222,7 +222,7 @@ public class GuessFlowService {
             //5. handle guess result
             taskScheduler.schedule(() ->
                             handleGuessResult(roomId, currentRound, currentWord, guess),
-                    Instant.now().plusSeconds(2));
+                    Instant.now().plusSeconds(1));
         }
     }
 
@@ -243,7 +243,7 @@ public class GuessFlowService {
 
         gameRepository.saveGameMeta(gameMeta);
         if(gameMeta.getCurrentRound() < gameMeta.getTotalRounds()) {
-            taskScheduler.schedule(() -> roundStartService.startNextRound(roomId), Instant.now().plusSeconds(5));
+            taskScheduler.schedule(() -> roundStartService.startNextRound(roomId), Instant.now().plusSeconds(1));
         } else {
             taskScheduler.schedule(() -> endGame(roomId), Instant.now().plusSeconds(1));
         }
@@ -350,20 +350,7 @@ public class GuessFlowService {
     }
 
 
-    /**
-     * 다음 단어로 이동
-     */
-    private void moveToNextWord(String roomId, Round currentRound){
-//        log.info("[FUNCTION CALL] moveToNextWord({}) called", currentRound.getRoundIndex());
-        // currentRound의 currentWordIndex 값을 바꿔서 저장
-        Word currentWord = getCurrentWord(roomId, currentRound);
 
-        gameBroadCaster.broadcastGameEvent("SYSTEM", roomId,GameEventType.GUESS_START,  Word.fromWord(currentWord), null);
-//        log.info("[GUESS_START] broadcasted");
-
-        taskScheduler.schedule(() ->  processNextGuessRequest(roomId), Instant.now().plusSeconds(5));
-
-    }
 
 
     /**
@@ -474,7 +461,7 @@ public class GuessFlowService {
         if (currentRound.getCurrentWordIndex() >= 2) { // >=2
             taskScheduler.schedule(() -> handleRoundEnd(roomId), Instant.now().plusSeconds(1));
         } else {
-            taskScheduler.schedule(() -> startGuessingPhase(roomId), Instant.now().plusSeconds(1));
+            taskScheduler.schedule(() -> startGuessingPhase(roomId), Instant.now().plusSeconds(3));
         }
 
     }
