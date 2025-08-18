@@ -19,7 +19,7 @@ RUN ./gradlew :gotcha:bootJar -x test
 
 
 
-FROM openjdk:17
+FROM eclipse-temurin:17
 RUN mkdir /opt/app
 COPY --from=builder /app/gotcha/build/libs/*.jar /opt/app/spring-boot-application.jar
 EXPOSE 8080
