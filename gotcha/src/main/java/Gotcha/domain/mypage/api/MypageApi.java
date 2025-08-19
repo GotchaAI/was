@@ -1,15 +1,18 @@
 package Gotcha.domain.mypage.api;
 
 import gotcha_domain.auth.SecurityUserDetails;
+import gotcha_user.dto.NicknameReq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "[마이페이지 API]", description = "마이페이지 관련 API")
 public interface MypageApi {
@@ -311,5 +314,51 @@ public interface MypageApi {
                     }))
     })
     ResponseEntity<?> getUserGameDetails(@PathVariable(value = "id") Long gameId,
+                                         @AuthenticationPrincipal SecurityUserDetails userDetails);
+
+
+    @Operation(summary = "닉네임 변경", description = "닉네임 변경 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "닉네임 변경 성공",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                    {
+                                        "status": "OK",
+                                        "message": "성공적으로 수정되었습니다."
+                                    }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "400", description = "닉네임 중복 확인 안됨",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                    {
+                                        "code": "USER-400-001",
+                                        "status": "BAD_REQUEST",
+                                        "message": "요청한 필드 값이 유효하지 않습니다.",
+                                        "fields": {
+                                            "nickname": "닉네임 중복 확인이 완료되지 않았습니다."
+                                        }
+                                    }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "409", description = "닉네임 중복",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(name = "존재하는 닉네임", value = """
+                                    {
+                                             "code": "USER-409-001",
+                                             "status": "CONFLICT",
+                                             "message": "이미 존재하는 닉네임입니다."
+                                    }
+                                    """),
+                            @ExampleObject(name = "현재 닉네임과 중복", value = """
+                                    {
+                                             "code": "USER-409-003",
+                                             "status": "CONFLICT",
+                                             "message": "현재 닉네임과 동일합니다."
+                                    }
+                                    """)
+                    }))
+    })
+    ResponseEntity<?> modifyUserNickname(@Valid @RequestBody NicknameReq nicknameReq,
                                          @AuthenticationPrincipal SecurityUserDetails userDetails);
 }
