@@ -1,0 +1,14 @@
+name: Block Perf to Develop
+
+on:
+  pull_request:
+    branches: [ "develop" ]
+
+jobs:
+  block-perf-pr:
+    runs-on: ubuntu-latest
+    if: github.head_ref == 'perf'
+    steps:
+      - run: |
+          echo "🚫 perf-test → develop 병합은 금지되어 있습니다."
+          exit 1

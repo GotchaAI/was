@@ -22,12 +22,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-        # 3. Docker 이미지 build 및 push
+      # 3. Docker 이미지 build 및 push
       - name: docker build and push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/gotcha:latest .
-          docker push ${{ secrets.DOCKER_USERNAME }}/gotcha:latest
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/gotcha_perf_test:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/gotcha_perf_test:latest
 
       # 4. ec2 pull
       - name: Deploy to server
@@ -38,10 +38,10 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_KEY }}
           script: |
-            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+#            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             docker system prune -a -f
             docker-compose down
-            docker rmi ${{ secrets.DOCKER_USERNAME }}/gotcha:latest
-            docker pull ${{ secrets.DOCKER_USERNAME }}/gotcha:latest
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/gotcha_perf_test:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/gotcha_perf_test:latest
             docker-compose up -d
 
