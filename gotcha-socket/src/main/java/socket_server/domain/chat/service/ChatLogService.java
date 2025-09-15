@@ -23,6 +23,7 @@ public class ChatLogService {
     private final RedisTemplate<String, String> redisTemplate;
     private final JsonSerializer jsonSerializer;
     private final ErrorType CHAT_ERROR = ErrorType.CHAT;
+    private static final String PRIVATE_CHAT_KEYS_INDEX = "chat:private:index"; // 인덱스 Set을 위한 키
 
     public ChatLogService(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
                           JsonSerializer jsonSerializer) {
@@ -44,6 +45,11 @@ public class ChatLogService {
         double score = Instant.now().toEpochMilli();
 
         redisTemplate.opsForZSet().add(key, serialized, score);
+
+        // PRIVATE 채팅일 경우, 키 인덱스 Set에 키를 추가
+        if (chatType == ChatType.PRIVATE) {
+            redisTemplate.opsForSet().add(PRIVATE_CHAT_KEYS_INDEX, key);
+        }
     }
 
     public void removeExpiredMessages(ChatType chatType, String identifier) {
@@ -98,7 +104,8 @@ public class ChatLogService {
 
 
     public Set<String> getPrivateChatKeys() {
-        Set<String> keys = redisTemplate.keys("chat:private:*:*:log");
+        // KEYS 대신 SMEMBERS를 사용하여 안전하고 빠르게 키 목록을 가져옴
+        Set<String> keys = redisTemplate.opsForSet().members(PRIVATE_CHAT_KEYS_INDEX);
         return keys != null ? keys : Set.of();
     }
 
