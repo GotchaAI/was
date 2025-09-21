@@ -27,10 +27,12 @@ public class AIClientService {
     @Value("${ai-server.url}")
     private String AI_SERVER_BASE_URL;
 
+    private final String MYOMYO_BASE_URL = AI_SERVER_BASE_URL + "myomyo/";
+
     public String getGameStartMessage(String roomId, AIGameStartReq request){
        try {
             return webClient.post()
-                    .uri(AI_SERVER_BASE_URL + "chat/" + roomId + "/start")
+                    .uri(MYOMYO_BASE_URL + roomId + "/start")
                     .bodyValue(request)
                     .retrieve()
                     .onStatus(httpStatusCode -> httpStatusCode.is4xxClientError() || httpStatusCode.is5xxServerError()
@@ -48,7 +50,7 @@ public class AIClientService {
     public String getRoundStartMessage(String roomId, AIRoundStartReq request){
         try {
             return webClient.post()
-                    .uri(AI_SERVER_BASE_URL + "chat/" + roomId + "/round/start")
+                    .uri(MYOMYO_BASE_URL + roomId + "/round/start")
                     .bodyValue(request)
                     .retrieve()
                     .onStatus(httpStatusCode -> httpStatusCode.is4xxClientError() || httpStatusCode.is5xxServerError()
@@ -66,7 +68,7 @@ public class AIClientService {
     public String getGuessStartMessage(String roomId, AIGuessStartReq request){
         try {
             return webClient.post()
-                    .uri(AI_SERVER_BASE_URL + "chat/" + roomId + "/guess/start")
+                    .uri(MYOMYO_BASE_URL + roomId + "/guess/start")
                     .bodyValue(request)
                     .retrieve()
                     .onStatus(httpStatusCode -> httpStatusCode.is4xxClientError() || httpStatusCode.is5xxServerError(),
@@ -84,7 +86,7 @@ public class AIClientService {
     public AIGuessImageRes getGuessImage(AIGuessImageReq request){
         try {
             return webClient.post()
-                    .uri(AI_SERVER_BASE_URL + "image/classify")
+                    .uri(AI_SERVER_BASE_URL + "classify")
                     .bodyValue(request)
                     .retrieve()
                     .onStatus(httpStatusCode -> httpStatusCode.is4xxClientError() || httpStatusCode.is5xxServerError()
@@ -101,7 +103,7 @@ public class AIClientService {
     public String getGuessMessage(String roomId, AIGuessMessageReq request){
         try {
             return webClient.post()
-                    .uri(AI_SERVER_BASE_URL + "chat/" + roomId + "/guess")
+                    .uri(MYOMYO_BASE_URL + roomId + "/guess")
                     .bodyValue(request)
                     .retrieve()
                     .onStatus(httpStatusCode -> httpStatusCode.is4xxClientError() || httpStatusCode.is5xxServerError()
@@ -119,7 +121,7 @@ public class AIClientService {
     public String getGuessReactMessage(String roomId, AIGuessReactReq request){
         try {
             return webClient.post()
-                    .uri(AI_SERVER_BASE_URL + "chat/" + roomId + "/guess/react")
+                    .uri(MYOMYO_BASE_URL + roomId + "/guess/react")
                     .bodyValue(request)
                     .retrieve()
                     .onStatus(httpStatusCode -> httpStatusCode.is4xxClientError() || httpStatusCode.is5xxServerError()
@@ -137,7 +139,7 @@ public class AIClientService {
     public String getRoundEndMessage(String roomId, AIRoundEndReq request){
         try {
             return webClient.post()
-                    .uri(AI_SERVER_BASE_URL + "chat/" + roomId + "/round/end")
+                    .uri(MYOMYO_BASE_URL + roomId + "/round/end")
                     .bodyValue(request)
                     .retrieve()
                     .onStatus(httpStatusCode -> httpStatusCode.is4xxClientError() || httpStatusCode.is5xxServerError()
@@ -155,7 +157,7 @@ public class AIClientService {
     public String getGameEndMessage(String roomId, AIGameEndReq request) {
         try {
             return webClient.post()
-                    .uri(AI_SERVER_BASE_URL + "chat/" + roomId + "/end")
+                    .uri(MYOMYO_BASE_URL + roomId + "/end")
                     .bodyValue(request)
                     .retrieve()
                     .onStatus(httpStatusCode -> httpStatusCode.is4xxClientError() || httpStatusCode.is5xxServerError()
