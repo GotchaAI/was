@@ -10,6 +10,8 @@ import java.util.List;
 public interface FriendRepository extends JpaRepository<Friend, Long> {
     @Query("""
                 SELECT f FROM Friend f
+                JOIN FETCH f.user1
+                JOIN FETCH f.user2
                 WHERE f.user1.id = :userId OR f.user2.id = :userId
             """)
     List<Friend> findAllByUserId(@Param("userId") Long userId);
