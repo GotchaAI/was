@@ -133,4 +133,9 @@ public class User extends BaseTimeEntity {
     public void changeNickname(String newNickname) {
         this.nickname = newNickname;
     }
+
+    public void updateChatSettings(ChatOption chatOption, PrivateChatOption privateChatOption) {
+        this.chatOption = chatOption;
+        this.privateChatOption = privateChatOption;
+    }
 }
