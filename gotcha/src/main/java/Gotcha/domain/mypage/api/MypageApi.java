@@ -1,5 +1,6 @@
 package Gotcha.domain.mypage.api;
 
+import Gotcha.domain.mypage.dto.ChatSettingReq;
 import gotcha_domain.auth.SecurityUserDetails;
 import gotcha_user.dto.NicknameReq;
 import io.swagger.v3.oas.annotations.Operation;
@@ -361,4 +362,60 @@ public interface MypageApi {
     })
     ResponseEntity<?> modifyUserNickname(@Valid @RequestBody NicknameReq nicknameReq,
                                          @AuthenticationPrincipal SecurityUserDetails userDetails);
+
+    @Operation(summary = "채팅 설정 변경", description = "사용자의 전체 채팅 및 귓속말 허용 여부 설정")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "채팅 설정 변경 성공",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """ 
+                                    {
+                                        "status": "OK",
+                                        "message": "성공적으로 수정되었습니다."
+                                    }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "400", description = "잘못된 enum 값 입력",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """ 
+                                    {
+                                        "status": 400,
+                                        "code": "INVALID_INPUT_VALUE",
+                                        "message": "필드 'chatOption'에 잘못된 값 'WRONG_VALUE'이(가) 입력되었습니다. 허용되는 값: [ALLOW_ALL, ALLOW_FRIEND_ONLY, DISALLOW]",
+                                        "field": "chatOption"
+                                    }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """ 
+                                    {
+                                        "status": 401,
+                                        "code": "AUTH-401-001",
+                                        "message": "인증이 필요합니다."
+                                    }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 사용자",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """ 
+                                    {
+                                        "status": "NOT_FOUND",
+                                        "code": "USER-404-001",
+                                        "message": "존재하지 않는 사용자입니다."
+                                    }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "500", description = "서버 내부 오류",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """ 
+                                    {
+                                        "status": "INTERNAL_SERVER_ERROR",
+                                        "code": "GLOBAL-500-001",
+                                        "message": "서버 내부 오류가 발생했습니다."
+                                    }
+                                    """)
+                    }))
+    })
+    ResponseEntity<?> modifyUserChatSetting(@Valid @RequestBody ChatSettingReq chatSettingReq,
+                                            @AuthenticationPrincipal SecurityUserDetails userDetails);
 }
