@@ -3,6 +3,8 @@ package gotcha_user.service;
 import gotcha_common.exception.CustomException;
 import gotcha_common.util.RedisUtil;
 import gotcha_domain.auth.SecurityUserDetails;
+import gotcha_domain.user.ChatOption;
+import gotcha_domain.user.PrivateChatOption;
 import gotcha_domain.user.Role;
 import gotcha_domain.user.User;
 import gotcha_user.dto.UserInfoRes;
@@ -120,6 +122,12 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<User> findUserListByKeyword(String keyword) {
         return userRepository.findByNicknameContaining(keyword);
+    }
+
+    @Transactional
+    public void updateUserChatSetting(Long userId, ChatOption chatOption, PrivateChatOption privateChatOption) {
+        User user = findUserByUserId(userId);
+        user.updateChatSettings(chatOption, privateChatOption);
     }
 
     public User getUserByUuidAllowingGuest(String uuid) {

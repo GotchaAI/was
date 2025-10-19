@@ -68,6 +68,14 @@ public class User extends BaseTimeEntity {
     @Column(unique = true, nullable = false)
     private String uuid;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "chat_option", nullable = false)
+    private ChatOption chatOption = ChatOption.ALLOW_ALL;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "private_chat_option", nullable = false)
+    private PrivateChatOption privateChatOption = PrivateChatOption.ALLOW;
+
     @JsonIgnore
     @OneToMany(mappedBy = "player")
     private List<UserGameHistory> userGameHistories = new ArrayList<>();
@@ -124,5 +132,10 @@ public class User extends BaseTimeEntity {
 
     public void changeNickname(String newNickname) {
         this.nickname = newNickname;
+    }
+
+    public void updateChatSettings(ChatOption chatOption, PrivateChatOption privateChatOption) {
+        this.chatOption = chatOption;
+        this.privateChatOption = privateChatOption;
     }
 }
