@@ -1,8 +1,6 @@
 package socket_server.common.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import gotcha_common.exception.CustomException;
 import gotcha_common.exception.ExceptionRes;
 import gotcha_common.exception.exceptionCode.GlobalExceptionCode;
