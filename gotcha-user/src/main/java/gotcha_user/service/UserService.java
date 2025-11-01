@@ -94,8 +94,20 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public User findUserByNicknameWithFriends(String nickname) {
+        return userRepository.findByNicknameWithFriends(nickname)
+                .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
+    }
+
+    @Transactional(readOnly = true)
     public User findUserByUuid(String uuid) {
         return userRepository.findByUuid(uuid)
+                .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
+    }
+
+    @Transactional(readOnly = true)
+    public User findUserByUuidWithFriends(String uuid) {
+        return userRepository.findByUuidWithFriends(uuid)
                 .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
     }
 
