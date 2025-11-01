@@ -140,6 +140,11 @@ public class UserService {
     public void updateUserChatSetting(Long userId, ChatOption chatOption, PrivateChatOption privateChatOption) {
         User user = findUserByUserId(userId);
         user.updateChatSettings(chatOption, privateChatOption);
+
+        // Redis 캐시 업데이트
+        String settingsCacheKey = "user:" + user.getUuid() + ":settings";
+        redisUtil.hSet(settingsCacheKey, "chatOption", chatOption.name());
+        redisUtil.hSet(settingsCacheKey, "privateChatOption", privateChatOption.name());
     }
 
     public User getUserByUuidAllowingGuest(String uuid) {
