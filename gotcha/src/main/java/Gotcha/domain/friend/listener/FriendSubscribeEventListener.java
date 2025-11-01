@@ -6,6 +6,7 @@ import gotcha_user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
+import gotcha_common.util.RedisUtil;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
@@ -22,6 +23,7 @@ public class FriendSubscribeEventListener implements ApplicationListener<Session
     private final UserService userService;
     private final FriendRepository friendRepository;
     private final FriendSocketService friendSocketService;
+    private final RedisUtil redisUtil;
 
     @Override
     public void onApplicationEvent(SessionSubscribeEvent event) {
@@ -50,7 +52,18 @@ public class FriendSubscribeEventListener implements ApplicationListener<Session
                 .distinct()
                 .toList();
 
-        // 4. 각 친구에게 ONLINE 알림
+        // 4. Redis 캐시 워밍 (사용자 설정 및 친구 목록)
+        String settingsCacheKey = "user:" + uuid + ":settings";
+        redisUtil.hSet(settingsCacheKey, "chatOption", user.getChatOption().name());
+        redisUtil.hSet(settingsCacheKey, "privateChatOption", user.getPrivateChatOption().name());
+
+        String friendCacheKey = "user:" + uuid + ":friends";
+        if (!friends.isEmpty()) {
+            String[] friendUuids = friends.stream().map(User::getUuid).toArray(String[]::new);
+            redisUtil.addSetValue(friendCacheKey, friendUuids);
+        }
+
+        // 5. 각 친구에게 ONLINE 알림
         for (User friend : friends) {
             friendSocketService.sendFriendAlert(user.getUuid(), friend.getUuid(), user.getUuid(), FriendEventType.ONLINE);
         }
