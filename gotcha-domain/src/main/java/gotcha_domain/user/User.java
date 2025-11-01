@@ -27,8 +27,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -78,47 +78,47 @@ public class User extends BaseTimeEntity {
 
     @JsonIgnore
     @OneToMany(mappedBy = "player")
-    private List<UserGameHistory> userGameHistories = new ArrayList<>();
+    private Set<UserGameHistory> userGameHistories = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "writer")
-    private List<Answer> answers = new ArrayList<>();
+    private Set<Answer> answers = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "writer")
-    private List<Inquiry> inquiries = new ArrayList<>();
+    private Set<Inquiry> inquiries = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "writer")
-    private List<Notification> notifications = new ArrayList<>();
+    private Set<Notification> notifications = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "user")
-    private List<UserReport> userReports = new ArrayList<>();
+    private Set<UserReport> userReports = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "user")
-    private List<UserAchievement> userAchievements = new ArrayList<>();
+    private Set<UserAchievement> userAchievements = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "user1")
-    private List<Friend> friends = new ArrayList<>();
+    private Set<Friend> friends = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "user2")
-    private List<Friend> friendOf = new ArrayList<>();
+    private Set<Friend> friendOf = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "fromUser")
-    private List<FriendRequest> sentFriendRequests = new ArrayList<>();
+    private Set<FriendRequest> sentFriendRequests = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "toUser")
-    private List<FriendRequest> receivedFriendRequests = new ArrayList<>();
+    private Set<FriendRequest> receivedFriendRequests = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "user")
-    private List<BugReport> bugReports = new ArrayList<>();
+    private Set<BugReport> bugReports = new HashSet<>();
 
     @Builder
     public User(Long id, String email, String password, String nickname, Role role, String uuid){
@@ -134,8 +134,35 @@ public class User extends BaseTimeEntity {
         this.nickname = newNickname;
     }
 
+    public boolean isFriendWith(User user) {
+        // 친구 목록(friends, friendOf)을 확인하여 친구 여부 반환
+        return this.friends.stream().anyMatch(f -> f.getUser2().equals(user)) ||
+               this.friendOf.stream().anyMatch(f -> f.getUser1().equals(user));
+    }
+
+    public boolean canReceiveMessage(MessageType messageType, User sender) {
+        if (this.equals(sender)) return true; // 자신은 항상 수신
+        if (this.chatOption == ChatOption.DENY_ALL) return false;
+        if (this.chatOption == ChatOption.FRIENDS_ONLY && !isFriendWith(sender)) return false;
+        if (messageType == MessageType.PRIVATE && (this.privateChatOption == PrivateChatOption.DENY || !isFriendWith(sender))) return false;
+        return true;
+    }
+
     public void updateChatSettings(ChatOption chatOption, PrivateChatOption privateChatOption) {
         this.chatOption = chatOption;
         this.privateChatOption = privateChatOption;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id != null && id.equals(user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }
