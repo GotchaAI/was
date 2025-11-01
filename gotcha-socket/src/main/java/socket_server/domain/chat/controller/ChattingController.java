@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import gotcha_domain.auth.SecurityUserDetails;
 import gotcha_domain.chat.ChatMessage;
 import gotcha_domain.chat.ChatType;
+import gotcha_domain.user.MessageType;
 import gotcha_domain.user.Role;
 import gotcha_domain.user.User;
 import gotcha_user.service.UserService;
@@ -73,7 +74,14 @@ public class ChattingController {
     @MessageMapping("/private")
     public void sendPrivateMessage(@Payload ChatMessageReq messageReq, @AuthenticationPrincipal SecurityUserDetails userDetails) throws JsonProcessingException {
         validateChatPermission(userDetails);
-        User receiver = userService.findUserByNickname(messageReq.receiverNickname());
+        User sender = userService.findUserByUuidWithFriends(userDetails.getUuid()); // 발신자 정보 조회 (친구 포함)
+        User receiver = userService.findUserByNicknameWithFriends(messageReq.receiverNickname()); // 수신자 정보 조회 (친구 포함)
+
+        // 수신자 채팅 옵션 확인 로직 추가
+        if (!receiver.canReceiveMessage(MessageType.PRIVATE, sender)) {
+            throw new SocketCustomException(CHAT_ERROR, ChatExceptionCode.RECIPIENT_DENIED_PRIVATE_CHAT);
+        }
+
         String receiverUuid = receiver.getUuid();
 
         ChatMessage message = new ChatMessage(
