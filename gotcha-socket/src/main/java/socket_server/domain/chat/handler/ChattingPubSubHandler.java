@@ -1,7 +1,8 @@
 package socket_server.domain.chat.handler;
 
+import gotcha_common.util.RedisUtil;
 import gotcha_domain.chat.ChatMessage;
-import gotcha_domain.user.MessageType;
+import gotcha_domain.user.ChatOption;
 import gotcha_domain.user.User;
 import gotcha_user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +16,6 @@ import socket_server.common.exception.ErrorType;
 import socket_server.common.listener.PubSubHandler;
 import socket_server.common.util.JsonSerializer;
 
-import java.util.Set;
-
 import static socket_server.common.constants.WebSocketConstants.CHAT_ALL_CHANNEL;
 import static socket_server.common.constants.WebSocketConstants.CHAT_PRIVATE_CHANNEL;
 import static socket_server.common.constants.WebSocketConstants.CHAT_ROOM_CHANNEL;
@@ -27,14 +26,17 @@ import static socket_server.common.constants.WebSocketConstants.CHAT_ROOM_CHANNE
 public class ChattingPubSubHandler extends PubSubHandler {
     private final SimpUserRegistry userRegistry;
     private final UserService userService;
+    private final RedisUtil redisUtil;
 
     public ChattingPubSubHandler(SimpMessagingTemplate messagingTemplate,
                                  JsonSerializer jsonSerializer,
                                  SimpUserRegistry userRegistry,
-                                 UserService userService) {
+                                 UserService userService,
+                                 RedisUtil redisUtil) {
         super(messagingTemplate, jsonSerializer);
         this.userRegistry = userRegistry;
         this.userService = userService;
+        this.redisUtil = redisUtil;
     }
 
     @Override
@@ -61,23 +63,39 @@ public class ChattingPubSubHandler extends PubSubHandler {
         ChatMessage chatMessage = jsonSerializer.deserialize(redisMessage.payload(), ChatMessage.class, ErrorType.CHAT);
         User sender = userService.findUserByNickname(chatMessage.nickname());
 
-        Set<SimpUser> users = userRegistry.getUsers();
-        // 현재 접속 중인 모든 유저를 대상으로 필터링
-        for (SimpUser simpUser : users) {
-            User recipient = userService.findUserByUuidWithFriends(simpUser.getName());
-            if (recipient == null) {
-                log.warn("UUID로 사용자를 찾을 수 없습니다: {}", simpUser.getName());
-                continue;
-            }
+        String senderUuid = sender.getUuid();
 
-            boolean canReceive = recipient.canReceiveMessage(MessageType.PUBLIC, sender);
+        for (SimpUser simpUser : userRegistry.getUsers()) {
+            String recipientUuid = simpUser.getName();
+            if (recipientUuid.equals(senderUuid)) continue;
 
-            if (canReceive) {
+            try {
+                String settingsCacheKey = "user:" + recipientUuid + ":settings";
+                String chatOptionStr = (String) redisUtil.hGet(settingsCacheKey, "chatOption");
+                ChatOption chatOption = (chatOptionStr != null) ? ChatOption.valueOf(chatOptionStr) : ChatOption.ALLOW_ALL; // Default to ALLOW_ALL if not cached
+
+                // 1. DENY_ALL 인지 확인
+                if (chatOption == ChatOption.DENY_ALL) {
+                    continue;
+                }
+
+                // 2. FRIENDS_ONLY 인지 확인
+                if (chatOption == ChatOption.FRIENDS_ONLY) {
+                    String friendCacheKey = "user:" + recipientUuid + ":friends";
+                    if (!redisUtil.isSetMember(friendCacheKey, senderUuid)) {
+                        continue;
+                    }
+                }
+
+                // All 은 확인하지 않고 메시지 전송
                 messagingTemplate.convertAndSendToUser(
-                        recipient.getUuid(),
-                        "/queue/chat",       // 전체 채팅은 사용자별 필터링을 위해 개별 전송
+                        recipientUuid,
+                        "/queue/chat",
                         chatMessage
                 );
+
+            } catch (Exception e) {
+                log.error("handleAllChat 처리 중 특정 사용자에게 에러 발생: {}", recipientUuid, e);
             }
         }
     }
