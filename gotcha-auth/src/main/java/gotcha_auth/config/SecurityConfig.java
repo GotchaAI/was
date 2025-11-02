@@ -17,6 +17,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
@@ -27,6 +29,8 @@ public class SecurityConfig {
     private final JwtExceptionFilter jwtExceptionFilter;
     private final CorsConfigurationSource corsConfigurationSource;
     private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final CookieCsrfTokenRepository csrfTokenRepository;
+    private final CsrfTokenRequestAttributeHandler csrfTokenRequestAttributeHandler;
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -37,17 +41,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-//                .csrf(csrf -> csrf
-//                        .requireCsrfProtectionMatcher(request -> {
-//                            String path = request.getRequestURI();
-//                            return path.equals("/api/v1/auth/token-reissue");
-//                        })
-//                        .csrfTokenRepository(csrfTokenRepository)
-//                        .csrfTokenRequestHandler(csrfTokenRequestAttributeHandler))
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(csrfTokenRepository)
+                        .csrfTokenRequestHandler(csrfTokenRequestAttributeHandler))
                 .headers(headers -> headers
                         .frameOptions(frameOptions -> frameOptions.disable()) // 여기 추가
                 )
-                .csrf(AbstractHttpConfigurer::disable)
                 .cors((cors) -> cors.configurationSource(corsConfigurationSource))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
