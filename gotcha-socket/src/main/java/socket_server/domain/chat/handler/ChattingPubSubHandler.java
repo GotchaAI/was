@@ -2,7 +2,9 @@ package socket_server.domain.chat.handler;
 
 import gotcha_common.util.RedisUtil;
 import gotcha_domain.chat.ChatMessage;
+import gotcha_domain.chat.ChatType;
 import gotcha_domain.user.ChatOption;
+import gotcha_domain.user.PrivateChatOption;
 import gotcha_domain.user.User;
 import gotcha_user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.listener.PubSubHandler;
+import socket_server.common.util.ChatPermissionUtil;
 import socket_server.common.util.JsonSerializer;
 
 import static socket_server.common.constants.WebSocketConstants.CHAT_ALL_CHANNEL;
@@ -74,20 +77,17 @@ public class ChattingPubSubHandler extends PubSubHandler {
                 String chatOptionStr = (String) redisUtil.hGet(settingsCacheKey, "chatOption");
                 ChatOption chatOption = (chatOptionStr != null) ? ChatOption.valueOf(chatOptionStr) : ChatOption.ALLOW_ALL; // Default to ALLOW_ALL if not cached
 
-                // 1. DENY_ALL 인지 확인
-                if (chatOption == ChatOption.DENY_ALL) {
-                    continue;
-                }
+                boolean isFriend = redisUtil.isSetMember("user:" + recipientUuid + ":friends", senderUuid);
 
-                // 2. FRIENDS_ONLY 인지 확인
-                if (chatOption == ChatOption.FRIENDS_ONLY) {
-                    String friendCacheKey = "user:" + recipientUuid + ":friends";
-                    if (!redisUtil.isSetMember(friendCacheKey, senderUuid)) {
-                        continue;
-                    }
-                }
+                boolean canReceive = ChatPermissionUtil.canReceiveMessageFromCache(
+                        chatOption,
+                        PrivateChatOption.ALLOW, // 전체 채팅에는 귓속말 설정 무의미하므로 기본값
+                        isFriend,
+                        ChatType.ALL
+                );
 
-                // All 은 확인하지 않고 메시지 전송
+                if (!canReceive) continue;
+
                 messagingTemplate.convertAndSendToUser(
                         recipientUuid,
                         "/queue/chat",

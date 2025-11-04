@@ -20,6 +20,7 @@ import socket_server.common.config.RedisMessage;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.exception.SocketCustomException;
 import socket_server.common.exception.chat.ChatExceptionCode;
+import socket_server.common.util.ChatPermissionUtil;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.chat.dto.ChatMessageReq;
 import socket_server.domain.chat.service.ChatLogService;
@@ -91,16 +92,19 @@ public class ChattingController {
         ChatOption chatOption = (chatOptionStr != null) ? ChatOption.valueOf(chatOptionStr) : ChatOption.ALLOW_ALL;
         PrivateChatOption privateChatOption = (privateChatOptionStr != null) ? PrivateChatOption.valueOf(privateChatOptionStr) : PrivateChatOption.ALLOW;
 
-        if (chatOption == ChatOption.DENY_ALL || privateChatOption == PrivateChatOption.DENY) {
+        boolean isFriend = redisUtil.isSetMember("user:" + receiverUuid + ":friends", senderUuid);
+
+        boolean canReceive = ChatPermissionUtil.canReceiveMessageFromCache(
+                chatOption,
+                privateChatOption,
+                isFriend,
+                ChatType.PRIVATE
+        );
+
+        if (!canReceive) {
             throw new SocketCustomException(CHAT_ERROR, ChatExceptionCode.RECIPIENT_DENIED_PRIVATE_CHAT);
         }
 
-        if (chatOption == ChatOption.FRIENDS_ONLY) {
-            String friendCacheKey = "user:" + receiverUuid + ":friends";
-            if (!redisUtil.isSetMember(friendCacheKey, senderUuid)) {
-                throw new SocketCustomException(CHAT_ERROR, ChatExceptionCode.RECIPIENT_DENIED_PRIVATE_CHAT);
-            }
-        }
 
         ChatMessage message = new ChatMessage(
                 userDetails.getNickname(),
