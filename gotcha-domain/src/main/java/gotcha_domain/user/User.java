@@ -134,20 +134,6 @@ public class User extends BaseTimeEntity {
         this.nickname = newNickname;
     }
 
-    public boolean isFriendWith(User user) {
-        // 친구 목록(friends, friendOf)을 확인하여 친구 여부 반환
-        return this.friends.stream().anyMatch(f -> f.getUser2().equals(user)) ||
-               this.friendOf.stream().anyMatch(f -> f.getUser1().equals(user));
-    }
-
-    public boolean canReceiveMessage(MessageType messageType, User sender) {
-        if (this.equals(sender)) return true; // 자신은 항상 수신
-        if (this.chatOption == ChatOption.DENY_ALL) return false;
-        if (this.chatOption == ChatOption.FRIENDS_ONLY && !isFriendWith(sender)) return false;
-        if (messageType == MessageType.PRIVATE && (this.privateChatOption == PrivateChatOption.DENY || !isFriendWith(sender))) return false;
-        return true;
-    }
-
     public void updateChatSettings(ChatOption chatOption, PrivateChatOption privateChatOption) {
         this.chatOption = chatOption;
         this.privateChatOption = privateChatOption;
