@@ -6,7 +6,8 @@ import org.springframework.http.HttpStatus;
 
 @AllArgsConstructor
 public enum ChatExceptionCode implements ExceptionCode {
-    GUEST_CANNOT_CHAT(HttpStatus.FORBIDDEN, "CHAT_403_001", "게스트는 채팅을 보낼 수 없습니다.");
+    GUEST_CANNOT_CHAT(HttpStatus.FORBIDDEN, "CHAT_403_001", "게스트는 채팅을 보낼 수 없습니다."),
+    RECIPIENT_DENIED_PRIVATE_CHAT(HttpStatus.FORBIDDEN, "CHAT_403_002", "상대방이 귓속말 수신을 거부했습니다.");
 
     private final HttpStatus status;
     private final String code;

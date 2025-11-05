@@ -94,8 +94,20 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public User findUserByNicknameWithFriends(String nickname) {
+        return userRepository.findByNicknameWithFriends(nickname)
+                .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
+    }
+
+    @Transactional(readOnly = true)
     public User findUserByUuid(String uuid) {
         return userRepository.findByUuid(uuid)
+                .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
+    }
+
+    @Transactional(readOnly = true)
+    public User findUserByUuidWithFriends(String uuid) {
+        return userRepository.findByUuidWithFriends(uuid)
                 .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
     }
 
@@ -128,6 +140,11 @@ public class UserService {
     public void updateUserChatSetting(Long userId, ChatOption chatOption, PrivateChatOption privateChatOption) {
         User user = findUserByUserId(userId);
         user.updateChatSettings(chatOption, privateChatOption);
+
+        // Redis 캐시 업데이트
+        String settingsCacheKey = "user:" + user.getUuid() + ":settings";
+        redisUtil.hSet(settingsCacheKey, "chatOption", chatOption.name());
+        redisUtil.hSet(settingsCacheKey, "privateChatOption", privateChatOption.name());
     }
 
     public User getUserByUuidAllowingGuest(String uuid) {

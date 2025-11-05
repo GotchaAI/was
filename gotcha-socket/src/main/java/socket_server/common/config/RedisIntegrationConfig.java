@@ -1,8 +1,6 @@
 package socket_server.common.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import gotcha_common.exception.CustomException;
 import gotcha_common.exception.ExceptionRes;
 import gotcha_common.exception.exceptionCode.GlobalExceptionCode;
@@ -26,6 +24,7 @@ import org.springframework.messaging.support.ErrorMessage;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.util.JsonSerializer;
+import socket_server.domain.chat.handler.ChattingPubSubHandler;
 import socket_server.domain.friend.handler.FriendPubSubHandler;
 import socket_server.domain.game.handler.GamePubSubHandler;
 import socket_server.domain.lobby.handler.LobbyPubSubHandler;
@@ -43,12 +42,14 @@ public class RedisIntegrationConfig {
     private final GamePubSubHandler gamePubSubHandler;
     private final LobbyPubSubHandler lobbyPubSubHandler;
     private final FriendPubSubHandler friendPubSubHandler;
+    private final ChattingPubSubHandler chattingPubSubHandler;
 
-    public RedisIntegrationConfig(RoomPubSubHandler roomHandler, GamePubSubHandler gamePubSubHandler, LobbyPubSubHandler lobbyPubSubHandler, FriendPubSubHandler friendPubSubHandler) {
+    public RedisIntegrationConfig(RoomPubSubHandler roomHandler, GamePubSubHandler gamePubSubHandler, LobbyPubSubHandler lobbyPubSubHandler, FriendPubSubHandler friendPubSubHandler, ChattingPubSubHandler chattingPubSubHandler) {
         this.roomHandler = roomHandler;
         this.gamePubSubHandler = gamePubSubHandler;
         this.lobbyPubSubHandler = lobbyPubSubHandler;
         this.friendPubSubHandler = friendPubSubHandler;
+        this.chattingPubSubHandler = chattingPubSubHandler;
     }
 
     @Bean("redisExecutor")
@@ -159,20 +160,13 @@ public class RedisIntegrationConfig {
     }
 
     @Bean
-    public IntegrationFlow chatMessageFlow(SimpMessagingTemplate template) {
-        ObjectMapper mapper = new ObjectMapper()
-                .registerModule(new JavaTimeModule())
-                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
+    public IntegrationFlow chatMessageFlow(JsonSerializer jsonSerializer) {
         return IntegrationFlow.from("chatMessageChannel")
-                .handle((payload, headers) -> {
-                    RedisMessage redisMessage = mapper.convertValue(payload, RedisMessage.class);
-
+                .handle((msg, headers) -> {
+                    RedisMessage redisMessage = jsonSerializer.deserialize(msg, RedisMessage.class, ErrorType.CHAT);
                     log.info("💬 [채팅 메시지] topic={}, user={}, payload={}",
                             redisMessage.topic(), redisMessage.userId(), redisMessage.payload());
-
-                    template.convertAndSend(redisMessage.topic(), redisMessage.payload());
-
+                    chattingPubSubHandler.onMessage(redisMessage.topic(), redisMessage);
                     return null;
                 }).get();
     }

@@ -13,6 +13,7 @@ import gotcha_domain.user.User;
 import gotcha_user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import gotcha_common.util.RedisUtil;
 import org.springframework.transaction.annotation.Transactional;
 import socket_server.domain.friend.dto.FriendEventType;
 import socket_server.domain.friend.dto.FriendSummaryRes;
@@ -27,6 +28,9 @@ public class FriendService {
     private final FriendRequestRepository friendRequestRepository;
     private final UserService userService;
     private final FriendSocketService friendSocketService;
+    private final RedisUtil redisUtil;
+
+    private static final String FRIEND_CACHE_PREFIX = "user:";
 
     @Transactional(readOnly = true)
     public List<FriendRes> getFriends(Long userId) {
@@ -111,6 +115,12 @@ public class FriendService {
         Friend friend = new Friend(fromUser, toUser);
         friendRepository.save(friend);
 
+        // Redis 캐시 업데이트
+        String toUserCacheKey = FRIEND_CACHE_PREFIX + toUser.getUuid() + ":friends";
+        String fromUserCacheKey = FRIEND_CACHE_PREFIX + fromUser.getUuid() + ":friends";
+        redisUtil.addSetValue(toUserCacheKey, fromUser.getUuid());
+        redisUtil.addSetValue(fromUserCacheKey, toUser.getUuid());
+
         friendRequestRepository.delete(friendRequest);
 
         FriendSummaryRes friendSummaryRes = FriendSummaryRes.from(friendRequest);
@@ -150,6 +160,12 @@ public class FriendService {
         }
 
         friendRepository.delete(relation);
+
+        // Redis 캐시 업데이트
+        String userCacheKey = FRIEND_CACHE_PREFIX + user.getUuid() + ":friends";
+        String friendCacheKey = FRIEND_CACHE_PREFIX + friend.getUuid() + ":friends";
+        redisUtil.removeSetValue(userCacheKey, friend.getUuid());
+        redisUtil.removeSetValue(friendCacheKey, user.getUuid());
 
         friendSocketService.sendFriendAlert(user.getUuid(), friendUuid, user.getUuid(), FriendEventType.DELETE);
     }
