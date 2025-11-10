@@ -11,5 +11,6 @@ public class SanctionReq {
     private Long adminUserId;
     private String reason;
     private SanctionType sanctionType;
+    private Long sourceReportId; // 제재의 근거가 되는 신고 ID (nullable)
     private Long durationDays; // 제재 기간 (일 단위), 영구 정지인 경우 null
 }
