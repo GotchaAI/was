@@ -31,12 +31,14 @@ public class UserReport extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
+
     @NotNull
     @Enumerated(EnumType.STRING)
     private UserReportType userReportType;
 
     @NotNull
-    private String detail;
+    private String detail; // by user
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -57,4 +59,5 @@ public class UserReport extends BaseTimeEntity {
     public static UserReport of(UserReportType userReportType, String detail, List<ChatMessage> chatLog, User user) {
         return new UserReport(userReportType, detail, chatLog, user);
     }
+
 }
