@@ -1,5 +1,6 @@
 package Gotcha.domain.sanction.controller;
 
+import Gotcha.domain.sanction.api.SanctionApi;
 import Gotcha.domain.sanction.dto.SanctionReq;
 import Gotcha.domain.sanction.dto.SanctionRes;
 import Gotcha.domain.sanction.service.SanctionService;
@@ -20,7 +21,7 @@ import java.security.Principal;
 @RestController
 @RequestMapping("/api/v1/admin/sanctions")
 @RequiredArgsConstructor
-public class SanctionController {
+public class SanctionController implements SanctionApi {
 
     private final SanctionService sanctionService;
 
