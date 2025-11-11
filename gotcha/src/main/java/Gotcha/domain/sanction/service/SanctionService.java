@@ -24,13 +24,12 @@ public class SanctionService {
     private final UserReportService userReportService;
 
     @Transactional
-    // 1. 사용자 에게 제재를
-    public SanctionRes sanctionUser(SanctionReq sanctionReq) {
+    public SanctionRes sanctionUser(SanctionReq sanctionReq, String adminId) {
         // admin User 조회
-        User adminUser = userService.findUserByUserId(sanctionReq.getAdminUserId());
+        User adminUser = userService.findUserByUuid(adminId);
 
         //1. target User 조회
-        User targetUser = userService.findUserByUserId(sanctionReq.getTargetUserId());
+        User targetUser = userService.findUserByUuid(sanctionReq.getTargetUserId());
 
         // 2. source Report 조회 (존재한다면)
         UserReport sourceReport = null;
