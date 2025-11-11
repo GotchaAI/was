@@ -70,7 +70,7 @@ public class ChattingPubSubHandler extends PubSubHandler {
 
         for (SimpUser simpUser : userRegistry.getUsers()) {
             String recipientUuid = simpUser.getName();
-            if (recipientUuid.equals(senderUuid)) continue;
+//            if (recipientUuid.equals(senderUuid)) continue;
 
             try {
                 String settingsCacheKey = "user:" + recipientUuid + ":settings";
