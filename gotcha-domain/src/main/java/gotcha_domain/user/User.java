@@ -73,6 +73,10 @@ public class User extends BaseTimeEntity {
     private ChatOption chatOption = ChatOption.ALLOW_ALL;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "user_status", nullable = false)
+    private UserStatus userStatus = UserStatus.ACTIVE;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "private_chat_option", nullable = false)
     private PrivateChatOption privateChatOption = PrivateChatOption.ALLOW;
 
@@ -120,6 +124,8 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user")
     private Set<BugReport> bugReports = new HashSet<>();
 
+
+
     @Builder
     public User(Long id, String email, String password, String nickname, Role role, String uuid){
         this.id = id;
@@ -137,6 +143,14 @@ public class User extends BaseTimeEntity {
     public void updateChatSettings(ChatOption chatOption, PrivateChatOption privateChatOption) {
         this.chatOption = chatOption;
         this.privateChatOption = privateChatOption;
+    }
+
+    public void incrementWarningCount() {
+        this.warningCount = (this.warningCount == null) ? 1 : this.warningCount + 1;
+    }
+
+    public void suspendUser(Long days) {
+        this.isLocked = true;
     }
 
     @Override
