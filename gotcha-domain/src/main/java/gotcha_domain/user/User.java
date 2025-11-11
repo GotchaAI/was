@@ -127,8 +127,6 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user")
     private Set<BugReport> bugReports = new HashSet<>();
 
-
-
     @Builder
     public User(Long id, String email, String password, String nickname, Role role, String uuid){
         this.id = id;
@@ -152,13 +150,14 @@ public class User extends BaseTimeEntity {
         this.warningCount = (this.warningCount == null) ? 1 : this.warningCount + 1;
     }
 
-    public void suspendUser(Long days) {
+    public void suspendUser(long days) {
         this.userStatus = UserStatus.SUSPENDED;
         this.suspensionEndDate = LocalDateTime.now().plusDays(days);
     }
 
     public void banUser(){
         this.userStatus = UserStatus.BANNED;
+        this.suspensionEndDate = null;
     }
 
     @Override
