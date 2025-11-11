@@ -38,7 +38,7 @@ public class UserSanction extends BaseTimeEntity {
     private String reason;
 
     // 제재 만료 일시
-    @Column(name = "expiry_date", nullable = false)
+    @Column(name = "expiry_date")
     private LocalDateTime expiresAt;
 
     // 근거가 된 신고(nullable)

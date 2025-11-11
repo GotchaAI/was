@@ -57,7 +57,7 @@ public class User extends BaseTimeEntity {
     @Setter
     private LocalDateTime lastLogout;
 
-    private Boolean isLocked;
+//    private Boolean isLocked; // UserStatus로 대체
 
     @Setter
     private int level;
@@ -75,6 +75,9 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "user_status", nullable = false)
     private UserStatus userStatus = UserStatus.ACTIVE;
+
+    @Column(name = "suspension_end_date")
+    private LocalDateTime suspensionEndDate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "private_chat_option", nullable = false)
@@ -150,7 +153,12 @@ public class User extends BaseTimeEntity {
     }
 
     public void suspendUser(Long days) {
-        this.isLocked = true;
+        this.userStatus = UserStatus.SUSPENDED;
+        this.suspensionEndDate = LocalDateTime.now().plusDays(days);
+    }
+
+    public void banUser(){
+        this.userStatus = UserStatus.BANNED;
     }
 
     @Override
