@@ -21,6 +21,14 @@ public class CsrfConfig {
         repository.setCookieHttpOnly(false);
         repository.setSecure(secure);
 
+        repository.setCookieCustomizer(builder -> {
+            if (secure) {
+                builder.sameSite("None");
+            } else {
+                builder.sameSite("Lax");
+            }
+        });
+
         return repository;
     }
 
