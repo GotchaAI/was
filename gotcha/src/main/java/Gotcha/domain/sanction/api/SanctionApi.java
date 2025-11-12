@@ -37,33 +37,20 @@ public interface SanctionApi {
                                     """)
                     })
             ),
-            @ApiResponse(responseCode = "400", description = "필드 검증 오류 / 잘못된 요청",
+            @ApiResponse(responseCode = "422", description = "필드 검증 오류 ",
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                     {
-                                        "status": "BAD_REQUEST",
-                                        "message": "필드 검증 오류입니다.",
-                                        "fields": {
-                                            "reason": "제재 사유는 필수입니다."
-                                        }
+                                        "reason": "제재 사유는 필수입니다."
                                     }
                                     """)
                     })
             ),
-            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자",
+            @ApiResponse(responseCode = "403", description = "관리자 권한 없음",
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                     {
-                                        "status": "UNAUTHORIZED",
-                                        "message": "인증이 필요합니다."
-                                    }
-                                    """)
-                    })
-            ),
-            @ApiResponse(responseCode = "403", description = "권한 없음",
-                    content = @Content(mediaType = "application/json", examples = {
-                            @ExampleObject(value = """
-                                    {
+                                        "code": "AUTH-403-001",
                                         "status": "FORBIDDEN",
                                         "message": "접근 권한이 없습니다."
                                     }
@@ -74,8 +61,20 @@ public interface SanctionApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
                                     {
+                                        "code": "USER-404-001",
                                         "status": "NOT_FOUND",
                                         "message": "해당 사용자를 찾을 수 없습니다."
+                                    }
+                                    """)
+                    })
+            ),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 신고 건",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                    {
+                                        "code": "REPORT-404-001",
+                                        "status": "NOT_FOUND",
+                                        "message": "신고 내역을 찾을 수 없습니다."
                                     }
                                     """)
                     })
