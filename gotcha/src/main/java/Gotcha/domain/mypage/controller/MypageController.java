@@ -41,6 +41,11 @@ public class MypageController implements MypageApi {
         return ResponseEntity.ok(SuccessRes.from("성공적으로 수정되었습니다."));
     }
 
+    @GetMapping("/chat/setting")
+    public ResponseEntity<?> getUserChatSetting(@AuthenticationPrincipal SecurityUserDetails userDetails) {
+        return ResponseEntity.ok(mypageService.getUserChatSetting(userDetails.getId()));
+    }
+
     @PutMapping("/chat/setting")
     public ResponseEntity<?> modifyUserChatSetting(@Valid @RequestBody ChatSettingReq chatSettingReq,
                                                    @AuthenticationPrincipal SecurityUserDetails userDetails) {
