@@ -171,7 +171,7 @@ public interface AuthApi {
                                     """),
                             @ExampleObject(name = "영구 정지", value = """
                                     {
-                                        "code": "AUTH-403-002",
+                                        "code": "AUTH-403-003",
                                         "status": "FORBIDDEN",
                                         "message": "계정이 영구 정지되었습니다.",
                                         "details": {
