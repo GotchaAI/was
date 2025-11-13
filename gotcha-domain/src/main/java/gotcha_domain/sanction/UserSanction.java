@@ -46,6 +46,9 @@ public class UserSanction extends BaseTimeEntity {
     @JoinColumn(name = "user_report_id")
     private UserReport userReport;
 
+    @Column(name = "is_read", nullable = false)
+    private boolean isRead = false;
+
     @Builder
     public UserSanction(User user, User admin, SanctionType sanctionType, String reason, LocalDateTime expiresAt, UserReport userReport) {
         this.user = user;
@@ -54,6 +57,10 @@ public class UserSanction extends BaseTimeEntity {
         this.reason = reason;
         this.expiresAt = expiresAt;
         this.userReport = userReport;
+    }
+
+    public void markAsRead() {
+        this.isRead = true;
     }
 
 
