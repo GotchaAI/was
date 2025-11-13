@@ -1,7 +1,6 @@
 package Gotcha.domain.friend.controller;
 
 import Gotcha.domain.friend.api.FriendApi;
-import Gotcha.domain.friend.dto.FriendFollowingReq;
 import Gotcha.domain.friend.dto.FriendReq;
 import Gotcha.domain.friend.service.FriendService;
 import gotcha_common.dto.SuccessRes;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -71,10 +69,10 @@ public class FriendController implements FriendApi {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PutMapping("/follow")
-    public ResponseEntity<?> followingFriend(@AuthenticationPrincipal SecurityUserDetails securityUserDetails,
-                                             @Valid @RequestBody FriendFollowingReq friendFollowingReq) {
-        return ResponseEntity.ok(friendService.followFriend(friendFollowingReq));
+    @PostMapping("/follow/{uuid}")
+    public ResponseEntity<?> followingFriend(@PathVariable(value = "uuid") String friendUuid,
+                                             @AuthenticationPrincipal SecurityUserDetails userDetails) {
+        return ResponseEntity.ok(friendService.followFriend(userDetails.getUuid(), friendUuid));
     }
 
 

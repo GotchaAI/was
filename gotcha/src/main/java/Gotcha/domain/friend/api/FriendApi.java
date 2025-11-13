@@ -1,6 +1,5 @@
 package Gotcha.domain.friend.api;
 
-import Gotcha.domain.friend.dto.FriendFollowingReq;
 import Gotcha.domain.friend.dto.FriendReq;
 import gotcha_domain.auth.SecurityUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -159,7 +158,8 @@ public interface FriendApi {
                     }))
     })
     ResponseEntity<?> acceptFriend(@PathVariable(value = "id") Long friendRequestId,
-                                   @AuthenticationPrincipal SecurityUserDetails userDetails);
+                                   @AuthenticationPrincipal SecurityUserDetails userDetails)
+            throws NoSuchMethodException;
 
     @Operation(summary = "친구 요청 거절", description = "친구 요청 거절 API")
     @ApiResponses({
@@ -243,12 +243,12 @@ public interface FriendApi {
                             @ExampleObject(value = """
                                     {
                                         "code": "FRIEND-404-002",
-                                        "status": "NOT_FOUND,
+                                        "status": "NOT_FOUND",
                                         "message": "친구가 방에 속해있지 않습니다."
                                     }
                                     """)
                     }))
     })
-    ResponseEntity<?> followingFriend(@AuthenticationPrincipal SecurityUserDetails securityUserDetails,
-                                      @Valid @RequestBody FriendFollowingReq friendFollowingReq);
+    ResponseEntity<?> followingFriend(@PathVariable(value = "uuid") String friendUuid,
+                                      @AuthenticationPrincipal SecurityUserDetails securityUserDetails);
 }
