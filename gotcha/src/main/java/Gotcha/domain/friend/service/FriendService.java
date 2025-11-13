@@ -1,5 +1,7 @@
 package Gotcha.domain.friend.service;
 
+import Gotcha.domain.friend.dto.FriendFollowingReq;
+import Gotcha.domain.friend.dto.FriendFollowingRes;
 import Gotcha.domain.friend.dto.FriendReq;
 import Gotcha.domain.friend.dto.FriendRequestRes;
 import Gotcha.domain.friend.dto.FriendRes;
@@ -20,6 +22,7 @@ import socket_server.domain.friend.dto.FriendSummaryRes;
 import socket_server.domain.friend.service.FriendSocketService;
 
 import java.util.List;
+import socket_server.domain.room.service.RoomUserService;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,7 @@ public class FriendService {
     private final UserService userService;
     private final FriendSocketService friendSocketService;
     private final RedisUtil redisUtil;
+    private final RoomUserService roomUserService;
 
     private static final String FRIEND_CACHE_PREFIX = "user:";
 
@@ -169,4 +173,23 @@ public class FriendService {
 
         friendSocketService.sendFriendAlert(user.getUuid(), friendUuid, user.getUuid(), FriendEventType.DELETE);
     }
+
+    public FriendFollowingRes followFriend(FriendFollowingReq friendFollowingReq) {
+        String followerUuid = friendFollowingReq.followerUuid();
+        String followingUuid = friendFollowingReq.followingUuid();
+        boolean isFriend = redisUtil.isSetMember("user:" + followingUuid + ":friends", followerUuid);
+
+        if(!isFriend) {
+            throw new CustomException(FriendExceptionCode.NOT_FRIEND);
+        }
+
+        String friendRoomId = roomUserService.findRoomIdByUserUuid(followerUuid);
+
+        if(friendRoomId==null) {
+            throw new CustomException(FriendExceptionCode.FRIEND_NOT_IN_ROOM);
+        }
+
+        return FriendFollowingRes.from(friendRoomId);
+    }
+
 }
