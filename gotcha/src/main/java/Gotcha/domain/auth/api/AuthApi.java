@@ -130,12 +130,53 @@ public interface AuthApi {
 
     @Operation(summary = "로그인", description = "로그인 API")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "로그인 성공",
+            @ApiResponse(responseCode = "200", description = "로그인 성공. 읽지 않은 경고가 있을 경우 warningDetails가 함께 반환됩니다.",
                     content = @Content(mediaType = "application/json", examples = {
-                            @ExampleObject(value = """
+                            @ExampleObject(name = "일반 로그인 성공", value = """
                                     {
                                           "expiredAt": "2025-04-10T06:57:45",
                                           "accessToken": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjo1LCJpc3MiOiJnb3RjaGEhIiwiaWF0IjoxNzQ0MjY2NDY1LCJleHAiOjE3NDQyNjgyNjV9.u8RTE1VFsxZjQNB_dsc3ibSKqoHQGbC9-ppbOQUvzVY"
+                                    }
+                                    """),
+                            @ExampleObject(name = "경고 메시지가 있는 로그인 성공", value = """
+                                    {
+                                        "accessToken": "Bearer eyJhbGciOiJIxzI1NiJ9...",
+                                        "refreshToken": "Bearer eyJhbGciOiJIUzI1NiJ9...",
+                                        "accessTokenExpiredAt": "2025-11-13T15:00:00",
+                                        "autoSignIn": false,
+                                        "warningDetails": {
+                                            "id": 1,
+                                            "targetUserName": "nickname123",
+                                            "adminUserName": "admin",
+                                            "sanctionType": "WARNING",
+                                            "reason": "부적절한 언어 사용",
+                                            "expiresAt": null,
+                                            "createdAt": "2025-11-13T14:00:00"
+                                        }
+                                    }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "403", description = "계정이 정지됨. details에 상세 정보가 포함됩니다(일시 정지일 경우 만료 기간 포함).",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(name = "일시 정지", value = """
+                                    {
+                                        "code": "AUTH-403-002",
+                                        "status": "FORBIDDEN",
+                                        "message": "계정이 일시 정지되었습니다.",
+                                        "details": {
+                                            "reason": "스팸 메시지 발송",
+                                            "expiresAt": "2025-12-25T00:00:00"
+                                        }
+                                    }
+                                    """),
+                            @ExampleObject(name = "영구 정지", value = """
+                                    {
+                                        "code": "AUTH-403-002",
+                                        "status": "FORBIDDEN",
+                                        "message": "계정이 영구 정지되었습니다.",
+                                        "details": {
+                                            "reason": "스팸 메시지 발송"
+                                        }
                                     }
                                     """)
                     })),
