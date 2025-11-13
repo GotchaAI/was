@@ -4,14 +4,19 @@ import Gotcha.domain.auth.dto.SignInReq;
 import Gotcha.domain.auth.dto.SignUpReq;
 import Gotcha.domain.auth.exception.AuthExceptionCode;
 import Gotcha.domain.auth.util.RandomNicknameGenerator;
+import Gotcha.domain.auth.exception.UserAccountStatusException;
+import Gotcha.domain.sanction.service.SanctionService;
 import gotcha_auth.dto.TokenDto;
 import gotcha_auth.jwt.JwtHelper;
 import gotcha_common.exception.CustomException;
 import gotcha_common.exception.FieldValidationException;
 import gotcha_common.util.RedisUtil;
 import gotcha_domain.auth.SecurityUserDetails;
+import Gotcha.domain.sanction.dto.SanctionRes;
+import gotcha_domain.sanction.UserSanction;
 import gotcha_domain.user.Role;
 import gotcha_domain.user.User;
+import gotcha_domain.user.UserStatus;
 import gotcha_user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +44,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtHelper jwtHelper;
     private final RedisUtil redisUtil;
+    private final SanctionService sanctionService;
 
     @Transactional
     public TokenDto guestSignUp(SignUpReq signUpReq, SecurityUserDetails userDetails){
@@ -78,11 +84,45 @@ public class AuthService {
         User user = userRepository.findByEmail(signInReq.email())
                 .orElseThrow(() -> new CustomException(AuthExceptionCode.INVALID_USERNAME_AND_PASSWORD));
 
+        // 1. 제재/차단 상태 확인 (로그인 차단)
+        if (user.getUserStatus() == UserStatus.SUSPENDED || user.getUserStatus() == UserStatus.BANNED) {
+            Optional<UserSanction> unreadSanctionOpt = sanctionService.findLatestUnreadSanction(user);
+            AuthExceptionCode code = user.getUserStatus() == UserStatus.SUSPENDED ?
+                    AuthExceptionCode.ACCOUNT_SUSPENDED : AuthExceptionCode.ACCOUNT_BANNED;
+
+            UserSanction sanction = unreadSanctionOpt.get();
+            sanctionService.markSanctionAsRead(sanction);
+
+            Map<String, Object> details = new HashMap<>();
+            details.put("reason", sanction.getReason());
+            if (sanction.getExpiresAt() != null) {
+                details.put("expiresAt", sanction.getExpiresAt());
+            }
+            throw new UserAccountStatusException(code, details);
+
+        }
+
+        // 2. 비밀번호 확인
         if(!passwordEncoder.matches(signInReq.password(), user.getPassword())){
             throw new CustomException(AuthExceptionCode.INVALID_USERNAME_AND_PASSWORD);
         }
 
-        return jwtHelper.createToken(user, signInReq.autoSignIn());
+        // 3. 경고 확인 (로그인 성공, 메시지 전달)
+        Optional<UserSanction> unreadWarningOpt = sanctionService.findLatestUnreadWarning(user);
+        SanctionRes warningDetails = null;
+        if (unreadWarningOpt.isPresent()) {
+            UserSanction warning = unreadWarningOpt.get();
+            sanctionService.markSanctionAsRead(warning);
+            warningDetails = SanctionRes.fromEntity(warning);
+        }
+
+        // 4. 토큰 생성 및 경고 메시지 추가
+        TokenDto tokenDto = jwtHelper.createToken(user, signInReq.autoSignIn());
+        if (warningDetails != null) {
+            return TokenDto.of(tokenDto.accessToken(), tokenDto.refreshToken(), tokenDto.accessTokenExpiredAt(), tokenDto.autoSignIn(), warningDetails);
+        }
+
+        return tokenDto;
     }
 
     public void signOut(String HeaderAccessToken, String refreshToken, HttpServletResponse response) {

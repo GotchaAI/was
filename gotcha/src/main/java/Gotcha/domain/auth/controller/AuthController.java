@@ -121,6 +121,10 @@ public class AuthController implements AuthApi {
         responseData.put("accessToken", tokenDto.accessToken());
         responseData.put("expiredAt", tokenDto.accessTokenExpiredAt());
 
+        if (tokenDto.warningDetails() != null) {
+            responseData.put("warningDetails", tokenDto.warningDetails());
+        }
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE,
                         cookieUtil.createCookie(REFRESH_COOKIE_VALUE,
