@@ -6,6 +6,7 @@ import Gotcha.domain.sanction.dto.SanctionRes;
 import Gotcha.domain.sanction.repository.SanctionRepository;
 import gotcha_domain.report.UserReport;
 import gotcha_domain.sanction.SanctionType;
+import gotcha_domain.sanction.SanctionType;
 import gotcha_domain.sanction.UserSanction;
 import gotcha_domain.user.User;
 import gotcha_user.service.UserService;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -70,5 +72,18 @@ public class SanctionService {
         sanctionRepository.save(userSanction);
 
         return SanctionRes.fromEntity(userSanction);
+    }
+
+    public Optional<UserSanction> findLatestUnreadSanction(User user) {
+        return sanctionRepository.findTopByUserAndIsReadIsFalseOrderByCreatedAtDesc(user);
+    }
+
+    public Optional<UserSanction> findLatestUnreadWarning(User user) {
+        return sanctionRepository.findTopByUserAndSanctionTypeAndIsReadIsFalseOrderByCreatedAtDesc(user, SanctionType.WARNING);
+    }
+
+    @Transactional
+    public void markSanctionAsRead(UserSanction sanction) {
+        sanction.markAsRead();
     }
 }
