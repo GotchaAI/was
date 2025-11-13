@@ -179,7 +179,7 @@ public class FriendService {
         boolean isFriend = redisUtil.isSetMember("user:" + userUuid + ":friends", friendUuid);
 
         if (!isFriend) {
-            throw new CustomException(FriendExceptionCode.NOT_FRIEND);
+            throw new CustomException(FriendExceptionCode.FRIENDSHIP_REQUIRED);
         }
 
         String friendRoomId = roomUserService.findRoomIdByUserUuid(friendUuid);
