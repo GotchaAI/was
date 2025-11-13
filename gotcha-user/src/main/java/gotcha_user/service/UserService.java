@@ -7,6 +7,7 @@ import gotcha_domain.user.ChatOption;
 import gotcha_domain.user.PrivateChatOption;
 import gotcha_domain.user.Role;
 import gotcha_domain.user.User;
+import gotcha_user.dto.UserChatSettingRes;
 import gotcha_user.dto.UserInfoRes;
 import gotcha_user.exceptionCode.UserExceptionCode;
 import gotcha_user.repository.UserRepository;
@@ -145,6 +146,12 @@ public class UserService {
         String settingsCacheKey = "user:" + user.getUuid() + ":settings";
         redisUtil.hSet(settingsCacheKey, "chatOption", chatOption.name());
         redisUtil.hSet(settingsCacheKey, "privateChatOption", privateChatOption.name());
+    }
+
+    @Transactional(readOnly = true)
+    public UserChatSettingRes getUserChatSetting(Long userId){
+        User user = findUserByUserId(userId);
+        return UserChatSettingRes.fromUser(user);
     }
 
     public User getUserByUuidAllowingGuest(String uuid) {
