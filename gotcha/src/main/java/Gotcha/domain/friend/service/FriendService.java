@@ -1,5 +1,6 @@
 package Gotcha.domain.friend.service;
 
+import Gotcha.domain.friend.dto.FriendFollowingRes;
 import Gotcha.domain.friend.dto.FriendReq;
 import Gotcha.domain.friend.dto.FriendRequestRes;
 import Gotcha.domain.friend.dto.FriendRes;
@@ -12,6 +13,7 @@ import gotcha_domain.friend.FriendRequest;
 import gotcha_domain.user.User;
 import gotcha_user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import gotcha_common.util.RedisUtil;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +22,9 @@ import socket_server.domain.friend.dto.FriendSummaryRes;
 import socket_server.domain.friend.service.FriendSocketService;
 
 import java.util.List;
+import socket_server.domain.room.service.RoomUserService;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FriendService {
@@ -29,6 +33,7 @@ public class FriendService {
     private final UserService userService;
     private final FriendSocketService friendSocketService;
     private final RedisUtil redisUtil;
+    private final RoomUserService roomUserService;
 
     private static final String FRIEND_CACHE_PREFIX = "user:";
 
@@ -169,4 +174,21 @@ public class FriendService {
 
         friendSocketService.sendFriendAlert(user.getUuid(), friendUuid, user.getUuid(), FriendEventType.DELETE);
     }
+
+    public FriendFollowingRes followFriend(String userUuid, String friendUuid) {
+        boolean isFriend = redisUtil.isSetMember("user:" + userUuid + ":friends", friendUuid);
+
+        if (!isFriend) {
+            throw new CustomException(FriendExceptionCode.FRIENDSHIP_REQUIRED);
+        }
+
+        String friendRoomId = roomUserService.findRoomIdByUserUuid(friendUuid);
+
+        if (friendRoomId == null) {
+            throw new CustomException(FriendExceptionCode.FRIEND_NOT_IN_ROOM);
+        }
+
+        return FriendFollowingRes.from(friendRoomId);
+    }
+
 }

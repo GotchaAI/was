@@ -121,7 +121,7 @@ public class User extends BaseTimeEntity {
     private Set<BugReport> bugReports = new HashSet<>();
 
     @Builder
-    public User(Long id, String email, String password, String nickname, Role role, String uuid){
+    public User(Long id, String email, String password, String nickname, Role role, String uuid) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -139,12 +139,18 @@ public class User extends BaseTimeEntity {
         this.privateChatOption = privateChatOption;
     }
 
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof User)) {
+            return false;
+        }
         User user = (User) o;
-        return id != null && id.equals(user.id);
+
+        return id != null && id.equals(user.getId());
     }
 
     @Override
