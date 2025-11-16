@@ -14,7 +14,7 @@ public class SanctionRes {
     private String adminUserName;
     private SanctionType sanctionType;
     private String reason;
-    private LocalDateTime expiresAt;
+    private Long expireDuration;
     private LocalDateTime createdAt;
 
     public static SanctionRes fromEntity(gotcha_domain.sanction.UserSanction sanction) {
@@ -24,7 +24,7 @@ public class SanctionRes {
                 .adminUserName(sanction.getAdmin().getNickname())
                 .sanctionType(sanction.getSanctionType())
                 .reason(sanction.getReason())
-                .expiresAt(sanction.getExpiresAt())
+                .expireDuration(sanction.getExpireDuration())
                 .createdAt(sanction.getCreatedAt())
                 .build();
     }

@@ -101,8 +101,8 @@ public class AuthService {
 
             Map<String, Object> details = new HashMap<>();
             details.put("reason", sanction.getReason());
-            if (sanction.getExpiresAt() != null) {
-                details.put("expiresAt", sanction.getExpiresAt());
+            if (sanction.getExpireDuration() != null) {
+                details.put("expireDuration", sanction.getExpireDuration());
             }
             throw new UserAccountStatusException(code, details);
         }
