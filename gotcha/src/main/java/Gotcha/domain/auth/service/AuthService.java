@@ -91,7 +91,7 @@ public class AuthService {
 
             UserSanction sanction = sanctionService.findLatestUnreadSanction(user)
                     .orElseThrow(()->new CustomException(AuthExceptionCode.SANCTION_NOT_FOUND));
-            sanctionService.markSanctionAsRead(sanction);
+            sanction.markAsRead();
 
             Map<String, Object> details = new HashMap<>();
             details.put("reason", sanction.getReason());
@@ -112,7 +112,7 @@ public class AuthService {
         SanctionRes warningDetails = null;
         if (unreadWarningOpt.isPresent()) {
             UserSanction warning = unreadWarningOpt.get();
-            sanctionService.markSanctionAsRead(warning);
+            warning.markAsRead();
             warningDetails = SanctionRes.fromEntity(warning);
         }
 

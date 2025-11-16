@@ -6,7 +6,6 @@ import Gotcha.domain.sanction.dto.SanctionRes;
 import Gotcha.domain.sanction.repository.SanctionRepository;
 import gotcha_domain.report.UserReport;
 import gotcha_domain.sanction.SanctionType;
-import gotcha_domain.sanction.SanctionType;
 import gotcha_domain.sanction.UserSanction;
 import gotcha_domain.user.User;
 import gotcha_user.service.UserService;
@@ -80,10 +79,5 @@ public class SanctionService {
 
     public Optional<UserSanction> findLatestUnreadWarning(User user) {
         return sanctionRepository.findTopByUserAndSanctionTypeAndIsReadIsFalseOrderByCreatedAtDesc(user, SanctionType.WARNING);
-    }
-
-    @Transactional
-    public void markSanctionAsRead(UserSanction sanction) {
-        sanction.markAsRead();
     }
 }
