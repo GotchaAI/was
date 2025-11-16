@@ -418,4 +418,18 @@ public interface MypageApi {
     })
     ResponseEntity<?> modifyUserChatSetting(@Valid @RequestBody ChatSettingReq chatSettingReq,
                                             @AuthenticationPrincipal SecurityUserDetails userDetails);
+
+    @Operation(summary = "사용자 채팅 설정 조회", description = "사용자 채팅 설정 조회 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "사용자 채팅 설정 조회 성공",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                    {
+                                        "chatOption": "ALLOW_ALL",
+                                        "privateChatOption": "ALLOW"
+                                    }
+                                    """)
+                    }))
+    })
+    ResponseEntity<?> getUserChatSetting(@AuthenticationPrincipal SecurityUserDetails userDetails);
 }

@@ -1,4 +1,4 @@
-FROM openjdk:17 AS builder
+FROM eclipse-temurin:17 AS builder
 
 WORKDIR /app
 
@@ -14,9 +14,8 @@ COPY gotcha-common gotcha-common
 COPY gotcha-domain gotcha-domain
 
 RUN chmod +x ./gradlew
-RUN microdnf install -y findutils
+RUN apt-get update && apt-get install -y findutils
 RUN ./gradlew :gotcha:bootJar -x test
-
 
 
 FROM eclipse-temurin:17

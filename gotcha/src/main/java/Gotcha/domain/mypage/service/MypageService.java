@@ -2,6 +2,7 @@ package Gotcha.domain.mypage.service;
 
 import Gotcha.domain.mypage.dto.ChatSettingReq;
 import gotcha_domain.user.User;
+import gotcha_user.dto.UserChatSettingRes;
 import gotcha_user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,5 +41,10 @@ public class MypageService {
     @Transactional
     public void modifyUserChatSetting(Long userId, ChatSettingReq chatSettingReq) {
         userService.updateUserChatSetting(userId, chatSettingReq.chatOption(), chatSettingReq.privateChatOption());
+    }
+
+    @Transactional(readOnly = true)
+    public UserChatSettingRes getUserChatSetting(Long userId){
+        return userService.getUserChatSetting(userId);
     }
 }

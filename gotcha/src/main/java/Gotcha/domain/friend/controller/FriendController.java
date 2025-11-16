@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/friends")
-public class FriendController implements FriendApi{
+public class FriendController implements FriendApi {
     private final FriendService friendService;
 
     @GetMapping()
@@ -32,7 +32,7 @@ public class FriendController implements FriendApi{
 
     @GetMapping("/search")
     public ResponseEntity<?> searchUser(@AuthenticationPrincipal SecurityUserDetails userDetails,
-                                          @RequestParam(value = "keyword") String keyword) {
+                                        @RequestParam(value = "keyword") String keyword) {
         return ResponseEntity.ok(friendService.searchUser(userDetails.getId(), keyword));
     }
 
@@ -68,4 +68,12 @@ public class FriendController implements FriendApi{
         friendService.deleteFriend(userDetails.getId(), friendUuid);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    @PostMapping("/follow/{uuid}")
+    public ResponseEntity<?> followingFriend(@PathVariable(value = "uuid") String friendUuid,
+                                             @AuthenticationPrincipal SecurityUserDetails userDetails) {
+        return ResponseEntity.ok(friendService.followFriend(userDetails.getUuid(), friendUuid));
+    }
+
+
 }
