@@ -188,7 +188,7 @@ public class RoomService {
         try (Cursor<String> roomKeys = roomRepository.scanRoomKeys()) {
             while (roomKeys.hasNext()) {
                 String roomKey = roomKeys.next();
-                String roomId = roomKey.replaceFirst("room:", "");
+                String roomId = roomKey.replaceFirst("room:data:", "");
 
                 Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
                 if (roomData == null || roomData.isEmpty()) {

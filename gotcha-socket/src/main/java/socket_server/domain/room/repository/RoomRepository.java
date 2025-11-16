@@ -28,7 +28,7 @@ public class RoomRepository {
     }
 
     private String getRoomKey(String roomId) {
-        return "room:" + roomId;
+        return "room:data:" + roomId;
     }
 
     public void updateAllFields(String roomId, Map<String, String> updates) {
@@ -44,7 +44,7 @@ public class RoomRepository {
      * @return room 키들(예: "room:1234")을 순회할 수 있는 Cursor 객체
      */
     public Cursor<String> scanRoomKeys() {
-        ScanOptions options = ScanOptions.scanOptions().match("room:*").count(1000).build();
+        ScanOptions options = ScanOptions.scanOptions().match("room:data:*").count(1000).build();
         return redisTemplate.scan(options);
     }
 
