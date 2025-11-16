@@ -100,6 +100,7 @@ public class GameEndService {
     }
 
     public void flushGame(GameMeta gameMeta) {
+        log.info("Flushing game data for roomId: {}", gameMeta.getRoomId());
         //1. roomId 기반 삭제
         gameRepository.deleteGameMeta(gameMeta.getRoomId());
 

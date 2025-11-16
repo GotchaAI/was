@@ -1,7 +1,7 @@
 package socket_server.domain.game.dto;
 
 public record AIGuessReactReq(
-        boolean isCorrect,
+        boolean is_correct,
         String answer,
         String guesser
 ) {
