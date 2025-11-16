@@ -11,7 +11,8 @@ public enum AuthExceptionCode implements ExceptionCode {
     INVALID_GUEST(HttpStatus.BAD_REQUEST, "AUTH-400-001", "게스트가 아닙니다."),
     INVALID_USERID(HttpStatus.NOT_FOUND, "AUTH-404-002", "존재하지 않는 사용자입니다."),
     ACCOUNT_SUSPENDED(HttpStatus.FORBIDDEN, "AUTH-403-002", "계정이 일시 정지되었습니다."),
-    ACCOUNT_BANNED(HttpStatus.FORBIDDEN, "AUTH-403-003", "계정이 영구 정지되었습니다.");
+    ACCOUNT_BANNED(HttpStatus.FORBIDDEN, "AUTH-403-003", "계정이 영구 정지되었습니다."),
+    SANCTION_NOT_FOUND(HttpStatus.NOT_FOUND, "AUTH-404-003", "제재 내역이 존재하지 않습니다.");
 
     private final HttpStatus status;
     private final String code;

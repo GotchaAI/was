@@ -86,11 +86,11 @@ public class AuthService {
 
         // 1. 제재/차단 상태 확인 (로그인 차단)
         if (user.getUserStatus() == UserStatus.SUSPENDED || user.getUserStatus() == UserStatus.BANNED) {
-            Optional<UserSanction> unreadSanctionOpt = sanctionService.findLatestUnreadSanction(user);
             AuthExceptionCode code = user.getUserStatus() == UserStatus.SUSPENDED ?
                     AuthExceptionCode.ACCOUNT_SUSPENDED : AuthExceptionCode.ACCOUNT_BANNED;
 
-            UserSanction sanction = unreadSanctionOpt.get();
+            UserSanction sanction = sanctionService.findLatestUnreadSanction(user)
+                    .orElseThrow(()->new CustomException(AuthExceptionCode.SANCTION_NOT_FOUND));
             sanctionService.markSanctionAsRead(sanction);
 
             Map<String, Object> details = new HashMap<>();
