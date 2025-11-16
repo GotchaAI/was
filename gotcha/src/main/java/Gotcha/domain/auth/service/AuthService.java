@@ -3,8 +3,9 @@ package Gotcha.domain.auth.service;
 import Gotcha.domain.auth.dto.SignInReq;
 import Gotcha.domain.auth.dto.SignUpReq;
 import Gotcha.domain.auth.exception.AuthExceptionCode;
-import Gotcha.domain.auth.util.RandomNicknameGenerator;
 import Gotcha.domain.auth.exception.UserAccountStatusException;
+import Gotcha.domain.auth.util.RandomNicknameGenerator;
+import Gotcha.domain.sanction.dto.SanctionRes;
 import Gotcha.domain.sanction.service.SanctionService;
 import gotcha_auth.dto.TokenDto;
 import gotcha_auth.jwt.JwtHelper;
@@ -12,7 +13,6 @@ import gotcha_common.exception.CustomException;
 import gotcha_common.exception.FieldValidationException;
 import gotcha_common.util.RedisUtil;
 import gotcha_domain.auth.SecurityUserDetails;
-import Gotcha.domain.sanction.dto.SanctionRes;
 import gotcha_domain.sanction.UserSanction;
 import gotcha_domain.user.Role;
 import gotcha_domain.user.User;
@@ -84,7 +84,12 @@ public class AuthService {
         User user = userRepository.findByEmail(signInReq.email())
                 .orElseThrow(() -> new CustomException(AuthExceptionCode.INVALID_USERNAME_AND_PASSWORD));
 
-        // 1. 제재/차단 상태 확인 (로그인 차단)
+        // 1. 비밀번호 확인
+        if(!passwordEncoder.matches(signInReq.password(), user.getPassword())){
+            throw new CustomException(AuthExceptionCode.INVALID_USERNAME_AND_PASSWORD);
+        }
+
+        // 2. 제재/차단 상태 확인 (로그인 차단)
         if (user.getUserStatus() == UserStatus.SUSPENDED || user.getUserStatus() == UserStatus.BANNED) {
             AuthExceptionCode code = user.getUserStatus() == UserStatus.SUSPENDED ?
                     AuthExceptionCode.ACCOUNT_SUSPENDED : AuthExceptionCode.ACCOUNT_BANNED;
@@ -99,12 +104,6 @@ public class AuthService {
                 details.put("expiresAt", sanction.getExpiresAt());
             }
             throw new UserAccountStatusException(code, details);
-
-        }
-
-        // 2. 비밀번호 확인
-        if(!passwordEncoder.matches(signInReq.password(), user.getPassword())){
-            throw new CustomException(AuthExceptionCode.INVALID_USERNAME_AND_PASSWORD);
         }
 
         // 3. 경고 확인 (로그인 성공, 메시지 전달)
