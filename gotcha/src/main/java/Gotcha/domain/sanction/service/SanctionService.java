@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -39,24 +38,8 @@ public class SanctionService {
         }
 
         // 3. 제재 유형에 따른 로직 처리
-        LocalDateTime expiresAt = null; // 제재 만료 시간
         SanctionType sanctionType = sanctionReq.getSanctionType();
-        switch(sanctionType){
-            case WARNING:
-                targetUser.incrementWarningCount();
-                // 경고는 만료 시간이 없음
-                break;
-            case TEMP_BAN:
-                // 임시 정지는 현재 시간에서 지정된 기간만큼 더함
-                Long durationDays = sanctionReq.getDurationDays();
-                expiresAt = LocalDateTime.now().plusDays(durationDays);
-                targetUser.suspendUser(durationDays);
-                break;
-            case PERM_BAN:
-                // 영구 정지는 만료 시간이 없음
-                targetUser.banUser();
-                break;
-        }
+        sanctionType.apply(targetUser, sanctionReq.getDurationDays());
 
         // 4. 제재 기록 저장
         UserSanction userSanction = UserSanction.builder()
@@ -64,7 +47,7 @@ public class SanctionService {
                 .admin(adminUser)
                 .sanctionType(sanctionType)
                 .reason(sanctionReq.getReason())
-                .expiresAt(expiresAt)
+                .expiresAt(targetUser.getSuspensionEndDate())
                 .userReport(sourceReport)
                 .build();
 

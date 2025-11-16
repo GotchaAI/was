@@ -1,7 +1,26 @@
 package gotcha_domain.sanction;
 
+import gotcha_domain.user.User;
+
 public enum SanctionType {
-    WARNING, // 경고
-    TEMP_BAN, // 일시 정지
-    PERM_BAN // 영구 정지
+    WARNING {
+        @Override
+        public void apply(User user, Long days) {
+            user.incrementWarningCount();
+        }
+    },
+    TEMP_BAN {
+        @Override
+        public void apply(User user, Long days) {
+            user.suspendUser(days);
+        }
+    },
+    PERM_BAN {
+        @Override
+        public void apply(User user, Long days) {
+            user.banUser();
+        }
+    };
+
+    public abstract void apply(User user, Long days);
 }
