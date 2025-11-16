@@ -39,7 +39,7 @@ jobs:
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
 
             echo "==== BACKEND 컨테이너 중지 ===="
-            docker-compose stop backend || true
+            docker-compose stop app || true
 
             echo "==== 오래된 BACKEND 이미지 삭제 ===="
             docker rmi ${{ secrets.DOCKER_USERNAME }}/gotcha:latest || true
@@ -48,6 +48,6 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/gotcha:latest
 
             echo "==== BACKEND만 재시작 ===="
-            docker-compose up -d backend
+            docker-compose up -d app
 
             echo "==== 백엔드 배포 완료! ===="
