@@ -20,7 +20,7 @@ public class CookieUtil {
                 .path("/")
                 .httpOnly(true)
                 .secure(secure)
-                .sameSite(secure ? "None" : "Lax");
+                .sameSite(secure ? "Strict" : "Lax");
 
         if(autoSignIn)
             cookie.maxAge(COOKIE_REFRESH_EXPIRATION);
@@ -35,7 +35,7 @@ public class CookieUtil {
                 .httpOnly(true)
                 .maxAge(0)
                 .secure(secure)
-                .sameSite(secure ? "None" : "Lax")
+                .sameSite(secure ? "Strict" : "Lax")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
