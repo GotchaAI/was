@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SanctionReq {
 
-    @NotBlank(message = "제재 대상의 ID는 필수입니다.")
+    @NotBlank(message = "제재 대상의 UUID는 필수입니다.")
     private String targetUserId;
 
     // adminUserId 필드는 보안을 위해 제거하고, Controller에서 직접 인증 정보를 사용합니다.
