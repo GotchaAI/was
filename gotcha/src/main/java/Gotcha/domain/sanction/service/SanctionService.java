@@ -47,7 +47,7 @@ public class SanctionService {
                 .admin(adminUser)
                 .sanctionType(sanctionType)
                 .reason(sanctionReq.getReason())
-                .expiresAt(targetUser.getSuspensionEndDate())
+                .expireDuration(sanctionReq.getDurationDays())
                 .userReport(sourceReport)
                 .build();
 

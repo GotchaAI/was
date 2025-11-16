@@ -3,13 +3,20 @@ package gotcha_domain.sanction;
 import gotcha_common.entity.BaseTimeEntity;
 import gotcha_domain.report.UserReport;
 import gotcha_domain.user.User;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -38,8 +45,8 @@ public class UserSanction extends BaseTimeEntity {
     private String reason;
 
     // 제재 만료 일시
-    @Column(name = "expiry_date")
-    private LocalDateTime expiresAt;
+    @Column(name = "expire_duration")
+    private Long expireDuration;
 
     // 근거가 된 신고(nullable)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -50,12 +57,12 @@ public class UserSanction extends BaseTimeEntity {
     private boolean isRead = false;
 
     @Builder
-    public UserSanction(User user, User admin, SanctionType sanctionType, String reason, LocalDateTime expiresAt, UserReport userReport) {
+    public UserSanction(User user, User admin, SanctionType sanctionType, String reason, Long expireDuration, UserReport userReport) {
         this.user = user;
         this.admin = admin;
         this.sanctionType = sanctionType;
         this.reason = reason;
-        this.expiresAt = expiresAt;
+        this.expireDuration = expireDuration;
         this.userReport = userReport;
     }
 
