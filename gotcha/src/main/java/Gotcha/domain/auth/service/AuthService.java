@@ -13,6 +13,7 @@ import gotcha_common.exception.CustomException;
 import gotcha_common.exception.FieldValidationException;
 import gotcha_common.util.RedisUtil;
 import gotcha_domain.auth.SecurityUserDetails;
+import gotcha_domain.sanction.SanctionType;
 import gotcha_domain.sanction.UserSanction;
 import gotcha_domain.user.Role;
 import gotcha_domain.user.User;
@@ -94,7 +95,7 @@ public class AuthService {
             AuthExceptionCode code = user.getUserStatus() == UserStatus.SUSPENDED ?
                     AuthExceptionCode.ACCOUNT_SUSPENDED : AuthExceptionCode.ACCOUNT_BANNED;
 
-            UserSanction sanction = sanctionService.findLatestUnreadSanction(user)
+            UserSanction sanction = sanctionService.findLatestUnread(user)
                     .orElseThrow(()->new CustomException(AuthExceptionCode.SANCTION_NOT_FOUND));
             sanction.markAsRead();
 
@@ -107,7 +108,7 @@ public class AuthService {
         }
 
         // 3. 경고 확인 (로그인 성공, 메시지 전달)
-        Optional<UserSanction> unreadWarningOpt = sanctionService.findLatestUnreadWarning(user);
+        Optional<UserSanction> unreadWarningOpt = sanctionService.findLatestUnread(user, SanctionType.WARNING);
         SanctionRes warningDetails = null;
         if (unreadWarningOpt.isPresent()) {
             UserSanction warning = unreadWarningOpt.get();

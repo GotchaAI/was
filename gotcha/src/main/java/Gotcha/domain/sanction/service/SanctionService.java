@@ -73,11 +73,12 @@ public class SanctionService {
         return SanctionRes.fromEntity(userSanction);
     }
 
-    public Optional<UserSanction> findLatestUnreadSanction(User user) {
+    public Optional<UserSanction> findLatestUnread(User user) {
         return sanctionRepository.findTopByUserAndIsReadIsFalseOrderByCreatedAtDesc(user);
     }
 
-    public Optional<UserSanction> findLatestUnreadWarning(User user) {
-        return sanctionRepository.findTopByUserAndSanctionTypeAndIsReadIsFalseOrderByCreatedAtDesc(user, SanctionType.WARNING);
+    public Optional<UserSanction> findLatestUnread(User user, SanctionType type) {
+        return sanctionRepository.findTopByUserAndSanctionTypeAndIsReadIsFalseOrderByCreatedAtDesc(user, type);
     }
+
 }
