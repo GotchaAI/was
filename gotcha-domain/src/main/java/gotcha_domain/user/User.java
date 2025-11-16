@@ -52,7 +52,7 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private Integer warningCount;
+    private Integer warningCount = 0;
 
     @Setter
     private LocalDateTime lastLogout;
@@ -147,7 +147,7 @@ public class User extends BaseTimeEntity {
     }
 
     public void incrementWarningCount() {
-        this.warningCount = (this.warningCount == null) ? 1 : this.warningCount + 1;
+        this.warningCount++;
     }
 
     public void suspendUser(long days) {
