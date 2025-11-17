@@ -23,10 +23,10 @@ public interface SanctionApi {
             + "\n"
             + "- targetUserUuid: 제재 대상 사용자의 UUID입니다.(필수)\n"
             + "- sanctionType: 제재 유형을 나타내는 Enum입니다.(필수)\n"
-            + "    • WARNING   : 경고 1회를 부여합니다.\n"
-            + "    • TEMP_BAN  : 일정 기간 동안 계정을 정지시킵니다. durationDays가 필요합니다.\n"
-            + "    • TEMP_BAN_CANCEL  : 일정 기간 동안 정지된 계정을 다시 활성화 시킵니다. 정지 상태가 아니었다면 에러가 반환됩니다.\n"
-            + "    • PERM_BAN  : 계정을 영구 정지(영구 차단)합니다.\n"
+            + "    * WARNING   : 경고 1회를 부여합니다.\n"
+            + "    * TEMP_BAN  : 일정 기간 동안 계정을 정지시킵니다. durationDays가 필요합니다.\n"
+            + "    * TEMP_BAN_CANCEL  : 일정 기간 동안 정지된 계정을 다시 활성화 시킵니다. 정지 상태가 아니었다면 에러가 반환됩니다.\n"
+            + "    * PERM_BAN  : 계정을 영구 정지(영구 차단)합니다.\n"
             + "\n"
             + "- sourceReportId: 제재의 근거가 되는 신고 ID입니다.(필수)\n"
             + "- durationDays: TEMP_BAN 제재 시 적용되는 정지 기간(일 단위)입니다. WARNING, PERM_BAN에서는 사용되지 않습니다.\n")
@@ -43,15 +43,6 @@ public interface SanctionApi {
                                         "reason": "부적절한 언어 사용",
                                         "expiresAt": "2025-11-18T10:00:00",
                                         "createdAt": "2025-11-11T10:00:00"
-                                    }
-                                    """)
-                    })
-            ),
-            @ApiResponse(responseCode = "422", description = "필드 검증 오류 ",
-                    content = @Content(mediaType = "application/json", examples = {
-                            @ExampleObject(value = """
-                                    {
-                                        "reason": "제재 사유는 필수입니다."
                                     }
                                     """)
                     })
