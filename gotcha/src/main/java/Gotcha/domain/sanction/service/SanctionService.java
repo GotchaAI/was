@@ -35,7 +35,7 @@ public class SanctionService {
         User adminUser = userService.findUserByUuid(adminId);
 
         //1. target User 조회
-        User targetUser = userService.findUserByUuid(sanctionReq.getTargetUserId());
+        User targetUser = userService.findUserByUuid(sanctionReq.getTargetUserUuId());
 
         // 2. source Report 조회 (존재한다면)
         UserReport sourceReport = null;
