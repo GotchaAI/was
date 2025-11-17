@@ -88,6 +88,17 @@ public interface SanctionApi {
                                     }
                                     """)
                     })
+            ),
+            @ApiResponse(responseCode = "400", description = "정지 상태가 아닌 유저에게 정지 취소 시",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                    {
+                                        "code": "SANCTION-400-001",
+                                        "status": "Bad Request",
+                                        "message": "해당 유저는 정지 상태가 아닙니다."
+                                    }
+                                    """)
+                    })
             )
     })
     ResponseEntity<SanctionRes> applySanction(
