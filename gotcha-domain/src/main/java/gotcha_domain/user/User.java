@@ -2,6 +2,7 @@ package gotcha_domain.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gotcha_common.entity.BaseTimeEntity;
+import gotcha_common.exception.CustomException;
 import gotcha_domain.achivement.UserAchievement;
 import gotcha_domain.friend.Friend;
 import gotcha_domain.friend.FriendRequest;
@@ -153,6 +154,11 @@ public class User extends BaseTimeEntity {
     public void suspendUser(long days) {
         this.userStatus = UserStatus.SUSPENDED;
         this.suspensionEndDate = LocalDateTime.now().plusDays(days);
+    }
+
+    public void unsuspendUser() {
+        this.userStatus = UserStatus.ACTIVE;
+        this.suspensionEndDate = null;
     }
 
     public void banUser(){

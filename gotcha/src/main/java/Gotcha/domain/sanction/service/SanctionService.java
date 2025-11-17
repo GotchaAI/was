@@ -5,6 +5,7 @@ import Gotcha.domain.auth.exception.UserAccountStatusException;
 import Gotcha.domain.report.service.UserReportService;
 import Gotcha.domain.sanction.dto.SanctionReq;
 import Gotcha.domain.sanction.dto.SanctionRes;
+import Gotcha.domain.sanction.exception.SanctionExceptionCode;
 import Gotcha.domain.sanction.repository.SanctionRepository;
 import gotcha_common.exception.CustomException;
 import gotcha_domain.report.UserReport;
@@ -45,6 +46,11 @@ public class SanctionService {
 
         // 3. 제재 유형에 따른 로직 처리
         SanctionType sanctionType = sanctionReq.getSanctionType();
+        if(sanctionType == SanctionType.TEMP_BAN_CANCEL) {
+            if(targetUser.getUserStatus() != UserStatus.SUSPENDED) {
+                throw new CustomException(SanctionExceptionCode.NOT_SUSPENDED_USER);
+            }
+        }
         sanctionType.apply(targetUser, sanctionReq.getDurationDays());
 
         // 4. 제재 기록 저장

@@ -15,6 +15,12 @@ public enum SanctionType {
             user.suspendUser(days);
         }
     },
+    TEMP_BAN_CANCEL {
+        @Override
+        public void apply(User user, Long days) {
+            user.unsuspendUser(); // 정지 취소(즉시 해제)
+        }
+    },
     PERM_BAN {
         @Override
         public void apply(User user, Long days) {
