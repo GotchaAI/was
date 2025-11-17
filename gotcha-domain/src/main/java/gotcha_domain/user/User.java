@@ -166,6 +166,15 @@ public class User extends BaseTimeEntity {
         this.suspensionEndDate = null;
     }
 
+    public boolean isSuspensionExpired() {
+        return suspensionEndDate != null && suspensionEndDate.isBefore(LocalDateTime.now());
+    }
+
+    public void checkSuspensionAndUnsuspend() {
+        if (isSuspensionExpired()) {
+            unsuspendUser();
+        }
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) {

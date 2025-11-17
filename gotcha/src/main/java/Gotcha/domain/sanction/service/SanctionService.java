@@ -14,6 +14,7 @@ import gotcha_domain.sanction.UserSanction;
 import gotcha_domain.user.User;
 import gotcha_domain.user.UserStatus;
 import gotcha_user.service.UserService;
+import jakarta.persistence.TableGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,6 +85,13 @@ public class SanctionService {
                 details.put("expireDuration", sanction.getExpireDuration());
             }
             throw new UserAccountStatusException(code, details);
+        }
+    }
+
+    @Transactional
+    public void validateSuspendedEndDate(User user) {
+        if(user.getUserStatus()==UserStatus.SUSPENDED) {
+            user.checkSuspensionAndUnsuspend();
         }
     }
 
