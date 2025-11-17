@@ -31,11 +31,9 @@ public class UserReport extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
-
     @NotNull
     @Enumerated(EnumType.STRING)
-    private UserReportType userReportType;
+    public UserReportType userReportType;
 
     @NotNull
     private String detail; // by user

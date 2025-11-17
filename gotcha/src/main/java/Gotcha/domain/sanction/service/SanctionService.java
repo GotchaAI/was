@@ -39,11 +39,9 @@ public class SanctionService {
         //1. target User 조회
         User targetUser = userService.findUserByUuid(sanctionReq.getTargetUserUuId());
 
-        // 2. source Report 조회 (존재한다면)
-        UserReport sourceReport = null;
-        if(sanctionReq.getSourceReportId() != null){
-            sourceReport = userReportService.findUserReportById(sanctionReq.getSourceReportId());
-        }
+        // 2. source Report 조회
+        UserReport sourceReport = userReportService.findUserReportById(sanctionReq.getSourceReportId());
+        String reason = sourceReport.getUserReportType().getReason();
 
         // 3. 제재 유형에 따른 로직 처리
         SanctionType sanctionType = sanctionReq.getSanctionType();
@@ -59,7 +57,7 @@ public class SanctionService {
                 .user(targetUser)
                 .admin(adminUser)
                 .sanctionType(sanctionType)
-                .reason(sanctionReq.getReason())
+                .reason(reason)
                 .expireDuration(sanctionReq.getDurationDays())
                 .userReport(sourceReport)
                 .build();
