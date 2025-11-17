@@ -36,6 +36,7 @@ public class UserReport extends BaseTimeEntity {
     private UserReportType userReportType;
 
     @NotNull
+    @Column(columnDefinition = "TEXT")
     private String detail;
 
     @ManyToOne(fetch = FetchType.LAZY)
