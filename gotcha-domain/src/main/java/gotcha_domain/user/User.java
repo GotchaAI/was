@@ -166,6 +166,7 @@ public class User extends BaseTimeEntity {
         this.suspensionEndDate = null;
     }
 
+    @JsonIgnore
     public boolean isSuspensionExpired() {
         return suspensionEndDate != null && suspensionEndDate.isBefore(LocalDateTime.now());
     }
