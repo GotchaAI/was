@@ -97,6 +97,82 @@ public interface SanctionApi {
             @Valid @RequestBody SanctionReq sanctionReq,
             SecurityUserDetails userDetails);
 
+    @Operation(
+            summary = "사용자 목록 반환 API",
+            description = """
+    관리자 전용 사용자 조회 API입니다.
+
+    **조회 규칙**
+    - nickname 파라미터가 없는 경우: 전체 사용자 목록을 페이지 단위로 조회합니다.
+    - nickname 파라미터가 있는 경우: 해당 닉네임과 정확히 일치하는 유저 1명만 반환합니다.
+      - 이때 page 파라미터는 반드시 0이어야 합니다.
+    """
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "사용자 목록 조회 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                                {
+                                    "content": [
+                                        {
+                                            "nickname": "다06fn6",
+                                            "createDate": "2025-09-03",
+                                            "email": "test30@naver.com",
+                                            "reportedCount": 1,
+                                            "warningCount": 1
+                                        }
+                                    ],
+                                    "page": {
+                                        "size": 6,
+                                        "number": 0,
+                                        "totalElements": 1,
+                                        "totalPages": 1
+                                    }
+                                }
+                                """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "닉네임 검색 시 page 값이 0이 아닌 경우",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                                {
+                                    "code": "SANCTION-400-002",
+                                    "status": "BAD_REQUEST",
+                                    "message": "검색 시 page 값은 0이어야 합니다."
+                                }
+                                """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "존재하지 않는 사용자 조회 시",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(
+                                    value = """
+                                {
+                                    "code": "USER-404-001",
+                                    "status": "NOT_FOUND",
+                                    "message": "존재하지 않는 사용자입니다."
+                                }
+                                """
+                            )
+                    )
+            )
+    })
 
     ResponseEntity<?> getUserList(
             SecurityUserDetails userDetails,
