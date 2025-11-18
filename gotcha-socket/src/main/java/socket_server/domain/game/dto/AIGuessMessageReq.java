@@ -1,6 +1,6 @@
 package socket_server.domain.game.dto;
 
 public record AIGuessMessageReq(
-        String imageDescription
+        String image_description
 ) {
 }

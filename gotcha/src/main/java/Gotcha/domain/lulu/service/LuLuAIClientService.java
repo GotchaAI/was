@@ -116,7 +116,7 @@ public class LuLuAIClientService {
     public String getImageCaption(String imageUrl){
         Map<String, String> body = Map.of("imageURL", imageUrl);
         return webClient.post()
-                .uri(AI_SERVER_BASE_URL + "image/caption")
+                .uri(AI_SERVER_BASE_URL + "caption")
                 .bodyValue(body)
                 .retrieve()
                 .onStatus(httpStatusCode -> httpStatusCode.is4xxClientError() || httpStatusCode.is5xxServerError(

@@ -34,10 +34,10 @@ public class UserReport extends BaseTimeEntity {
     @NotNull
     @Enumerated(EnumType.STRING)
     public UserReportType userReportType;
-
-    @NotNull
-    private String detail; // by user
-
+  
+    @Column(columnDefinition = "TEXT")
+    private String detail;
+  
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
