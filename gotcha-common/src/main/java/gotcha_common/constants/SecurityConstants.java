@@ -4,7 +4,7 @@ public class SecurityConstants {
     public static final String[] PUBLIC_ENDPOINTS = {
             "/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**",
             "/webjars/**", "/error", "/api/v1/auth/**", "/api/v1/users/nickname-check",
-            "/api/v1/notifications/**" , "/docs/**", "/ws-connect/**",  "/api/v1/ranking"
+            "/api/v1/notifications/**" , "/docs/**", "/ws-connect/**",  "/api/v1/ranking", "/actuator/health/**"
     };
 
     public static final String[][] METHOD_BASED_PUBLIC_ENDPOINTS = {

@@ -2,6 +2,7 @@ package socket_server.domain.game.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.ErrorType;
@@ -34,7 +35,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class GameStartService {
-
+    @Qualifier("taskScheduler")
     private final TaskScheduler taskScheduler;
     private final RoomUserService roomUserService;
     private final GamePlayerRepository gamePlayerRepository;
@@ -91,6 +92,16 @@ public class GameStartService {
 
         // 8. 5초 후 게임 시작(EntryPoint)
         taskScheduler.schedule(() -> roundStartService.startNextRound(roomId), Instant.now().plusSeconds(5));
+
+        List<RoomUserInfo> users = new ArrayList<>(roomUserRepository.findUsersByRoomId(roomId, errorType));
+        String ownerUuid = roomMetadata.getOwnerUuid();
+
+        for (RoomUserInfo user : users) {
+            if (!user.getUserUuid().equals(ownerUuid)) {
+                user.setReady(false);
+                roomUserRepository.saveUserToRoom(user, roomId, errorType);
+            }
+        }
     }
 
     private void saveGame(Game game) {

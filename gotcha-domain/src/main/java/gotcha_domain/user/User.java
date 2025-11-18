@@ -2,6 +2,7 @@ package gotcha_domain.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gotcha_common.entity.BaseTimeEntity;
+import gotcha_common.exception.CustomException;
 import gotcha_domain.achivement.UserAchievement;
 import gotcha_domain.friend.Friend;
 import gotcha_domain.friend.FriendRequest;
@@ -27,8 +28,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -52,12 +53,12 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private Integer warningCount;
+    private Integer warningCount = 0;
 
     @Setter
     private LocalDateTime lastLogout;
 
-    private Boolean isLocked;
+//    private Boolean isLocked; // UserStatus로 대체
 
     @Setter
     private int level;
@@ -68,52 +69,67 @@ public class User extends BaseTimeEntity {
     @Column(unique = true, nullable = false)
     private String uuid;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "chat_option", nullable = false)
+    private ChatOption chatOption = ChatOption.ALLOW_ALL;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_status", nullable = false)
+    private UserStatus userStatus = UserStatus.ACTIVE;
+
+    @Column(name = "suspension_end_date")
+    private LocalDateTime suspensionEndDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "private_chat_option", nullable = false)
+    private PrivateChatOption privateChatOption = PrivateChatOption.ALLOW;
+
     @JsonIgnore
     @OneToMany(mappedBy = "player")
-    private List<UserGameHistory> userGameHistories = new ArrayList<>();
+    private Set<UserGameHistory> userGameHistories = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "writer")
-    private List<Answer> answers = new ArrayList<>();
+    private Set<Answer> answers = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "writer")
-    private List<Inquiry> inquiries = new ArrayList<>();
+    private Set<Inquiry> inquiries = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "writer")
-    private List<Notification> notifications = new ArrayList<>();
+    private Set<Notification> notifications = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "user")
-    private List<UserReport> userReports = new ArrayList<>();
+    private Set<UserReport> userReports = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "user")
-    private List<UserAchievement> userAchievements = new ArrayList<>();
+    private Set<UserAchievement> userAchievements = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "user1")
-    private List<Friend> friends = new ArrayList<>();
+    private Set<Friend> friends = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "user2")
-    private List<Friend> friendOf = new ArrayList<>();
+    private Set<Friend> friendOf = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "fromUser")
-    private List<FriendRequest> sentFriendRequests = new ArrayList<>();
+    private Set<FriendRequest> sentFriendRequests = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "toUser")
-    private List<FriendRequest> receivedFriendRequests = new ArrayList<>();
+    private Set<FriendRequest> receivedFriendRequests = new HashSet<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "user")
-    private List<BugReport> bugReports = new ArrayList<>();
+    private Set<BugReport> bugReports = new HashSet<>();
 
     @Builder
-    public User(Long id, String email, String password, String nickname, Role role, String uuid){
+    public User(Long id, String email, String password, String nickname, Role role, String uuid) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -124,5 +140,57 @@ public class User extends BaseTimeEntity {
 
     public void changeNickname(String newNickname) {
         this.nickname = newNickname;
+    }
+
+    public void updateChatSettings(ChatOption chatOption, PrivateChatOption privateChatOption) {
+        this.chatOption = chatOption;
+        this.privateChatOption = privateChatOption;
+    }
+
+    public void incrementWarningCount() {
+        this.warningCount++;
+    }
+
+    public void suspendUser(long days) {
+        this.userStatus = UserStatus.SUSPENDED;
+        this.suspensionEndDate = LocalDateTime.now().plusDays(days);
+    }
+
+    public void unsuspendUser() {
+        this.userStatus = UserStatus.ACTIVE;
+        this.suspensionEndDate = null;
+    }
+
+    public void banUser(){
+        this.userStatus = UserStatus.BANNED;
+        this.suspensionEndDate = null;
+    }
+
+    @JsonIgnore
+    public boolean isSuspensionExpired() {
+        return suspensionEndDate != null && suspensionEndDate.isBefore(LocalDateTime.now());
+    }
+
+    public void checkSuspensionAndUnsuspend() {
+        if (isSuspensionExpired()) {
+            unsuspendUser();
+        }
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof User)) {
+            return false;
+        }
+        User user = (User) o;
+
+        return id != null && id.equals(user.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return (id != null) ? id.hashCode() : 0;
     }
 }

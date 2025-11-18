@@ -6,6 +6,7 @@ import gotcha_domain.chat.ChatMessage;
 import gotcha_domain.chat.ChatType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import socket_server.common.config.RedisMessage;
@@ -30,12 +31,11 @@ import socket_server.domain.room.repository.RoomRepository;
 import socket_server.domain.room.repository.RoomUserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import static socket_server.common.constants.WebSocketConstants.ROOM_PREFIX;
 
@@ -171,7 +171,8 @@ public class RoomService {
         RoomSummaryRes summary = RoomSummaryRes.of(metadata, currentUser);
         lobbyBroadCaster.broadcastToRoomList("SYSTEM", RoomEventType.UPDATE, summary);
 
-        List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR);
+        List<RoomUserInfo> userList = new ArrayList<>(roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR));
+        sortUserListWithOwnerFirst(userList, metadata.getOwnerUuid());
         RoomDetailRes roomDetailRes = new RoomDetailRes(RoomInfoRes.from(metadata), userList);
         roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", RoomEventType.UPDATE, roomDetailRes);
 
@@ -184,29 +185,31 @@ public class RoomService {
     }
 
     public List<RoomSummaryRes> getAllRoomSummaries(RoomListReq roomListReq) {
-        Set<String> allRoomIds = roomRepository.getAllRoomIds();
+        List<RoomSummaryRes> summaries = new ArrayList<>();
+        try (Cursor<String> roomKeys = roomRepository.scanRoomKeys()) {
+            while (roomKeys.hasNext()) {
+                String roomKey = roomKeys.next();
+                String roomId = roomKey.replaceFirst("room:data:", "");
 
-        return allRoomIds.stream()
-                .map(roomId -> {
-                    Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
-                    if (roomData == null || roomData.isEmpty()) {
-                        return null;
-                    }
+                Map<Object, Object> roomData = roomRepository.getRoomData(roomId);
+                if (roomData == null || roomData.isEmpty()) {
+                    continue;
+                }
 
-                    RoomMetadata metadata = RoomMetadata.fromRedisMap(roomId, roomData);
+                RoomMetadata metadata = RoomMetadata.fromRedisMap(roomId, roomData);
 
-                    if (!metadata.getGameType().equals(roomListReq.gameType())) {
-                        return null;
-                    }
-                    if (roomListReq.difficulty() != null && !roomListReq.difficulty().equals(metadata.getDifficulty())) {
-                        return null;
-                    }
+                if (!metadata.getGameType().equals(roomListReq.gameType())) {
+                    continue;
+                }
+                if (roomListReq.difficulty() != null && !roomListReq.difficulty().equals(metadata.getDifficulty())) {
+                    continue;
+                }
 
-                    int currentUser = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR).size();
-                    return RoomSummaryRes.of(metadata, currentUser);
-                })
-                .filter(Objects::nonNull)
-                .toList();
+                int currentUser = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR).size();
+                summaries.add(RoomSummaryRes.of(metadata, currentUser));
+            }
+        }
+        return summaries;
     }
 
 
@@ -222,8 +225,21 @@ public class RoomService {
         }
 
         RoomMetadata metadata = RoomMetadata.fromRedisMap(roomId, roomData);
-        List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR);
+        List<RoomUserInfo> userList = new ArrayList<>(roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR));
+        sortUserListWithOwnerFirst(userList, metadata.getOwnerUuid());
 
         return new RoomDetailRes(RoomInfoRes.from(metadata), userList);
+    }
+
+    private void sortUserListWithOwnerFirst(List<RoomUserInfo> userList, String ownerUuid) {
+        userList.sort((u1, u2) -> {
+            if (u1.getUserUuid().equals(ownerUuid)) {
+                return -1;
+            }
+            if (u2.getUserUuid().equals(ownerUuid)) {
+                return 1;
+            }
+            return 0;
+        });
     }
 }

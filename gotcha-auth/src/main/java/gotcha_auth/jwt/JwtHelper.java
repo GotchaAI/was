@@ -46,7 +46,7 @@ public class JwtHelper {
         userService.updateLastLogout(user, accessTokenExpiredAt);
 
         refreshTokenService.saveRefreshToken(uuid, refreshToken);
-        return new TokenDto(accessToken, refreshToken, accessTokenExpiredAt, autoSignIn);
+        return TokenDto.of(accessToken, refreshToken, accessTokenExpiredAt, autoSignIn);
     }
 
     public TokenDto reissueToken(String refreshToken) {
@@ -75,7 +75,7 @@ public class JwtHelper {
         refreshTokenService.deleteRefreshToken(refreshToken);
         refreshTokenService.saveRefreshToken(uuid, newRefreshToken);
 
-        return new TokenDto(newAccessToken, newRefreshToken, newAccessTokenExpiredAt, autoSignIn);
+        return TokenDto.of(newAccessToken, newRefreshToken, newAccessTokenExpiredAt, autoSignIn);
     }
 
     public void removeToken(String accessToken, String refreshToken, HttpServletResponse response) {

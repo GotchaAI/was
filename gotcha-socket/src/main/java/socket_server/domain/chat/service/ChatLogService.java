@@ -1,7 +1,9 @@
 package socket_server.domain.chat.service;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Service;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.util.JsonSerializer;
@@ -23,6 +25,7 @@ public class ChatLogService {
     private final RedisTemplate<String, String> redisTemplate;
     private final JsonSerializer jsonSerializer;
     private final ErrorType CHAT_ERROR = ErrorType.CHAT;
+    private static final String PRIVATE_CHAT_KEYS_INDEX = "chat:private:index"; // 인덱스 Set을 위한 키
 
     public ChatLogService(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
                           JsonSerializer jsonSerializer) {
@@ -44,6 +47,11 @@ public class ChatLogService {
         double score = Instant.now().toEpochMilli();
 
         redisTemplate.opsForZSet().add(key, serialized, score);
+
+        // PRIVATE 채팅일 경우, 키 인덱스 Set에 키를 추가
+        if (chatType == ChatType.PRIVATE) {
+            redisTemplate.opsForSet().add(PRIVATE_CHAT_KEYS_INDEX, key);
+        }
     }
 
     public void removeExpiredMessages(ChatType chatType, String identifier) {
@@ -96,9 +104,18 @@ public class ChatLogService {
                 .collect(Collectors.toList());
     }
 
+    public Cursor<String> scanPrivateChatKeys() {
+        ScanOptions options = ScanOptions.scanOptions().count(1000).build();
+        return redisTemplate.opsForSet().scan(PRIVATE_CHAT_KEYS_INDEX, options);
+    }
 
+    /**
+     * @deprecated Redis에 저장된 데이터의 양이 많아지면 SMEMBERS보다 SSCAN을 이용해 순차적으로 데이터를 받아오는게 더 효율적이라 SSCAN 방식으로 변경함
+     */
+    @Deprecated
     public Set<String> getPrivateChatKeys() {
-        Set<String> keys = redisTemplate.keys("chat:private:*:*:log");
+        // KEYS 대신 SMEMBERS를 사용하여 안전하고 빠르게 키 목록을 가져옴
+        Set<String> keys = redisTemplate.opsForSet().members(PRIVATE_CHAT_KEYS_INDEX);
         return keys != null ? keys : Set.of();
     }
 

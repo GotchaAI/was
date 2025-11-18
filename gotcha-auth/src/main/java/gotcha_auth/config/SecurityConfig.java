@@ -37,17 +37,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-//                .csrf(csrf -> csrf
-//                        .requireCsrfProtectionMatcher(request -> {
-//                            String path = request.getRequestURI();
-//                            return path.equals("/api/v1/auth/token-reissue");
-//                        })
-//                        .csrfTokenRepository(csrfTokenRepository)
-//                        .csrfTokenRequestHandler(csrfTokenRequestAttributeHandler))
+                .csrf(AbstractHttpConfigurer::disable)
                 .headers(headers -> headers
                         .frameOptions(frameOptions -> frameOptions.disable()) // 여기 추가
                 )
-                .csrf(AbstractHttpConfigurer::disable)
                 .cors((cors) -> cors.configurationSource(corsConfigurationSource))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)

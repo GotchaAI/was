@@ -6,7 +6,8 @@ import org.springframework.http.HttpStatus;
 
 @AllArgsConstructor
 public enum ReportExceptionCode implements ExceptionCode {
-    CANNOT_REPORT_SELF(HttpStatus.BAD_REQUEST, "REPORT-400-001", "자기 자신을 신고할 수 없습니다.");
+    CANNOT_REPORT_SELF(HttpStatus.BAD_REQUEST, "REPORT-400-001", "자기 자신을 신고할 수 없습니다."),
+    REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "REPORT-404-001", "신고 내역을 찾을 수 없습니다.");
 
     private final HttpStatus status;
     private final String code;
