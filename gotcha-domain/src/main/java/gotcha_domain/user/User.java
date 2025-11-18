@@ -58,8 +58,6 @@ public class User extends BaseTimeEntity {
     @Setter
     private LocalDateTime lastLogout;
 
-//    private Boolean isLocked; // UserStatus로 대체
-
     @Setter
     private int level;
 
