@@ -19,6 +19,7 @@ import socket_server.domain.room.model.RoomUserInfo;
 import socket_server.domain.room.repository.RoomRepository;
 import socket_server.domain.room.repository.RoomUserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -161,7 +162,8 @@ public class RoomUserService {
 
         RoomMetadata updatedMetadata = RoomMetadata.fromRedisMap(roomId, roomRepository.getRoomData(roomId));
         RoomInfoRes roomInfoRes = RoomInfoRes.from(updatedMetadata);
-        List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR);
+        List<RoomUserInfo> userList = new ArrayList<>(roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR));
+        sortUserListWithOwnerFirst(userList, updatedMetadata.getOwnerUuid());
         RoomDetailRes detailRes = new RoomDetailRes(roomInfoRes, userList);
         roomBroadcaster.broadcastToRoom(roomId, newOwner.getUserUuid(), RoomEventType.UPDATE, detailRes);
 
@@ -169,6 +171,18 @@ public class RoomUserService {
         RoomSummaryRes roomSummaryRes = RoomSummaryRes.of(updatedMetadata, currentUserCount);
         lobbyBroadCaster.broadcastToRoomList("SYSTEM", RoomEventType.UPDATE, roomSummaryRes);
         log.info("방장 권한이 {}에게 위임되었습니다. (roomId: {})", newOwner.getUserUuid(), roomId);
+    }
+
+    private void sortUserListWithOwnerFirst(List<RoomUserInfo> userList, String ownerUuid) {
+        userList.sort((u1, u2) -> {
+            if (u1.getUserUuid().equals(ownerUuid)) {
+                return -1;
+            }
+            if (u2.getUserUuid().equals(ownerUuid)) {
+                return 1;
+            }
+            return 0;
+        });
     }
 
     public RoomMetadata validateRoomOwnerAndGetRoomMetadata(String roomId, String userUuid) {
