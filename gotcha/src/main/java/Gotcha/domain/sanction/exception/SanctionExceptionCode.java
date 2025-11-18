@@ -1,13 +1,12 @@
-package Gotcha.domain.report.exception;
+package Gotcha.domain.sanction.exception;
 
 import gotcha_common.exception.exceptionCode.ExceptionCode;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 @AllArgsConstructor
-public enum ReportExceptionCode implements ExceptionCode {
-    CANNOT_REPORT_SELF(HttpStatus.BAD_REQUEST, "REPORT-400-001", "자기 자신을 신고할 수 없습니다."),
-    REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "REPORT-404-001", "신고 내역을 찾을 수 없습니다.");
+public enum SanctionExceptionCode implements ExceptionCode {
+    NOT_SUSPENDED_USER(HttpStatus.BAD_REQUEST, "SANCTION-400-001", "해당 유저는 정지 상태가 아닙니다.");
 
     private final HttpStatus status;
     private final String code;
@@ -27,5 +26,5 @@ public enum ReportExceptionCode implements ExceptionCode {
     public String getMessage() {
         return message;
     }
-}
 
+}

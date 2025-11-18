@@ -2,6 +2,7 @@ package gotcha_domain.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import gotcha_common.entity.BaseTimeEntity;
+import gotcha_common.exception.CustomException;
 import gotcha_domain.achivement.UserAchievement;
 import gotcha_domain.friend.Friend;
 import gotcha_domain.friend.FriendRequest;
@@ -52,12 +53,12 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private Integer warningCount;
+    private Integer warningCount = 0;
 
     @Setter
     private LocalDateTime lastLogout;
 
-    private Boolean isLocked;
+//    private Boolean isLocked; // UserStatus로 대체
 
     @Setter
     private int level;
@@ -71,6 +72,13 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "chat_option", nullable = false)
     private ChatOption chatOption = ChatOption.ALLOW_ALL;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_status", nullable = false)
+    private UserStatus userStatus = UserStatus.ACTIVE;
+
+    @Column(name = "suspension_end_date")
+    private LocalDateTime suspensionEndDate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "private_chat_option", nullable = false)
@@ -139,7 +147,35 @@ public class User extends BaseTimeEntity {
         this.privateChatOption = privateChatOption;
     }
 
+    public void incrementWarningCount() {
+        this.warningCount++;
+    }
 
+    public void suspendUser(long days) {
+        this.userStatus = UserStatus.SUSPENDED;
+        this.suspensionEndDate = LocalDateTime.now().plusDays(days);
+    }
+
+    public void unsuspendUser() {
+        this.userStatus = UserStatus.ACTIVE;
+        this.suspensionEndDate = null;
+    }
+
+    public void banUser(){
+        this.userStatus = UserStatus.BANNED;
+        this.suspensionEndDate = null;
+    }
+
+    @JsonIgnore
+    public boolean isSuspensionExpired() {
+        return suspensionEndDate != null && suspensionEndDate.isBefore(LocalDateTime.now());
+    }
+
+    public void checkSuspensionAndUnsuspend() {
+        if (isSuspensionExpired()) {
+            unsuspendUser();
+        }
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) {

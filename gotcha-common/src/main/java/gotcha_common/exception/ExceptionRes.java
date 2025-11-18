@@ -13,7 +13,7 @@ public record ExceptionRes(
         String code,
         HttpStatus status,
         String message,
-        Map<String, String> fields
+        Map<String, Object> fields
 ) {
     public static ExceptionRes from(ExceptionCode error){
         return ExceptionRes.builder()
@@ -23,7 +23,7 @@ public record ExceptionRes(
                 .build();
     }
 
-    public static ExceptionRes from(ExceptionCode error, Map<String, String> fields) {
+    public static ExceptionRes from(ExceptionCode error, Map<String, Object> fields) {
         return ExceptionRes.builder()
                 .status(error.getStatus())
                 .code(error.getCode())

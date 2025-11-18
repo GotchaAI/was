@@ -25,7 +25,7 @@ public class InquiryService {
 
     private final InquiryRepository inquiryRepository;
 
-    private static final Integer INQUIRIES_PER_PAGE = 10;
+    private static final Integer INQUIRIES_PER_PAGE = 5;
 
     @Transactional(readOnly = true)
     public Page<InquirySummaryRes> getInquiries(String keyword, Integer page, InquirySortType sort, Boolean isSolved) {

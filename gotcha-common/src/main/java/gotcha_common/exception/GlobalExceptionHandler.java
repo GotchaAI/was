@@ -94,7 +94,7 @@ public class GlobalExceptionHandler {
                 log.warn("[Field Validation Exception] {}: {}", field, message)
         );
         ExceptionCode error = GlobalExceptionCode.FIELD_VALIDATION_ERROR;
-        return ResponseEntity.status(error.getStatus()).body(ExceptionRes.from(error, e.getFieldErrors()));
+        return ResponseEntity.status(error.getStatus()).body(ExceptionRes.from(error, new HashMap<>(e.getFieldErrors())));
     }
 
 }

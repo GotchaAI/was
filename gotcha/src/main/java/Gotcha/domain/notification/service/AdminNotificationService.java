@@ -5,11 +5,11 @@ import Gotcha.domain.notification.repository.NotificationRepository;
 import gotcha_common.exception.CustomException;
 import gotcha_domain.notification.Notification;
 import gotcha_domain.notification.NotificationReq;
-import gotcha_domain.user.Role;
 import gotcha_domain.user.User;
 import gotcha_user.exceptionCode.UserExceptionCode;
 import gotcha_user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +23,8 @@ public class AdminNotificationService {
 
     @Transactional
     public void createNotification(NotificationReq notificationReq, Long writerId){
-        User writer = validateAdmin(writerId);
+        User writer = userRepository.findById(writerId)
+            .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
 
         Notification notification = notificationReq.toEntity(writer);
 
@@ -32,19 +33,15 @@ public class AdminNotificationService {
 
 
     @Transactional
-    public void updateNotification(NotificationReq notificationReq, Long notificationId, Long userId){
-        validateAdmin(userId);
-
-        Notification notification = validateUserNotification(notificationId, userId);
+    public void updateNotification(NotificationReq notificationReq, Long notificationId){
+        Notification notification = validateNotification(notificationId);
 
         notification.update(notificationReq);
     }
 
     @Transactional
-    public void deleteNotification(Long notificationId, Long userId){
-        validateAdmin(userId);
-
-        Notification notification = validateUserNotification(notificationId, userId);
+    public void deleteNotification(Long notificationId){
+        Notification notification = validateNotification(notificationId);
 
         notificationRepository.delete(notification);
     }
@@ -56,14 +53,6 @@ public class AdminNotificationService {
             throw new CustomException(NotificationExceptionCode.UNAUTHORIZED_ACTION);
 
         return notification;
-    }
-
-    private User validateAdmin(Long userId){
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
-        if(!user.getRole().equals(Role.ADMIN))
-            throw new CustomException(NotificationExceptionCode.UNAUTHORIZED_ACTION);
-        return user;
     }
 
     private Notification validateNotification(Long notificationId){
