@@ -5,6 +5,7 @@ import Gotcha.domain.auth.dto.EmailReq;
 import Gotcha.domain.auth.dto.SignInReq;
 import Gotcha.domain.auth.dto.SignUpReq;
 import Gotcha.domain.auth.service.AuthService;
+import Gotcha.domain.auth.service.SignInUseCase;
 import gotcha_domain.auth.SecurityUserDetails;
 import gotcha_auth.dto.TokenDto;
 import gotcha_auth.exception.JwtExceptionCode;
@@ -39,6 +40,7 @@ import static gotcha_auth.jwt.JwtProperties.REFRESH_COOKIE_VALUE;
 @RequestMapping("/api/v1/auth")
 public class AuthController implements AuthApi {
     private final AuthService authService;
+    private final SignInUseCase signInUseCase;
     private final CookieUtil cookieUtil;
     private final MailCodeService mailCodeService;
     private final UserService userService;
@@ -62,7 +64,7 @@ public class AuthController implements AuthApi {
 
     @PostMapping("/sign-in")
     public ResponseEntity<?> signIn(@Valid @RequestBody SignInReq signInReq) {
-        TokenDto tokenDto = authService.signIn(signInReq);
+        TokenDto tokenDto = signInUseCase.execute(signInReq);
 
         return createTokenRes(tokenDto, signInReq.autoSignIn());
     }
@@ -120,6 +122,10 @@ public class AuthController implements AuthApi {
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("accessToken", tokenDto.accessToken());
         responseData.put("expiredAt", tokenDto.accessTokenExpiredAt());
+
+        if (tokenDto.warningDetails() != null) {
+            responseData.put("warningDetails", tokenDto.warningDetails());
+        }
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE,

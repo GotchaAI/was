@@ -21,7 +21,7 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
-    private final Integer NOTIS_PER_PAGE = 10;
+    private final Integer NOTIS_PER_PAGE = 5;
 
 
     @Transactional(readOnly = true)

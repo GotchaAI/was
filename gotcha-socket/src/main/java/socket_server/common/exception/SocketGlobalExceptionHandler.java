@@ -12,6 +12,8 @@ import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
+import java.util.HashMap;
+
 import static gotcha_common.exception.exceptionCode.GlobalExceptionCode.USER_NOT_FOUND;
 import static socket_server.common.constants.WebSocketConstants.*;
 
@@ -27,7 +29,7 @@ public class SocketGlobalExceptionHandler {
             SimpMessageHeaderAccessor accessor
     ) {
         log.warn("[WebSocket FieldValidationException] {} - {}", e.getSource(), e.getFieldErrors());
-        sendErrorToUser(e.getSource(), accessor, ExceptionRes.from(GlobalExceptionCode.FIELD_VALIDATION_ERROR, e.getFieldErrors()));
+        sendErrorToUser(e.getSource(), accessor, ExceptionRes.from(GlobalExceptionCode.FIELD_VALIDATION_ERROR, new HashMap<>(e.getFieldErrors())));
     }
 
     @MessageExceptionHandler(SocketCustomException.class)
