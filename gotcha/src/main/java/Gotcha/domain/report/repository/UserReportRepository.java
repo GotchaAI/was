@@ -15,4 +15,6 @@ public interface UserReportRepository extends JpaRepository<UserReport, Long> {
                 WHERE (:keyword IS NULL OR :keyword = '' OR LOWER(u.nickname) LIKE LOWER(CONCAT(:keyword, '%')))
             """)
     Page<UserReport> findAllByNickname(@Param("keyword") String keyword, Pageable pageable);
+
+    int countByUser_Id(Long userId);
 }

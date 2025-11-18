@@ -12,6 +12,8 @@ import gotcha_user.dto.UserInfoRes;
 import gotcha_user.exceptionCode.UserExceptionCode;
 import gotcha_user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,11 @@ public class UserService {
     private final RedisUtil redisUtil;
 
     private static final long NICKNAME_VERIFY_EXPIRATION_TIME = 10 * 60;
+
+    @Transactional(readOnly = true)
+    public Page<User> findAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable);
+    }
 
     @Transactional(readOnly = true)
     public void checkNickname(String nickname) {

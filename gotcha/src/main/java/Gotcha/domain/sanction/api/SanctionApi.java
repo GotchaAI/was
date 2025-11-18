@@ -11,9 +11,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
-
+import org.springframework.web.bind.annotation.RequestParam;
 
 
 @Tag(name = "[관리자 제재 API]", description = "관리자용 사용자 제재 관련 API")
@@ -95,4 +96,12 @@ public interface SanctionApi {
     ResponseEntity<SanctionRes> applySanction(
             @Valid @RequestBody SanctionReq sanctionReq,
             SecurityUserDetails userDetails);
+
+
+    ResponseEntity<?> getUserList(
+            SecurityUserDetails userDetails,
+            @RequestParam(value = "nickname", required = false) String nickname,
+            @RequestParam(value = "page", defaultValue = "0") @Min(0) Integer page
+    );
+
 }
