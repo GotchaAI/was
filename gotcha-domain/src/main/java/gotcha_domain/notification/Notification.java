@@ -4,6 +4,8 @@ import gotcha_common.entity.BaseTimeEntity;
 import gotcha_domain.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -31,15 +33,19 @@ public class Notification extends BaseTimeEntity {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @Enumerated(EnumType.STRING)
+    private NotificationType type;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User writer;
 
     @Builder
-    public Notification(String title, String content, User writer){
+    public Notification(String title, String content, User writer, NotificationType type){
         this.title = title;
         this.content = content;
         this.writer = writer;
+        this.type = type;
     }
 
     public void update(NotificationReq req){

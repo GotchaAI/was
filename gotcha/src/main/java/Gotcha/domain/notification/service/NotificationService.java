@@ -7,6 +7,7 @@ import Gotcha.domain.notification.exception.NotificationExceptionCode;
 import Gotcha.domain.notification.repository.NotificationRepository;
 import gotcha_common.exception.CustomException;
 import gotcha_domain.notification.Notification;
+import gotcha_domain.notification.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,10 +26,18 @@ public class NotificationService {
 
 
     @Transactional(readOnly = true)
-    public Page<NotificationSummaryRes> getNotifications(String keyword, Integer page, NotificationSortType sort){
+    public Page<NotificationSummaryRes> getNotifications(String keyword, NotificationType type, Integer page, NotificationSortType sort){
         Pageable pageable = PageRequest.of(page, NOTIS_PER_PAGE, sort.getSort());
 
-        Page<Notification> notifications = notificationRepository.findByTitleContainingIgnoreCase(keyword, pageable);
+        Page<Notification> notifications;
+        if (keyword == null) keyword = "";
+        if (type != null) {
+            notifications = notificationRepository
+                    .findByTypeAndTitleContainingIgnoreCase(type, keyword, pageable);
+        } else {
+            notifications = notificationRepository
+                    .findByTitleContainingIgnoreCase(keyword, pageable);
+        }
 
         return notifications.map(NotificationSummaryRes::fromEntity);
     }

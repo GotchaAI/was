@@ -5,12 +5,17 @@ import Gotcha.domain.notification.dto.NotificationRes;
 import Gotcha.domain.notification.dto.NotificationSortType;
 import Gotcha.domain.notification.dto.NotificationSummaryRes;
 import Gotcha.domain.notification.service.NotificationService;
+import gotcha_domain.notification.NotificationType;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,9 +28,10 @@ public class NotificationController implements NotificationApi {
     @Override
     @GetMapping
     public ResponseEntity<?> getNotifications(@RequestParam(value = "keyword", required = false) String keyword,
-                                       @RequestParam(value = "page", defaultValue = "0") @Min(0) Integer page,
-                                       @RequestParam(value = "sort", defaultValue = "DATE_DESC") NotificationSortType sort){
-        Page<NotificationSummaryRes> notifications = notificationService.getNotifications(keyword, page, sort);
+                                              @RequestParam(value = "type", required = false) NotificationType type,
+                                              @RequestParam(value = "page", defaultValue = "0") @Min(0) Integer page,
+                                              @RequestParam(value = "sort", defaultValue = "DATE_DESC") NotificationSortType sort) {
+        Page<NotificationSummaryRes> notifications = notificationService.getNotifications(keyword, type, page, sort);
 
         return ResponseEntity.status(HttpStatus.OK).body(notifications);
     }

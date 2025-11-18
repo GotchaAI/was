@@ -2,6 +2,7 @@ package Gotcha.domain.notification.api;
 
 
 import Gotcha.domain.notification.dto.NotificationSortType;
+import gotcha_domain.notification.NotificationType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -11,12 +12,21 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "[공지사항 API]", description = "공지사항 관련 API")
 public interface NotificationApi {
 
-    @Operation(summary = "공지사항 목록", description = "공지사항 목록을 조회하는 API. Keyword로 검색 및 정렬 가능.")
+    @Operation(summary = "공지사항 목록", description = "공지사항 목록을 조회하는 API. Keyword, Type으로 검색 및 정렬 가능.",
+            parameters = {
+                    @Parameter(name = "keyword", description = "검색할 제목 키워드", example = "점검"),
+                    @Parameter(name = "type", description = "알림 타입", schema = @Schema(implementation = NotificationType.class), example = "UPDATE"),
+                    @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
+                    @Parameter(name = "sort", description = "정렬 방식", schema = @Schema(implementation = NotificationSortType.class), example = "DATE_DESC")
+            }
+    )
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200", description = "공지사항 목록 조회 성공",
@@ -74,9 +84,10 @@ public interface NotificationApi {
             )
 
     })
-    ResponseEntity<?> getNotifications(@RequestParam(value = "keyword", required = false) String keyword,
-                                       @RequestParam(value = "page",defaultValue = "0") @Min(0) Integer page,
-                                       @RequestParam(value = "sort", defaultValue = "DATE_DESC") NotificationSortType sort);
+    public ResponseEntity<?> getNotifications(@RequestParam(value = "keyword", required = false) String keyword,
+                                              @RequestParam(value = "type", required = false) NotificationType type,
+                                              @RequestParam(value = "page", defaultValue = "0") @Min(0) Integer page,
+                                              @RequestParam(value = "sort", defaultValue = "DATE_DESC") NotificationSortType sort);
 
 
 
@@ -89,6 +100,7 @@ public interface NotificationApi {
                                     {
                                         "title": "걍 공지사항이다",
                                         "content": "걍 공지사항이다 인마",
+                                        "type": "EVENT",
                                         "createdAt": "2025-03-27T16:13:32",
                                         "modifiedAt": "2025-11-16T16:13:32",
                                         "writer": "묘묘"
