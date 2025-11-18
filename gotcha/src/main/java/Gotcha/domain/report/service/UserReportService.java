@@ -40,6 +40,10 @@ public class UserReportService {
         userReportRepository.save(userReport);
     }
 
+    public int countReportByUserId(Long userId) {
+        return userReportRepository.countByUser_Id(userId);
+    }
+
     public UserReport findUserReportById(Long reportId){
         return userReportRepository.findById(reportId)
                 .orElseThrow(() -> new CustomException(ReportExceptionCode.REPORT_NOT_FOUND));
