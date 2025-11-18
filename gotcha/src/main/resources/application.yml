@@ -62,4 +62,4 @@ server:
   address: 0.0.0.0
 
 ai-server:
-  url: ${AI_SERVER_API:http://localhost:8000/api/v1/}
+  url: ${AI_SERVER_API:https://jongsul.site/api/v1/}
