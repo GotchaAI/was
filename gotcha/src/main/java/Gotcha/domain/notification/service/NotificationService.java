@@ -30,7 +30,7 @@ public class NotificationService {
         Pageable pageable = PageRequest.of(page, NOTIS_PER_PAGE, sort.getSort());
 
         Page<Notification> notifications;
-
+        if (keyword == null) keyword = "";
         if (type != null) {
             notifications = notificationRepository
                     .findByTypeAndTitleContainingIgnoreCase(type, keyword, pageable);
