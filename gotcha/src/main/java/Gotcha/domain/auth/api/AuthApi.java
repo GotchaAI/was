@@ -134,8 +134,17 @@ public interface AuthApi {
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(name = "일반 로그인 성공", value = """
                                     {
-                                          "expiredAt": "2025-04-10T06:57:45",
-                                          "accessToken": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwidXNlcklkIjo1LCJpc3MiOiJnb3RjaGEhIiwiaWF0IjoxNzQ0MjY2NDY1LCJleHAiOjE3NDQyNjgyNjV9.u8RTE1VFsxZjQNB_dsc3ibSKqoHQGbC9-ppbOQUvzVY"
+                                        "expiredAt": "2025-11-18T15:42:45",
+                                        "warningDetails": {
+                                            "id": 6,
+                                            "targetUserName": "다06fn6",
+                                            "adminUserName": "관리자",
+                                            "sanctionType": "WARNING",
+                                            "reason": "기타. 신고 기록을 참조하세요.",
+                                            "expireDuration": 3,
+                                            "createdAt": "2025-11-18T01:17:44.151774"
+                                        },
+                                        "accessToken": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiLri6QwNmZuNiIsInJvbGUiOiJVU0VSIiwidXVpZCI6InU1QTJzMmVlIiwiaXNzIjoiZ290Y2hhISIsImlhdCI6MTc2MzQ0NjM2NSwiZXhwIjoxNzYzNDQ4MTY1fQ.7NpE92scRRh8AyMvHrgeuTNL2LlUmYy0phuAL8Apg7w"
                                     }
                                     """),
                             @ExampleObject(name = "경고 메시지가 있는 로그인 성공", value = """
