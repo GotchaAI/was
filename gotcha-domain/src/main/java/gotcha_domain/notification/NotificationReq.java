@@ -18,6 +18,7 @@ public record NotificationReq(
                         title(title).
                         content(content).
                         writer(writer).
+                        type(NotificationType.UPDATE).
                         build();
         }
 }
