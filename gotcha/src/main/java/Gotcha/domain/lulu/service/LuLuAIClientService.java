@@ -60,8 +60,11 @@ public class LuLuAIClientService {
                     .retrieve()
                     .onStatus(httpStatusCode -> httpStatusCode.is4xxClientError() || httpStatusCode.is5xxServerError(
                             )
-                            , clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(
-                                    new CustomException(LuLuExceptionCode.AI_SERVER_ERROR))))
+                            , clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> {
+                                log.error("AI Server Error on Get: \"{}\", StatusCode: {}, Content: {}", "/lulu/task/" + gameId, clientResponse.statusCode(), error);
+                                return Mono.error(
+                                        new CustomException(LuLuExceptionCode.AI_SERVER_ERROR));
+                            }))
                     .bodyToMono(TaskStartRes.class)
                     .block();
             if (res == null || res.keyword() == null || res.situation() == null){
@@ -93,8 +96,11 @@ public class LuLuAIClientService {
                     .retrieve()
                     .onStatus(httpStatusCode -> httpStatusCode.is4xxClientError() || httpStatusCode.is5xxServerError(
                             )
-                            , clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(
-                                    new CustomException(LuLuExceptionCode.AI_SERVER_ERROR))))
+                            ,  clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> {
+                                log.error("AI Server Error on Post : \"{}\", StatusCode: {}, Content: {}", "/lulu/task/" + gameId, clientResponse.statusCode(), error);
+                                return Mono.error(
+                                        new CustomException(LuLuExceptionCode.AI_SERVER_ERROR));
+                            }))
                     .bodyToMono(TaskEvalRes.class)
                     .block();
             if (res == null || res.score() == null || res.feedback() == null || res.gameId() == null)
@@ -114,15 +120,18 @@ public class LuLuAIClientService {
      * 이미지 캡셔닝
      */
     public String getImageCaption(String imageUrl){
-        Map<String, String> body = Map.of("imageURL", imageUrl);
+        Map<String, String> body = Map.of("image_url", imageUrl);
         return webClient.post()
                 .uri(AI_SERVER_BASE_URL + "caption")
                 .bodyValue(body)
                 .retrieve()
                 .onStatus(httpStatusCode -> httpStatusCode.is4xxClientError() || httpStatusCode.is5xxServerError(
                         )
-                        , clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> Mono.error(
-                                new CustomException(LuLuExceptionCode.AI_SERVER_ERROR))))
+                        , clientResponse -> clientResponse.bodyToMono(String.class).flatMap(error -> {
+                            log.error("AI Server Error on Post : \"{}\", StatusCode: {}, Content: {}", "/caption", clientResponse.statusCode(), error);
+                            return Mono.error(
+                                    new CustomException(LuLuExceptionCode.AI_SERVER_ERROR));
+                        }))
                 .bodyToMono(String.class)
                 .block();
     }
