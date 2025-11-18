@@ -3,8 +3,11 @@ package gotcha_user.service;
 import gotcha_common.exception.CustomException;
 import gotcha_common.util.RedisUtil;
 import gotcha_domain.auth.SecurityUserDetails;
+import gotcha_domain.user.ChatOption;
+import gotcha_domain.user.PrivateChatOption;
 import gotcha_domain.user.Role;
 import gotcha_domain.user.User;
+import gotcha_user.dto.UserChatSettingRes;
 import gotcha_user.dto.UserInfoRes;
 import gotcha_user.exceptionCode.UserExceptionCode;
 import gotcha_user.repository.UserRepository;
@@ -92,8 +95,20 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public User findUserByNicknameWithFriends(String nickname) {
+        return userRepository.findByNicknameWithFriends(nickname)
+                .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
+    }
+
+    @Transactional(readOnly = true)
     public User findUserByUuid(String uuid) {
         return userRepository.findByUuid(uuid)
+                .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
+    }
+
+    @Transactional(readOnly = true)
+    public User findUserByUuidWithFriends(String uuid) {
+        return userRepository.findByUuidWithFriends(uuid)
                 .orElseThrow(() -> new CustomException(UserExceptionCode.INVALID_USERID));
     }
 
@@ -120,6 +135,23 @@ public class UserService {
     @Transactional(readOnly = true)
     public List<User> findUserListByKeyword(String keyword) {
         return userRepository.findByNicknameContaining(keyword);
+    }
+
+    @Transactional
+    public void updateUserChatSetting(Long userId, ChatOption chatOption, PrivateChatOption privateChatOption) {
+        User user = findUserByUserId(userId);
+        user.updateChatSettings(chatOption, privateChatOption);
+
+        // Redis 캐시 업데이트
+        String settingsCacheKey = "user:" + user.getUuid() + ":settings";
+        redisUtil.hSet(settingsCacheKey, "chatOption", chatOption.name());
+        redisUtil.hSet(settingsCacheKey, "privateChatOption", privateChatOption.name());
+    }
+
+    @Transactional(readOnly = true)
+    public UserChatSettingRes getUserChatSetting(Long userId){
+        User user = findUserByUserId(userId);
+        return UserChatSettingRes.fromUser(user);
     }
 
     public User getUserByUuidAllowingGuest(String uuid) {

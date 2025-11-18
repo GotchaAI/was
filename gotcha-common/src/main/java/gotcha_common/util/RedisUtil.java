@@ -35,4 +35,24 @@ public class RedisUtil {
     public Long getExpire(String key, TimeUnit timeUnit) {
         return redisTemplate.getExpire(key, timeUnit);
     }
+
+    public void addSetValue(String key, String... values) {
+        redisTemplate.opsForSet().add(key, values);
+    }
+
+    public void removeSetValue(String key, Object... values) {
+        redisTemplate.opsForSet().remove(key, values);
+    }
+
+    public Boolean isSetMember(String key, String value) {
+        return redisTemplate.opsForSet().isMember(key, value);
+    }
+
+    public void hSet(String key, String field, Object value) {
+        redisTemplate.opsForHash().put(key, field, value);
+    }
+
+    public Object hGet(String key, String field) {
+        return redisTemplate.opsForHash().get(key, field);
+    }
 }

@@ -1,6 +1,7 @@
 package Gotcha.domain.mypage.controller;
 
 import Gotcha.domain.mypage.api.MypageApi;
+import Gotcha.domain.mypage.dto.ChatSettingReq;
 import Gotcha.domain.mypage.service.MypageService;
 import gotcha_common.dto.SuccessRes;
 import gotcha_domain.auth.SecurityUserDetails;
@@ -37,6 +38,18 @@ public class MypageController implements MypageApi {
     public ResponseEntity<?> modifyUserNickname(@Valid @RequestBody NicknameReq nicknameReq,
                                                 @AuthenticationPrincipal SecurityUserDetails userDetails) {
         mypageService.modifyUserNickname(userDetails.getId(), nicknameReq.nickname());
+        return ResponseEntity.ok(SuccessRes.from("성공적으로 수정되었습니다."));
+    }
+
+    @GetMapping("/chat/setting")
+    public ResponseEntity<?> getUserChatSetting(@AuthenticationPrincipal SecurityUserDetails userDetails) {
+        return ResponseEntity.ok(mypageService.getUserChatSetting(userDetails.getId()));
+    }
+
+    @PutMapping("/chat/setting")
+    public ResponseEntity<?> modifyUserChatSetting(@Valid @RequestBody ChatSettingReq chatSettingReq,
+                                                   @AuthenticationPrincipal SecurityUserDetails userDetails) {
+        mypageService.modifyUserChatSetting(userDetails.getId(), chatSettingReq);
         return ResponseEntity.ok(SuccessRes.from("성공적으로 수정되었습니다."));
     }
 }

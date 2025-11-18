@@ -33,6 +33,7 @@ public class BugReport extends BaseTimeEntity {
     private BugReportType bugReportType;
 
     @NotNull
+    @Column(columnDefinition = "TEXT")
     private String detail;
 
     @ManyToOne(fetch = FetchType.LAZY)

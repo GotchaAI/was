@@ -74,15 +74,14 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenDto signIn(SignInReq signInReq){
+    public User authenticate(SignInReq signInReq){
         User user = userRepository.findByEmail(signInReq.email())
                 .orElseThrow(() -> new CustomException(AuthExceptionCode.INVALID_USERNAME_AND_PASSWORD));
 
         if(!passwordEncoder.matches(signInReq.password(), user.getPassword())){
             throw new CustomException(AuthExceptionCode.INVALID_USERNAME_AND_PASSWORD);
         }
-
-        return jwtHelper.createToken(user, signInReq.autoSignIn());
+        return user;
     }
 
     public void signOut(String HeaderAccessToken, String refreshToken, HttpServletResponse response) {

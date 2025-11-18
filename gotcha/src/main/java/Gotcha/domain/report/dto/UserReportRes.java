@@ -9,6 +9,7 @@ import java.util.List;
 
 public record UserReportRes (
         Long userReportId,
+        String reportedUserUuid,
         LocalDateTime reportedAt,
         String nickname,
         UserReportType reportType,
@@ -18,6 +19,7 @@ public record UserReportRes (
     public static UserReportRes from(UserReport userReport) {
         return new UserReportRes(
                 userReport.getId(),
+                userReport.getUser().getUuid(),
                 userReport.getCreatedAt(),
                 userReport.getUser().getNickname(),
                 userReport.getUserReportType(),

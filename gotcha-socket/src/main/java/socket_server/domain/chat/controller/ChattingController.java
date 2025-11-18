@@ -1,9 +1,12 @@
 package socket_server.domain.chat.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import gotcha_common.util.RedisUtil;
 import gotcha_domain.auth.SecurityUserDetails;
 import gotcha_domain.chat.ChatMessage;
 import gotcha_domain.chat.ChatType;
+import gotcha_domain.user.ChatOption;
+import gotcha_domain.user.PrivateChatOption;
 import gotcha_domain.user.Role;
 import gotcha_domain.user.User;
 import gotcha_user.service.UserService;
@@ -17,6 +20,7 @@ import socket_server.common.config.RedisMessage;
 import socket_server.common.exception.ErrorType;
 import socket_server.common.exception.SocketCustomException;
 import socket_server.common.exception.chat.ChatExceptionCode;
+import socket_server.common.util.ChatPermissionUtil;
 import socket_server.common.util.JsonSerializer;
 import socket_server.domain.chat.dto.ChatMessageReq;
 import socket_server.domain.chat.service.ChatLogService;
@@ -34,16 +38,19 @@ public class ChattingController {
     private final JsonSerializer jsonSerializer;
     private final ChatLogService chatLogService;
     private final UserService userService;
+    private final RedisUtil redisUtil;
     private final ErrorType CHAT_ERROR = ErrorType.CHAT;
 
     public ChattingController(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate,
                               JsonSerializer jsonSerializer,
                               ChatLogService chatLogService,
-                              UserService userService) {
+                              UserService userService,
+                              RedisUtil redisUtil) {
         this.redisTemplate = redisTemplate;
         this.jsonSerializer = jsonSerializer;
         this.chatLogService = chatLogService;
         this.userService = userService;
+        this.redisUtil = redisUtil;
     }
 
     // 1. 전체 채팅방 메시지 전송
@@ -73,8 +80,31 @@ public class ChattingController {
     @MessageMapping("/private")
     public void sendPrivateMessage(@Payload ChatMessageReq messageReq, @AuthenticationPrincipal SecurityUserDetails userDetails) throws JsonProcessingException {
         validateChatPermission(userDetails);
+
         User receiver = userService.findUserByNickname(messageReq.receiverNickname());
         String receiverUuid = receiver.getUuid();
+        String senderUuid = userDetails.getUuid();
+
+        String settingsCacheKey = "user:" + receiverUuid + ":settings";
+        String chatOptionStr = (String) redisUtil.hGet(settingsCacheKey, "chatOption");
+        String privateChatOptionStr = (String) redisUtil.hGet(settingsCacheKey, "privateChatOption");
+
+        ChatOption chatOption = (chatOptionStr != null) ? ChatOption.valueOf(chatOptionStr) : ChatOption.ALLOW_ALL;
+        PrivateChatOption privateChatOption = (privateChatOptionStr != null) ? PrivateChatOption.valueOf(privateChatOptionStr) : PrivateChatOption.ALLOW;
+
+        boolean isFriend = redisUtil.isSetMember("user:" + receiverUuid + ":friends", senderUuid);
+
+        boolean canReceive = ChatPermissionUtil.canReceiveMessageFromCache(
+                chatOption,
+                privateChatOption,
+                isFriend,
+                ChatType.PRIVATE
+        );
+
+        if (!canReceive) {
+            throw new SocketCustomException(CHAT_ERROR, ChatExceptionCode.RECIPIENT_DENIED_PRIVATE_CHAT);
+        }
+
 
         ChatMessage message = new ChatMessage(
                 userDetails.getNickname(),
@@ -91,7 +121,7 @@ public class ChattingController {
 
         redisTemplate.convertAndSend(CHAT_PRIVATE_CHANNEL + receiverUuid, jsonSerializer.serialize(redisMessage, ErrorType.CHAT));
 
-        chatLogService.saveChatMessage(ChatType.PRIVATE, receiverUuid, message, userDetails.getUuid() );
+        chatLogService.saveChatMessage(ChatType.PRIVATE, receiverUuid, message, userDetails.getUuid());
     }
 
     private void validateChatPermission(SecurityUserDetails userDetails) {

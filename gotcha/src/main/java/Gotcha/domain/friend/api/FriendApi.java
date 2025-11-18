@@ -23,7 +23,7 @@ public interface FriendApi {
             @ApiResponse(responseCode = "200", description = "친구 목록 조회 성공",
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
-                                                        
+                                    
                                     """)
                     }))
     })
@@ -50,7 +50,7 @@ public interface FriendApi {
                     }))
     })
     ResponseEntity<?> searchUser(@AuthenticationPrincipal SecurityUserDetails userDetails,
-                                   @RequestParam(value = "keyword") String keyword);
+                                 @RequestParam(value = "keyword") String keyword);
 
     @Operation(summary = "친구 신청 목록 조회", description = "친구 신청 목록 조회 API")
     @ApiResponses({
@@ -158,7 +158,8 @@ public interface FriendApi {
                     }))
     })
     ResponseEntity<?> acceptFriend(@PathVariable(value = "id") Long friendRequestId,
-                                   @AuthenticationPrincipal SecurityUserDetails userDetails);
+                                   @AuthenticationPrincipal SecurityUserDetails userDetails)
+            throws NoSuchMethodException;
 
     @Operation(summary = "친구 요청 거절", description = "친구 요청 거절 API")
     @ApiResponses({
@@ -200,7 +201,7 @@ public interface FriendApi {
             @ApiResponse(responseCode = "204", description = "친구 삭제 성공",
                     content = @Content(mediaType = "application/json", examples = {
                             @ExampleObject(value = """
-                                                                
+                                    
                                     """)
                     })),
             @ApiResponse(responseCode = "400", description = "친구가 아닌 사용자",
@@ -216,4 +217,38 @@ public interface FriendApi {
     })
     ResponseEntity<?> deleteFriend(@PathVariable(value = "uuid") String uuid,
                                    @AuthenticationPrincipal SecurityUserDetails userDetails);
+
+    @Operation(summary = "친구 따라가기", description = "친구 따라가기 클릭 시, 해당 친구가 속한 ROOM_ID 반환 기능 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "친구가 속한 방 id 정상 반환",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                    {
+                                        "roomId": "1111"
+                                    }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "403", description = "친구 관계가 아니라 따라가기 기능 불가.",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                    {
+                                         "code": "FRIEND-403-002",
+                                         "status": "FORBIDDEN",
+                                         "message": "친구 관계가 아닙니다. 친구 추가 후 다시 시도해주세요."
+                                     }
+                                    """)
+                    })),
+            @ApiResponse(responseCode = "404", description = "친구가 방에 속해있지 않음.",
+                    content = @Content(mediaType = "application/json", examples = {
+                            @ExampleObject(value = """
+                                    {
+                                        "code": "FRIEND-404-002",
+                                        "status": "NOT_FOUND",
+                                        "message": "친구가 방에 속해있지 않습니다."
+                                    }
+                                    """)
+                    }))
+    })
+    ResponseEntity<?> followingFriend(@PathVariable(value = "uuid") String friendUuid,
+                                      @AuthenticationPrincipal SecurityUserDetails securityUserDetails);
 }

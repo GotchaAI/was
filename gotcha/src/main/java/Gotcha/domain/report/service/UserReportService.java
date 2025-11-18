@@ -40,4 +40,9 @@ public class UserReportService {
         userReportRepository.save(userReport);
     }
 
+    public UserReport findUserReportById(Long reportId){
+        return userReportRepository.findById(reportId)
+                .orElseThrow(() -> new CustomException(ReportExceptionCode.REPORT_NOT_FOUND));
+    }
+
 }

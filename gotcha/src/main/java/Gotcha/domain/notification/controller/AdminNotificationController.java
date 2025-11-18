@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +28,7 @@ public class AdminNotificationController implements AdminNotificationApi {
 
     @Override
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createNotification(
             @Valid @RequestBody NotificationReq notificationReq,
             @AuthenticationPrincipal SecurityUserDetails userDetails){
@@ -36,20 +38,22 @@ public class AdminNotificationController implements AdminNotificationApi {
 
     @Override
     @PutMapping("/{notificationId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateNotification(
             @PathVariable(value = "notificationId") Long notificationId,
             @Valid @RequestBody NotificationReq notificationReq,
             @AuthenticationPrincipal SecurityUserDetails userDetails){
-        adminNotificationService.updateNotification(notificationReq, notificationId, userDetails.getId());
+        adminNotificationService.updateNotification(notificationReq, notificationId);
         return ResponseEntity.ok(SuccessRes.from("공지사항 수정에 성공했습니다."));
     }
 
     @Override
     @DeleteMapping("/{notificationId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteNotification(
             @PathVariable(value = "notificationId") Long notificationId,
             @AuthenticationPrincipal SecurityUserDetails userDetails){
-        adminNotificationService.deleteNotification(notificationId, userDetails.getId());
+        adminNotificationService.deleteNotification(notificationId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

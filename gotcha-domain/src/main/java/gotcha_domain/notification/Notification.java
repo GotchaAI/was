@@ -2,6 +2,7 @@ package gotcha_domain.notification;
 
 import gotcha_common.entity.BaseTimeEntity;
 import gotcha_domain.user.User;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -27,6 +28,7 @@ public class Notification extends BaseTimeEntity {
     private String title;
 
     @NotNull
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
