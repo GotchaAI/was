@@ -171,7 +171,8 @@ public class RoomService {
         RoomSummaryRes summary = RoomSummaryRes.of(metadata, currentUser);
         lobbyBroadCaster.broadcastToRoomList("SYSTEM", RoomEventType.UPDATE, summary);
 
-        List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR);
+        List<RoomUserInfo> userList = new ArrayList<>(roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR));
+        sortUserListWithOwnerFirst(userList, metadata.getOwnerUuid());
         RoomDetailRes roomDetailRes = new RoomDetailRes(RoomInfoRes.from(metadata), userList);
         roomBroadcaster.broadcastToRoom(roomId, "SYSTEM", RoomEventType.UPDATE, roomDetailRes);
 
@@ -224,8 +225,21 @@ public class RoomService {
         }
 
         RoomMetadata metadata = RoomMetadata.fromRedisMap(roomId, roomData);
-        List<RoomUserInfo> userList = roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR);
+        List<RoomUserInfo> userList = new ArrayList<>(roomUserRepository.findUsersByRoomId(roomId, ROOM_ERROR));
+        sortUserListWithOwnerFirst(userList, metadata.getOwnerUuid());
 
         return new RoomDetailRes(RoomInfoRes.from(metadata), userList);
+    }
+
+    private void sortUserListWithOwnerFirst(List<RoomUserInfo> userList, String ownerUuid) {
+        userList.sort((u1, u2) -> {
+            if (u1.getUserUuid().equals(ownerUuid)) {
+                return -1;
+            }
+            if (u2.getUserUuid().equals(ownerUuid)) {
+                return 1;
+            }
+            return 0;
+        });
     }
 }
