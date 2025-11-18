@@ -104,6 +104,10 @@ public class RoomUserService {
             throw new SocketCustomException(ROOM_ERROR, RoomExceptionCode.NOT_ROOM_OWNER);
         }
 
+        RoomUserInfo oldOwner = roomUserRepository.findUserInfoInRoom(roomId, oldOwnerId, ROOM_ERROR);
+        oldOwner.setReady(false);
+        roomUserRepository.saveUserToRoom(oldOwner, roomId, ROOM_ERROR);
+
         RoomUserInfo newOwner = roomUserRepository.findUserInfoInRoom(roomId, newOwnerId, ROOM_ERROR);
 
         changeRoomOwner(roomId, newOwner);
@@ -147,6 +151,9 @@ public class RoomUserService {
     }
 
     public void changeRoomOwner(String roomId, RoomUserInfo newOwner) {
+        newOwner.setReady(true);
+        roomUserRepository.saveUserToRoom(newOwner, roomId, ROOM_ERROR);
+
         roomRepository.updateAllFields(roomId, Map.of(
                 RoomField.OWNER_UUID.getRedisField(), newOwner.getUserUuid(),
                 RoomField.OWNER.getRedisField(), newOwner.getNickname()
