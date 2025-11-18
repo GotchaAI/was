@@ -8,6 +8,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import socket_server.common.auth.JwtChannelInterceptor;
+import socket_server.common.auth.UserStatusInterceptor;
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -15,10 +16,14 @@ import socket_server.common.auth.JwtChannelInterceptor;
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private static final String ENDPOINT = "/ws-connect";
     private final JwtChannelInterceptor jwtChannelInterceptor;
+    private final UserStatusInterceptor userStatusInterceptor;
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(jwtChannelInterceptor);
+        registration.interceptors(
+                jwtChannelInterceptor,       // 1. 인증(jwt)
+                userStatusInterceptor        // 2. 인가(정지 계정)
+        );
     }
 
     //레디스 메시지 브로커 사용

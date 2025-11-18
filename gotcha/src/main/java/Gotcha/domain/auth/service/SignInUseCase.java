@@ -27,16 +27,13 @@ public class SignInUseCase {
         // 2. 정지기간 만료되었는지 확인
         sanctionService.validateSuspendedEndDate(user);
 
-        // 3. 제재/차단 상태 확인
-        sanctionService.validateLoginAccess(user);
-
-        // 4. 경고 확인
+        // 3. 경고 확인
         Optional<SanctionRes> warningOpt = sanctionService.findAndMarkUnreadWarning(user);
 
-        // 5. 토큰 생성
+        // 4. 토큰 생성
         TokenDto tokenDto = jwtHelper.createToken(user, signInReq.autoSignIn());
 
-        // 6. 경고 메시지가 있으면 토큰에 추가하여 반환
+        // 5. 경고 메시지가 있으면 토큰에 추가하여 반환
         return warningOpt
                 .map(warning -> TokenDto.of(tokenDto.accessToken(), tokenDto.refreshToken(), tokenDto.accessTokenExpiredAt(), tokenDto.autoSignIn(), warning))
                 .orElse(tokenDto);

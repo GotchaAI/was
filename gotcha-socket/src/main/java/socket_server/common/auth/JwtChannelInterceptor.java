@@ -48,6 +48,9 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
             } catch (AuthenticationServiceException e) {
                 throw new MessagingException(toErrorPayload(JwtExceptionCode.ACCESS_TOKEN_NOT_FOUND));
             } catch (Throwable e) {
+                System.err.println("=== [DEBUG][JwtChannelInterceptor] 예외 발생 ===");
+                e.printStackTrace();
+
                 throw new MessagingException(toErrorPayload(GlobalExceptionCode.INTERNAL_SERVER_ERROR));
             }
         }
@@ -62,7 +65,6 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
                 code.getMessage()
         );
     }
-
 
 
 }
