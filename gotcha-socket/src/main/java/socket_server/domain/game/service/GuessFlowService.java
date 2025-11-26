@@ -391,7 +391,7 @@ public class GuessFlowService {
         if(isWordGuessCompleted(currentWord)){
             taskScheduler.schedule(() ->handleBattleEnd(roomId, currentRound, currentWord), Instant.now().plusSeconds(1));
         } else {
-            processNextGuessRequest(roomId);
+            taskScheduler.schedule(() -> processNextGuessRequest(roomId), Instant.now().plusSeconds(2));
         }
     }
 
