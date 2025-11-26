@@ -77,7 +77,7 @@ public class GuessRequestService {
 
         // 3. BUILD NEW GUESS DATA
         Guess guess = Guess.builder().guesserUuid(gusser.getPlayerUuid()).attempts(guesses.size()+1).build();
-        guess.setGuessEndTime(LocalDateTime.now().plusSeconds(32));
+        guess.setGuessEndTime(LocalDateTime.now().plusSeconds(62));
 
         // 4. BroadCast
         gameBroadCaster.broadcastGameEvent("SYSTEM", roomId, GameEventType.GUESS_REQUEST, guess, aiSays);
