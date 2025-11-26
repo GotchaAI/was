@@ -67,7 +67,7 @@ public class GuessFlowService {
 //        log.info("[GUESS_START] broadcasted");
         gameMeta.setGameStatus(GameStatus.GUESSING_STARTED);
         gameRepository.saveGameMeta(gameMeta);
-        taskScheduler.schedule(() ->processNextGuessRequest(roomId), Instant.now().plusSeconds(1));
+        taskScheduler.schedule(() ->processNextGuessRequest(roomId), Instant.now().plusSeconds(2));
     }
 
 
@@ -94,6 +94,7 @@ public class GuessFlowService {
 
         boolean isAITurn = determineNextGuesser(currentWord);
         if(isAITurn){ // next guess
+
             Guess newGuess = guessRequestService.requestGuessAI(roomId, gameMeta, currentWord);
             taskScheduler.schedule(() ->
                 handleAIGuessSubmit(roomId, currentRound, currentWord, newGuess)
@@ -391,7 +392,7 @@ public class GuessFlowService {
         if(isWordGuessCompleted(currentWord)){
             taskScheduler.schedule(() ->handleBattleEnd(roomId, currentRound, currentWord), Instant.now().plusSeconds(1));
         } else {
-            processNextGuessRequest(roomId);
+            taskScheduler.schedule(() -> processNextGuessRequest(roomId), Instant.now().plusSeconds(2));
         }
     }
 
