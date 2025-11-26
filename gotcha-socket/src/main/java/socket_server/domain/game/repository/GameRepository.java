@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class GameRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
+    //todo: Lock 관련 코드 전면 수정
     private final RedissonClient redissonClient;
 
     public GameRepository(@Qualifier("socketStringRedisTemplate") RedisTemplate<String, String> redisTemplate, RedissonClient redissonClient) {
@@ -39,11 +40,11 @@ public class GameRepository {
      */
     public void saveGameMeta(GameMeta gameMeta) {
         String redisKey = getGameKey(gameMeta.getRoomId());   // Redis 해시 키
-        String lockKey = "lock:" + redisKey; // 락 키
-
-        RLock lock = redissonClient.getLock(lockKey);
-        try {
-            if (lock.tryLock(1, 5, TimeUnit.SECONDS)) { // 1초 기다리고, 5초 동안 유지
+//        String lockKey = "lock:" + redisKey; // 락 키
+//
+//        RLock lock = redissonClient.getLock(lockKey);
+//        try {
+//            if (lock.tryLock(1, 5, TimeUnit.SECONDS)) { // 1초 기다리고, 5초 동안 유지
                 Map<String, Object> gameData = Map.of(
                         "gameType", gameMeta.getGameType().name(),
                         "difficulty", gameMeta.getDifficulty().name(),
@@ -55,17 +56,17 @@ public class GameRepository {
                         "playerWon", String.valueOf(gameMeta.getPlayerWon())
                 );
                 redisTemplate.opsForHash().putAll(getGameKey(gameMeta.getRoomId()), gameData);
-            } else {
-                throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_ACQUISITION_FAILED);
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt(); //
-            throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_INTERRUPTED);
-        } finally {
-            if (lock.isHeldByCurrentThread()) {
-                lock.unlock();
-            }
-        }
+//            } else {
+//                throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_ACQUISITION_FAILED);
+//            }
+//        } catch (InterruptedException e) {
+//            Thread.currentThread().interrupt(); //
+//            throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_INTERRUPTED);
+//        } finally {
+//            if (lock.isHeldByCurrentThread()) {
+//                lock.unlock();
+//            }
+//        }
     }
 
     /**
@@ -73,22 +74,22 @@ public class GameRepository {
      */
     public Map<Object, Object> findGameMeta(String roomId) {
         String redisKey = getGameKey(roomId);
-        String lockKey = "lock:" + redisKey;
-        RLock lock = redissonClient.getLock(lockKey);
-        try {
-            if (lock.tryLock(1, 5, TimeUnit.SECONDS)) { // 1초 기다리고, 5초 동안 유지
+//        String lockKey = "lock:" + redisKey;
+//        RLock lock = redissonClient.getLock(lockKey);
+//        try {
+//            if (lock.tryLock(1, 5, TimeUnit.SECONDS)) { // 1초 기다리고, 5초 동안 유지
                 return redisTemplate.opsForHash().entries(redisKey);
-            } else {
-                throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_ACQUISITION_FAILED);
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt(); //
-            throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_INTERRUPTED);
-        } finally {
-            if (lock.isHeldByCurrentThread()) {
-                lock.unlock();
-            }
-        }
+//            } else {
+//                throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_ACQUISITION_FAILED);
+//            }
+//        } catch (InterruptedException e) {
+//            Thread.currentThread().interrupt(); //
+//            throw new SocketCustomException(ErrorType.GAME, GameExceptionCode.LOCK_INTERRUPTED);
+//        } finally {
+//            if (lock.isHeldByCurrentThread()) {
+//                lock.unlock();
+//            }
+//        }
     }
 
     public void deleteGameMeta(String roomId){
